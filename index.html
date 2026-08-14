@@ -217,6 +217,7 @@
       <div class="dash-stat-pill streak"><span class="dash-stat-icon">🔥</span><div><b id="dashStreakVal">0</b><span>day streak</span></div></div>
       <div class="dash-stat-pill xp"><span class="dash-stat-icon">⭐</span><div><b id="dashXpVal">0</b><span>XP earned</span></div></div>
     </div>
+    <div id="dash-preview-celebration-link" style="display:none;text-align:center;margin-bottom:14px"><span onclick="showCelebration(6,5)" style="color:var(--pine);cursor:pointer;font-weight:600;font-size:13.5px;text-decoration:underline">Preview the celebration moment →</span></div>
     <div class="nav-grid">
       <div class="nav-tile" onclick="openStatus()"><div class="icon">📍</div><div class="label">My Status</div></div>
       <div class="nav-tile" onclick="openDocuments()"><div class="icon">📄</div><div class="label">My Documents</div></div>
@@ -322,6 +323,11 @@ function browsePreview(){
   document.getElementById('signOutBtn').textContent='Exit preview';
   document.getElementById('dashGreeting').textContent='Browsing (not signed in)';
   showScreen('screen-dashboard');
+  // Sample numbers purely so the visual design can be reviewed before
+  // Twilio's set up — these are NOT real, nothing here is saved, and
+  // "Mark as Complete" still correctly requires real login either way.
+  renderDashStats({current_streak:5, total_xp:40});
+  document.getElementById('dash-preview-celebration-link').style.display='block';
 }
 
 function showScreen(id){
