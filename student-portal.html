@@ -86,6 +86,29 @@
   .coming-soon .icon{font-size:44px;margin-bottom:14px}
 
   .empty{text-align:center;padding:20px;color:var(--ink3);font-size:13px;font-style:italic}
+
+  /* Test Prep Hub */
+  .tp-test-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--rl);padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:var(--sh)}
+  .tp-test-card:active{transform:scale(.98)}
+  .tp-test-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .tp-test-name{font-family:var(--font-h);font-size:18px;font-weight:600;color:var(--pine)}
+  .tp-test-meta{font-size:11.5px;color:var(--ink3);margin-top:2px}
+  .tp-progress-track{width:100%;height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+  .tp-progress-fill{height:100%;background:var(--pine3);border-radius:99px}
+  .tp-subtab{background:none;border:none;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+  .tp-subtab.active{color:var(--pine);border-bottom-color:var(--pine)}
+  .tp-info-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+  .tp-info-card h4{font-size:13.5px;color:var(--pine);margin:0 0 4px}
+  .tp-info-card p{font-size:12.5px;color:var(--ink2);margin:0;line-height:1.55}
+  .tp-stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .tp-stat{background:var(--cream);border-radius:var(--r);padding:10px 14px;flex:1;min-width:100px;text-align:center}
+  .tp-stat b{display:block;font-family:var(--font-h);font-size:16px;color:var(--pine)}
+  .tp-stat span{font-size:10.5px;color:var(--ink3)}
+  .tp-fee-table{width:100%;border-collapse:collapse;font-size:12px}
+  .tp-fee-table td{padding:8px 6px;border-bottom:1px solid var(--line)}
+  .tp-module-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;background:var(--paper)}
+  .tp-module-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+  .tp-module-check.done{background:var(--sage);border-color:var(--sage);color:#fff}
 </style>
 </head>
 <body>
@@ -202,16 +225,29 @@
   <!-- TEST PREP (Phase 3 placeholder) -->
   <div class="screen" id="screen-testprep">
     <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
-    <div class="card coming-soon">
-      <div class="icon">🎓</div>
-      <h2 style="font-size:18px;color:var(--pine);margin-bottom:8px">Test Prep Hub — Coming Soon</h2>
-      <p style="font-size:13.5px;line-height:1.6">IELTS, TOEFL, PTE, and Duolingo study materials and mock tests are being prepared. You'll be notified the moment they're ready.</p>
+    <div id="tp-select-view">
+      <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">Test Prep Hub</h2>
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:16px">Choose a test to see fees, coaching, lessons, and mock tests.</p>
+      <div id="tp-test-grid"></div>
+    </div>
+    <div id="tp-detail-view" style="display:none">
+      <span class="back-link" onclick="closeTestDetail()">← All tests</span>
+      <h2 id="tp-detail-title" style="font-size:20px;color:var(--pine);margin-bottom:2px"></h2>
+      <div id="tp-progress-row" style="margin-bottom:16px"></div>
+      <div class="tp-subtabs" style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line);overflow-x:auto">
+        <button class="tp-subtab" data-sub="info" onclick="setTpSubtab('info')">General Info</button>
+        <button class="tp-subtab" data-sub="coaching" onclick="setTpSubtab('coaching')">Coaching</button>
+        <button class="tp-subtab" data-sub="lessons" onclick="setTpSubtab('lessons')">Lessons</button>
+        <button class="tp-subtab" data-sub="mocks" onclick="setTpSubtab('mocks')">Mock Tests</button>
+      </div>
+      <div id="tp-subtab-content"></div>
     </div>
   </div>
 
 </div>
 
 <script>
+
 /* ============================================================
    CONFIG — student portal's OWN project, separate from the CRM
    ============================================================ */
@@ -386,10 +422,170 @@ function triggerResumeUpload(){
 }
 
 /* ============================================================
-   TEST PREP (Phase 3 placeholder)
+   TEST PREP HUB
    ============================================================ */
+const TEST_DATA = {
+  IELTS: {
+    name: 'IELTS', ready: true,
+    stats: [['₹19,000','Test fee (India)'],['1-9','Band scale'],['2 yrs','Validity']],
+    info: {
+      why: [
+        ['🌍','Broadest Country Acceptance','Accepted for both university admission and visa applications across the UK, Australia, Canada, New Zealand, and increasingly the USA and Europe.'],
+        ['🗣️','Face-to-Face Speaking Test','Unlike AI-scored tests, IELTS Speaking is always a live interview with a certified examiner — a genuine advantage if you\\'re stronger in conversation than typing.'],
+        ['💻','Moving Fully to Computer','Paper-based IELTS is being phased out globally by 27 June 2026 — nearly all Indian test-takers are now on the faster-results computer-delivered format.'],
+      ],
+      sections: [
+        ['Listening','30 minutes','Four recorded sections — conversations and monologues covering everyday and academic contexts.'],
+        ['Reading','60 minutes','Academic: longer, complex passages from journals and books. General Training: shorter, practical texts.'],
+        ['Writing','60 minutes','Two tasks. Academic Task 1 describes visual data; General Training Task 1 is a letter. Task 2 is an essay for both.'],
+        ['Speaking','11-14 minutes','A live, face-to-face interview with a certified IELTS examiner.'],
+      ],
+      bands: [['UK (undergraduate)','6.0-6.5'],['UK (postgraduate)','6.5-7.0'],['Australia','6.0-6.5'],['Canada','6.0-6.5'],['New Zealand','6.0 (no band below 5.5)'],['Ireland','6.0-6.5']],
+      fees: [['IELTS Academic / General Training','₹19,000 (~$195 / £145)'],['IELTS for UKVI','₹19,250 (~$200 / £150)'],['IELTS Life Skills','₹18,000 (~$185 / £140)'],['Rescheduling fee','₹4,500 (~$45 / £35)'],['Score reports to universities','Free (up to 5 electronic TRFs)']],
+      mistakes: [
+        ['✍️','Writing Task 1 (Academic)','Summarise data fully and clearly — higher bands need complete coverage of the visual with relevant detail and the correct format.'],
+        ['📝','Writing Task 2','Give a clear opinion and support it with developed examples — higher bands require a fully developed, relevant response, not just correct grammar.'],
+        ['🎧','Listening','Practise with authentic IELTS-style recordings under timed conditions — the format is often more challenging than the content.'],
+      ],
+    },
+    coaching: [
+      ['📋','Matched to the Right Batch','We coordinate with our coaching partners to place you in a batch and schedule matched to your target band and test date.'],
+      ['✅','Mock Tests & Feedback','Full-length mock tests under timed conditions, with section-by-section feedback so you know exactly where to improve.'],
+      ['🎯','Tied to Your Actual Application','Your coaching plan factors in your target university and country, not just a generic band score target.'],
+    ],
+    modules: ['Listening','Reading','Writing','Speaking'],
+  },
+  PTE: {
+    name: 'PTE Academic', ready: false,
+    stats: [['₹18,900','Test fee (India)'],['10-90','Score scale'],['48 hrs','Fastest results']],
+    modules: ['Speaking & Writing','Reading','Listening'],
+  },
+  TOEFL: {
+    name: 'TOEFL iBT', ready: false,
+    stats: [['₹17,000-18,000','Test fee (India)'],['1-6','Band scale (since Jan 2026)'],['~85-90 min','Duration']],
+    modules: ['Reading','Listening','Speaking','Writing'],
+  },
+  Duolingo: {
+    name: 'Duolingo English Test', ready: false,
+    stats: [['~$70','Test fee'],['10-160','Score scale'],['48 hrs','Results turnaround']],
+    modules: ['Literacy','Comprehension','Conversation','Production'],
+  },
+};
+
+let currentTpTest = null;
+let tpProgressCache = {}; // { testKey: { moduleKey: true } }
+
 function openTestPrep(){
   showScreen('screen-testprep');
+  document.getElementById('tp-select-view').style.display='block';
+  document.getElementById('tp-detail-view').style.display='none';
+  renderTpGrid();
+}
+async function renderTpGrid(){
+  const el=document.getElementById('tp-test-grid');
+  el.innerHTML='<div class="empty">Loading…</div>';
+  await loadAllTpProgress();
+  el.innerHTML=Object.keys(TEST_DATA).map(key=>{
+    const t=TEST_DATA[key];
+    const pct=tpProgressPercent(key);
+    return `<div class="tp-test-card" onclick="openTestDetail('${key}')">
+      <div class="tp-test-card-top">
+        <div>
+          <div class="tp-test-name">${esc(t.name)}</div>
+          <div class="tp-test-meta">${t.stats.map(s=>s[0]).join(' · ')}</div>
+        </div>
+      </div>
+      <div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px">${pct}% complete</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAllTpProgress(){
+  if(!currentSession)return;
+  const{data}=await sb.from('student_test_progress').select('*').eq('student_id',currentSession.user.id);
+  tpProgressCache={};
+  (data||[]).forEach(row=>{
+    if(!tpProgressCache[row.test_type])tpProgressCache[row.test_type]={};
+    tpProgressCache[row.test_type][row.module_key]=true;
+  });
+}
+function tpProgressPercent(testKey){
+  const modules=TEST_DATA[testKey].modules;
+  const done=Object.keys(tpProgressCache[testKey]||{}).length;
+  return modules.length?Math.round((done/modules.length)*100):0;
+}
+
+function openTestDetail(testKey){
+  currentTpTest=testKey;
+  document.getElementById('tp-select-view').style.display='none';
+  document.getElementById('tp-detail-view').style.display='block';
+  document.getElementById('tp-detail-title').textContent=TEST_DATA[testKey].name;
+  const pct=tpProgressPercent(testKey);
+  document.getElementById('tp-progress-row').innerHTML=`<div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--ink3);margin-top:4px">${pct}% complete</div>`;
+  setTpSubtab('info');
+}
+function closeTestDetail(){
+  document.getElementById('tp-detail-view').style.display='none';
+  document.getElementById('tp-select-view').style.display='block';
+  renderTpGrid();
+}
+
+function setTpSubtab(sub){
+  document.querySelectorAll('.tp-subtab').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
+  const t=TEST_DATA[currentTpTest];
+  const el=document.getElementById('tp-subtab-content');
+
+  if(!t.ready && (sub==='info'||sub==='coaching')){
+    el.innerHTML=`<div class="tp-stat-row">${t.stats.map(s=>`<div class="tp-stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join('')}</div>
+      <div class="tp-info-card"><p>Full details for ${esc(t.name)} are being added next. Basic fee and scoring info shown above is accurate as of 2026.</p></div>`;
+    return;
+  }
+
+  if(sub==='info'){
+    const i=t.info;
+    el.innerHTML=`
+      <div class="tp-stat-row">${t.stats.map(s=>`<div class="tp-stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join('')}</div>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Why ${esc(t.name)}</h4>
+      ${i.why.map(w=>`<div class="tp-info-card"><h4>${w[0]} ${esc(w[1])}</h4><p>${esc(w[2])}</p></div>`).join('')}
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">The Sections</h4>
+      ${i.sections.map(s=>`<div class="tp-info-card"><h4>${esc(s[0])} <span style="color:var(--ink3);font-weight:400">— ${esc(s[1])}</span></h4><p>${esc(s[2])}</p></div>`).join('')}
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Typical Score Requirements</h4>
+      <table class="tp-fee-table">${i.bands.map(b=>`<tr><td>${esc(b[0])}</td><td style="text-align:right;font-weight:600">${esc(b[1])}</td></tr>`).join('')}</table>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Fees (2026)</h4>
+      <table class="tp-fee-table">${i.fees.map(f=>`<tr><td>${esc(f[0])}</td><td style="text-align:right;font-weight:600">${esc(f[1])}</td></tr>`).join('')}</table>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Where Students Lose Marks</h4>
+      ${i.mistakes.map(m=>`<div class="tp-info-card"><h4>${m[0]} ${esc(m[1])}</h4><p>${esc(m[2])}</p></div>`).join('')}
+    `;
+  } else if(sub==='coaching'){
+    el.innerHTML=t.coaching.map(c=>`<div class="tp-info-card"><h4>${c[0]} ${esc(c[1])}</h4><p>${esc(c[2])}</p></div>`).join('')+
+      `<div class="tp-info-card" style="text-align:center"><p style="margin-bottom:8px">Interested in structured coaching?</p><a href="https://wa.me/919159158881" target="_blank" style="color:var(--pine);font-weight:600;text-decoration:underline">Chat on WhatsApp</a></div>`;
+  } else if(sub==='lessons'){
+    el.innerHTML=t.modules.map(m=>{
+      const done=!!(tpProgressCache[currentTpTest]||{})[m];
+      return `<div class="tp-module-row">
+        <div class="tp-module-check ${done?'done':''}" onclick="toggleModuleComplete('${currentTpTest}','${esc(m).replace(/'/g,"\\'")}')">${done?'✓':''}</div>
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(m)}</div><div style="font-size:11.5px;color:var(--ink3)">Lesson content coming soon</div></div>
+      </div>`;
+    }).join('');
+  } else if(sub==='mocks'){
+    el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
+  }
+}
+
+async function toggleModuleComplete(testKey,moduleKey){
+  const isDone=!!(tpProgressCache[testKey]||{})[moduleKey];
+  if(isDone){
+    await sb.from('student_test_progress').delete().eq('student_id',currentSession.user.id).eq('test_type',testKey).eq('module_key',moduleKey);
+    if(tpProgressCache[testKey])delete tpProgressCache[testKey][moduleKey];
+  } else {
+    await sb.from('student_test_progress').insert({student_id:currentSession.user.id,test_type:testKey,module_key:moduleKey});
+    if(!tpProgressCache[testKey])tpProgressCache[testKey]={};
+    tpProgressCache[testKey][moduleKey]=true;
+  }
+  const pct=tpProgressPercent(testKey);
+  document.getElementById('tp-progress-row').innerHTML=`<div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--ink3);margin-top:4px">${pct}% complete</div>`;
+  setTpSubtab('lessons');
 }
 
 /* ============================================================
