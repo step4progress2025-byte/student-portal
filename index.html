@@ -481,41 +481,54 @@ const TEST_DATA = {
       ['🎯','Tied to Your Actual Application','Your coaching plan factors in your target university and country, not just a generic band score target.'],
     ],
     modules: ['Listening','Reading','Writing','Speaking'],
-    lessons: {
-      Listening: [
-        {
-          id: 'l1', title: 'Understanding the Test & Core Strategy', time: '15-20 minutes',
-          objectives: ['Know the exact structure of the IELTS Listening test (4 sections, timing, format)', 'Understand why the audio is only played once, and what that means for how you listen', 'Learn the "preview and predict" strategy used by high-scoring candidates'],
-          concept: 'IELTS Listening has 4 sections, about 30 minutes total, played through headphones or speakers only once — there\'s no replay. Difficulty increases as you go: Section 1 is usually an everyday conversation (like booking something), Section 4 is typically an academic lecture with more complex vocabulary.<br><br>The test isn\'t really checking whether you understood everything — it\'s checking whether you can find specific information under time pressure, while a recording keeps moving forward regardless of whether you\'re ready. That distinction changes how you should prepare.',
-          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Imagine a question set asks: <b>"The gym membership costs £___ per month."</b><br><br>Before the audio even starts, a strong candidate does this:<br>1. <b>Reads the question first</b> — notices it needs a number, and the word "per month" — so a price mentioned for a yearly membership would be a distractor, not the answer.<br>2. <b>Predicts the type of word needed</b> — a number, likely with a £ sign already given.<br>3. <b>While listening</b>, ignores irrelevant details and listens specifically for a price tied to "per month."<br><br>A common trap: the speaker might say <i>"It\'s £45 a month, though if you pay yearly it works out to £480"</i> — a rushed listener who didn\'t preview the question might grab "£480" since it\'s mentioned second and sounds more "final."',
-          vocab: [['receptionist','the person answering at a front desk'],['appointment / booking','a scheduled time for something'],['confirm','to state something is definitely correct'],['reschedule','to change a booking to a different time'],['membership','being signed up as a member of something']],
-          mistakes: ['Writing more words than the limit allows — instructions like "NO MORE THAN TWO WORDS" mean a 3-word answer is wrong even if correct in content.', 'Getting stuck on one question — the audio doesn\'t wait, so a missed answer should be left, not chased.', 'Not checking spelling — correct information spelled wrong is marked wrong.', 'Trusting the first number/detail heard — speakers often correct themselves or mention a distractor before the real answer.'],
-          practice: 'Read this short exchange, then answer the question:<br><br><i>Staff: "So the standard course is 8 weeks, but we\'re also running an intensive version — that one\'s 6 weeks, meets more often though."<br>Student: "I think I\'d prefer the standard one, actually."</i><br><br><b>Question:</b> How many weeks is the course the student is likely to choose?',
-          practiceAnswer: '8 weeks — the "intensive" 6-week option is a distractor; the student states a preference for "the standard one."',
-          quiz: [
-            {q:'How many times is the Listening audio played?', a:'Once.'},
-            {q:'True or False: Section 4 is usually easier than Section 1.', a:'False — difficulty increases through the test.'},
-            {q:'If instructions say "NO MORE THAN TWO WORDS," is "the local library" acceptable?', a:'No — three words exceeds the two-word limit.'},
-          ],
-        },
-      ],
-      Reading: [], Writing: [], Speaking: [],
-    },
+    // "Getting Started" — applies to everyone regardless of level, so it
+    // sits above the leveled content rather than inside any one level.
+    gettingStarted: [
+      {
+        id: 'gs1', title: 'Understanding the Test & Core Strategy', time: '15-20 minutes',
+        objectives: ['Know the exact structure of the IELTS Listening test (4 sections, timing, format)', 'Understand why the audio is only played once, and what that means for how you listen', 'Learn the "preview and predict" strategy used by high-scoring candidates'],
+        concept: 'IELTS Listening has 4 sections, about 30 minutes total, played through headphones or speakers only once — there\'s no replay. Difficulty increases as you go: Section 1 is usually an everyday conversation (like booking something), Section 4 is typically an academic lecture with more complex vocabulary.<br><br>The test isn\'t really checking whether you understood everything — it\'s checking whether you can find specific information under time pressure, while a recording keeps moving forward regardless of whether you\'re ready. That distinction changes how you should prepare.',
+        example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Imagine a question set asks: <b>"The gym membership costs £___ per month."</b><br><br>Before the audio even starts, a strong candidate does this:<br>1. <b>Reads the question first</b> — notices it needs a number, and the word "per month" — so a price mentioned for a yearly membership would be a distractor, not the answer.<br>2. <b>Predicts the type of word needed</b> — a number, likely with a £ sign already given.<br>3. <b>While listening</b>, ignores irrelevant details and listens specifically for a price tied to "per month."<br><br>A common trap: the speaker might say <i>"It\'s £45 a month, though if you pay yearly it works out to £480"</i> — a rushed listener who didn\'t preview the question might grab "£480" since it\'s mentioned second and sounds more "final."',
+        vocab: [['receptionist','the person answering at a front desk'],['appointment / booking','a scheduled time for something'],['confirm','to state something is definitely correct'],['reschedule','to change a booking to a different time'],['membership','being signed up as a member of something']],
+        mistakes: ['Writing more words than the limit allows — instructions like "NO MORE THAN TWO WORDS" mean a 3-word answer is wrong even if correct in content.', 'Getting stuck on one question — the audio doesn\'t wait, so a missed answer should be left, not chased.', 'Not checking spelling — correct information spelled wrong is marked wrong.', 'Trusting the first number/detail heard — speakers often correct themselves or mention a distractor before the real answer.'],
+        practice: 'Read this short exchange, then answer the question:<br><br><i>Staff: "So the standard course is 8 weeks, but we\'re also running an intensive version — that one\'s 6 weeks, meets more often though."<br>Student: "I think I\'d prefer the standard one, actually."</i><br><br><b>Question:</b> How many weeks is the course the student is likely to choose?',
+        practiceAnswer: '8 weeks — the "intensive" 6-week option is a distractor; the student states a preference for "the standard one."',
+        quiz: [
+          {q:'How many times is the Listening audio played?', a:'Once.'},
+          {q:'True or False: Section 4 is usually easier than Section 1.', a:'False — difficulty increases through the test.'},
+          {q:'If instructions say "NO MORE THAN TWO WORDS," is "the local library" acceptable?', a:'No — three words exceeds the two-word limit.'},
+        ],
+      },
+    ],
+    // Level-first structure — a level is the main container, all 4
+    // skills sit inside it. Band ranges tied directly to the real
+    // requirements already shown in the General Info tab, so this feels
+    // connected to something students actually care about, not arbitrary
+    // "Level 1/2/3/4" labels.
+    levels: [
+      { key:'foundation', name:'Foundation', band:'Band 4.0–4.5', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
+      { key:'developing', name:'Developing', band:'Band 5.0–5.5', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
+      { key:'intermediate', name:'Intermediate', band:'Band 6.0–6.5', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
+      { key:'advanced', name:'Advanced', band:'Band 7.0+', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
+    ],
   },
   PTE: {
     name: 'PTE Academic', ready: false,
     stats: [['₹18,900','Test fee (India)'],['10-90','Score scale'],['48 hrs','Fastest results']],
     modules: ['Speaking & Writing','Reading','Listening'],
+    gettingStarted: [], levels: [],
   },
   TOEFL: {
     name: 'TOEFL iBT', ready: false,
     stats: [['₹17,000-18,000','Test fee (India)'],['1-6','Band scale (since Jan 2026)'],['~85-90 min','Duration']],
     modules: ['Reading','Listening','Speaking','Writing'],
+    gettingStarted: [], levels: [],
   },
   Duolingo: {
     name: 'Duolingo English Test', ready: false,
     stats: [['~$70','Test fee'],['10-160','Score scale'],['48 hrs','Results turnaround']],
     modules: ['Literacy','Comprehension','Conversation','Production'],
+    gettingStarted: [], levels: [],
   },
 };
 
@@ -558,12 +571,13 @@ async function loadAllTpProgress(){
   });
 }
 function tpProgressPercent(testKey){
-  // Counts against LESSONS that actually exist, not modules — a module
-  // with no lessons published yet shouldn't count as "0% of something
-  // uncompletable." As more lessons get added, the denominator grows
-  // naturally rather than needing a manual update each time.
-  const lessonsByModule=TEST_DATA[testKey].lessons||{};
-  const allLessonIds=Object.values(lessonsByModule).flat().map(l=>l.id);
+  // Counts against LESSONS that actually exist across Getting Started +
+  // every level/skill, not modules — grows naturally as content is
+  // added, no manual recalculation needed each time.
+  const t=TEST_DATA[testKey];
+  const gsIds=(t.gettingStarted||[]).map(l=>l.id);
+  const levelIds=(t.levels||[]).flatMap(lvl=>Object.values(lvl.skills).flat().map(l=>l.id));
+  const allLessonIds=[...gsIds,...levelIds];
   if(!allLessonIds.length)return 0;
   const done=allLessonIds.filter(id=>(tpProgressCache[testKey]||{})[id]).length;
   return Math.round((done/allLessonIds.length)*100);
@@ -614,37 +628,90 @@ function setTpSubtab(sub){
     el.innerHTML=t.coaching.map(c=>`<div class="tp-info-card"><h4>${c[0]} ${esc(c[1])}</h4><p>${esc(c[2])}</p></div>`).join('')+
       `<div class="tp-info-card" style="text-align:center"><p style="margin-bottom:8px">Interested in structured coaching?</p><a href="https://wa.me/919159158881" target="_blank" style="color:var(--pine);font-weight:600;text-decoration:underline">Chat on WhatsApp</a></div>`;
   } else if(sub==='lessons'){
-    const lessonsByModule=t.lessons||{};
-    el.innerHTML=t.modules.map(m=>{
-      const moduleLessons=lessonsByModule[m]||[];
-      if(!moduleLessons.length){
-        return `<div class="tp-module-row" style="opacity:.6"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(m)}</div><div style="font-size:11.5px;color:var(--ink3)">Lessons coming soon</div></div></div>`;
-      }
-      return `<div style="margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:var(--pine);margin-bottom:6px">${esc(m)}</div>
-        ${moduleLessons.map(l=>{
-          const done=!!(tpProgressCache[currentTpTest]||{})[l.id];
-          return `<div class="tp-module-row" onclick="openLessonView('${currentTpTest}','${esc(m)}','${l.id}')" style="cursor:pointer">
-            <div class="tp-module-check ${done?'done':''}">${done?'✓':''}</div>
-            <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(l.title)}</div><div style="font-size:11px;color:var(--ink3)">${esc(l.time)}</div></div>
-            <div style="color:var(--ink3);font-size:16px">›</div>
-          </div>`;
-        }).join('')}
-      </div>`;
-    }).join('');
+    renderLessonsRoot();
   } else if(sub==='mocks'){
     el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
   }
 }
 
-function openLessonView(testKey,moduleKey,lessonId){
-  const lesson=(TEST_DATA[testKey].lessons[moduleKey]||[]).find(l=>l.id===lessonId);
+// ── Lessons: Getting Started + Level → Skill → Lesson navigation ────
+let currentTpLevel=null; // level key while browsing within a level
+function lessonRow(l,onclickCall){
+  const done=!!(tpProgressCache[currentTpTest]||{})[l.id];
+  return `<div class="tp-module-row" onclick="${onclickCall}" style="cursor:pointer">
+    <div class="tp-module-check ${done?'done':''}">${done?'✓':''}</div>
+    <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(l.title)}</div><div style="font-size:11px;color:var(--ink3)">${esc(l.time)}</div></div>
+    <div style="color:var(--ink3);font-size:16px">›</div>
+  </div>`;
+}
+function renderLessonsRoot(){
+  const t=TEST_DATA[currentTpTest];
+  const el=document.getElementById('tp-subtab-content');
+  const gs=t.gettingStarted||[];
+  const levels=t.levels||[];
+
+  let html='';
+  if(gs.length){
+    html+=`<div style="font-size:13px;font-weight:700;color:var(--pine);margin-bottom:6px">✦ Getting Started</div>`;
+    html+=gs.map(l=>lessonRow(l,`openLessonView('gs','${l.id}')`)).join('');
+    html+=`<div style="height:18px"></div>`;
+  }
+  if(!levels.length){
+    html+=`<div class="tp-info-card"><p>Levels for ${esc(t.name)} are being added next.</p></div>`;
+  } else {
+    html+=`<div style="font-size:13px;font-weight:700;color:var(--pine);margin-bottom:6px">Levels</div>`;
+    html+=levels.map(lvl=>{
+      const totalLessons=Object.values(lvl.skills).flat().length;
+      return `<div class="tp-module-row" onclick="openLevelView('${lvl.key}')" style="cursor:pointer;${totalLessons?'':'opacity:.6'}">
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(lvl.name)}</div><div style="font-size:11px;color:var(--ink3)">${esc(lvl.band)} · ${totalLessons?totalLessons+' lesson'+(totalLessons===1?'':'s'):'Coming soon'}</div></div>
+        <div style="color:var(--ink3);font-size:16px">›</div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML=html;
+}
+function openLevelView(levelKey){
+  currentTpLevel=levelKey;
+  const t=TEST_DATA[currentTpTest];
+  const lvl=t.levels.find(l=>l.key===levelKey);
+  const el=document.getElementById('tp-subtab-content');
+  el.innerHTML=`
+    <span class="back-link" onclick="renderLessonsRoot()">← All levels</span>
+    <div style="font-family:var(--font-h);font-size:16px;font-weight:600;color:var(--pine);margin-bottom:2px">${esc(lvl.name)}</div>
+    <div style="font-size:11.5px;color:var(--ink3);margin-bottom:14px">${esc(lvl.band)}</div>
+    ${t.modules.map(skill=>{
+      const skillLessons=lvl.skills[skill]||[];
+      if(!skillLessons.length){
+        return `<div class="tp-module-row" style="opacity:.6"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(skill)}</div><div style="font-size:11px;color:var(--ink3)">Coming soon</div></div></div>`;
+      }
+      return `<div style="margin-bottom:14px">
+        <div style="font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:4px">${esc(skill)}</div>
+        ${skillLessons.map(l=>lessonRow(l,`openLessonView('level','${levelKey}','${esc(skill)}','${l.id}')`)).join('')}
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function openLessonView(source,arg1,arg2,arg3){
+  let lesson;
+  const t=TEST_DATA[currentTpTest];
+  if(source==='gs'){
+    currentTpLevel=null; // Getting Started lessons aren't nested under any level
+    lesson=(t.gettingStarted||[]).find(l=>l.id===arg1);
+  } else {
+    const levelKey=arg1, skill=arg2, lessonId=arg3;
+    currentTpLevel=levelKey;
+    const lvl=t.levels.find(l=>l.key===levelKey);
+    lesson=lvl?.skills[skill]?.find(l=>l.id===lessonId);
+  }
   if(!lesson)return;
+  openLessonDetail(lesson,source,arg1,arg2);
+}
+function openLessonDetail(lesson,source,arg1,arg2){
   document.getElementById('tp-subtab-content').parentElement.style.display='none';
   const lv=document.getElementById('tp-lesson-view');
   lv.style.display='block';
-  lv.dataset.testKey=testKey; lv.dataset.lessonId=lessonId;
-  const done=!!(tpProgressCache[testKey]||{})[lessonId];
+  const done=!!(tpProgressCache[currentTpTest]||{})[lesson.id];
 
   document.getElementById('tp-lesson-content').innerHTML=`
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:2px">${esc(lesson.title)}</h2>
@@ -677,37 +744,33 @@ function openLessonView(testKey,moduleKey,lessonId){
       <details><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:12.5px">Show answer</summary><p style="margin-top:6px">${esc(q.a)}</p></details>
     </div>`).join('')}
 
-    <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${testKey}','${lessonId}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
+    <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${lesson.id}','${source}','${arg1||''}','${arg2||''}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
   `;
 }
 function closeLessonView(){
   document.getElementById('tp-lesson-view').style.display='none';
   document.getElementById('tp-subtab-content').parentElement.style.display='block';
-  setTpSubtab('lessons');
+  if(currentTpLevel) openLevelView(currentTpLevel);
+  else renderLessonsRoot();
 }
 
-async function toggleModuleComplete(testKey,moduleKey){
+async function toggleModuleComplete(lessonId,source,arg1,arg2){
   if(!requireRealLogin())return;
-  const isDone=!!(tpProgressCache[testKey]||{})[moduleKey];
+  const testKey=currentTpTest;
+  const isDone=!!(tpProgressCache[testKey]||{})[lessonId];
   if(isDone){
-    await sb.from('student_test_progress').delete().eq('student_id',currentSession.user.id).eq('test_type',testKey).eq('module_key',moduleKey);
-    if(tpProgressCache[testKey])delete tpProgressCache[testKey][moduleKey];
+    await sb.from('student_test_progress').delete().eq('student_id',currentSession.user.id).eq('test_type',testKey).eq('module_key',lessonId);
+    if(tpProgressCache[testKey])delete tpProgressCache[testKey][lessonId];
   } else {
-    await sb.from('student_test_progress').insert({student_id:currentSession.user.id,test_type:testKey,module_key:moduleKey});
+    await sb.from('student_test_progress').insert({student_id:currentSession.user.id,test_type:testKey,module_key:lessonId});
     if(!tpProgressCache[testKey])tpProgressCache[testKey]={};
-    tpProgressCache[testKey][moduleKey]=true;
+    tpProgressCache[testKey][lessonId]=true;
   }
   const pct=tpProgressPercent(testKey);
   document.getElementById('tp-progress-row').innerHTML=`<div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--ink3);margin-top:4px">${pct}% complete</div>`;
-  // Stay on whichever view triggered this — the lesson detail view (if
-  // that's where "Mark as Complete" was clicked) shouldn't get yanked
-  // back to the list, it should just reflect the new state in place.
-  const lessonViewOpen=document.getElementById('tp-lesson-view').style.display!=='none';
-  if(lessonViewOpen){
-    openLessonView(testKey,Object.keys(TEST_DATA[testKey].lessons).find(m=>(TEST_DATA[testKey].lessons[m]||[]).some(l=>l.id===moduleKey)),moduleKey);
-  } else {
-    setTpSubtab('lessons');
-  }
+  // Re-open the same lesson in place, rather than bouncing back to a
+  // list — "Mark as Complete" should feel like a toggle, not a navigation.
+  openLessonView(source,arg1,arg2,lessonId);
 }
 
 /* ============================================================
