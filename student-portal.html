@@ -142,6 +142,7 @@
       </div>
       <button class="btn" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
       <div class="err" id="phoneErr" style="display:none"></div>
+      <div class="hint" style="margin-top:14px"><span onclick="browsePreview()" style="color:var(--pine);cursor:pointer;font-weight:600;text-decoration:underline">Just browse Test Prep content for now →</span></div>
     </div>
   </div>
 
@@ -242,6 +243,10 @@
       </div>
       <div id="tp-subtab-content"></div>
     </div>
+    <div id="tp-lesson-view" style="display:none">
+      <span class="back-link" onclick="closeLessonView()">← Back to Lessons</span>
+      <div id="tp-lesson-content"></div>
+    </div>
   </div>
 
 </div>
@@ -262,6 +267,15 @@ const DEFAULT_DOCS = ['Passport Copy','Academic Transcripts','English Test Score
 
 let currentSession=null;
 let pendingPhone=null; // full E.164 number, set after sendOtp, used by verifyOtp
+let isPreviewMode=false; // true when browsing without a real login — read-only, no saving
+
+function browsePreview(){
+  isPreviewMode=true;
+  document.getElementById('signOutBtn').style.display='inline';
+  document.getElementById('signOutBtn').textContent='Exit preview';
+  document.getElementById('dashGreeting').textContent='Browsing (not signed in)';
+  showScreen('screen-dashboard');
+}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -331,16 +345,28 @@ async function saveName(){
 }
 
 async function signOut(){
-  await sb.auth.signOut();
+  if(!isPreviewMode) await sb.auth.signOut();
   currentSession=null;
+  isPreviewMode=false;
   document.getElementById('signOutBtn').style.display='none';
+  document.getElementById('signOutBtn').textContent='Sign out';
   showScreen('screen-phone');
+}
+// Every place that saves something (progress, documents) checks this
+// first — preview mode is read-only browsing, not a fake account.
+function requireRealLogin(){
+  if(isPreviewMode){
+    alert('Sign in with your phone number to save progress, upload documents, or check your status — preview mode is browse-only.');
+    return false;
+  }
+  return true;
 }
 
 /* ============================================================
    STATUS
    ============================================================ */
 async function openStatus(){
+  if(!requireRealLogin())return;
   showScreen('screen-status');
   const el=document.getElementById('statusContent');
   el.innerHTML='<div class="empty">Loading…</div>';
@@ -384,6 +410,7 @@ function triggerDocUpload(docName){
   document.getElementById('docFileInput').click();
 }
 async function handleDocFileSelected(file){
+  if(!requireRealLogin())return;
   if(!file||!docUploadTarget)return;
   await uploadAndSync(docUploadTarget,file);
 }
@@ -454,6 +481,26 @@ const TEST_DATA = {
       ['🎯','Tied to Your Actual Application','Your coaching plan factors in your target university and country, not just a generic band score target.'],
     ],
     modules: ['Listening','Reading','Writing','Speaking'],
+    lessons: {
+      Listening: [
+        {
+          id: 'l1', title: 'Understanding the Test & Core Strategy', time: '15-20 minutes',
+          objectives: ['Know the exact structure of the IELTS Listening test (4 sections, timing, format)', 'Understand why the audio is only played once, and what that means for how you listen', 'Learn the "preview and predict" strategy used by high-scoring candidates'],
+          concept: 'IELTS Listening has 4 sections, about 30 minutes total, played through headphones or speakers only once — there\\'s no replay. Difficulty increases as you go: Section 1 is usually an everyday conversation (like booking something), Section 4 is typically an academic lecture with more complex vocabulary.<br><br>The test isn\\'t really checking whether you understood everything — it\\'s checking whether you can find specific information under time pressure, while a recording keeps moving forward regardless of whether you\\'re ready. That distinction changes how you should prepare.',
+          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Imagine a question set asks: <b>"The gym membership costs £___ per month."</b><br><br>Before the audio even starts, a strong candidate does this:<br>1. <b>Reads the question first</b> — notices it needs a number, and the word "per month" — so a price mentioned for a yearly membership would be a distractor, not the answer.<br>2. <b>Predicts the type of word needed</b> — a number, likely with a £ sign already given.<br>3. <b>While listening</b>, ignores irrelevant details and listens specifically for a price tied to "per month."<br><br>A common trap: the speaker might say <i>"It\\'s £45 a month, though if you pay yearly it works out to £480"</i> — a rushed listener who didn\\'t preview the question might grab "£480" since it\\'s mentioned second and sounds more "final."',
+          vocab: [['receptionist','the person answering at a front desk'],['appointment / booking','a scheduled time for something'],['confirm','to state something is definitely correct'],['reschedule','to change a booking to a different time'],['membership','being signed up as a member of something']],
+          mistakes: ['Writing more words than the limit allows — instructions like "NO MORE THAN TWO WORDS" mean a 3-word answer is wrong even if correct in content.', 'Getting stuck on one question — the audio doesn\\'t wait, so a missed answer should be left, not chased.', 'Not checking spelling — correct information spelled wrong is marked wrong.', 'Trusting the first number/detail heard — speakers often correct themselves or mention a distractor before the real answer.'],
+          practice: 'Read this short exchange, then answer the question:<br><br><i>Staff: "So the standard course is 8 weeks, but we\\'re also running an intensive version — that one\\'s 6 weeks, meets more often though."<br>Student: "I think I\\'d prefer the standard one, actually."</i><br><br><b>Question:</b> How many weeks is the course the student is likely to choose?',
+          practiceAnswer: '8 weeks — the "intensive" 6-week option is a distractor; the student states a preference for "the standard one."',
+          quiz: [
+            {q:'How many times is the Listening audio played?', a:'Once.'},
+            {q:'True or False: Section 4 is usually easier than Section 1.', a:'False — difficulty increases through the test.'},
+            {q:'If instructions say "NO MORE THAN TWO WORDS," is "the local library" acceptable?', a:'No — three words exceeds the two-word limit.'},
+          ],
+        },
+      ],
+      Reading: [], Writing: [], Speaking: [],
+    },
   },
   PTE: {
     name: 'PTE Academic', ready: false,
@@ -511,9 +558,15 @@ async function loadAllTpProgress(){
   });
 }
 function tpProgressPercent(testKey){
-  const modules=TEST_DATA[testKey].modules;
-  const done=Object.keys(tpProgressCache[testKey]||{}).length;
-  return modules.length?Math.round((done/modules.length)*100):0;
+  // Counts against LESSONS that actually exist, not modules — a module
+  // with no lessons published yet shouldn't count as "0% of something
+  // uncompletable." As more lessons get added, the denominator grows
+  // naturally rather than needing a manual update each time.
+  const lessonsByModule=TEST_DATA[testKey].lessons||{};
+  const allLessonIds=Object.values(lessonsByModule).flat().map(l=>l.id);
+  if(!allLessonIds.length)return 0;
+  const done=allLessonIds.filter(id=>(tpProgressCache[testKey]||{})[id]).length;
+  return Math.round((done/allLessonIds.length)*100);
 }
 
 function openTestDetail(testKey){
@@ -561,11 +614,22 @@ function setTpSubtab(sub){
     el.innerHTML=t.coaching.map(c=>`<div class="tp-info-card"><h4>${c[0]} ${esc(c[1])}</h4><p>${esc(c[2])}</p></div>`).join('')+
       `<div class="tp-info-card" style="text-align:center"><p style="margin-bottom:8px">Interested in structured coaching?</p><a href="https://wa.me/919159158881" target="_blank" style="color:var(--pine);font-weight:600;text-decoration:underline">Chat on WhatsApp</a></div>`;
   } else if(sub==='lessons'){
+    const lessonsByModule=t.lessons||{};
     el.innerHTML=t.modules.map(m=>{
-      const done=!!(tpProgressCache[currentTpTest]||{})[m];
-      return `<div class="tp-module-row">
-        <div class="tp-module-check ${done?'done':''}" onclick="toggleModuleComplete('${currentTpTest}','${esc(m).replace(/'/g,"\\'")}')">${done?'✓':''}</div>
-        <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(m)}</div><div style="font-size:11.5px;color:var(--ink3)">Lesson content coming soon</div></div>
+      const moduleLessons=lessonsByModule[m]||[];
+      if(!moduleLessons.length){
+        return `<div class="tp-module-row" style="opacity:.6"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(m)}</div><div style="font-size:11.5px;color:var(--ink3)">Lessons coming soon</div></div></div>`;
+      }
+      return `<div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--pine);margin-bottom:6px">${esc(m)}</div>
+        ${moduleLessons.map(l=>{
+          const done=!!(tpProgressCache[currentTpTest]||{})[l.id];
+          return `<div class="tp-module-row" onclick="openLessonView('${currentTpTest}','${esc(m)}','${l.id}')" style="cursor:pointer">
+            <div class="tp-module-check ${done?'done':''}">${done?'✓':''}</div>
+            <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${esc(l.title)}</div><div style="font-size:11px;color:var(--ink3)">${esc(l.time)}</div></div>
+            <div style="color:var(--ink3);font-size:16px">›</div>
+          </div>`;
+        }).join('')}
       </div>`;
     }).join('');
   } else if(sub==='mocks'){
@@ -573,7 +637,57 @@ function setTpSubtab(sub){
   }
 }
 
+function openLessonView(testKey,moduleKey,lessonId){
+  const lesson=(TEST_DATA[testKey].lessons[moduleKey]||[]).find(l=>l.id===lessonId);
+  if(!lesson)return;
+  document.getElementById('tp-subtab-content').parentElement.style.display='none';
+  const lv=document.getElementById('tp-lesson-view');
+  lv.style.display='block';
+  lv.dataset.testKey=testKey; lv.dataset.lessonId=lessonId;
+  const done=!!(tpProgressCache[testKey]||{})[lessonId];
+
+  document.getElementById('tp-lesson-content').innerHTML=`
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:2px">${esc(lesson.title)}</h2>
+    <div style="font-size:11.5px;color:var(--ink3);margin-bottom:16px">⏱ ${esc(lesson.time)}</div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:0 0 8px">Learning Objectives</h4>
+    <div class="tp-info-card"><p>${lesson.objectives.map(esc).join('<br>• ').replace(/^/,'• ')}</p></div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Concept</h4>
+    <div class="tp-info-card"><p>${lesson.concept}</p></div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Worked Example</h4>
+    <div class="tp-info-card"><p>${lesson.example}</p></div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Vocabulary Builder</h4>
+    <div class="tp-info-card"><table class="tp-fee-table">${lesson.vocab.map(v=>`<tr><td style="font-weight:600;width:40%">${esc(v[0])}</td><td>${esc(v[1])}</td></tr>`).join('')}</table></div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Common Mistakes</h4>
+    <div class="tp-info-card"><p>${lesson.mistakes.map(esc).join('<br><br>')}</p></div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Practice Exercise</h4>
+    <div class="tp-info-card">
+      <p>${lesson.practice}</p>
+      <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:12.5px">Show answer</summary><p style="margin-top:6px">${esc(lesson.practiceAnswer)}</p></details>
+    </div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Knowledge Check</h4>
+    ${lesson.quiz.map(q=>`<div class="tp-info-card">
+      <p style="font-weight:600;margin-bottom:6px">${esc(q.q)}</p>
+      <details><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:12.5px">Show answer</summary><p style="margin-top:6px">${esc(q.a)}</p></details>
+    </div>`).join('')}
+
+    <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${testKey}','${lessonId}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
+  `;
+}
+function closeLessonView(){
+  document.getElementById('tp-lesson-view').style.display='none';
+  document.getElementById('tp-subtab-content').parentElement.style.display='block';
+  setTpSubtab('lessons');
+}
+
 async function toggleModuleComplete(testKey,moduleKey){
+  if(!requireRealLogin())return;
   const isDone=!!(tpProgressCache[testKey]||{})[moduleKey];
   if(isDone){
     await sb.from('student_test_progress').delete().eq('student_id',currentSession.user.id).eq('test_type',testKey).eq('module_key',moduleKey);
@@ -585,7 +699,15 @@ async function toggleModuleComplete(testKey,moduleKey){
   }
   const pct=tpProgressPercent(testKey);
   document.getElementById('tp-progress-row').innerHTML=`<div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--ink3);margin-top:4px">${pct}% complete</div>`;
-  setTpSubtab('lessons');
+  // Stay on whichever view triggered this — the lesson detail view (if
+  // that's where "Mark as Complete" was clicked) shouldn't get yanked
+  // back to the list, it should just reflect the new state in place.
+  const lessonViewOpen=document.getElementById('tp-lesson-view').style.display!=='none';
+  if(lessonViewOpen){
+    openLessonView(testKey,Object.keys(TEST_DATA[testKey].lessons).find(m=>(TEST_DATA[testKey].lessons[m]||[]).some(l=>l.id===moduleKey)),moduleKey);
+  } else {
+    setTpSubtab('lessons');
+  }
 }
 
 /* ============================================================
