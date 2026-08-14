@@ -16,7 +16,7 @@ const PRECACHE = [
 const NETWORK_ONLY = ['supabase.co'];
 
 function isNavigationOrHTML(request) {
-  return request.mode === 'navigate' || request.url.endsWith('/student-portal/') || request.url.endsWith('student-portal.html');
+  return request.mode === 'navigate' || request.url.endsWith('/student-portal/') || request.url.endsWith('index.html');
 }
 
 self.addEventListener('install', (event) => {
@@ -60,7 +60,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request).then((c) => c || caches.match('/student-portal/student-portal.html')))
+        .catch(() => caches.match(event.request).then((c) => c || caches.match('/student-portal/index.html')))
     );
     return;
   }
@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
         return response;
       }).catch(() => {
         if (event.request.mode === 'navigate') {
-          return caches.match('/student-portal/') || caches.match('/student-portal/student-portal.html');
+          return caches.match('/student-portal/') || caches.match('/student-portal/index.html');
         }
       });
     })
