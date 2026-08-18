@@ -1023,7 +1023,7 @@ function openLevelView(levelKey){
 }
 
 function openLessonView(source,arg1,arg2,arg3){
-  let lesson;
+  let lesson,skillContext=null;
   const t=TEST_DATA[currentTpTest];
   if(source==='gs'){
     currentTpLevel=null; // Getting Started lessons aren't nested under any level
@@ -1031,13 +1031,14 @@ function openLessonView(source,arg1,arg2,arg3){
   } else {
     const levelKey=arg1, skill=arg2, lessonId=arg3;
     currentTpLevel=levelKey;
+    skillContext=skill;
     const lvl=t.levels.find(l=>l.key===levelKey);
     lesson=lvl?.skills[skill]?.find(l=>l.id===lessonId);
   }
   if(!lesson)return;
-  openLessonDetail(lesson,source,arg1,arg2);
+  openLessonDetail(lesson,source,arg1,arg2,skillContext);
 }
-function openLessonDetail(lesson,source,arg1,arg2){
+function openLessonDetail(lesson,source,arg1,arg2,skillContext){
   document.getElementById('tp-subtab-content').parentElement.style.display='none';
   const lv=document.getElementById('tp-lesson-view');
   lv.style.display='block';
@@ -1054,7 +1055,10 @@ function openLessonDetail(lesson,source,arg1,arg2){
     <div class="tp-info-card"><p>${lesson.concept}</p></div>
 
     <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Worked Example</h4>
-    <div class="tp-info-card"><p>${lesson.example}</p></div>
+    <div class="tp-info-card">
+      <p id="lesson-example-text">${lesson.example}</p>
+      ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin-top:10px" onclick="speakLessonText('lesson-example-text',this)"><i class="ti ti-volume"></i> Listen to this example</button>`:''}
+    </div>
 
     <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Vocabulary Builder</h4>
     <div class="tp-info-card"><table class="tp-fee-table">${lesson.vocab.map(v=>`<tr><td style="font-weight:600;width:40%">${esc(v[0])}</td><td>${esc(v[1])}</td></tr>`).join('')}</table></div>
@@ -1064,7 +1068,9 @@ function openLessonDetail(lesson,source,arg1,arg2){
 
     <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Practice Exercise</h4>
     <div class="tp-info-card">
-      <p>${lesson.practice}</p>
+      <p id="lesson-practice-text">${lesson.practice}</p>
+      ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin:10px 0 0" onclick="speakLessonText('lesson-practice-text',this)"><i class="ti ti-volume"></i> Listen to this exercise</button>`:''}
+      ${skillContext==='Speaking'?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
       <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:14.5px">Show answer</summary><p style="margin-top:6px">${esc(lesson.practiceAnswer)}</p></details>
     </div>
 
@@ -1076,12 +1082,216 @@ function openLessonDetail(lesson,source,arg1,arg2){
 
     <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${lesson.id}','${source}','${arg1||''}','${arg2||''}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
   `;
+  if(skillContext==='Speaking') initRecorderWidget('lesson-'+lesson.id);
 }
 function closeLessonView(){
   document.getElementById('tp-lesson-view').style.display='none';
   document.getElementById('tp-subtab-content').parentElement.style.display='block';
+  // Stop anything still running before leaving — a mic left recording or
+  // speech still playing in the background after navigating away would
+  // be a genuinely bad experience, not just a cosmetic issue.
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  Object.keys(recorderInstances).forEach(id=>{
+    const state=recorderInstances[id];
+    if(state?.isRecording&&state.stream){
+      state.stream.getTracks().forEach(track=>track.stop());
+    }
+  });
+  recorderInstances={};
   if(currentTpLevel) openLevelView(currentTpLevel);
   else renderLessonsRoot();
+}
+
+// ── Text-to-speech for Listening content — free, browser-native (Web
+// Speech API), no external service. Turns the written scenario/dialogue
+// into actual spoken audio instead of the student only reading it. ──
+function stripHtmlForSpeech(html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  return tmp.textContent||tmp.innerText||'';
+}
+function speakLessonText(elementId,buttonEl){
+  if(!('speechSynthesis' in window)){
+    alert('Your browser doesn\'t support text-to-speech — try a recent version of Chrome or Safari.');
+    return;
+  }
+  if(speechSynthesis.speaking){
+    speechSynthesis.cancel();
+    resetSpeakButton(buttonEl);
+    return;
+  }
+  const el=document.getElementById(elementId);
+  if(!el)return;
+  const text=stripHtmlForSpeech(el.innerHTML);
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=0.95;
+  utterance.onend=()=>resetSpeakButton(buttonEl);
+  utterance.onerror=()=>resetSpeakButton(buttonEl);
+  buttonEl.innerHTML='<i class="ti ti-player-pause"></i> Stop';
+  speechSynthesis.speak(utterance);
+}
+function resetSpeakButton(buttonEl){
+  if(buttonEl)buttonEl.innerHTML='<i class="ti ti-volume"></i> Listen to this example';
+}
+
+// ── Microphone/camera recording for Speaking practice — free, browser-
+// native (MediaRecorder + getUserMedia), no external service. Records
+// audio (or video, if the student opts in) right in the browser, plays
+// it back immediately for self-review. ──
+let recorderInstances={};
+function renderRecorderWidget(instanceId,lessonId,lessonTitle){
+  return `
+    <div id="recorder-${instanceId}" style="margin-top:14px;padding:14px;background:var(--cream);border-radius:var(--r);border:1.5px solid var(--line)" data-lesson-id="${lessonId||''}" data-lesson-title="${lessonTitle||''}">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;margin-bottom:10px">
+        <input type="checkbox" id="rec-video-toggle-${instanceId}"> Include video (camera), not just audio
+      </label>
+      <button class="btn" id="rec-btn-${instanceId}" style="width:auto;padding:10px 20px;font-size:14px" onclick="toggleRecording('${instanceId}')"><i class="ti ti-microphone"></i> Record Your Answer</button>
+      <div id="rec-status-${instanceId}" style="font-size:12.5px;color:var(--ink3);margin-top:8px"></div>
+      <video id="rec-preview-${instanceId}" style="display:none;width:100%;max-width:320px;margin-top:10px;border-radius:8px;background:#000" playsinline muted autoplay></video>
+      <div id="rec-playback-wrap-${instanceId}" style="display:none;margin-top:10px">
+        <div style="font-size:12.5px;font-weight:600;color:var(--pine);margin-bottom:6px">Your recording:</div>
+        <audio id="rec-audio-playback-${instanceId}" style="display:none;width:100%" controls></audio>
+        <video id="rec-video-playback-${instanceId}" style="display:none;width:100%;max-width:320px;border-radius:8px" controls></video>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:12.5px" onclick="reRecordWidget('${instanceId}')"><i class="ti ti-refresh"></i> Re-record</button>
+          <button class="btn" id="rec-save-btn-${instanceId}" style="width:auto;padding:7px 14px;font-size:12.5px" onclick="saveRecording('${instanceId}')"><i class="ti ti-device-floppy"></i> Save Recording</button>
+        </div>
+        <div id="rec-save-status-${instanceId}" style="font-size:12px;color:var(--ink3);margin-top:6px"></div>
+      </div>
+    </div>
+  `;
+}
+function initRecorderWidget(instanceId){
+  recorderInstances[instanceId]={recorder:null,chunks:[],stream:null,isRecording:false,mode:'audio'};
+}
+async function toggleRecording(instanceId){
+  const state=recorderInstances[instanceId];
+  if(!state)return;
+  if(state.isRecording){ stopRecording(instanceId); return; }
+
+  const includeVideo=document.getElementById('rec-video-toggle-'+instanceId)?.checked;
+  const statusEl=document.getElementById('rec-status-'+instanceId);
+  const btnEl=document.getElementById('rec-btn-'+instanceId);
+
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:includeVideo?{facingMode:'user'}:false});
+    state.stream=stream;
+    state.mode=includeVideo?'video':'audio';
+    state.chunks=[];
+
+    if(includeVideo){
+      const previewEl=document.getElementById('rec-preview-'+instanceId);
+      previewEl.srcObject=stream;
+      previewEl.style.display='block';
+    }
+
+    const recorder=new MediaRecorder(stream);
+    recorder.ondataavailable=(e)=>{ if(e.data.size>0)state.chunks.push(e.data); };
+    recorder.onstop=()=>onRecordingStopped(instanceId);
+    recorder.start();
+    state.recorder=recorder;
+    state.isRecording=true;
+    state.startTime=Date.now();
+
+    btnEl.innerHTML='<i class="ti ti-player-stop"></i> Stop Recording';
+    btnEl.style.background='var(--rose)';
+    if(state.timerInterval)clearInterval(state.timerInterval);
+    state.timerInterval=setInterval(()=>{
+      const secs=Math.floor((Date.now()-state.startTime)/1000);
+      statusEl.textContent=`🔴 Recording… ${secs}s`;
+    },1000);
+  }catch(err){
+    statusEl.textContent='Could not access your microphone/camera — check your browser permissions and try again.';
+  }
+}
+function stopRecording(instanceId){
+  const state=recorderInstances[instanceId];
+  if(!state||!state.recorder)return;
+  state.recorder.stop();
+  state.stream.getTracks().forEach(track=>track.stop());
+  clearInterval(state.timerInterval);
+  state.isRecording=false;
+}
+function onRecordingStopped(instanceId){
+  const state=recorderInstances[instanceId];
+  const btnEl=document.getElementById('rec-btn-'+instanceId);
+  const statusEl=document.getElementById('rec-status-'+instanceId);
+  const previewEl=document.getElementById('rec-preview-'+instanceId);
+  const playbackWrap=document.getElementById('rec-playback-wrap-'+instanceId);
+  if(!btnEl)return; // lesson was closed mid-recording
+
+  previewEl.style.display='none';
+  btnEl.style.display='none';
+  statusEl.textContent='';
+
+  const blob=new Blob(state.chunks,{type:state.mode==='video'?'video/webm':'audio/webm'});
+  const url=URL.createObjectURL(blob);
+  state.blob=blob;
+
+  if(state.mode==='video'){
+    const vidPlayback=document.getElementById('rec-video-playback-'+instanceId);
+    vidPlayback.src=url;
+    vidPlayback.style.display='block';
+  } else {
+    const audioPlayback=document.getElementById('rec-audio-playback-'+instanceId);
+    audioPlayback.src=url;
+    audioPlayback.style.display='block';
+  }
+  playbackWrap.style.display='block';
+}
+function reRecordWidget(instanceId){
+  document.getElementById('rec-playback-wrap-'+instanceId).style.display='none';
+  const btnEl=document.getElementById('rec-btn-'+instanceId);
+  btnEl.style.display='inline-block';
+  btnEl.innerHTML='<i class="ti ti-microphone"></i> Record Your Answer';
+  btnEl.style.background='var(--pine)';
+  const audioPlayback=document.getElementById('rec-audio-playback-'+instanceId);
+  const vidPlayback=document.getElementById('rec-video-playback-'+instanceId);
+  if(audioPlayback){audioPlayback.style.display='none';audioPlayback.src='';}
+  if(vidPlayback){vidPlayback.style.display='none';vidPlayback.src='';}
+  const saveStatus=document.getElementById('rec-save-status-'+instanceId);
+  if(saveStatus)saveStatus.textContent='';
+  initRecorderWidget(instanceId);
+}
+// Uploads the recording to the student's own private storage folder,
+// then records it in speaking_recordings so it can be found again later
+// (and eventually reviewed by a coach) — instead of vanishing the
+// moment the page is refreshed, which is all that happened before this.
+async function saveRecording(instanceId){
+  if(!requireRealLogin())return;
+  const state=recorderInstances[instanceId];
+  if(!state?.blob){alert('Nothing to save yet — record something first.');return;}
+  const container=document.getElementById('recorder-'+instanceId);
+  const lessonId=container?.dataset.lessonId||'unknown';
+  const lessonTitle=container?.dataset.lessonTitle||'';
+  const saveBtn=document.getElementById('rec-save-btn-'+instanceId);
+  const statusEl=document.getElementById('rec-save-status-'+instanceId);
+
+  saveBtn.disabled=true;
+  statusEl.textContent='Saving…';
+
+  try{
+    const ext=state.mode==='video'?'webm':'webm';
+    const path=`${currentSession.user.id}/${Date.now()}_${lessonId}.${ext}`;
+    const{error:upErr}=await sb.storage.from('student-recordings').upload(path,state.blob);
+    if(upErr){statusEl.textContent='Could not save: '+upErr.message;saveBtn.disabled=false;return;}
+
+    const{error:insErr}=await sb.from('speaking_recordings').insert({
+      student_id:currentSession.user.id,
+      test_type:currentTpTest,
+      lesson_id:lessonId,
+      lesson_title:lessonTitle,
+      recording_type:state.mode,
+      storage_path:path,
+    });
+    if(insErr){statusEl.textContent='Saved the file, but could not record it in your history: '+insErr.message;saveBtn.disabled=false;return;}
+
+    statusEl.textContent='✅ Saved — you can find this in your recording history.';
+    saveBtn.innerHTML='<i class="ti ti-check"></i> Saved';
+  }catch(err){
+    statusEl.textContent='Something went wrong saving this recording. Please try again.';
+    saveBtn.disabled=false;
+  }
 }
 
 async function toggleModuleComplete(lessonId,source,arg1,arg2){
