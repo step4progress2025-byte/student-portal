@@ -223,6 +223,7 @@
       <div class="nav-tile" onclick="openDocuments()"><div class="icon">📄</div><div class="label">My Documents</div></div>
       <div class="nav-tile" onclick="openCareer()"><div class="icon">💼</div><div class="label">Career &amp; Scholarships</div></div>
       <div class="nav-tile" onclick="openTestPrep()"><div class="icon">🎓</div><div class="label">Test Prep Hub</div></div>
+      <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
 
@@ -269,6 +270,15 @@
       <h2 style="font-size:17px;margin:0 0 10px;color:var(--pine)">Career &amp; Job Opportunities</h2>
       <iframe class="career-frame" src="https://www.step4progress.com/career.html"></iframe>
     </div>
+  </div>
+
+  <!-- MY RECORDINGS — everything saved from Speaking practice, so past
+       attempts are actually reviewable, not lost after one playback. -->
+  <div class="screen" id="screen-recordings">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">My Recordings</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Every Speaking practice you've saved — listen back anytime to hear your own progress.</p>
+    <div id="my-recordings-list"></div>
   </div>
 
   <!-- TEST PREP (Phase 3 placeholder) -->
@@ -505,6 +515,41 @@ function openCareer(){
       <button class="doc-upload-btn" onclick="triggerResumeUpload()"><i>📎</i> Upload</button>
     </div>`;
 }
+// ── My Recordings — browse everything saved from Speaking practice ──
+async function openMyRecordings(){
+  if(!requireRealLogin()){
+    showScreen('screen-dashboard');
+    return;
+  }
+  showScreen('screen-recordings');
+  const el=document.getElementById('my-recordings-list');
+  el.innerHTML='<div class="empty">Loading…</div>';
+
+  const{data,error}=await sb.from('speaking_recordings').select('*').eq('student_id',currentSession.user.id).order('created_at',{ascending:false});
+  if(error){el.innerHTML='<div class="empty">Could not load your recordings right now.</div>';return;}
+  if(!data||!data.length){el.innerHTML='<div class="empty">No recordings saved yet — save one from any Speaking lesson\'s practice exercise.</div>';return;}
+
+  el.innerHTML=data.map(r=>`
+    <div class="tp-info-card" id="rec-history-${r.id}">
+      <h4>${esc(r.lesson_title||r.lesson_id)}</h4>
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:8px">${esc(r.test_type)} · ${r.recording_type==='video'?'🎥 Video':'🎤 Audio'} · ${new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</p>
+      <div id="rec-history-player-${r.id}"><button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:12.5px" onclick="loadRecordingPlayback('${r.id}','${r.storage_path}','${r.recording_type}')"><i class="ti ti-player-play"></i> Play</button></div>
+    </div>
+  `).join('');
+}
+// Recordings live in a PRIVATE bucket, so playback needs a short-lived
+// signed URL generated on demand — not fetched upfront for every
+// recording in the list, only when the person actually wants to play one.
+async function loadRecordingPlayback(recordingId,storagePath,recordingType){
+  const container=document.getElementById('rec-history-player-'+recordingId);
+  container.innerHTML='<span style="font-size:12.5px;color:var(--ink3)">Loading…</span>';
+  const{data,error}=await sb.storage.from('student-recordings').createSignedUrl(storagePath,300);
+  if(error||!data){container.innerHTML='<span style="font-size:12.5px;color:var(--rose)">Could not load this recording.</span>';return;}
+  container.innerHTML=recordingType==='video'
+    ? `<video src="${data.signedUrl}" controls style="width:100%;max-width:320px;border-radius:8px"></video>`
+    : `<audio src="${data.signedUrl}" controls style="width:100%"></audio>`;
+}
+
 function triggerResumeUpload(){
   docUploadTarget='CV / Resume';
   document.getElementById('docFileInput').click();
