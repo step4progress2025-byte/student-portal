@@ -637,6 +637,25 @@ const TEST_DATA = {
       { key:'intermediate', name:'Intermediate', band:'Band 6.0–6.5', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
       { key:'advanced', name:'Advanced', band:'Band 7.0+', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
     ],
+    // Mock test TEMPLATES — the human-reviewed half of the quality
+    // safety net. This does NOT contain actual questions — it defines
+    // the structure, topic pool, and difficulty an AI generation call
+    // must follow, so every generated attempt is genuinely different
+    // but still reliably matches the real exam's format. One template
+    // per level+skill that has real lessons built (matches the
+    // "prove it on Foundation Listening first" pace already used
+    // everywhere else in this app).
+    mockTemplates: {
+      'foundation-Listening': {
+        title: 'Foundation Listening — Practice Mock',
+        questionCount: 8,
+        timeLimitMinutes: 12,
+        questionTypes: ['note_completion','form_completion'],
+        topicPool: ['booking a gym membership','registering for a library card','enquiring about a short course','arranging a home delivery','signing up for a community class'],
+        difficultyNote: 'Everyday, transactional conversations only (Section-1 style) — no academic content, no abstract discussion. Matches the "Note & Form Completion" lesson already taught at this level.',
+        wordLimitRule: 'NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.',
+      },
+    },
   },
   PTE: {
     name: 'PTE Academic', ready: true,
@@ -831,8 +850,86 @@ function setTpSubtab(sub){
   } else if(sub==='lessons'){
     renderLessonsRoot();
   } else if(sub==='mocks'){
-    el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
+    const templates=Object.entries(t.mockTemplates||{});
+    if(!templates.length){
+      el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
+      return;
+    }
+    el.innerHTML=templates.map(([key,tpl])=>`
+      <div class="tp-info-card">
+        <h4>🎯 ${esc(tpl.title)}</h4>
+        <p>${tpl.questionCount} questions · ${tpl.timeLimitMinutes} minutes · A genuinely new set every time you take it</p>
+        <button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${key}')">Start Practice Mock</button>
+      </div>
+    `).join('')+`<div class="tp-info-card" style="opacity:.75"><p style="font-size:12.5px">Practice mocks are unlimited and always unique. Level Final and Course Final mocks (with real stakes — limited attempts, full exam simulation) unlock as more content is added.</p></div>`;
   }
+}
+
+// ── Mock Test taking flow ────────────────────────────────────────
+// Calls the AI generation Edge Function — see generate-mock-test in the
+// student portal Supabase project. Needs that function actually
+// deployed to work; shows a clear message if it's not reachable yet
+// rather than failing silently.
+const GENERATE_MOCK_URL = SUPABASE_URL + "/functions/v1/generate-mock-test";
+let currentMockAttempt=null;
+async function startMockTest(testKey,templateKey){
+  if(!requireRealLogin())return;
+  const template=TEST_DATA[testKey].mockTemplates[templateKey];
+  document.getElementById('tp-subtab-content').parentElement.style.display='none';
+  const lv=document.getElementById('tp-lesson-view');
+  lv.style.display='block';
+  document.getElementById('tp-lesson-content').innerHTML=`<div style="text-align:center;padding:40px 20px"><div style="font-size:32px;margin-bottom:10px">🎲</div><p style="color:var(--ink3)">Generating a fresh set of questions just for this attempt…</p></div>`;
+
+  try{
+    const res=await fetch(GENERATE_MOCK_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},
+      body:JSON.stringify({template,testName:TEST_DATA[testKey].name}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.questions){
+      document.getElementById('tp-lesson-content').innerHTML=`<div class="tp-info-card"><h4>Couldn't generate a test right now</h4><p>${esc(data.error||'The mock test generator isn\'t reachable yet — it may not be deployed. Try again shortly, or let your team know if this keeps happening.')}</p></div>`;
+      return;
+    }
+    currentMockAttempt={template,testKey,templateKey,questions:data.questions,answers:new Array(data.questions.length).fill('')};
+    renderMockTestQuestions();
+  }catch(err){
+    document.getElementById('tp-lesson-content').innerHTML=`<div class="tp-info-card"><h4>Couldn't generate a test right now</h4><p>Something went wrong reaching the generator. Please try again.</p></div>`;
+  }
+}
+function renderMockTestQuestions(){
+  const a=currentMockAttempt;
+  document.getElementById('tp-lesson-content').innerHTML=`
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">${esc(a.template.title)}</h2>
+    <div style="font-size:12.5px;color:var(--ink3);margin-bottom:16px">${a.questions.length} questions · answer as many as you can, then submit</div>
+    ${a.questions.map((q,i)=>`
+      <div class="tp-info-card">
+        <h4>Question ${i+1}</h4>
+        <p>${esc(q.prompt)}</p>
+        <input type="text" oninput="currentMockAttempt.answers[${i}]=this.value" placeholder="Your answer" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-top:8px">
+      </div>
+    `).join('')}
+    <button class="btn btn-p" style="margin-top:8px" onclick="submitMockTest()">Submit</button>
+  `;
+}
+function submitMockTest(){
+  const a=currentMockAttempt;
+  let correct=0;
+  const review=a.questions.map((q,i)=>{
+    const isCorrect=(a.answers[i]||'').trim().toLowerCase()===(q.answer||'').trim().toLowerCase();
+    if(isCorrect)correct++;
+    return `<div class="tp-info-card" style="border-left:4px solid ${isCorrect?'var(--sage)':'var(--rose)'}"><h4>${isCorrect?'✓':'✗'} Question ${i+1}</h4><p>${esc(q.prompt)}</p><p style="margin-top:6px"><b>Your answer:</b> ${esc(a.answers[i]||'(blank)')}</p><p><b>Correct answer:</b> ${esc(q.answer)}</p></div>`;
+  }).join('');
+  const pct=Math.round((correct/a.questions.length)*100);
+  document.getElementById('tp-lesson-content').innerHTML=`
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px">${pct>=70?'🎉':'💪'}</div>
+      <div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:var(--pine)">${correct}/${a.questions.length} correct</div>
+      <div style="color:var(--ink3);font-size:13px">${pct}%</div>
+    </div>
+    ${review}
+    <button class="btn" style="margin-top:8px" onclick="closeLessonView()">Done</button>
+  `;
 }
 
 // ── Lessons: Getting Started + Level → Skill → Lesson navigation ────
