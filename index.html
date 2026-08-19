@@ -725,9 +725,9 @@ const TEST_DATA = {
           practice: 'Read this short exchange, then fill in the gap:<br><br><i>Staff: "And could I take your postcode, please?"<br>Caller: "Yes, it\'s SW1A 1AA."</i><br><br><b>Form gap:</b> Postcode: ___',
           practiceAnswer: 'SW1A 1AA — copied exactly as stated, including the space and correct capitalisation.',
           quiz: [
-            {q:'In which sections does note/form completion most often appear?', a:'Most often Section 1 or 2.'},
-            {q:'If the instructions say "NO MORE THAN TWO WORDS AND/OR A NUMBER," can "twenty five" be written as words?', a:'Yes, but writing "25" is usually safer and still correct — either can work, but a number over the limit (e.g. three separate words) would not.'},
-            {q:'Why predict the answer type before listening?', a:'It tells your ear what KIND of sound to listen for (a word vs. a number) before the speaker says it, making it easier to catch quickly.'},
+            {q:'In which sections does note/form completion most often appear?', a:'Most often Section 1 or 2.', options:['Most often Section 1 or 2','Only in Section 3','Equally across all four sections','Only in Section 4'], correct:0},
+            {q:'If the instructions say "NO MORE THAN TWO WORDS AND/OR A NUMBER," can "twenty five" be written as words?', a:'Yes, but writing "25" is usually safer and still correct — either can work, but a number over the limit (e.g. three separate words) would not.', options:['No, numbers must always be written as digits, never words','No, words are never accepted for numbers under this instruction','Yes, though writing the digits ("25") is usually the safer choice','Only if the number is under ten'], correct:2},
+            {q:'Why predict the answer type before listening?', a:'It tells your ear what KIND of sound to listen for (a word vs. a number) before the speaker says it, making it easier to catch quickly.', options:['It guarantees you will hear the exact word used in the question','It only helps with spelling, not with understanding','It tells your ear what kind of sound to listen for before the speaker says it','It removes the need to listen carefully at all'], correct:2},
           ],
         },
         {
@@ -740,9 +740,9 @@ const TEST_DATA = {
           practice: 'Question: "How many people can the room hold?"<br><br>Audio: <b>"The room was originally built for 30, but with the new furniture layout, it comfortably fits 25."</b><br><br>What is the correct answer?',
           practiceAnswer: '25 — this reflects the current, actual capacity; 30 was the original figure before the layout changed.',
           quiz: [
-            {q:'How do short-answer questions differ from note completion in terms of format?', a:'There is no visual form/template — the answer must be tracked purely from the spoken question and context.'},
-            {q:'What is a common trap in this question type?', a:'Confusing a mentioned exception with the actual standard/current answer.'},
-            {q:'Should extra detail be added beyond what was directly asked?', a:'No — answers should be direct and concise, matching exactly what was asked.'},
+            {q:'How do short-answer questions differ from note completion in terms of format?', a:'There is no visual form/template — the answer must be tracked purely from the spoken question and context.', options:['They provide a partially completed answer to finish','They always come with four multiple-choice options','They are read aloud twice instead of once','There is no visual form or template to guide you'], correct:3},
+            {q:'What is a common trap in this question type?', a:'Confusing a mentioned exception with the actual standard/current answer.', options:['Accidentally writing more than one word','Mistaking a mentioned exception for the real, current answer','Running out of time before the answer is given','Not hearing the question repeated a second time'], correct:1},
+            {q:'Should extra detail be added beyond what was directly asked?', a:'No — answers should be direct and concise, matching exactly what was asked.', options:['Yes, extra detail always earns additional credit','Yes, but only for Section 4 questions','No — answers should stay direct and concise','Only if there is time left at the end'], correct:2},
           ],
         },
         {
@@ -755,9 +755,9 @@ const TEST_DATA = {
           practice: 'Sentence: "Students must complete the form before ___."<br><br>Audio: <b>"You\'ll want to fill that out before you register — registration closes an hour before the session starts."</b><br><br>What word correctly completes the sentence, matching both meaning and grammar?',
           practiceAnswer: '"Registering" (or "registration," depending on the exact sentence structure) — needs to grammatically follow "before," matching the audio\'s meaning about completing the form prior to registering.',
           quiz: [
-            {q:'What must the missing word match, beyond just the meaning heard in the audio?', a:'The grammar of the printed sentence — the correct part of speech and form.'},
-            {q:'What should you check before listening, based on the sentence structure?', a:'What part of speech the gap requires (noun, verb, adjective, etc.).'},
-            {q:'Is writing the exact word heard always correct, even if it doesn\'t match the sentence grammatically?', a:'No — the word may need a different form (e.g. plural, different tense) to fit the sentence correctly.'},
+            {q:'What must the missing word match, beyond just the meaning heard in the audio?', a:'The grammar of the printed sentence — the correct part of speech and form.', options:['The word must be capitalised exactly as it was heard','The word must rhyme with a nearby word in the sentence','The exact number of letters in the missing word','The grammar of the printed sentence, not just its meaning'], correct:3},
+            {q:'What should you check before listening, based on the sentence structure?', a:'What part of speech the gap requires (noun, verb, adjective, etc.).', options:['How many syllables the missing word has','Whether the speaker sounds male or female','The exact regional accent of the speaker','What part of speech the gap requires'], correct:3},
+            {q:'Is writing the exact word heard always correct, even if it doesn\'t match the sentence grammatically?', a:'No — the word may need a different form (e.g. plural, different tense) to fit the sentence correctly.', options:['Yes, the exact word heard is always accepted as written','No, only a synonym of the word heard is ever accepted','No — it may need a different form to fit the sentence','Yes, as long as it is spelled correctly'], correct:2},
           ],
         },
         {
@@ -770,9 +770,9 @@ const TEST_DATA = {
           practice: 'Question: "What time does the class start?" Options: A) 9am B) 10am C) 11am<br><br>Audio: <b>"Just a reminder that today\'s session begins at 10, in the usual room."</b><br><br>What is the correct answer?',
           practiceAnswer: 'B (10am) — stated clearly and directly, with no correction or distractor involved.',
           quiz: [
-            {q:'How does Foundation-level multiple choice typically differ from more advanced versions?', a:'The answer is usually stated clearly and directly, without a close, corrected distractor.'},
-            {q:'What should you do before the audio starts?', a:'Read all the answer options in advance.'},
-            {q:'Should you assume there is always a trick or correction at this level?', a:'No — at Foundation level, the stated answer is usually genuinely straightforward.'},
+            {q:'How does Foundation-level multiple choice typically differ from more advanced versions?', a:'The answer is usually stated clearly and directly, without a close, corrected distractor.', options:['It always includes at least two technically correct answers','The answer is usually stated clearly, without a corrected distractor','The correct answer is always the first option mentioned','It never repeats any of the answer options in the audio'], correct:1},
+            {q:'What should you do before the audio starts?', a:'Read all the answer options in advance.', options:['Write down a guess before listening begins','Read all the answer options in advance','Skip the options and listen only for keywords','Memorise the exact wording of the question'], correct:1},
+            {q:'Should you assume there is always a trick or correction at this level?', a:'No — at Foundation level, the stated answer is usually genuinely straightforward.', options:['It depends entirely on which country the speaker is from','Yes, but only in the first half of the section','No — the stated answer is usually genuinely straightforward','Yes, every single question includes a correction'], correct:2},
           ],
         },
         {
@@ -785,9 +785,9 @@ const TEST_DATA = {
           practice: 'A table has columns: Item | Quantity | Price. Audio: <b>"And for the notebooks, we\'ll need twelve of those, coming to about £18 total."</b><br><br>How would this row be completed?',
           practiceAnswer: 'Item = Notebooks, Quantity = 12, Price = £18 — all three details tracked and placed in their correct columns.',
           quiz: [
-            {q:'What two things must be tracked simultaneously in table completion?', a:'Which row (person/item) and which column (type of detail) is currently being discussed.'},
-            {q:'What should you do with the column headings before listening?', a:'Read them in advance to predict what type of information each gap needs.'},
-            {q:'Is it enough to hear the content correctly if it goes in the wrong column?', a:'No — an answer placed in the wrong column is still marked incorrect, even if the content itself was heard correctly.'},
+            {q:'What two things must be tracked simultaneously in table completion?', a:'Which row (person/item) and which column (type of detail) is currently being discussed.', options:['Which row and which column is currently being discussed','The volume and speed of the audio recording','The speaker\'s tone and their regional accent','The section number and the time remaining'], correct:0},
+            {q:'What should you do with the column headings before listening?', a:'Read them in advance to predict what type of information each gap needs.', options:['Read them in advance to predict what type of information each gap needs','Ignore them completely until the audio finishes','Memorise their exact spelling before listening','Only count how many columns the table has'], correct:0},
+            {q:'Is it enough to hear the content correctly if it goes in the wrong column?', a:'No — an answer placed in the wrong column is still marked incorrect, even if the content itself was heard correctly.', options:['Yes, examiners accept any reasonably close placement','Yes, as long as the word itself is spelled correctly','No — it is still marked incorrect if placed in the wrong column','It depends on which section of the test the table is in'], correct:2},
           ],
         },
       ],Reading:[
@@ -801,9 +801,9 @@ const TEST_DATA = {
           practice: 'Passage sentence: <b>"Applications for the scholarship close on 30 April each year."</b><br><br>Statement: "The scholarship has been offered every year since 2015."<br><br>Is this True, False, or Not Given?',
           practiceAnswer: 'Not Given — the passage tells you the deadline, but says nothing about how long the scholarship has existed or since when.',
           quiz: [
-            {q:'What does False actually mean in this question type?', a:'The passage states the OPPOSITE of the claim — not just that the claim is unproven.'},
-            {q:'What does Not Given mean?', a:'The passage does not mention this information at all, either way.'},
-            {q:'Should outside/general knowledge ever be used to answer?', a:'No — only what the passage actually states matters.'},
+            {q:'What does False actually mean in this question type?', a:'The passage states the OPPOSITE of the claim — not just that the claim is unproven.', options:['The passage disagrees with a different, unrelated claim','The passage states the opposite of the claim, not just that it\'s unproven','The claim is only partially supported by the passage','The claim is simply not mentioned anywhere in the passage'], correct:1},
+            {q:'What does Not Given mean?', a:'The passage does not mention this information at all, either way.', options:['The passage directly contradicts the statement','The passage does not mention this information at all, either way','The information appears in a different paragraph than expected','The passage only partly agrees with the statement'], correct:1},
+            {q:'Should outside/general knowledge ever be used to answer?', a:'No — only what the passage actually states matters.', options:['No — only what the passage actually states matters','Yes, if the general knowledge is widely accepted as true','Yes, but only for True/False questions, not Not Given','Only when the passage is ambiguous or unclear'], correct:0},
           ],
         },
         {
@@ -816,9 +816,9 @@ const TEST_DATA = {
           practice: 'Question: "Which paragraph refers to a change made in 2020?"<br><br>You scan quickly and see the year "2020" mentioned in paragraph 4, alongside a description of a new policy.<br><br>What should you do next?',
           practiceAnswer: 'Confirm paragraph 4 as the answer, since it directly contains the specific year referenced in the question — no need to read the rest of the passage in full once the specific match is found.',
           quiz: [
-            {q:'What does Matching Information test, compared to Matching Headings?', a:'A specific detail or fact, rather than a paragraph\'s overall main idea.'},
-            {q:'What is the recommended reading approach for this task type?', a:'Scanning for key words or numbers, not reading every paragraph in full detail first.'},
-            {q:'Could the same paragraph be the answer to more than one Matching Information question?', a:'Yes — a paragraph might contain several different specific details, each tested by a different question.'},
+            {q:'What does Matching Information test, compared to Matching Headings?', a:'A specific detail or fact, rather than a paragraph\'s overall main idea.', options:['A specific detail or fact, rather than a paragraph\'s overall main idea','The order in which paragraphs originally appeared','The writer\'s overall opinion across the whole passage','The title that best summarises an entire paragraph'], correct:0},
+            {q:'What is the recommended reading approach for this task type?', a:'Scanning for key words or numbers, not reading every paragraph in full detail first.', options:['Reading the entire passage word-for-word before answering','Scanning for key words or numbers, not reading every paragraph in full first','Reading only the first sentence of each paragraph and stopping','Reading the questions only after finishing the whole passage'], correct:1},
+            {q:'Could the same paragraph be the answer to more than one Matching Information question?', a:'Yes — a paragraph might contain several different specific details, each tested by a different question.', options:['No, each paragraph can only ever be the answer to one question','Yes — a paragraph can contain several details, each tested by a different question','Yes, but only in the first half of the passage','No, paragraphs are only matched once per passage in total'], correct:1},
           ],
         },
         {
@@ -831,9 +831,9 @@ const TEST_DATA = {
           practice: 'Summary: "Researchers were surprised by how ___ the results were." Word list includes: "consistency," "consistent," "consistently."<br><br>Which option correctly fits this sentence?',
           practiceAnswer: '"Consistent" — it functions as an adjective describing "the results," which is grammatically required after "how ___ the results were."',
           quiz: [
-            {q:'What makes word-list summary completion different from a completely open gap-fill?', a:'The possible answers are provided, but multiple similar options are given to test which one truly fits.'},
-            {q:'What two things must the chosen word match?', a:'The grammar of the sentence, and the meaning confirmed by the passage.'},
-            {q:'Can a word-list option be used more than once across different gaps?', a:'Typically no — once used, an option is usually not the answer to another gap, so it can often be eliminated from remaining options.'},
+            {q:'What makes word-list summary completion different from a completely open gap-fill?', a:'The possible answers are provided, but multiple similar options are given to test which one truly fits.', options:['The word list changes for every question in the same passage','The possible answers are provided, but several similar options test which one truly fits','Only one word in the entire list is ever grammatically possible','There are no possible answers provided at all, unlike a word list'], correct:1},
+            {q:'What two things must the chosen word match?', a:'The grammar of the sentence, and the meaning confirmed by the passage.', options:['The number of letters in the word and its first letter','The word\'s position in the alphabetical word list only','The grammar of the sentence, and the meaning confirmed by the passage','The paragraph number and the word\'s font style'], correct:2},
+            {q:'Can a word-list option be used more than once across different gaps?', a:'Typically no — once used, an option is usually not the answer to another gap, so it can often be eliminated from remaining options.', options:['Yes, but only if the same paragraph is being discussed','Typically no — once used, an option is usually eliminated from the rest','Yes, options are always reused for every remaining gap','It depends only on how long the passage is'], correct:1},
           ],
         },
         {
@@ -846,9 +846,9 @@ const TEST_DATA = {
           practice: 'Passage: "The bridge, completed in 1889, remains one of the city\'s most visited landmarks." <br><br>Sentence to complete: "Since its completion, the bridge has become a major ___ for visitors to the city."<br><br>What is the correct answer?',
           practiceAnswer: '"Landmark" (or "visited landmark," depending on the exact word limit) — copied directly from the passage\'s own wording.',
           quiz: [
-            {q:'Where do Reading sentence completion answers typically come from?', a:'Directly from the passage\'s own wording, usually copied exactly rather than paraphrased.'},
-            {q:'What makes locating the right section of the passage sometimes tricky?', a:'The question sentence often paraphrases the passage, requiring recognition of the same idea in different words.'},
-            {q:'Does the word limit still apply even though the words come from the passage?', a:'Yes — exceeding the stated word limit is still marked incorrect.'},
+            {q:'Where do Reading sentence completion answers typically come from?', a:'Directly from the passage\'s own wording, usually copied exactly rather than paraphrased.', options:['Summarised loosely rather than quoted precisely','Directly from the passage\'s own wording, usually copied exactly','Written entirely in the student\'s own paraphrased words','Taken from the question\'s own wording, not the passage'], correct:1},
+            {q:'What makes locating the right section of the passage sometimes tricky?', a:'The question sentence often paraphrases the passage, requiring recognition of the same idea in different words.', options:['The question often paraphrases the passage, needing recognition in different words','The passage is printed in a smaller font than the questions','Passages at this level contain no headings at all','The questions are always in a different order to the passage'], correct:0},
+            {q:'Does the word limit still apply even though the words come from the passage?', a:'Yes — exceeding the stated word limit is still marked incorrect.', options:['Only if the extra word changes the sentence\'s meaning','No, the word limit only applies to Listening, not Reading','No, extra words are ignored automatically by examiners','Yes — exceeding the stated word limit is still marked incorrect'], correct:3},
           ],
         },
         {
@@ -861,9 +861,9 @@ const TEST_DATA = {
           practice: 'Question: "How long did the renovation take?" Passage: "What was expected to take three months instead stretched to nearly eight, due to unexpected structural repairs."<br><br>What is the correct answer?',
           practiceAnswer: 'Eight months (or "nearly eight months," depending on the word limit) — the actual duration, not the originally expected three months.',
           quiz: [
-            {q:'Where does the wording for short-answer Reading responses typically come from?', a:'Directly from the passage, usually copied precisely rather than paraphrased.'},
-            {q:'What should you identify before scanning for the answer?', a:'What TYPE of answer is needed — a number, a name, a reason, etc.'},
-            {q:'What is a common mistake with figures like "three months" vs. the actual answer?', a:'Confusing an originally planned/expected figure with the actual final outcome mentioned later in the passage.'},
+            {q:'Where does the wording for short-answer Reading responses typically come from?', a:'Directly from the passage, usually copied precisely rather than paraphrased.', options:['From the student\'s own general knowledge of the topic','From a summary provided separately from the main passage','Directly from the passage, usually copied precisely rather than paraphrased','From the question\'s own wording repeated back exactly'], correct:2},
+            {q:'What should you identify before scanning for the answer?', a:'What TYPE of answer is needed — a number, a name, a reason, etc.', options:['The exact page number the answer appears on','What type of answer is needed — a number, a name, a reason, and so on','How many words the entire passage contains','Which paragraph the passage begins with'], correct:1},
+            {q:'What is a common mistake with figures like "three months" vs. the actual answer?', a:'Confusing an originally planned/expected figure with the actual final outcome mentioned later in the passage.', options:['Confusing which paragraph the number appears in','Confusing a percentage with a whole number','Confusing a number written in digits with one written as words','Confusing an originally planned figure with the actual final outcome'], correct:3},
           ],
         },
       ],Writing:[
@@ -877,9 +877,9 @@ const TEST_DATA = {
           practice: 'You have 60 minutes total for the Writing test. Based on the mark weighting described above, roughly how should you split your time between Task 1 and Task 2?',
           practiceAnswer: 'Roughly 20 minutes for Task 1, 40 minutes for Task 2 — matching the time to where the marks actually are, not splitting evenly.',
           quiz: [
-            {q:'Which task is worth more of your overall Writing score?', a:'Task 2 — roughly twice the weight of Task 1.'},
-            {q:'What is the minimum word count for Academic Task 1?', a:'150 words.'},
-            {q:'What specific element does Academic Task 1 require that is separately assessed?', a:'An overview sentence summarising the main trend before going into detail.'},
+            {q:'Which task is worth more of your overall Writing score?', a:'Task 2 — roughly twice the weight of Task 1.', options:['Task 2 — roughly twice the weight of Task 1','Task 1 — roughly twice the weight of Task 2','Both tasks are weighted exactly equally','Whichever task is completed first in the exam'], correct:0},
+            {q:'What is the minimum word count for Academic Task 1?', a:'150 words.', options:['250 words','150 words','200 words','100 words'], correct:1},
+            {q:'What specific element does Academic Task 1 require that is separately assessed?', a:'An overview sentence summarising the main trend before going into detail.', options:['An overview sentence summarising the main trend before the detail','A direct personal opinion about the data shown','A comparison to a completely unrelated chart','A conclusion recommending a specific future action'], correct:0},
           ],
         },
         {
@@ -892,9 +892,9 @@ const TEST_DATA = {
           practice: 'A Task 1 prompt shows two maps of a town — one from 1990, one from 2020 — with a new shopping centre and fewer green spaces visible in the later map.<br><br>What TYPE of language does this task require — trend/data language, or change-over-time language?',
           practiceAnswer: 'Change-over-time language — describing what was added, removed, or changed between the two maps (e.g. "a shopping centre has replaced what was previously green space"), not numerical trend language like a bar chart would need.',
           quiz: [
-            {q:'Why does correctly identifying the Task 1 type matter before writing?', a:'Each type (chart, process, map) requires a different kind of language and approach.'},
-            {q:'What kind of language does a process diagram need?', a:'Sequencing language (first, next, finally), not trend/data language.'},
-            {q:'What does a map task typically require describing?', a:'Change between two time points, not just a description of one single map.'},
+            {q:'Why does correctly identifying the Task 1 type matter before writing?', a:'Each type (chart, process, map) requires a different kind of language and approach.', options:['Process and map tasks are not part of the real exam','Only chart-type Task 1s are actually marked by examiners','The word count changes depending on the Task 1 type','Each type (chart, process, map) requires a different kind of language'], correct:3},
+            {q:'What kind of language does a process diagram need?', a:'Sequencing language (first, next, finally), not trend/data language.', options:['Personal opinion language about the process shown','Purely numerical language with no describing words','The exact same trend language used for a bar chart','Sequencing language (first, next, finally), not trend/data language'], correct:3},
+            {q:'What does a map task typically require describing?', a:'Change between two time points, not just a description of one single map.', options:['The population size shown in numerical form only','Change between two time points, not just one single map','Only the geography of a single, unchanging map','A comparison between two entirely unrelated locations'], correct:1},
           ],
         },
         {
@@ -907,9 +907,9 @@ const TEST_DATA = {
           practice: 'A paragraph starts: "Public transport has improved significantly in recent years." It then discusses bus frequency, then suddenly switches to discussing a completely unrelated topic about school curriculums.<br><br>What is the structural problem here?',
           practiceAnswer: 'The paragraph combines two unrelated ideas (public transport and school curriculums) — the second idea should start a new paragraph with its own topic sentence, not continue within the same one.',
           quiz: [
-            {q:'What should a paragraph generally contain?', a:'One main idea, usually introduced by a topic sentence.'},
-            {q:'What is the role of a topic sentence?', a:'It states the paragraph\'s main idea, usually as the first sentence.'},
-            {q:'What is a common early-level structural mistake?', a:'Combining multiple unrelated ideas into a single paragraph instead of separating them.'},
+            {q:'What should a paragraph generally contain?', a:'One main idea, usually introduced by a topic sentence.', options:['A direct restatement of the essay question','As many different ideas as possible for variety','A list of examples with no single connecting idea','One main idea, usually introduced by a topic sentence'], correct:3},
+            {q:'What is the role of a topic sentence?', a:'It states the paragraph\'s main idea, usually as the first sentence.', options:['It must always contain a statistic or number','It summarises the entire essay in one sentence','It states the paragraph\'s main idea, usually as the first sentence','It always asks a rhetorical question to the reader'], correct:2},
+            {q:'What is a common early-level structural mistake?', a:'Combining multiple unrelated ideas into a single paragraph instead of separating them.', options:['Repeating the same topic sentence in every paragraph','Writing paragraphs that are too short to read easily','Never using a topic sentence in any paragraph at all','Combining multiple unrelated ideas into a single paragraph'], correct:3},
           ],
         },
         {
@@ -922,9 +922,9 @@ const TEST_DATA = {
           practice: 'Find and correct the errors: "Many student believes that online learning are more convenient than traditional classroom."',
           practiceAnswer: '"Many students believe that online learning is more convenient than traditional classrooms." — corrected: students (plural), believe (matching plural subject), is (learning is singular/uncountable here), classrooms (plural, matching "traditional classroom" needing pluralisation or an article).',
           quiz: [
-            {q:'What is subject-verb agreement?', a:'Matching a verb\'s form correctly to whether its subject is singular or plural.'},
-            {q:'Name one of the three most common grammar mistake categories mentioned in this lesson.', a:'Subject-verb agreement, missing/incorrect articles, or inconsistent tense.'},
-            {q:'Why does proofreading matter, even under time pressure?', a:'Small, repeated grammar errors add up and can be caught relatively easily with a final check.'},
+            {q:'What is subject-verb agreement?', a:'Matching a verb\'s form correctly to whether its subject is singular or plural.', options:['Matching a verb\'s form correctly to a singular or plural subject','Placing a comma before every conjunction used','Using the same tense throughout an entire essay','Making sure every sentence starts with a capital letter'], correct:0},
+            {q:'Name one of the three most common grammar mistake categories mentioned in this lesson.', a:'Subject-verb agreement, missing/incorrect articles, or inconsistent tense.', options:['Subject-verb agreement, missing/incorrect articles, or inconsistent tense','Using British spelling instead of American spelling','Writing sentences that are too short to be complex','Spelling mistakes and incorrect punctuation marks'], correct:0},
+            {q:'Why does proofreading matter, even under time pressure?', a:'Small, repeated grammar errors add up and can be caught relatively easily with a final check.', options:['It is required by the examiner before submission','Small, repeated errors add up and are easy to catch with a final check','It replaces the need for planning before writing','It always adds new content the essay was missing'], correct:1},
           ],
         },
         {
@@ -937,9 +937,9 @@ const TEST_DATA = {
           practice: 'A student writes what looks like a full response but is worried it might be under 250 words for Task 2. Their handwriting fits about 9 words per line, and they have written 24 lines.<br><br>Roughly how many words have they written, and is this likely enough?',
           practiceAnswer: 'Approximately 216 words (9 × 24) — likely UNDER the 250-word minimum, meaning a few more sentences should probably be added before finishing.',
           quiz: [
-            {q:'What is the minimum word count for Task 2?', a:'250 words.'},
-            {q:'What happens if a response falls under the minimum word count?', a:'A direct penalty is applied, regardless of the quality of the content.'},
-            {q:'What is a practical way to estimate word count without counting every word?', a:'Knowing roughly how many words your own handwriting/typing produces per line, then estimating from the number of lines written.'},
+            {q:'What is the minimum word count for Task 2?', a:'250 words.', options:['250 words','200 words','150 words','300 words'], correct:0},
+            {q:'What happens if a response falls under the minimum word count?', a:'A direct penalty is applied, regardless of the quality of the content.', options:['No penalty applies as long as the ideas are strong','The examiner adds extra time to let it be finished','Only the Coherence and Cohesion score is affected','A direct penalty is applied, regardless of content quality'], correct:3},
+            {q:'What is a practical way to estimate word count without counting every word?', a:'Knowing roughly how many words your own handwriting/typing produces per line, then estimating from the number of lines written.', options:['Knowing roughly how many words your own writing produces per line','Asking the examiner for a word count check midway','Counting every single word one by one during the exam','Estimating based on how many minutes have passed'], correct:0},
           ],
         },
       ],Speaking:[
@@ -953,9 +953,9 @@ const TEST_DATA = {
           practice: 'A candidate is asked a Part 3 question: "Do you think technology has made people less sociable?" They answer: "Yes, I think so." <br><br>What is missing from this answer, based on what Part 3 is actually testing?',
           practiceAnswer: 'Development — Part 3 expects reasons, examples, and a more thorough explanation of the opinion, not just a short agreement with no elaboration.',
           quiz: [
-            {q:'How long is the full Speaking test?', a:'11-14 minutes, across all three parts with the same examiner.'},
-            {q:'What does Part 2 specifically test that Part 1 does not?', a:'Sustained, organised speech on one topic for up to 2 minutes, not just short conversational answers.'},
-            {q:'How does Part 3 differ from Part 1, even though both may touch on similar topics?', a:'Part 3 is more abstract and analytical, expecting developed opinions and reasoning rather than personal, factual answers.'},
+            {q:'How long is the full Speaking test?', a:'11-14 minutes, across all three parts with the same examiner.', options:['20 minutes, with a short break between each part','5-8 minutes, covering only Parts 1 and 2','30 minutes total, split across two different examiners','11-14 minutes, across all three parts with the same examiner'], correct:3},
+            {q:'What does Part 2 specifically test that Part 1 does not?', a:'Sustained, organised speech on one topic for up to 2 minutes, not just short conversational answers.', options:['Short, quick-fire personal questions with one-word answers','Reading a passage aloud from a printed cue card','Sustained, organised speech on one topic for up to 2 minutes','Abstract, analytical discussion of broad social issues'], correct:2},
+            {q:'How does Part 3 differ from Part 1, even though both may touch on similar topics?', a:'Part 3 is more abstract and analytical, expecting developed opinions and reasoning rather than personal, factual answers.', options:['Part 3 does not involve the examiner asking any questions','Part 3 is more abstract and analytical, expecting developed opinions','Part 3 only ever repeats the exact same questions as Part 1','Part 3 is shorter and requires only one-word answers'], correct:1},
           ],
         },
         {
@@ -968,9 +968,9 @@ const TEST_DATA = {
           practice: 'Question: "Do you enjoy cooking?" A candidate answers only: "Not really."<br><br>How could this be extended into a fuller, more natural answer?',
           practiceAnswer: 'Something like: "Not really, no — I can manage the basics, but I don\'t find it particularly enjoyable, so I tend to keep meals pretty simple." — extends the short answer with a brief, honest reason.',
           quiz: [
-            {q:'Why does a one-word Part 1 answer score poorly?', a:'It gives the examiner very little language to actually assess.'},
-            {q:'What is a simple technique for extending a short answer?', a:'Answer the question directly, then add one brief reason, detail, or example.'},
-            {q:'Should Part 1 answers be as long and developed as Part 2 answers?', a:'No — Part 1 answers should be natural and brief (2-3 sentences), not a lengthy speech.'},
+            {q:'Why does a one-word Part 1 answer score poorly?', a:'It gives the examiner very little language to actually assess.', options:['It is technically against the official test rules','It always causes the recording equipment to fail','It automatically ends the Speaking test early','It gives the examiner very little language to actually assess'], correct:3},
+            {q:'What is a simple technique for extending a short answer?', a:'Answer the question directly, then add one brief reason, detail, or example.', options:['Pause for several seconds before saying anything','Answer directly, then add one brief reason, detail, or example','List every possible answer you can think of','Repeat the question back before giving any answer'], correct:1},
+            {q:'Should Part 1 answers be as long and developed as Part 2 answers?', a:'No — Part 1 answers should be natural and brief (2-3 sentences), not a lengthy speech.', options:['Yes, every Part 1 answer should be at least a minute long','No — Part 1 answers should be natural and brief (2-3 sentences)','Yes, longer Part 1 answers always score higher','It depends only on the specific examiner\'s preference'], correct:1},
           ],
         },
         {
@@ -983,9 +983,9 @@ const TEST_DATA = {
           practice: 'A candidate wants to say "I take public transport to work" but cannot recall the word "commute." <br><br>How might they express this idea without stopping to search for that specific word?',
           practiceAnswer: 'Something like: "I travel to work using buses and trains" — expresses the same idea using simpler, available words, without needing the specific term "commute."',
           quiz: [
-            {q:'Is all pausing during speech a problem to eliminate completely?', a:'No — some natural pausing is normal, even for fluent speakers.'},
-            {q:'What is a useful strategy when a specific word will not come to mind?', a:'Describe the idea using simpler, available words instead of stopping.'},
-            {q:'Should you apologise repeatedly when you pause?', a:'No — this draws more attention to the pause rather than helping you move past it smoothly.'},
+            {q:'Is all pausing during speech a problem to eliminate completely?', a:'No — some natural pausing is normal, even for fluent speakers.', options:['No, pausing is only acceptable in Part 3','Yes, but only during Part 2 of the test','Yes, any pause at all is heavily penalised','No — some natural pausing is normal, even for fluent speakers'], correct:3},
+            {q:'What is a useful strategy when a specific word will not come to mind?', a:'Describe the idea using simpler, available words instead of stopping.', options:['Describe the idea using simpler, available words instead of stopping','Ask the examiner directly for the correct word','Stay silent until the exact word is remembered','Switch briefly into a first language word instead'], correct:0},
+            {q:'Should you apologise repeatedly when you pause?', a:'No — this draws more attention to the pause rather than helping you move past it smoothly.', options:['No — this draws more attention to the pause rather than helping','Yes, apologising shows good self-awareness to the examiner','It depends on how long the pause lasted','Yes, but only once per part of the test'], correct:0},
           ],
         },
         {
@@ -998,9 +998,9 @@ const TEST_DATA = {
           practice: 'A candidate says: "Last week I am go to my friend house." <br><br>What grammar errors are present, and how might they self-correct naturally while speaking?',
           practiceAnswer: 'Errors: "am go" should be "went" (past tense), "friend house" is missing a possessive/article ("my friend\'s house"). A natural self-correction: "Last week I — sorry, I went to my friend\'s house."',
           quiz: [
-            {q:'Name one common spoken grammar mistake mentioned in this lesson.', a:'Mixing past/present tense, incorrect subject-verb agreement, or dropping articles.'},
-            {q:'Is self-correcting a noticed mistake a bad thing to do while speaking?', a:'No — briefly self-correcting is a normal, positive habit, not something to avoid or hide.'},
-            {q:'Why do spoken grammar mistakes happen more often than in writing?', a:'There is no time to carefully plan every sentence in real-time, spontaneous speech.'},
+            {q:'Name one common spoken grammar mistake mentioned in this lesson.', a:'Mixing past/present tense, incorrect subject-verb agreement, or dropping articles.', options:['Using contractions like "don\'t" instead of "do not"','Mixing past/present tense, incorrect subject-verb agreement, or dropping articles','Pronouncing words with a non-native accent','Speaking too quietly for the recording to pick up'], correct:1},
+            {q:'Is self-correcting a noticed mistake a bad thing to do while speaking?', a:'No — briefly self-correcting is a normal, positive habit, not something to avoid or hide.', options:['Yes, it should always be avoided and hidden','It depends entirely on which examiner is listening','No — briefly self-correcting is a normal, positive habit','Yes, but only acceptable in Part 1, not Parts 2 or 3'], correct:2},
+            {q:'Why do spoken grammar mistakes happen more often than in writing?', a:'There is no time to carefully plan every sentence in real-time, spontaneous speech.', options:['There is no time to carefully plan every sentence in real time','Examiners expect more mistakes in speech than in writing','Nervousness always causes worse grammar than vocabulary','Spoken English simply has more grammar rules than written English'], correct:0},
           ],
         },
         {
@@ -1013,9 +1013,9 @@ const TEST_DATA = {
           practice: 'Question: "What is your daily routine like?" <br><br>Practise giving a natural, detailed answer using your own real routine, rather than a generic or invented one.',
           practiceAnswer: 'There is no single correct answer here — the goal is genuine, comfortable detail about your own actual routine, showing natural language use rather than a rehearsed or vague response.',
           quiz: [
-            {q:'Why is practising familiar, personal topics valuable before tackling harder abstract ones?', a:'It builds genuine comfort and confidence, creating a foundation for more demanding topics later.'},
-            {q:'What kind of knowledge do personal topics require?', a:'None beyond the speaker\'s own real experience — no special or outside knowledge needed.'},
-            {q:'Is it better to memorise a fixed answer for common topics, or speak naturally each time?', a:'Speaking naturally each time — a memorised answer can sound rehearsed and may not fit the exact question asked.'},
+            {q:'Why is practising familiar, personal topics valuable before tackling harder abstract ones?', a:'It builds genuine comfort and confidence, creating a foundation for more demanding topics later.', options:['It builds genuine comfort and confidence for more demanding topics later','It is specifically required before attempting Part 1 at all','It is the only topic type that actually appears in real exams','It requires memorising more vocabulary than abstract topics'], correct:0},
+            {q:'What kind of knowledge do personal topics require?', a:'None beyond the speaker\'s own real experience — no special or outside knowledge needed.', options:['Familiarity with formal, written English structures','Detailed knowledge of current affairs and world events','None beyond the speaker\'s own real experience','Specialist academic knowledge of the topic area'], correct:2},
+            {q:'Is it better to memorise a fixed answer for common topics, or speak naturally each time?', a:'Speaking naturally each time — a memorised answer can sound rehearsed and may not fit the exact question asked.', options:['Memorising several answers and picking the closest match','Writing out a full answer in advance and reading it aloud','Memorising one fixed, polished answer for each common topic','Speaking naturally each time, since memorised answers can sound rehearsed'], correct:3},
           ],
         },
       ]} },
@@ -2830,21 +2830,33 @@ function renderLstepStep(direction){
     if(s.skillContext&&s.skillContext.startsWith('Speaking')){setTimeout(()=>initRecorderWidget('lesson-'+lesson.id),0);}
   } else if(step.kind==='quiz'){
     s.quizAnswered=false;
-    html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> Knowledge check ${step.i+1} / ${s.quizTotal}</div>
-      <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(step.q.q)}</div>
-      <div style="display:flex;gap:10px;margin-bottom:4px">
-        <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="revealQuizStep()"><i class="ti ti-eye"></i> Think it through, then reveal the answer</button>
-      </div>
-      <div id="lstep-quiz-answer" style="display:none">
-        <div class="tp-info-card" style="margin-top:10px"><p style="margin:0">${esc(step.q.a)}</p></div>
-        <div style="display:flex;gap:10px;margin-top:12px">
-          <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="markQuizStep(false)"><i class="ti ti-refresh"></i> I need to review this</button>
-          <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="markQuizStep(true)"><i class="ti ti-check"></i> I got it right</button>
+    s.quizSelected=null;
+    if(step.q.options&&step.q.options.length){
+      html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> Knowledge check ${step.i+1} / ${s.quizTotal}</div>
+        <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(step.q.q)}</div>
+        <div id="lstep-quiz-opts">${step.q.options.map((opt,oi)=>
+          `<div class="lstep-quiz-opt" data-oi="${oi}" onclick="selectQuizOption(${oi})">${esc(opt)}</div>`
+        ).join('')}</div>
+        <div id="lstep-quiz-feedback"></div>`;
+      nextBtn.textContent='Check answer';
+      nextBtn.disabled=true;
+    } else {
+      html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> Knowledge check ${step.i+1} / ${s.quizTotal}</div>
+        <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(step.q.q)}</div>
+        <div style="display:flex;gap:10px;margin-bottom:4px">
+          <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="revealQuizStep()"><i class="ti ti-eye"></i> Think it through, then reveal the answer</button>
         </div>
-      </div>
-      <div id="lstep-quiz-feedback"></div>`;
-    nextBtn.textContent='Continue';
-    nextBtn.disabled=true;
+        <div id="lstep-quiz-answer" style="display:none">
+          <div class="tp-info-card" style="margin-top:10px"><p style="margin:0">${esc(step.q.a)}</p></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="markQuizStep(false)"><i class="ti ti-refresh"></i> I need to review this</button>
+            <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="markQuizStep(true)"><i class="ti ti-check"></i> I got it right</button>
+          </div>
+        </div>
+        <div id="lstep-quiz-feedback"></div>`;
+      nextBtn.textContent='Continue';
+      nextBtn.disabled=true;
+    }
   } else if(step.kind==='complete'){
     completeLstepLesson();
     return;
@@ -2865,9 +2877,39 @@ function markQuizStep(gotItRight){
   fb.innerHTML=`<div class="lstep-feedback ${gotItRight?'correct':'incorrect'}">${gotItRight?'Nice — marked correct.':'No problem — it\'s noted for review. Reading the answer again now is exactly how this sticks.'}</div>`;
   document.getElementById('lstep-next-btn').disabled=false;
 }
+function selectQuizOption(oi){
+  if(lstepState.quizAnswered)return;
+  lstepState.quizSelected=oi;
+  document.querySelectorAll('#lstep-quiz-opts .lstep-quiz-opt').forEach(el=>{
+    el.classList.toggle('selected',parseInt(el.dataset.oi)===oi);
+  });
+  document.getElementById('lstep-next-btn').disabled=false;
+}
+function checkQuizOption(){
+  const s=lstepState, step=s.steps[s.idx];
+  if(s.quizSelected===null||s.quizSelected===undefined)return;
+  s.quizAnswered=true;
+  const correctIdx=step.q.correct;
+  const gotItRight=s.quizSelected===correctIdx;
+  if(gotItRight)s.quizScore++;
+  document.querySelectorAll('#lstep-quiz-opts .lstep-quiz-opt').forEach(el=>{
+    const oi=parseInt(el.dataset.oi);
+    el.onclick=null;
+    if(oi===correctIdx)el.classList.add('correct-answer');
+    else if(oi===s.quizSelected)el.classList.add('wrong-answer');
+    else el.classList.add('dimmed');
+  });
+  const fb=document.getElementById('lstep-quiz-feedback');
+  fb.innerHTML=`<div class="lstep-feedback ${gotItRight?'correct':'incorrect'}">${gotItRight?'Correct. ':'Not quite. '}${esc(step.q.a)}</div>`;
+  document.getElementById('lstep-next-btn').textContent='Continue';
+}
 
 function lessonStepNext(){
   const s=lstepState, step=s.steps[s.idx];
+  if(step.kind==='quiz'&&step.q.options&&step.q.options.length&&!s.quizAnswered){
+    checkQuizOption();
+    return;
+  }
   if(step.kind==='quiz'&&!s.quizAnswered)return;
   if(s.idx<s.steps.length-1){
     s.idx++;
@@ -2876,6 +2918,7 @@ function lessonStepNext(){
 }
 function lessonStepBack(){
   const s=lstepState;
+
   if(s.idx>0){
     s.idx--;
     renderLstepStep('back');
