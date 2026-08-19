@@ -743,7 +743,71 @@ const TEST_DATA = {
           ],
         },
       ]} },
-      { key:'intermediate', name:'Intermediate', band:'Band 6.0–6.5', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
+      { key:'intermediate', name:'Intermediate', band:'Band 6.0–6.5', skills:{Listening:[
+        {
+          id: 'i-l1', title: 'Multiple Choice — Handling Close Distractors', time: '15-20 minutes',
+          objectives: ['Understand why Listening multiple choice is harder than it looks', 'Learn to read all options before listening, not just the question', 'Practise recognising when a speaker corrects or rules out an earlier-sounding-correct option'],
+          concept: 'Multiple choice questions at this level rarely have an obviously wrong option. Usually 2 of the 3 choices are mentioned in the audio — one is a distractor that sounds right at first but gets corrected or ruled out, and one is the genuine answer, often stated with a qualifying word like "actually," "but," or "however."<br><br>The key skill is holding all options in mind while listening, rather than locking onto the first one mentioned and stopping there.',
+          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Question: "What time does the workshop start?" Options: A) 9am B) 9:30am C) 10am<br><br>Audio: <b>"The workshop was originally scheduled for 9, but we\'ve actually pushed it back to 10 — though doors open at 9:30 for early arrivals."</b><br><br>All three times are mentioned. The correct answer is C (10am, the actual start time) — 9am was the original/incorrect plan, and 9:30am is when doors open, not when it starts. A rushed listener who stops at the first number heard would pick A incorrectly.',
+          vocab: [['originally','at first, before a later change'],['reschedule','to change the planned time of something'],['qualify','to add a condition or correction to a previous statement'],['early arrival','someone who arrives before the official start time'],['revise','to change or update a plan or figure']],
+          mistakes: ['Selecting the first option heard without waiting to hear if it gets corrected.', 'Not reading all three options before the audio starts, so distractors are not recognised as familiar when heard.', 'Missing correction words like "actually" or "but," which often signal the real answer is coming.', 'Assuming the answer must be one specific option based on general expectation, rather than what is actually said.'],
+          practice: 'Question: "How much does the annual membership cost?" Options: A) £120 B) £150 C) £100<br><br>Audio: <b>"Membership is usually £150 a year, but if you\'re a student, it drops to £100 — we don\'t currently offer a £120 tier."</b><br><br>Assuming the caller confirms they are a student, what is the correct answer?',
+          practiceAnswer: 'C (£100) — £150 is the standard/distractor rate, and £120 is explicitly ruled out as not offered at all.',
+          quiz: [
+            {q:'Why is IELTS Listening multiple choice often harder than it looks?', a:'Most options are actually mentioned in the audio — the difficulty is identifying which one is corrected or ruled out, not just recognising a number or word.'},
+            {q:'What kind of words often signal the real answer is about to be given?', a:'Correction words like "actually," "but," or "however."'},
+            {q:'What should you do before the audio starts for a multiple choice question?', a:'Read all the options in advance, so you recognise distractors as familiar rather than confusing when heard.'},
+          ],
+        },
+      ],Reading:[
+        {
+          id: 'i-r1', title: 'Distinguishing Fact from the Writer\'s Opinion', time: '15-20 minutes',
+          objectives: ['Learn to identify language that signals opinion versus stated fact', 'Understand why this distinction matters for several IELTS Reading question types', 'Practise spotting hedging language that shows a claim is not fully certain'],
+          concept: 'Academic passages mix objective facts with the writer\'s own views, and several question types depend on telling these apart. Facts are usually stated directly and can be verified ("The study included 200 participants"). Opinions and claims often use hedging language — words like "may," "suggests," "arguably," "it could be argued" — that signal the writer is not stating something as certain fact.<br><br>Missing this distinction is a common reason for wrongly answering True/False/Not Given or Yes/No/Not Given questions, since a hedged claim is not the same as a confirmed fact.',
+          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Passage sentence: <b>"The policy change may have contributed to the decline in applications, though other factors were likely also involved."</b><br><br>A claim like "The policy change caused the decline in applications" would be FALSE against this sentence — the passage hedges with "may have contributed," not a confirmed sole cause, and explicitly notes other factors were "likely also involved."',
+          vocab: [['hedge (verb)','to avoid stating something as fully certain, using cautious language'],['arguably','used to suggest something is true but not universally agreed upon'],['objective','based on fact, not influenced by personal feeling'],['assertion','a confident statement of fact or belief'],['corroborate','to confirm or support a claim with additional evidence']],
+          mistakes: ['Treating a hedged claim ("may," "suggests") as if it were stated as certain fact.', 'Missing the difference between "caused" and "contributed to" — the second is weaker and more qualified.', 'Assuming the writer\'s opinion, once stated, applies to the whole passage rather than one specific point.', 'Overlooking phrases like "some researchers argue" which signal a claim belongs to a specific group, not an established fact.'],
+          practice: 'Passage sentence: <b>"Some economists argue that remote work has permanently changed commercial real estate demand, though this remains a matter of debate."</b><br><br>Is the claim "Remote work has permanently changed commercial real estate demand" presented as an established, agreed-upon fact?',
+          practiceAnswer: 'No — it is explicitly attributed to "some economists" and described as "a matter of debate," meaning it is a contested opinion, not a stated fact.',
+          quiz: [
+            {q:'What kind of language often signals an opinion rather than a stated fact?', a:'Hedging words like "may," "suggests," "arguably," or "it could be argued."'},
+            {q:'Why does this distinction matter for True/False/Not Given questions?', a:'A hedged claim is not the same as a confirmed fact — treating them the same leads to wrong answers.'},
+            {q:'What does it mean if a claim is introduced with "some researchers argue"?', a:'It belongs to a specific group\'s view, not an established, universally accepted fact.'},
+          ],
+        },
+      ],Writing:[
+        {
+          id: 'i-w1', title: 'Structuring a Task 2 Essay That Actually Answers the Question', time: '20-25 minutes',
+          objectives: ['Learn a reliable four-paragraph structure for Task 2 essays', 'Understand why a clear thesis statement in the introduction matters', 'Practise ensuring every body paragraph directly supports your position'],
+          concept: 'A common reason for a lower Task 2 score is not structure itself, but body paragraphs that drift away from directly answering the question. A reliable structure: <b>Introduction</b> (paraphrase the question, state your position clearly) → <b>Body Paragraph 1</b> (one main idea, explained and supported with an example) → <b>Body Paragraph 2</b> (a second main idea, same treatment) → <b>Conclusion</b> (restate your position, briefly summarise your reasons).<br><br>The introduction\'s thesis statement matters because it tells the examiner exactly what position you will argue — every body paragraph should then clearly connect back to it.',
+          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Question: "Some people think university education should be free. To what extent do you agree?"<br><br>Weak introduction: "University is important. Many people want free education. This essay will discuss this topic." (No clear position stated.)<br><br>Stronger introduction: "While free university education would undoubtedly increase access for lower-income students, I believe the financial burden this places on governments makes it an impractical policy for most countries." — this immediately tells the examiner the writer\'s actual position (partial disagreement) and previews the reasoning to come.',
+          vocab: [['thesis statement','a sentence stating the writer\'s main position or argument'],['to concede','to acknowledge a valid point on the opposing side before returning to your own argument'],['substantiate','to support a claim with evidence or reasoning'],['coherent','logically connected and easy to follow'],['digression','a point that strays from the main argument']],
+          mistakes: ['Not stating a clear position in the introduction, leaving the examiner unsure what you actually think.', 'Writing body paragraphs that discuss related but different ideas instead of directly supporting the thesis.', 'Introducing a brand new argument in the conclusion instead of summarising what was already argued.', 'Spending too long on the introduction and running out of time for developed body paragraphs.'],
+          practice: 'Question: "Should governments invest more in public transport than roads?" A student writes a thesis: "This essay will look at both sides of public transport and roads."<br><br>What is missing from this thesis statement?',
+          practiceAnswer: 'A clear position — this sentence describes the TOPIC but does not state what the writer actually believes, which the thesis statement needs to do directly.',
+          quiz: [
+            {q:'What are the four parts of the recommended Task 2 structure?', a:'Introduction, Body Paragraph 1, Body Paragraph 2, Conclusion.'},
+            {q:'What must a strong introduction include, beyond just restating the topic?', a:'A clear thesis statement stating the writer\'s actual position.'},
+            {q:'Should a new argument be introduced in the conclusion?', a:'No — the conclusion should summarise points already made, not introduce new ideas.'},
+          ],
+        },
+      ],Speaking:[
+        {
+          id: 'i-s1', title: 'Developing Part 3 Answers with Reasoning and Examples', time: '15-20 minutes',
+          objectives: ['Understand why Part 3 rewards developed reasoning, not just an opinion', 'Learn a simple structure for expanding a short answer into a full one', 'Practise supporting opinions with a specific example or consequence'],
+          concept: 'Part 3 questions are broader and more abstract than Part 1 or Part 2, often asking for opinions on trends or issues connected to the Part 2 topic. A short, undeveloped answer ("Yes, I think so") does not demonstrate the range of language Part 3 is designed to assess.<br><br>A reliable structure for expanding an answer: state your opinion → give a reason why → support the reason with a specific example or likely consequence. This naturally produces 3-4 sentences instead of one.',
+          example: '<i>(Original scenario — not from a real IELTS test)</i><br><br>Question: "Do you think social media has changed how young people communicate?"<br><br>Weak: "Yes, definitely."<br><br>Stronger: "Yes, I\'d say it has changed things significantly. Young people now often prefer messaging over phone calls, since it feels less pressured and fits around their schedule. For example, my younger cousin almost never makes phone calls, even to close friends — everything happens through text or short videos instead." — opinion, reason, and a specific example, in a natural flow.',
+          vocab: [['significantly','to a noticeable or important degree'],['a shift towards','a gradual change in the direction of something'],['a knock-on effect','a secondary consequence caused by an initial change'],['from my experience','a phrase introducing a personal example to support a point'],['to a certain extent','partially true, but not completely or unconditionally']],
+          mistakes: ['Giving only a one-sentence opinion with no reasoning or example.', 'Repeating the question back as part of the answer instead of adding new content.', 'Speaking only in general, abstract terms with no specific example at all.', 'Disagreeing with the premise of the question without explaining why.'],
+          practice: 'Question: "Do you think it\'s important for children to learn about their own country\'s history?" A candidate answers: "Yes, it is important."<br><br>Using the opinion → reason → example structure, how might a stronger answer continue?',
+          practiceAnswer: 'Something like: "...because understanding where a country has come from helps people make sense of current events. For example, I only really understood why a public holiday in my hometown matters once I learned the historical story behind it." — adding a reason and a specific, personal example.',
+          quiz: [
+            {q:'What three elements make up a well-developed Part 3 answer?', a:'An opinion, a reason for it, and a specific example or consequence.'},
+            {q:'Why does a one-sentence answer score poorly in Part 3?', a:'It does not demonstrate the range of language and reasoning ability Part 3 is specifically designed to assess.'},
+            {q:'Is it acceptable to disagree with the assumption in a Part 3 question?', a:'Yes — as long as the disagreement is explained with reasoning, not just stated.'},
+          ],
+        },
+      ]} },
       { key:'advanced', name:'Advanced', band:'Band 7.0+', skills:{Listening:[],Reading:[],Writing:[],Speaking:[]} },
     ],
     // Mock test TEMPLATES — the human-reviewed half of the quality
