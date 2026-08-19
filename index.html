@@ -3122,35 +3122,89 @@ function renderMockTestQuestions(){
   const a=currentMockAttempt;
   document.getElementById('tp-lesson-content').innerHTML=`
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">${esc(a.template.title)}</h2>
-    <div style="font-size:12.5px;color:var(--ink3);margin-bottom:16px">${a.questions.length} questions · answer as many as you can, then submit</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:12.5px;color:var(--ink3)">${a.questions.length} questions · answer as many as you can, then submit</div>
+      <div id="mock-timer" style="font-family:var(--font-h);font-weight:700;font-size:14px;color:var(--pine)">⏱ ${a.template.timeLimitMinutes}:00</div>
+    </div>
     ${a.questions.map((q,i)=>`
       <div class="tp-info-card">
         <h4>Question ${i+1}</h4>
         <p>${esc(q.prompt)}</p>
-        <input type="text" oninput="currentMockAttempt.answers[${i}]=this.value" placeholder="Your answer" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-top:8px">
+        ${q.gradingType==='sample'
+          ?`<textarea oninput="currentMockAttempt.answers[${i}]=this.value" placeholder="Write your answer…" rows="5" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-top:8px;resize:vertical"></textarea>`
+          :`<input type="text" oninput="currentMockAttempt.answers[${i}]=this.value" placeholder="Your answer" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-top:8px">`}
       </div>
     `).join('')}
     <button class="btn btn-p" style="margin-top:8px" onclick="submitMockTest()">Submit</button>
   `;
+  startMockTimer(a.template.timeLimitMinutes);
 }
-function submitMockTest(){
+let mockTimerInterval=null;
+function startMockTimer(minutes){
+  if(mockTimerInterval)clearInterval(mockTimerInterval);
+  let secondsLeft=minutes*60;
+  const el=document.getElementById('mock-timer');
+  mockTimerInterval=setInterval(()=>{
+    secondsLeft--;
+    if(!el||secondsLeft<0){clearInterval(mockTimerInterval);return;}
+    const m=Math.floor(secondsLeft/60), s=secondsLeft%60;
+    el.textContent=`⏱ ${m}:${s.toString().padStart(2,'0')}`;
+    if(secondsLeft<=60){el.style.color='var(--rose)';}
+  },1000);
+}
+async function submitMockTest(){
+  if(mockTimerInterval)clearInterval(mockTimerInterval);
   const a=currentMockAttempt;
-  let correct=0;
+  let exactCorrect=0, exactTotal=0;
   const review=a.questions.map((q,i)=>{
-    const isCorrect=(a.answers[i]||'').trim().toLowerCase()===(q.answer||'').trim().toLowerCase();
-    if(isCorrect)correct++;
-    return `<div class="tp-info-card" style="border-left:4px solid ${isCorrect?'var(--sage)':'var(--rose)'}"><h4>${isCorrect?'✓':'✗'} Question ${i+1}</h4><p>${esc(q.prompt)}</p><p style="margin-top:6px"><b>Your answer:</b> ${esc(a.answers[i]||'(blank)')}</p><p><b>Correct answer:</b> ${esc(q.answer)}</p></div>`;
+    const studentAnswer=a.answers[i]||'';
+    if(q.gradingType==='sample'){
+      const qid='mock-self-'+i;
+      return `<div class="tp-info-card">
+        <h4>Question ${i+1}</h4>
+        <p>${esc(q.prompt)}</p>
+        <p style="margin-top:8px"><b>Your answer:</b></p>
+        <p style="white-space:pre-wrap;background:var(--cream);padding:10px 12px;border-radius:var(--r);font-size:13.5px">${esc(studentAnswer||'(left blank)')}</p>
+        <p style="margin-top:10px"><b>Model answer:</b></p>
+        <p style="white-space:pre-wrap;background:var(--sage-l);padding:10px 12px;border-radius:var(--r);font-size:13.5px">${esc(q.sampleAnswer)}</p>
+        ${q.rubric&&q.rubric.length?`<p style="margin-top:8px"><b>A strong answer includes:</b></p><ul style="margin:4px 0 0;padding-left:20px;font-size:13px;color:var(--ink2)">${q.rubric.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="tp-reveal-btn" id="${qid}-weak" onclick="markMockSelf(${i},false)"><i class="ti ti-refresh"></i> I need more practice</button>
+          <button class="tp-reveal-btn" id="${qid}-strong" onclick="markMockSelf(${i},true)"><i class="ti ti-check"></i> I covered the key points</button>
+        </div>
+        <div id="${qid}-fb" style="margin-top:8px"></div>
+      </div>`;
+    }
+    exactTotal++;
+    const isCorrect=studentAnswer.trim().toLowerCase()===(q.answer||'').trim().toLowerCase();
+    if(isCorrect)exactCorrect++;
+    return `<div class="tp-info-card" style="border-left:4px solid ${isCorrect?'var(--sage)':'var(--rose)'}"><h4>${isCorrect?'✓':'✗'} Question ${i+1}</h4><p>${esc(q.prompt)}</p><p style="margin-top:6px"><b>Your answer:</b> ${esc(studentAnswer||'(blank)')}</p><p><b>Correct answer:</b> ${esc(q.answer)}</p></div>`;
   }).join('');
-  const pct=Math.round((correct/a.questions.length)*100);
+  const scoreLine=exactTotal>0
+    ?`<div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:var(--pine)">${exactCorrect}/${exactTotal} correct</div><div style="color:var(--ink3);font-size:13px">${Math.round((exactCorrect/exactTotal)*100)}%</div>`
+    :`<div style="font-size:14px;color:var(--ink3)">Self-assess each answer below against the model response.</div>`;
   document.getElementById('tp-lesson-content').innerHTML=`
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:40px">${pct>=70?'🎉':'💪'}</div>
-      <div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:var(--pine)">${correct}/${a.questions.length} correct</div>
-      <div style="color:var(--ink3);font-size:13px">${pct}%</div>
+      <div style="font-size:40px">${exactTotal===0||exactCorrect/Math.max(exactTotal,1)>=0.7?'🎉':'💪'}</div>
+      ${scoreLine}
     </div>
     ${review}
     <button class="btn" style="margin-top:8px" onclick="closeLessonView()">Done</button>
   `;
+  if(requireRealLogin()){
+    await sb.from('mock_attempts').insert({
+      student_id:currentSession.user.id,test_type:a.testKey,template_key:a.templateKey,
+      score_correct:exactCorrect,score_total:exactTotal||a.questions.length,
+    });
+  }
+}
+function markMockSelf(i,gotItRight){
+  const btnStrong=document.getElementById(`mock-self-${i}-strong`);
+  const btnWeak=document.getElementById(`mock-self-${i}-weak`);
+  if(btnStrong)btnStrong.disabled=true;
+  if(btnWeak)btnWeak.disabled=true;
+  const fb=document.getElementById(`mock-self-${i}-fb`);
+  if(fb)fb.innerHTML=`<div class="tp-answer-box shown" style="background:${gotItRight?'var(--sage-l)':'#FCEBEB'}">${gotItRight?'Nice — marked as a strong answer.':'Noted — compare your answer against the model response above and try a similar question again soon.'}</div>`;
 }
 
 // ── Lessons: Getting Started + Level → Skill → Lesson navigation ────
