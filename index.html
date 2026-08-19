@@ -110,6 +110,48 @@
   .tp-subtab{background:none;border:none;padding:9px 12px;font-size:14.5px;font-weight:700;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
   .tp-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
   .tp-info-card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+
+  /* Lesson detail page — genuine visual differentiation per section type,
+     instead of one generic white card used for everything. */
+  .tp-objectives-box{background:var(--sage-l);border-radius:var(--r);padding:16px;margin-bottom:12px}
+  .tp-objectives-box li{margin-bottom:8px;font-size:14.5px;font-weight:500;color:var(--ink);list-style:none;padding-left:26px;position:relative}
+  .tp-objectives-box li::before{content:'✓';position:absolute;left:0;color:var(--sage);font-weight:800;font-size:15px}
+  .tp-example-box{background:linear-gradient(135deg,var(--gold-l),#fff);border:1.5px solid var(--pine4);border-radius:var(--rl);padding:18px;margin-bottom:12px;position:relative}
+  .tp-example-badge{display:inline-block;background:var(--pine3);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:99px;margin-bottom:10px}
+  .tp-mistake-item{display:flex;gap:12px;background:#FFF5F0;border-left:4px solid var(--rose);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:8px}
+  .tp-mistake-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--rose);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .tp-mistake-item p{margin:0;font-size:14px;line-height:1.55}
+  .tp-vocab-table{width:100%;border-collapse:collapse}
+  .tp-vocab-table tr{border-bottom:1px solid var(--line)}
+  .tp-vocab-table tr:last-child{border-bottom:none}
+  .tp-vocab-table tr:nth-child(even){background:var(--cream)}
+  .tp-vocab-table td{padding:10px 12px;font-size:14px}
+  .tp-vocab-term{font-weight:700;color:var(--pine);width:38%}
+  .tp-quiz-item{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--rl);padding:16px;margin-bottom:10px}
+  .tp-quiz-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pine);color:#fff;font-size:11px;font-weight:800;margin-right:8px;flex-shrink:0}
+  .tp-reveal-btn{background:var(--gold-l);color:var(--gold);border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:8px}
+  .tp-reveal-btn:hover{background:var(--pine4)}
+  .tp-answer-box{margin-top:10px;padding:12px 14px;background:var(--sage-l);border-radius:var(--r);font-size:14px;line-height:1.6;display:none}
+  .tp-answer-box.shown{display:block}
+
+  /* General Info & Coaching tabs — same principle: real visual
+     differentiation instead of one flat card style for every section. */
+  .tp-why-card{display:flex;gap:12px;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--rl);padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh)}
+  .tp-why-icon{flex-shrink:0;width:40px;height:40px;border-radius:12px;background:var(--gold-l);display:flex;align-items:center;justify-content:center;font-size:19px}
+  .tp-why-card h4{margin:0 0 4px;font-size:14.5px;color:var(--pine)}
+  .tp-why-card p{margin:0;font-size:13.5px;color:var(--ink2);line-height:1.55}
+  .tp-section-card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;box-shadow:var(--sh)}
+  .tp-section-time{display:inline-block;background:var(--sky-l);color:var(--sky);font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-left:8px}
+  .tp-data-table{width:100%;border-collapse:collapse;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+  .tp-data-table tr{border-bottom:1px solid var(--line)}
+  .tp-data-table tr:last-child{border-bottom:none}
+  .tp-data-table tr:nth-child(even){background:var(--cream)}
+  .tp-data-table td{padding:11px 14px;font-size:13.5px}
+  .tp-data-table td:last-child{text-align:right;font-weight:700;color:var(--pine)}
+  .tp-coaching-card{display:flex;gap:12px;background:linear-gradient(135deg,var(--pine),var(--pine2));color:#fff;border-radius:var(--rl);padding:16px;margin-bottom:10px;box-shadow:0 6px 18px rgba(91,79,233,.22)}
+  .tp-coaching-icon{flex-shrink:0;font-size:22px}
+  .tp-coaching-card h4{margin:0 0 4px;font-size:14.5px;color:#fff}
+  .tp-coaching-card p{margin:0;font-size:13px;color:rgba(255,255,255,.88);line-height:1.5}
   .tp-info-card h4{font-size:15px;font-weight:700;color:var(--pine);margin:0 0 6px}
   .tp-info-card p{font-size:14.5px;font-weight:500;color:var(--ink);margin:0;line-height:1.7}
   .tp-stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
@@ -2113,19 +2155,19 @@ function setTpSubtab(sub){
     const i=t.info;
     el.innerHTML=`
       <div class="tp-stat-row">${t.stats.map(s=>`<div class="tp-stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join('')}</div>
-      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Why ${esc(t.name)}</h4>
-      ${i.why.map(w=>`<div class="tp-info-card"><h4>${w[0]} ${esc(w[1])}</h4><p>${esc(w[2])}</p></div>`).join('')}
-      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">The Sections</h4>
-      ${i.sections.map(s=>`<div class="tp-info-card"><h4>${esc(s[0])} <span style="color:var(--ink3);font-weight:400">— ${esc(s[1])}</span></h4><p>${esc(s[2])}</p></div>`).join('')}
-      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Typical Score Requirements</h4>
-      <table class="tp-fee-table">${i.bands.map(b=>`<tr><td>${esc(b[0])}</td><td style="text-align:right;font-weight:600">${esc(b[1])}</td></tr>`).join('')}</table>
-      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Fees (2026)</h4>
-      <table class="tp-fee-table">${i.fees.map(f=>`<tr><td>${esc(f[0])}</td><td style="text-align:right;font-weight:600">${esc(f[1])}</td></tr>`).join('')}</table>
-      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Where Students Lose Marks</h4>
-      ${i.mistakes.map(m=>`<div class="tp-info-card"><h4>${m[0]} ${esc(m[1])}</h4><p>${esc(m[2])}</p></div>`).join('')}
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">✨ Why ${esc(t.name)}</h4>
+      ${i.why.map(w=>`<div class="tp-why-card"><div class="tp-why-icon">${w[0]}</div><div><h4>${esc(w[1])}</h4><p>${esc(w[2])}</p></div></div>`).join('')}
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">📋 The Sections</h4>
+      ${i.sections.map(s=>`<div class="tp-section-card"><span style="font-weight:700;font-size:14px">${esc(s[0])}</span><span class="tp-section-time">${esc(s[1])}</span><p style="margin:6px 0 0;font-size:13.5px;color:var(--ink2)">${esc(s[2])}</p></div>`).join('')}
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">🎯 Typical Score Requirements</h4>
+      <table class="tp-data-table">${i.bands.map(b=>`<tr><td>${esc(b[0])}</td><td>${esc(b[1])}</td></tr>`).join('')}</table>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">💳 Fees (2026)</h4>
+      <table class="tp-data-table">${i.fees.map(f=>`<tr><td>${esc(f[0])}</td><td>${esc(f[1])}</td></tr>`).join('')}</table>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⚠️ Where Students Lose Marks</h4>
+      ${i.mistakes.map((m,idx)=>`<div class="tp-mistake-item"><div class="tp-mistake-num">${m[0]}</div><p><b>${esc(m[1])}</b><br>${esc(m[2])}</p></div>`).join('')}
     `;
   } else if(sub==='coaching'){
-    el.innerHTML=t.coaching.map(c=>`<div class="tp-info-card"><h4>${c[0]} ${esc(c[1])}</h4><p>${esc(c[2])}</p></div>`).join('')+
+    el.innerHTML=t.coaching.map(c=>`<div class="tp-coaching-card"><div class="tp-coaching-icon">${c[0]}</div><div><h4>${esc(c[1])}</h4><p>${esc(c[2])}</p></div></div>`).join('')+
       `<div class="tp-info-card" style="text-align:center"><p style="margin-bottom:8px">Interested in structured coaching?</p><a href="https://wa.me/919159158881" target="_blank" style="color:var(--pine);font-weight:600;text-decoration:underline">Chat on WhatsApp</a></div>`;
   } else if(sub==='lessons'){
     renderLessonsRoot();
@@ -2301,41 +2343,50 @@ function openLessonDetail(lesson,source,arg1,arg2,skillContext){
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:2px">${esc(lesson.title)}</h2>
     <div style="font-size:13.5px;color:var(--ink3);margin-bottom:16px">⏱ ${esc(lesson.time)}</div>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:0 0 8px">Learning Objectives</h4>
-    <div class="tp-info-card"><p>${lesson.objectives.map(esc).join('<br>• ').replace(/^/,'• ')}</p></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:0 0 8px">🎯 Learning Objectives</h4>
+    <ul class="tp-objectives-box">${lesson.objectives.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Concept</h4>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">💡 Concept</h4>
     <div class="tp-info-card"><p>${lesson.concept}</p></div>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Worked Example</h4>
-    <div class="tp-info-card">
-      <p id="lesson-example-text">${lesson.example}</p>
-      ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin-top:10px" onclick="speakLessonText('lesson-example-text',this)"><i class="ti ti-volume"></i> Listen to this example</button>`:''}
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">📖 Worked Example</h4>
+    <div class="tp-example-box">
+      <span class="tp-example-badge">Example</span>
+      <p id="lesson-example-text" style="margin:0">${lesson.example}</p>
+      ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin-top:12px" onclick="speakLessonText('lesson-example-text',this)"><i class="ti ti-volume"></i> Listen to this example</button>`:''}
     </div>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Vocabulary Builder</h4>
-    <div class="tp-info-card"><table class="tp-fee-table">${lesson.vocab.map(v=>`<tr><td style="font-weight:600;width:40%">${esc(v[0])}</td><td>${esc(v[1])}</td></tr>`).join('')}</table></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">📚 Vocabulary Builder</h4>
+    <div class="tp-info-card" style="padding:8px 16px"><table class="tp-vocab-table">${lesson.vocab.map(v=>`<tr><td class="tp-vocab-term">${esc(v[0])}</td><td>${esc(v[1])}</td></tr>`).join('')}</table></div>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Common Mistakes</h4>
-    <div class="tp-info-card"><p>${lesson.mistakes.map(esc).join('<br><br>')}</p></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⚠️ Common Mistakes</h4>
+    ${lesson.mistakes.map((m,i)=>`<div class="tp-mistake-item"><div class="tp-mistake-num">${i+1}</div><p>${esc(m)}</p></div>`).join('')}
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Practice Exercise</h4>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">✏️ Practice Exercise</h4>
     <div class="tp-info-card">
       <p id="lesson-practice-text">${lesson.practice}</p>
       ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin:10px 0 0" onclick="speakLessonText('lesson-practice-text',this)"><i class="ti ti-volume"></i> Listen to this exercise</button>`:''}
       ${skillContext&&skillContext.startsWith('Speaking')?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
-      <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:14.5px">Show answer</summary><p style="margin-top:6px">${esc(lesson.practiceAnswer)}</p></details>
+      <div><button class="tp-reveal-btn" onclick="toggleAnswerReveal('practice-answer',this)"><i class="ti ti-eye"></i> Show answer</button></div>
+      <div class="tp-answer-box" id="practice-answer">${esc(lesson.practiceAnswer)}</div>
     </div>
 
-    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">Knowledge Check</h4>
-    ${lesson.quiz.map(q=>`<div class="tp-info-card">
-      <p style="font-weight:600;margin-bottom:6px">${esc(q.q)}</p>
-      <details><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:14.5px">Show answer</summary><p style="margin-top:6px">${esc(q.a)}</p></details>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">🧠 Knowledge Check</h4>
+    ${lesson.quiz.map((q,i)=>`<div class="tp-quiz-item">
+      <p style="font-weight:600;margin:0 0 6px"><span class="tp-quiz-num">${i+1}</span>${esc(q.q)}</p>
+      <button class="tp-reveal-btn" onclick="toggleAnswerReveal('quiz-answer-${i}',this)"><i class="ti ti-eye"></i> Show answer</button>
+      <div class="tp-answer-box" id="quiz-answer-${i}">${esc(q.a)}</div>
     </div>`).join('')}
 
     <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${lesson.id}','${source}','${arg1||''}','${arg2||''}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
   `;
   if(skillContext&&skillContext.startsWith('Speaking')) initRecorderWidget('lesson-'+lesson.id);
+}
+function toggleAnswerReveal(id,btnEl){
+  const box=document.getElementById(id);
+  if(!box)return;
+  const shown=box.classList.toggle('shown');
+  btnEl.innerHTML=shown?'<i class="ti ti-eye-off"></i> Hide answer':'<i class="ti ti-eye"></i> Show answer';
 }
 function closeLessonView(){
   document.getElementById('tp-lesson-view').style.display='none';
