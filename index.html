@@ -1057,7 +1057,315 @@ const TEST_DATA = {
       ['🎯','Tied to Your Actual Application','Your coaching plan factors in your target university and country, not just a generic score target.'],
     ],
     modules: ['Speaking & Writing','Reading','Listening'],
-    gettingStarted: [], levels: [],
+    gettingStarted: [],
+    levels: [
+      { key:'foundation', name:'Foundation', band:'Score 30-42', skills:{'Speaking & Writing':[
+        {
+          id: 'pf-sw1', title: 'Read Aloud — The Task That Sets the Tone', time: '15-20 minutes',
+          objectives: ['Understand why Read Aloud is scored on both content AND delivery', 'Learn how PTE\'s AI scoring evaluates pronunciation and oral fluency specifically', 'Practise stressing content words the way natural, fluent speech does'],
+          concept: 'Read Aloud is usually the very first task, and it is scored automatically by AI on pronunciation, oral fluency, and content accuracy. Unlike IELTS Speaking, there is no examiner to interpret a slight stumble kindly — the scoring engine listens for clear, natural-paced delivery with correct stress patterns.<br><br>A key technique: stress content words (nouns, main verbs, adjectives) more than function words (articles, prepositions) — this is how natural English is actually spoken, and the AI is trained to recognise it.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Text to read: "The company announced a significant increase in quarterly profits."<br><br>Natural stress pattern: <b>COMpany</b>, <b>siGNIficant</b>, <b>INcrease</b>, <b>QUARterly</b>, <b>PROfits</b> carry the stress — while "the," "a," "in" are spoken quickly and lightly. Reading every word with equal, flat emphasis sounds robotic and scores lower on fluency, even if every word is pronounced correctly.',
+          vocab: [['oral fluency','how smoothly and naturally speech flows, without excessive pausing or hesitation'],['content word','a word carrying meaning — nouns, verbs, adjectives, adverbs'],['function word','a grammatical word like "the," "of," "and" that carries less stress in natural speech'],['intonation','the rise and fall of pitch while speaking'],['articulate (verb)','to pronounce words clearly and distinctly']],
+          mistakes: ['Reading every word with equal emphasis, which sounds unnatural to the AI scorer.', 'Pausing too long before starting, which costs preparation time and can affect fluency scoring.', 'Rushing through the text so fast that individual words become unclear.', 'Stopping and restarting after a small mistake, which hurts fluency more than the original error would have.'],
+          practice: 'Text: "Researchers discovered a surprising connection between diet and memory." <br><br>Which words would carry the strongest natural stress when read aloud?',
+          practiceAnswer: 'Researchers, discovered, surprising, connection, diet, memory — the content words. "A," "and," "between" would be spoken more lightly and quickly.',
+          quiz: [
+            {q:'What two things does Read Aloud specifically score?', a:'Content accuracy and delivery — pronunciation and oral fluency.'},
+            {q:'Should every word be stressed equally when reading aloud?', a:'No — content words (nouns, verbs, adjectives) should be stressed more than function words, matching natural speech.'},
+            {q:'What is a bigger problem for fluency: a small mispronunciation, or stopping and restarting after it?', a:'Stopping and restarting — it disrupts fluency more than continuing past a small error would.'},
+          ],
+        },
+      ],Reading:[
+        {
+          id: 'pf-r1', title: 'Fill in the Blanks — Reading and Writing Combined', time: '15-20 minutes',
+          objectives: ['Understand how this PTE-specific task type tests vocabulary and grammar together', 'Learn to use surrounding context to narrow down the correct word', 'Practise recognising common collocations (words that naturally pair together)'],
+          concept: 'This task type does not exist in IELTS — a passage has several blanks, and you drag word options into each gap. It tests whether you know which word fits both grammatically AND in meaning, based on the surrounding sentence.<br><br>Strong candidates look at collocations — words that naturally pair together (e.g., "make a decision," not "do a decision") — since PTE reading passages are written in natural, idiomatic English, and the correct answer is usually the one that "sounds right" to a fluent reader, not just grammatically possible.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Sentence: "The committee decided to _____ the proposal after careful consideration."<br><br>Options might include: "reject," "refuse," "deny." All three relate to saying no, but "reject a proposal" is the natural collocation in this context — "refuse" typically pairs with a request or offer, and "deny" typically pairs with an accusation or claim, not a proposal.',
+          vocab: [['collocation','words that are commonly used together in natural English'],['context clue','information in surrounding text that helps determine a word\'s meaning or correct usage'],['idiomatic','using natural, native-sounding expressions rather than just grammatically correct ones'],['synonym','a word with a similar meaning to another'],['register (in language)','the level of formality appropriate to a given context']],
+          mistakes: ['Choosing a word that is grammatically correct but does not naturally collocate with the surrounding words.', 'Not reading the full sentence before choosing, missing context clues later in the sentence.', 'Confusing near-synonyms that have different typical usage patterns.', 'Rushing without checking whether the completed sentence actually reads naturally.'],
+          practice: 'Sentence: "The new policy is expected to have a significant _____ on small businesses." Which fits better: "effect" or "affect"?',
+          practiceAnswer: '"Effect" — it is used as a noun here ("have an effect on"), while "affect" is typically used as a verb ("to affect something"). This is a common collocation pattern worth memorising.',
+          quiz: [
+            {q:'What makes this PTE task type different from a typical grammar exercise?', a:'It tests natural collocation and meaning in context, not just grammatical correctness alone.'},
+            {q:'What is a collocation?', a:'Words that are commonly and naturally used together in English, like "make a decision."'},
+            {q:'Should you choose an answer as soon as one option seems grammatically possible?', a:'No — check that the completed sentence also reads naturally and fits the full context, not just grammar rules.'},
+          ],
+        },
+      ],Listening:[
+        {
+          id: 'pf-l1', title: 'Summarize Spoken Text — Capturing the Main Idea Under Pressure', time: '15-20 minutes',
+          objectives: ['Understand how this task blends listening and writing skills together', 'Learn to note key points while listening, not just at the end', 'Practise writing a concise summary within the exact word limit'],
+          concept: 'You hear a short lecture or talk (60-90 seconds) and must write a 50-70 word summary within 10 minutes. This task rewards note-taking WHILE listening, since trying to remember everything afterward is unreliable — jot down key nouns, numbers, and the speaker\'s main claim as you hear them.<br><br>The summary should capture the main idea and key supporting points, not every detail — this is a compression skill, similar to writing a strong Task 1 overview in IELTS.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A short talk describes a company\'s move to a four-day work week, mentioning a 15% productivity increase and some initial employee scepticism that faded within two months.<br><br>Strong summary: "A company\'s shift to a four-day work week resulted in a 15% productivity increase, despite initial employee scepticism that dissipated within two months." — captures the main change, the key statistic, and the secondary detail, within a natural single sentence.',
+          vocab: [['concise','giving information clearly, using few words'],['compression (in writing)','reducing a longer idea to its essential points without losing meaning'],['dissipate','to gradually disappear or fade away'],['key point','the most important piece of information in a passage'],['paraphrase','to restate something using different words while keeping the same meaning']],
+          mistakes: ['Waiting until the audio ends to start recalling information, rather than noting key points while listening.', 'Writing well over or under the 50-70 word limit.', 'Including too much minor detail and losing the main idea in the process.', 'Copying phrases directly from the audio instead of writing a genuine, concise summary.'],
+          practice: 'A talk mentions a new recycling programme reduced landfill waste by 30% in its first year, though contamination rates in recycling bins remained a persistent problem.<br><br>In one sentence, how would you summarise this?',
+          practiceAnswer: 'Something like: "A new recycling programme cut landfill waste by 30% in its first year, though contamination in recycling bins remained an ongoing issue." — captures both the main achievement and the key limitation, concisely.',
+          quiz: [
+            {q:'What is the word limit for a Summarize Spoken Text response?', a:'50-70 words.'},
+            {q:'Should you wait until the audio finishes before trying to recall the content?', a:'No — take notes on key points WHILE listening, rather than relying on memory afterward.'},
+            {q:'Should the summary include every detail mentioned?', a:'No — it should capture the main idea and key supporting points, not every minor detail.'},
+          ],
+        },
+      ]} },
+      { key:'developing', name:'Developing', band:'Score 43-57', skills:{'Speaking & Writing':[
+        {
+          id: 'pd-sw1', title: 'Describe Image — Structuring a 40-Second Response', time: '15-20 minutes',
+          objectives: ['Learn a reliable structure for describing a chart, graph, or image within the time limit', 'Understand what the AI scorer is actually listening for in this task', 'Practise moving from general overview to specific detail smoothly'],
+          concept: 'You see an image (often a chart or graph) and have 25 seconds to prepare, then 40 seconds to describe it aloud. A common issue is running out of things to say, or describing individual data points with no overall structure.<br><br>A reliable structure: start with a one-sentence overview of what the image shows, then describe 2-3 key features or trends, then (if time remains) a brief closing observation. This mirrors IELTS Task 1\'s overview-then-detail approach, adapted for a spoken, time-pressured format.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Image: a bar chart showing website traffic across four months, rising steadily.<br><br>Structure in practice: "This bar chart shows website traffic over a four-month period. Traffic started at around 10,000 visits in January and rose steadily each month, reaching approximately 25,000 by April. The most notable increase occurred between March and April, where growth nearly doubled compared to previous months." — overview, then trend, then a specific standout detail.',
+          vocab: [['overview (spoken)','a brief opening statement summarising what a chart or image shows overall'],['notable','worth mentioning because it stands out in some way'],['steadily','changing at a consistent, gradual pace'],['approximately','roughly, not an exact figure'],['fluctuation','irregular rising and falling, without one clear steady direction']],
+          mistakes: ['Describing every single data point individually instead of giving an overview first.', 'Running out of things to say well before the 40 seconds is up.', 'Speaking too fast to fit everything in, sacrificing clarity for AI scoring.', 'Starting with a specific detail instead of a general overview, which can sound disorganised.'],
+          practice: 'An image shows a pie chart with four categories of household spending, with "Housing" taking up nearly half the chart.<br><br>How would you structure an opening overview sentence for this image?',
+          practiceAnswer: 'Something like: "This pie chart shows the breakdown of household spending across four categories, with housing accounting for nearly half of total expenditure." — a clear overview naming the chart type and the standout feature, before moving into further detail.',
+          quiz: [
+            {q:'How much time do you have to describe the image, after preparation?', a:'40 seconds.'},
+            {q:'What should come first in a strong Describe Image response?', a:'A one-sentence overview of what the image shows overall.'},
+            {q:'Is it better to describe every data point, or to focus on 2-3 key features?', a:'2-3 key features — attempting to describe everything individually often runs out of time or sounds disorganised.'},
+          ],
+        },
+      ],Reading:[
+        {
+          id: 'pd-r1', title: 'Re-order Paragraphs — Finding the Logical Sequence', time: '15-20 minutes',
+          objectives: ['Understand how to identify the true opening sentence of a jumbled passage', 'Learn to use pronouns and connecting words as sequencing clues', 'Practise building a logical chain rather than guessing randomly'],
+          concept: 'You are given several text boxes in random order and must arrange them into the correct paragraph sequence. The key skill is spotting language clues: the opening sentence usually introduces a topic generally (no pronouns referring back to something unmentioned), while later sentences often use "this," "it," "these," or "however" to connect back to a previous idea.<br><br>Finding the true first sentence anchors the whole sequence — from there, look for which sentence logically continues its idea.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Box A: "This approach, however, proved difficult to scale across larger organisations."<br>Box B: "Many companies began adopting flexible working arrangements in the early 2020s."<br>Box C: "As a result, several businesses developed hybrid models instead."<br><br>B is clearly first — it introduces the topic with no unexplained pronoun. A follows, since "this approach" refers back to the flexible arrangements just introduced. C follows A, since "as a result" logically connects to the difficulty just described.',
+          vocab: [['pronoun reference','a word like "this," "it," or "these" that refers back to something mentioned earlier'],['logical sequence','an order of ideas that makes sense in terms of cause, time, or explanation'],['transition word','a word or phrase like "however," "as a result," or "in addition" that connects ideas'],['anchor sentence','the sentence that establishes the starting point of a sequence'],['coherent','logically connected and easy to follow']],
+          mistakes: ['Trying to arrange sentences based on their content alone, ignoring pronoun and transition clues.', 'Not identifying the true opening sentence first, making the rest of the sequence harder to build.', 'Assuming the order will match how the sentences were originally presented in the question.', 'Missing that a transition word like "however" signals a contrast with the previous sentence specifically.'],
+          practice: 'Box A: "Despite this, employee satisfaction scores actually improved during the trial." Box B: "The company reduced working hours without reducing pay." Box C: "Initially, managers were concerned this would reduce overall productivity."<br><br>What is the correct order, and why?',
+          practiceAnswer: 'B, C, A — B introduces the change with no pronoun reference; C follows logically ("this would reduce" refers to the change just described); A follows with "despite this," contrasting with the concern just raised in C.',
+          quiz: [
+            {q:'What usually signals the TRUE opening sentence of a jumbled sequence?', a:'It introduces the topic generally, without pronouns referring back to something not yet mentioned.'},
+            {q:'What kind of words act as useful sequencing clues?', a:'Pronouns ("this," "it") and transition words ("however," "as a result").'},
+            {q:'Should paragraphs be ordered based on the order they appear in the question?', a:'No — the boxes are presented in random order; only logical/language clues indicate the correct sequence.'},
+          ],
+        },
+      ],Listening:[
+        {
+          id: 'pd-l1', title: 'Write From Dictation — The Task That Scores Twice', time: '15-20 minutes',
+          objectives: ['Understand why this task affects both Listening and Writing scores', 'Learn to write down fragments immediately rather than waiting to hear the whole sentence', 'Practise reconstructing a sentence from partial notes accurately'],
+          concept: 'You hear a sentence once and must type it exactly. This is one of the highest-value tasks on the whole test, since it contributes to BOTH your Listening and Writing scores — meaning consistent practice here has an outsized impact.<br><br>The key technique: write down words and fragments as you hear them, in real time, rather than trying to hold the whole sentence in memory and write it after. Spelling, capitalisation, and punctuation are all scored, so precision matters as much as content.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio (heard once): "The research team published their findings in a leading scientific journal last month."<br><br>A candidate who tries to remember the whole sentence often loses word order or drops a word under pressure. A candidate who jots fragments in real time — "research team," "published," "findings," "leading... journal," "last month" — can then reconstruct the full sentence accurately from these anchor points, even if a word or two was missed initially.',
+          vocab: [['dictation','writing down spoken words exactly as heard'],['transcribe','to write down spoken or recorded content in text form'],['punctuation','marks like periods, commas, and capital letters used in writing'],['verbatim','using the exact same words, with nothing changed'],['real time (in this context)','as something is happening, not afterward from memory']],
+          mistakes: ['Waiting until the sentence finishes before writing anything down.', 'Getting the content right but making spelling or capitalisation errors that cost marks.', 'Losing word order when reconstructing from memory rather than real-time notes.', 'Skipping small function words (the, a, of) that are still scored even though they carry less meaning.'],
+          practice: 'You hear: "Local authorities announced new recycling guidelines effective next January." <br><br>What fragments would be most useful to jot down in real time while listening?',
+          practiceAnswer: 'Something like: "Local authorities," "announced," "new recycling guidelines," "effective," "next January" — key content words captured as anchor points, which can then be assembled into the accurate full sentence, including small connecting words.',
+          quiz: [
+            {q:'Which two scores does Write From Dictation contribute to?', a:'Both Listening and Writing.'},
+            {q:'What is the recommended technique — writing during listening, or waiting until the audio ends?', a:'Writing fragments down in real time while listening, not waiting until the end.'},
+            {q:'Do small errors in spelling or capitalisation actually affect the score?', a:'Yes — this task is scored on exact accuracy, including spelling and punctuation.'},
+          ],
+        },
+      ]} },
+      { key:'intermediate', name:'Intermediate', band:'Score 58-72', skills:{'Speaking & Writing':[
+        {
+          id: 'pi-sw1', title: 'Retell Lecture — Summarizing Complex Audio Aloud', time: '15-20 minutes',
+          objectives: ['Understand how this task combines listening comprehension with spoken summary skills', 'Learn to identify a lecture\'s structure while listening (introduction, main points, conclusion)', 'Practise speaking a organised summary without reading from notes word-for-word'],
+          concept: 'You hear a lecture (up to 90 seconds) and must retell it in your own words within 40 seconds of speaking time, after 10 seconds preparation. This is genuinely demanding — it requires understanding the lecture\'s structure while listening, not just isolated facts.<br><br>Strong candidates listen for the lecture\'s shape: what is the main topic, what are 2-3 supporting points, and is there a conclusion or implication — then speak this structure aloud, rather than trying to recall random details.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A lecture discusses how urban green spaces affect mental health, mentioning a study of 500 city residents and noting the effect was strongest in dense city centres.<br><br>Strong retell: "This lecture discussed the link between urban green spaces and mental health, referencing a study of 500 city residents. The researchers found that the positive effect was strongest in dense city centres, suggesting green space may matter most where it is scarcest." — captures topic, evidence, and a key nuance, spoken naturally rather than read.',
+          vocab: [['structure (of a talk)','the organisation of a spoken piece — introduction, main points, conclusion'],['nuance','a subtle but meaningful detail or distinction'],['in your own words','expressing an idea using different phrasing than the original, not copying exactly'],['coherent summary','a well-organised restatement that makes logical sense to a listener'],['implication','something suggested or implied, without being stated outright']],
+          mistakes: ['Trying to recall isolated facts without a sense of the lecture\'s overall structure.', 'Reading mechanically from notes rather than speaking naturally.', 'Focusing only on the first part of the lecture and losing later content.', 'Running out of things to say partway through the 40 seconds, having not planned a full retell.'],
+          practice: 'A lecture explains that a company\'s new hybrid work policy led to lower office costs but a slight drop in spontaneous collaboration between teams.<br><br>How would you structure a brief retell of this?',
+          practiceAnswer: 'Something like: "This lecture discussed a company\'s hybrid work policy, which reduced office costs but slightly decreased spontaneous collaboration between teams." — topic, then both the positive and negative outcome mentioned, in a natural single flow.',
+          quiz: [
+            {q:'How long do you have to speak for Retell Lecture, after preparation?', a:'40 seconds.'},
+            {q:'What should you listen for while the lecture plays, beyond isolated facts?', a:'The lecture\'s overall structure — main topic, supporting points, and any conclusion.'},
+            {q:'Should the retell copy the lecture\'s exact wording?', a:'No — it should be expressed in your own words, showing genuine understanding, not memorised repetition.'},
+          ],
+        },
+      ],Reading:[
+        {
+          id: 'pi-r1', title: 'Multiple Choice, Multiple Answers — Avoiding the Partial-Credit Trap', time: '15-20 minutes',
+          objectives: ['Understand how partial-credit scoring works for this question type', 'Learn why selecting extra wrong answers actively costs marks', 'Practise being selective rather than choosing every plausible-sounding option'],
+          concept: 'This task gives several answer options, and MORE THAN ONE can be correct — but scoring is not simply "more selections, more chances of being right." Incorrect selections can actively subtract from your score, unlike simple multiple choice.<br><br>This means guessing every plausible option is a genuinely bad strategy. Being confident and selective — choosing only options you can justify from the passage — usually scores better than a scattergun approach.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Question: "Which of the following are mentioned as benefits of the new policy?" with 5 options, of which 2 are genuinely correct and 3 are plausible-sounding distractors not actually supported by the passage.<br><br>A candidate who selects all 5 "just in case" scores worse than one who carefully identifies and selects only the 2 genuinely supported options — because the incorrect selections cost marks, they are not a free additional guess.',
+          vocab: [['partial credit','a scoring system where some marks can still be earned even without a fully perfect answer'],['distractor','an incorrect option designed to seem plausible'],['justify (an answer)','to be able to point to specific textual evidence supporting your choice'],['selective','choosing carefully rather than broadly or indiscriminately'],['scattergun approach','choosing many options broadly, hoping some are correct, without careful selection']],
+          mistakes: ['Selecting every option that seems even loosely related to the topic.', 'Assuming this question type is scored the same as simple single-answer multiple choice.', 'Not going back to the passage to verify each selection is genuinely supported.', 'Under-selecting out of excessive caution, missing options that ARE clearly supported.'],
+          practice: 'A passage discusses a new public library\'s features, explicitly mentioning free wifi and extended hours, while NOT mentioning parking or childcare facilities at all — though a nearby, unrelated community centre does offer those.<br><br>If asked which features the library itself offers, should "parking" and "childcare" be selected?',
+          practiceAnswer: 'No — even though those features are mentioned in the same general passage (regarding the community centre, not the library), they are not supported as features of the LIBRARY specifically, and selecting them would likely cost marks under partial-credit scoring.',
+          quiz: [
+            {q:'Does selecting more options always improve your chances on this question type?', a:'No — incorrect selections can actively subtract from your score, unlike guessing extra options for free.'},
+            {q:'What is the safest general strategy for this task type?', a:'Being selective — choosing only options you can clearly justify with evidence from the passage.'},
+            {q:'Should options be selected based on general topic relevance alone?', a:'No — each selection should be verified against specific evidence in the passage, not just loose topical relevance.'},
+          ],
+        },
+      ],Listening:[
+        {
+          id: 'pi-l1', title: 'Highlight Incorrect Words — Reading Along While Listening', time: '15-20 minutes',
+          objectives: ['Understand how this task tests simultaneous reading and listening accuracy', 'Learn to read slightly ahead of the audio rather than word-by-word alongside it', 'Practise catching discrepancies without losing your place in the transcript'],
+          concept: 'You see a transcript on screen while audio plays, and some words in the transcript do NOT match what is actually said — you must click each incorrect word. This requires reading and listening simultaneously, at the audio\'s pace, without falling behind.<br><br>A useful technique: let your eyes track slightly ahead of the current audio position, since seeing an upcoming word before it is spoken makes a mismatch easier to catch the instant it happens, rather than reacting after the fact.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Transcript reads: "The government announced <b>increased</b> funding for rural schools." Audio actually says: <b>"...announced reduced funding for rural schools."</b><br><br>A candidate reading exactly in sync with the audio may process "increased" as heard correctly before realising the mismatch a moment later. A candidate reading slightly ahead sees "increased" coming up, and immediately recognises the audio says something different the instant it is spoken.',
+          vocab: [['discrepancy','a difference between two things that should match'],['simultaneous','happening at the same time'],['transcript','a written record of spoken content'],['track (verb, in reading)','to follow along with your eyes as something progresses'],['mismatch','something that does not correctly correspond or align']],
+          mistakes: ['Reading exactly in sync with the audio, leaving no buffer to catch a mismatch quickly.', 'Losing your place in the transcript after clicking one incorrect word.', 'Assuming a word "sounds about right" without fully confirming it matches the transcript exactly.', 'Getting distracted by unfamiliar vocabulary and losing overall tracking.'],
+          practice: 'Transcript: "Researchers observed a <b>significant</b> improvement in patient recovery times." If the audio actually says "moderate" instead of "significant," what should the candidate do?',
+          practiceAnswer: 'Click on the word "significant" in the transcript, since it does not match what was actually said in the audio ("moderate").',
+          quiz: [
+            {q:'What does this task require you to do simultaneously?', a:'Read a transcript and listen to audio at the same time, catching where they do not match.'},
+            {q:'Why is reading slightly ahead of the audio a useful technique?', a:'It lets you recognise a mismatch the instant it is spoken, rather than reacting after the fact.'},
+            {q:'What should you do if you miss catching one mismatch?', a:'Keep tracking forward rather than losing your place trying to go back — later mismatches still need to be caught.'},
+          ],
+        },
+      ]} },
+      { key:'advanced', name:'Advanced', band:'Score 73-90', skills:{'Speaking & Writing':[
+        {
+          id: 'pa-sw1', title: 'Essay Writing — Sophisticated Argumentation Under Time Pressure', time: '20-25 minutes',
+          objectives: ['Learn a reliable structure for a 200-300 word PTE essay within the time limit', 'Understand how sentence variety and vocabulary range affect scoring at this level', 'Practise developing one argument fully rather than several arguments thinly'],
+          concept: 'PTE Essay gives 20 minutes to write 200-300 words responding to a prompt. At Band-equivalent advanced level, the difference between a strong and average essay is rarely the basic structure — it is argument depth and language range. A common weakness is covering 3-4 arguments superficially instead of developing 2 arguments with genuine depth, examples, and varied sentence structure.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Prompt: "Should companies allow employees to work remotely full-time?"<br><br>Weaker approach: four brief paragraphs each naming a different reason, none developed beyond one sentence.<br><br>Stronger approach: two well-developed paragraphs — one exploring productivity and autonomy with a specific example, one addressing the genuine counterargument (reduced spontaneous collaboration) before explaining why the benefits still outweigh it — showing real argumentative depth, not just a list of points.',
+          vocab: [['argumentation','the process of reasoning systematically to support a claim'],['counterargument','an opposing point of view acknowledged and addressed within an argument'],['substantiate','to support a claim with evidence or reasoning'],['nuanced','showing careful attention to subtle distinctions, not an oversimplified view'],['concede (in writing)','to acknowledge a valid opposing point before returning to your own argument']],
+          mistakes: ['Covering many arguments briefly instead of developing fewer arguments in depth.', 'Not acknowledging any counterargument, making the essay seem one-sided.', 'Running out of time because too long was spent planning instead of writing.', 'Repeating the same sentence structures throughout, limiting demonstrated language range.'],
+          practice: 'A prompt asks whether governments should fund the arts. A student plans four one-sentence reasons.<br><br>How might restructuring around two well-developed arguments improve this response?',
+          practiceAnswer: 'Choosing the two strongest reasons and developing each with an example, explanation, and connection back to the prompt would demonstrate more genuine reasoning and depth than four underdeveloped points, which is what higher-level scoring specifically rewards.',
+          quiz: [
+            {q:'How many words is the PTE Essay task expecting?', a:'200-300 words.'},
+            {q:'Is covering more arguments always better than developing fewer in depth?', a:'No — 2 well-developed arguments typically score higher than 4 superficial ones.'},
+            {q:'Should a counterargument be acknowledged in a strong essay?', a:'Yes — addressing a genuine counterargument shows more sophisticated, nuanced reasoning.'},
+          ],
+        },
+      ],Reading:[
+        {
+          id: 'pa-r1', title: 'Summarize Written Text — One Sentence, Maximum Precision', time: '20-25 minutes',
+          objectives: ['Understand why this task must be written as a single sentence', 'Learn to identify a passage\'s core argument versus its supporting examples', 'Practise using complex grammatical structures to fit a full idea into one sentence'],
+          concept: 'You read a passage (usually 200-300 words) and must summarise it in exactly ONE sentence, of 5-75 words. This is a genuinely demanding compression task — it requires identifying the passage\'s core argument (not just topic) and expressing it using subordinate clauses, since a single simple sentence cannot hold this much information.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A 250-word passage discusses how a city\'s bike-share programme reduced short car trips but faced criticism over uneven station distribution across wealthier versus poorer neighbourhoods.<br><br>Strong one-sentence summary: "Although a city\'s bike-share programme successfully reduced short car trips, it has faced criticism for unevenly distributing stations in a way that favours wealthier neighbourhoods over poorer ones." — captures both the success AND the core criticism in one grammatically complex sentence, using "although" to connect two contrasting ideas.',
+          vocab: [['core argument','the central claim or point a passage is actually making, as opposed to a supporting detail'],['subordinate clause','a clause that adds information but cannot stand alone as a full sentence'],['synthesis','combining separate pieces of information into one coherent whole'],['concise','conveying much meaning in few words'],['qualifying clause','a clause that adds a condition or limitation to the main statement']],
+          mistakes: ['Writing the summary as two or more sentences, which does not meet the task requirement.', 'Summarising only the topic, not the passage\'s actual argument or conclusion.', 'Missing a key qualifying detail (like a criticism or exception) that changes the overall meaning.', 'Writing well outside the 5-75 word range.'],
+          practice: 'A passage explains that a new teaching method improved test scores overall, but only for students who had prior exposure to similar teaching styles.<br><br>How would you summarise this in one precise sentence?',
+          practiceAnswer: 'Something like: "While a new teaching method improved test scores overall, the benefit was largely limited to students who had prior exposure to similar teaching approaches." — captures both the general result and the crucial limiting condition, in one sentence.',
+          quiz: [
+            {q:'How many sentences should a Summarize Written Text response be?', a:'Exactly one.'},
+            {q:'What is the word range for this task?', a:'5-75 words.'},
+            {q:'Should the summary capture the passage\'s topic, or its actual argument/conclusion?', a:'Its actual argument or conclusion — not just the general topic.'},
+          ],
+        },
+      ],Listening:[
+        {
+          id: 'pa-l1', title: 'Summarizing Natural, Unscripted-Sounding Audio', time: '20-25 minutes',
+          objectives: ['Understand how advanced-level listening audio differs from simplified practice material', 'Learn to follow an argument through natural speech patterns, hesitations, and self-corrections', 'Practise identifying the speaker\'s actual point despite less predictable phrasing'],
+          concept: 'At this level, listening audio sounds genuinely natural — speakers may briefly hesitate, self-correct, or restructure a sentence mid-thought, the way real unscripted speech does. This is harder to follow than clearly enunciated, simplified audio, and requires focusing on the speaker\'s overall point rather than getting distracted by every hesitation or false start.',
+          example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Natural audio: <b>"So the — well, actually, what really matters here isn\'t the initial cost, it\'s — I mean, the long-term maintenance is really where the expense adds up."</b><br><br>A candidate distracted by the false starts ("the—", "I mean—") may lose the actual point. The genuine content is: long-term maintenance, not initial cost, is where the real expense lies — the hesitations are natural speech patterns, not separate pieces of information to process.',
+          vocab: [['unscripted','spoken naturally without a prepared script'],['self-correct (in speech)','to naturally revise what one is saying mid-sentence'],['false start','an incomplete phrase abandoned and restarted while speaking naturally'],['discourse pattern','the natural structure and flow of real spoken language'],['digress','to move briefly away from the main point before returning to it']],
+          mistakes: ['Getting distracted trying to process every hesitation or false start as meaningful content.', 'Losing the speaker\'s actual point amid natural, less predictable phrasing.', 'Assuming advanced-level audio will be as clearly structured as beginner practice material.', 'Not practising with genuinely natural speech patterns, only with slow, simplified audio.'],
+          practice: 'Audio: <b>"It\'s not — well, I wouldn\'t say it\'s a total failure, but the results were definitely underwhelming compared to what we expected."</b><br><br>What is the speaker\'s actual assessment, despite the hesitant phrasing?',
+          practiceAnswer: 'The results were underwhelming/disappointing compared to expectations — not a total failure, but clearly below what was hoped for. The hesitation ("it\'s not — well, I wouldn\'t say") is natural speech softening a critical point, not separate content.',
+          quiz: [
+            {q:'What makes advanced-level listening audio genuinely harder than simplified practice material?', a:'It includes natural hesitations, self-corrections, and less predictable phrasing, like real unscripted speech.'},
+            {q:'Should false starts and hesitations be processed as separate pieces of information?', a:'No — they are natural speech patterns; the goal is to identify the speaker\'s actual underlying point.'},
+            {q:'Is only practising with slow, clearly-enunciated audio sufficient preparation for this level?', a:'No — genuine practice with natural, unscripted-sounding speech patterns is needed too.'},
+          ],
+        },
+      ]} },
+    ],
+    mockTemplates: {
+      'foundation-Speaking & Writing': {
+        title: 'Foundation Speaking & Writing — Practice Mock',
+        questionCount: 3,
+        timeLimitMinutes: 10,
+        questionTypes: ['read_aloud'],
+        topicPool: ['a short paragraph about a scientific discovery','a short paragraph about a business trend','a short paragraph about a historical event'],
+        difficultyNote: 'Short (30-40 word) text-to-read passages — matches the "Read Aloud" lesson. Focus on natural content-word stress, not complex vocabulary yet.',
+        wordLimitRule: 'This is a spoken response — recorded, not typed. Scored on clarity and natural stress pattern, not exact wording.',
+      },
+      'foundation-Reading': {
+        title: 'Foundation Reading — Practice Mock',
+        questionCount: 5,
+        timeLimitMinutes: 12,
+        questionTypes: ['fill_in_blanks'],
+        topicPool: ['a workplace policy announcement','a short news summary','a product description'],
+        difficultyNote: 'Short sentences with one blank each, testing collocation — matches the "Fill in the Blanks" lesson. Keep vocabulary everyday-level, not academic.',
+        wordLimitRule: 'Answer with the single word that best completes each sentence.',
+      },
+      'foundation-Listening': {
+        title: 'Foundation Listening — Practice Mock',
+        questionCount: 3,
+        timeLimitMinutes: 12,
+        questionTypes: ['summarize_spoken_text'],
+        topicPool: ['a short talk about a workplace change','a short talk about a community initiative','a short talk about a new product launch'],
+        difficultyNote: 'Short talks (60-90 seconds worth of content, written as a script here) with one clear main idea and 1-2 supporting details — matches the "Summarize Spoken Text" lesson.',
+        wordLimitRule: 'A 50-70 word summary capturing the main idea and key supporting points.',
+      },
+      'developing-Speaking & Writing': {
+        title: 'Developing Speaking & Writing — Practice Mock',
+        questionCount: 2,
+        timeLimitMinutes: 10,
+        questionTypes: ['describe_image'],
+        topicPool: ['a bar chart of monthly sales figures','a pie chart of household spending categories','a line graph of website traffic over time'],
+        difficultyNote: 'Simple chart/graph descriptions — matches the "Describe Image" lesson. Text-based description exercise here rather than an actual image, since this is a text-first mock; the student practises the overview-then-detail structure.',
+        wordLimitRule: 'A spoken/typed response using the overview-then-detail structure, roughly matching a 40-second spoken response in length.',
+      },
+      'developing-Reading': {
+        title: 'Developing Reading — Practice Mock',
+        questionCount: 3,
+        timeLimitMinutes: 12,
+        questionTypes: ['reorder_paragraphs'],
+        topicPool: ['a passage about a workplace policy change','a passage about a technology adoption trend','a passage about an urban development project'],
+        difficultyNote: '3-4 jumbled sentences per question, testing pronoun and transition-word sequencing clues — matches the "Re-order Paragraphs" lesson.',
+        wordLimitRule: 'Answer with the correct sequence of sentence labels (e.g. B, C, A).',
+      },
+      'developing-Listening': {
+        title: 'Developing Listening — Practice Mock',
+        questionCount: 4,
+        timeLimitMinutes: 12,
+        questionTypes: ['write_from_dictation'],
+        topicPool: ['a sentence about a policy announcement','a sentence about a research finding','a sentence about a business development'],
+        difficultyNote: 'Single sentences (12-18 words) to transcribe exactly — matches the "Write From Dictation" lesson. Scored on exact wording, spelling, and word order.',
+        wordLimitRule: 'The exact sentence, word for word, correctly spelled and ordered.',
+      },
+      'intermediate-Speaking & Writing': {
+        title: 'Intermediate Speaking & Writing — Practice Mock',
+        questionCount: 2,
+        timeLimitMinutes: 12,
+        questionTypes: ['retell_lecture'],
+        topicPool: ['a short lecture on a workplace trend','a short lecture on an environmental initiative','a short lecture on a health/wellbeing study'],
+        difficultyNote: 'A short lecture script (90 seconds worth of content) with a clear structure (topic, evidence, nuance) — matches the "Retell Lecture" lesson. Expect a spoken/typed retell in the student\'s own words, not memorised repetition.',
+        wordLimitRule: 'A structured retell covering the main topic, key evidence, and any notable nuance — roughly matching a 40-second spoken response.',
+      },
+      'intermediate-Reading': {
+        title: 'Intermediate Reading — Practice Mock',
+        questionCount: 3,
+        timeLimitMinutes: 15,
+        questionTypes: ['multiple_choice_multiple_answers'],
+        topicPool: ['a passage about a new public policy\'s features','a passage about a company\'s product benefits','a passage about a study\'s reported findings'],
+        difficultyNote: 'Each question offers 4-5 options with 2-3 genuinely correct — matches the "Multiple Choice, Multiple Answers" lesson. Include plausible but unsupported distractors to test selective, evidence-based choosing.',
+        wordLimitRule: 'Select all options genuinely supported by the passage — note that incorrect selections should be treated as costing marks, matching real scoring behaviour.',
+      },
+      'intermediate-Listening': {
+        title: 'Intermediate Listening — Practice Mock',
+        questionCount: 3,
+        timeLimitMinutes: 12,
+        questionTypes: ['highlight_incorrect_words'],
+        topicPool: ['a transcript about a funding announcement','a transcript about a research result','a transcript about a policy change'],
+        difficultyNote: 'A short transcript (40-60 words) with 2-3 words that do not match a described "audio version" — matches the "Highlight Incorrect Words" lesson. Present both the transcript and the correct audio wording, asking the student to identify the mismatches.',
+        wordLimitRule: 'Identify each word in the transcript that does not match the actual (described) audio wording.',
+      },
+      'advanced-Speaking & Writing': {
+        title: 'Advanced Speaking & Writing — Practice Mock',
+        questionCount: 1,
+        timeLimitMinutes: 20,
+        questionTypes: ['essay'],
+        topicPool: ['whether remote work benefits outweigh its drawbacks for companies','whether governments should fund the arts','whether social media has done more good than harm for society'],
+        difficultyNote: 'A full essay prompt — matches the "Essay Writing" lesson. Expect 200-300 words with genuine argument depth (2 well-developed points, one counterargument addressed), not several superficial points.',
+        wordLimitRule: '200-300 words, with a clear position, developed reasoning, and at least one acknowledged counterargument.',
+      },
+      'advanced-Reading': {
+        title: 'Advanced Reading — Practice Mock',
+        questionCount: 2,
+        timeLimitMinutes: 20,
+        questionTypes: ['summarize_written_text'],
+        topicPool: ['a passage about a policy\'s mixed results','a passage about a technology\'s benefits and limitations','a passage about a study\'s nuanced findings'],
+        difficultyNote: 'A 200-250 word passage with a genuine core argument plus an important qualifying detail — matches the "Summarize Written Text" lesson. The answer must be exactly ONE sentence.',
+        wordLimitRule: 'Exactly one sentence, 5-75 words, capturing the passage\'s core argument and its key qualifying detail.',
+      },
+      'advanced-Listening': {
+        title: 'Advanced Listening — Practice Mock',
+        questionCount: 2,
+        timeLimitMinutes: 15,
+        questionTypes: ['natural_speech_summary'],
+        topicPool: ['a natural-sounding discussion of a business decision','a natural-sounding discussion of a research outcome'],
+        difficultyNote: 'Audio scripts (written here as text) should include natural hesitations and self-corrections ("well, actually...", "I mean...") — matches the "Summarizing Natural, Unscripted-Sounding Audio" lesson. The genuine content should still be clearly extractable despite the natural phrasing.',
+        wordLimitRule: 'A concise summary of the speaker\'s actual point, not distracted by natural hesitations or false starts in the phrasing.',
+      },
+    },
   },
   TOEFL: {
     name: 'TOEFL iBT', ready: true,
@@ -1415,7 +1723,7 @@ function openLessonDetail(lesson,source,arg1,arg2,skillContext){
     <div class="tp-info-card">
       <p id="lesson-practice-text">${lesson.practice}</p>
       ${skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin:10px 0 0" onclick="speakLessonText('lesson-practice-text',this)"><i class="ti ti-volume"></i> Listen to this exercise</button>`:''}
-      ${skillContext==='Speaking'?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
+      ${skillContext&&skillContext.startsWith('Speaking')?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
       <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--pine);font-weight:600;font-size:14.5px">Show answer</summary><p style="margin-top:6px">${esc(lesson.practiceAnswer)}</p></details>
     </div>
 
@@ -1427,7 +1735,7 @@ function openLessonDetail(lesson,source,arg1,arg2,skillContext){
 
     <button class="btn" style="margin-top:16px;background:${done?'var(--sage)':'var(--pine)'}" onclick="toggleModuleComplete('${lesson.id}','${source}','${arg1||''}','${arg2||''}')">${done?'✓ Marked Complete':'Mark as Complete'}</button>
   `;
-  if(skillContext==='Speaking') initRecorderWidget('lesson-'+lesson.id);
+  if(skillContext&&skillContext.startsWith('Speaking')) initRecorderWidget('lesson-'+lesson.id);
 }
 function closeLessonView(){
   document.getElementById('tp-lesson-view').style.display='none';
