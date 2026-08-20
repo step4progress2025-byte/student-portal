@@ -1106,9 +1106,9 @@ const TEST_DATA = {
           practice: 'A paragraph opens: <b>"Urban beekeeping has grown rapidly in the past decade."</b> It goes on to discuss rooftop hives, community programmes, and mentions briefly that honey yields are lower in cities than in the countryside.<br><br>Which is the better heading: "Lower Honey Yields in Cities" or "The Rise of Urban Beekeeping"?',
           practiceAnswer: '"The Rise of Urban Beekeeping" — the lower honey yield is a minor supporting detail, not the paragraph\'s main focus, which is clearly stated in the opening sentence.',
           quiz: [
-            {q:'What does Matching Headings actually test — a specific fact, or a whole paragraph\'s main idea?', a:'The main idea of the whole paragraph.'},
-            {q:'Where should you look first to identify a paragraph\'s main idea quickly?', a:'The first and last sentences, where main ideas are usually stated.'},
-            {q:'Can the same heading be used for two different paragraphs?', a:'No — each heading is normally used only once.'},
+            {q:'What does Matching Headings actually test — a specific fact, or a whole paragraph\'s main idea?', a:'The main idea of the whole paragraph.', options:['A specific, isolated fact mentioned anywhere in the paragraph','The main idea of the whole paragraph','The exact number of sentences in the paragraph','The author\'s name and publication date'], correct:1},
+            {q:'Where should you look first to identify a paragraph\'s main idea quickly?', a:'The first and last sentences, where main ideas are usually stated.', options:['The middle sentence only','The first and last sentences, where main ideas are usually stated','Any sentence containing a number','The shortest sentence in the paragraph'], correct:1},
+            {q:'Can the same heading be used for two different paragraphs?', a:'No — each heading is normally used only once.', options:['Yes, headings can be reused freely','No — each heading is normally used only once','Only for the first two paragraphs','Yes, but only if the paragraphs are adjacent'], correct:1},
           ],
         },
         {
@@ -1121,9 +1121,9 @@ const TEST_DATA = {
           practice: 'Beginning: "The company reduced its prices after..." Ending options: A) "...several competitors entered the market." B) "...to compete with several new competitors."<br><br>If the passage states the price reduction happened in response to new competitors already being present, which ending is correct?',
           practiceAnswer: 'A — it correctly reflects the sequence (competitors entered, THEN prices were reduced in response), while B suggests the reduction was a proactive goal rather than a reaction, reversing the actual relationship.',
           quiz: [
-            {q:'What two things must a correct sentence ending match?', a:'The grammar of the sentence beginning, AND the actual meaning/facts stated in the passage.'},
-            {q:'What is a common trap in this question type?', a:'An ending that fits grammatically but reverses or misstates the actual cause-and-effect relationship.'},
-            {q:'Are there usually more or fewer endings than beginnings?', a:'More endings than beginnings, meaning some endings are distractors not used at all.'},
+            {q:'What two things must a correct sentence ending match?', a:'The grammar of the sentence beginning, AND the actual meaning/facts stated in the passage.', options:['Only that it sounds grammatically natural','Only that it is factually accurate','Both the grammar of the beginning AND the actual meaning/facts in the passage','Only that it is the shortest available option'], correct:2},
+            {q:'What is a common trap in this question type?', a:'An ending that fits grammatically but reverses or misstates the actual cause-and-effect relationship.', options:['An ending that is too short to be grammatically valid','An ending that fits grammatically but reverses or misstates the actual relationship','An ending that repeats a word from the beginning','An ending written in a different tense'], correct:1},
+            {q:'Are there usually more or fewer endings than beginnings?', a:'More endings than beginnings, meaning some endings are distractors not used at all.', options:['Fewer endings than beginnings','Exactly the same number of endings as beginnings','More endings than beginnings, meaning some are distractors','There is always only one ending provided'], correct:2},
           ],
         },
         {
@@ -1136,9 +1136,9 @@ const TEST_DATA = {
           practice: 'Passage: "Most participants reported improved focus, though a small number noted no meaningful difference."<br><br>Question: "According to the passage, participants..." Option: "all reported improved focus."<br><br>Is this option fully accurate?',
           practiceAnswer: 'No — the passage says "most," not "all," and explicitly notes some participants saw no meaningful difference. The option overstates what the passage actually claims.',
           quiz: [
-            {q:'What is a common trap answer in Reading multiple choice?', a:'An option that is partially or generally correct, but not precisely what the passage states.'},
-            {q:'What should you do before selecting an answer?', a:'Locate the exact relevant section of the passage the question refers to.'},
-            {q:'Should outside knowledge be used to help choose an answer?', a:'No — only the passage\'s specific stated claims should determine the correct answer.'},
+            {q:'What is a common trap answer in Reading multiple choice?', a:'An option that is partially or generally correct, but not precisely what the passage states.', options:['An option that is completely unrelated to the topic','An option that is partially or generally correct, but not precisely what the passage states','An option written in capital letters','An option that repeats the question word for word'], correct:1},
+            {q:'What should you do before selecting an answer?', a:'Locate the exact relevant section of the passage the question refers to.', options:['Choose the longest-sounding option','Locate the exact relevant section of the passage the question refers to','Select based on which option is listed first','Skip to the next question and return later'], correct:1},
+            {q:'Should outside knowledge be used to help choose an answer?', a:'No — only the passage\'s specific stated claims should determine the correct answer.', options:['Yes, general knowledge should always take priority','No — only the passage\'s specific stated claims should determine the answer','Only if the passage seems incomplete','Yes, but only for science-related passages'], correct:1},
           ],
         },
         {
@@ -1151,9 +1151,9 @@ const TEST_DATA = {
           practice: 'Passage: "The clay is shaped by hand, left to dry for two days, and finally fired in a kiln at high temperature." <br><br>A diagram shows: Shaping → [blank] → Firing. What fills the blank?',
           practiceAnswer: '"Drying" (or "left to dry") — matching the middle step described in the passage, positioned correctly between shaping and firing in the sequence.',
           quiz: [
-            {q:'What kind of passages typically accompany this question type?', a:'Passages describing a process or structure, such as how something is made.'},
-            {q:'What kind of words help identify the correct sequence of steps?', a:'Sequence words like "first," "then," "before," and "finally."'},
-            {q:'Does the word limit still apply to diagram labeling answers?', a:'Yes — answers must still respect the stated word limit, even though they come from a described process.'},
+            {q:'What kind of passages typically accompany this question type?', a:'Passages describing a process or structure, such as how something is made.', options:['Passages describing a person\'s biography','Passages describing a process or structure, such as how something is made','Passages comparing two unrelated opinions','Passages listing historical dates only'], correct:1},
+            {q:'What kind of words help identify the correct sequence of steps?', a:'Sequence words like "first," "then," "before," and "finally."', options:['Sequence words like "first," "then," "before," and "finally"','Emotional words like "surprisingly" or "sadly"','Question words like "why" and "how"','Numbers written only as digits, never words'], correct:0},
+            {q:'Does the word limit still apply to diagram labeling answers?', a:'Yes — answers must still respect the stated word limit, even though they come from a described process.', options:['No, diagram answers are exempt from word limits','Yes — answers must still respect the stated word limit','Only if the diagram has more than three blanks','Only for Academic passages, not General Training'], correct:1},
           ],
         },
         {
@@ -1167,8 +1167,8 @@ const TEST_DATA = {
           practiceAnswer: 'To present a contrasting viewpoint (a counterargument) to the criticism raised in the first sentence — its function is to show an opposing perspective, not simply to add new unrelated information.',
           quiz: [
             {q:'How does identifying "purpose" differ from identifying "main idea"?', a:'Purpose asks WHY something was included (its function), not just WHAT it says.'},
-            {q:'Name one common purpose a paragraph or example might serve.', a:'Illustrating a point, contrasting ideas, providing evidence, or qualifying an earlier claim.'},
-            {q:'What might a sentence starting with "however" often signal about its purpose?', a:'It often signals a qualification or contrast to the point made immediately before it.'},
+            {q:'Name one common purpose a paragraph or example might serve.', a:'Illustrating a point, contrasting ideas, providing evidence, or qualifying an earlier claim.', options:['Illustrating a point, contrasting ideas, or qualifying an earlier claim','Filling space to meet a minimum word count','Repeating the title of the passage','Listing the author\'s other publications'], correct:0},
+            {q:'What might a sentence starting with "however" often signal about its purpose?', a:'It often signals a qualification or contrast to the point made immediately before it.', options:['That the sentence is unrelated to what came before','A qualification or contrast to the point made immediately before it','That the paragraph is about to end','A direct quotation from another source'], correct:1},
           ],
         },
       ],Writing:[
@@ -1182,9 +1182,9 @@ const TEST_DATA = {
           practice: 'Data shows a company\'s sales: 2019: 100 units, 2020: 105 units, 2021: 102 units, 2022: 140 units.<br><br>Using trend language rather than listing all four numbers separately, how would you group and describe this pattern?',
           practiceAnswer: 'Something like: "Sales remained broadly stable between 2019 and 2021, before rising sharply in 2022" — grouping the flat 2019-2021 period together, then highlighting the 2022 jump separately, rather than listing all four years individually.',
           quiz: [
-            {q:'What is a common weakness in Task 1 answers at this level?', a:'Describing every single data point individually instead of grouping similar trends together.'},
-            {q:'What does "plateau" mean in trend description?', a:'To level off and remain roughly constant after a period of change.'},
-            {q:'Should personal opinions about the data be included in Task 1?', a:'No — Task 1 asks only for description of the data, not opinion.'},
+            {q:'What is a common weakness in Task 1 answers at this level?', a:'Describing every single data point individually instead of grouping similar trends together.', options:['Writing in too much detail about the overview','Describing every single data point individually instead of grouping trends','Using too many linking words','Writing under the word count by only 5 words'], correct:1},
+            {q:'What does "plateau" mean in trend description?', a:'To level off and remain roughly constant after a period of change.', options:['To rise sharply without stopping','To level off and remain roughly constant after a period of change','To fall suddenly to zero','To fluctuate unpredictably throughout'], correct:1},
+            {q:'Should personal opinions about the data be included in Task 1?', a:'No — Task 1 asks only for description of the data, not opinion.', options:['Yes, opinions strengthen the response','No — Task 1 asks only for description of the data, not opinion','Only in the final sentence','Only if the data shows a negative trend'], correct:1},
           ],
         },
         {
@@ -1197,9 +1197,9 @@ const TEST_DATA = {
           practice: 'A diagram shows recycling: bottles collected → sorted by material → cleaned → melted down → turned into new products. <br><br>Using sequencing language and passive voice, how might the first two steps be described?',
           practiceAnswer: 'Something like: "The process begins when bottles are collected, after which they are sorted according to material type." — passive voice ("are collected," "are sorted") and clear sequencing ("begins," "after which").',
           quiz: [
-            {q:'What is the key difference between a linear and cyclical process?', a:'A cyclical process\'s end connects back to its beginning; a linear process has a clear, separate start and end.'},
-            {q:'Why is passive voice often more natural for process descriptions?', a:'Process diagrams frequently do not specify WHO performs each step, making passive voice ("is heated") more fitting than active voice.'},
-            {q:'What kind of language connects the steps of a process description?', a:'Sequencing language, like "first," "next," "after this," and "finally."'},
+            {q:'What is the key difference between a linear and cyclical process?', a:'A cyclical process\'s end connects back to its beginning; a linear process has a clear, separate start and end.', options:['A cyclical process has no beginning at all','A cyclical process\'s end connects back to its beginning; a linear process has a separate start and end','A linear process always takes longer to complete','There is no real difference between the two'], correct:1},
+            {q:'Why is passive voice often more natural for process descriptions?', a:'Process diagrams frequently do not specify WHO performs each step, making passive voice ("is heated") more fitting than active voice.', options:['Because passive voice is always grammatically simpler','Because process diagrams frequently do not specify WHO performs each step','Because active voice is never allowed in Task 1','Because passive voice uses fewer words overall'], correct:1},
+            {q:'What kind of language connects the steps of a process description?', a:'Sequencing language, like "first," "next," "after this," and "finally."', options:['Comparison language, like "similarly" and "in contrast"','Sequencing language, like "first," "next," "after this," and "finally"','Emotional language, like "surprisingly" and "unfortunately"','Question language, like "why" and "how"'], correct:1},
           ],
         },
         {
@@ -1212,9 +1212,9 @@ const TEST_DATA = {
           practice: 'Two maps show a town in 1990 and 2020. In 1990, the area near the river was farmland; in 2020, it shows a housing estate.<br><br>How would you describe this change using both location and change language?',
           practiceAnswer: 'Something like: "The land near the river, previously used for farming, has since been developed into a housing estate." — combines location ("near the river") with clear change vocabulary ("previously," "has since been developed").',
           quiz: [
-            {q:'What two types of language does a map task specifically require together?', a:'Location language (in the north, near the river) and change vocabulary (replaced, demolished, constructed).'},
-            {q:'What is a recommended way to structure a map description?', a:'Describing changes area by area in a logical order, such as moving from north to south, rather than randomly.'},
-            {q:'What should typically come first in a map description?', a:'An overview sentence describing the overall pattern of change, before going into specific details.'},
+            {q:'What two types of language does a map task specifically require together?', a:'Location language (in the north, near the river) and change vocabulary (replaced, demolished, constructed).', options:['Location language and change vocabulary together','Only numerical data language','Only comparison language between two countries','Only emotional/opinion language'], correct:0},
+            {q:'What is a recommended way to structure a map description?', a:'Describing changes area by area in a logical order, such as moving from north to south, rather than randomly.', options:['Describing changes in the exact order they are numbered on the map key','Describing changes area by area in a logical order, such as north to south','Describing the largest change last for dramatic effect','Describing changes in alphabetical order of building names'], correct:1},
+            {q:'What should typically come first in a map description?', a:'An overview sentence describing the overall pattern of change, before going into specific details.', options:['A list of every single building on the map','An overview sentence describing the overall pattern of change','A personal opinion about the changes','The exact scale of the map in kilometres'], correct:1},
           ],
         },
         {
@@ -1227,9 +1227,9 @@ const TEST_DATA = {
           practice: 'Question: "Working from home has both benefits and drawbacks for employees. Discuss." <br><br>Which Task 2 type is this, and what does it require covering?',
           practiceAnswer: 'This is an Advantage-Disadvantage type question — it requires covering both the benefits AND drawbacks of working from home, not just arguing one side.',
           quiz: [
-            {q:'Name one of the four main Task 2 question types.', a:'Opinion, Discussion, Problem-Solution, or Advantage-Disadvantage.'},
-            {q:'What happens if the wrong approach is used for a given question type?', a:'Marks are lost for not fully answering the question, regardless of writing quality.'},
-            {q:'What does a "discuss both views" question specifically require, beyond stating your own opinion?', a:'Genuine presentation of BOTH perspectives, not just the writer\'s own view.'},
+            {q:'Name one of the four main Task 2 question types.', a:'Opinion, Discussion, Problem-Solution, or Advantage-Disadvantage.', options:['Narrative, Descriptive, Poetic, Argumentative','Opinion, Discussion, Problem-Solution, or Advantage-Disadvantage','Formal, Informal, Semi-formal, and Technical','Introduction, Body, Conclusion, and Summary'], correct:1},
+            {q:'What happens if the wrong approach is used for a given question type?', a:'Marks are lost for not fully answering the question, regardless of writing quality.', options:['Nothing, as long as the grammar is correct','Marks are lost for not fully answering the question, regardless of writing quality','The essay is automatically given the lowest possible score','Only the vocabulary score is affected'], correct:1},
+            {q:'What does a "discuss both views" question specifically require, beyond stating your own opinion?', a:'Genuine presentation of BOTH perspectives, not just the writer\'s own view.', options:['Nothing else — only your own opinion matters','Genuine presentation of BOTH perspectives, not just your own view','A list of five supporting facts','Reference to a real published study'], correct:1},
           ],
         },
         {
@@ -1242,9 +1242,9 @@ const TEST_DATA = {
           practice: 'Sentence pair: "The company invested heavily in new technology. Profits declined the following year."<br><br>Which linking word fits best: "therefore," "however," or "in addition"?',
           practiceAnswer: '"However" — there is an implied contrast (investment might be expected to increase profits, but the opposite happened), which "however" correctly signals; "therefore" would incorrectly suggest the investment caused the decline directly, and "in addition" would suggest an unrelated additional point.',
           quiz: [
-            {q:'What is a common weakness in linking word use at this level?', a:'Relying on a limited range (only "and," "but," "so") or overusing "firstly, secondly, thirdly."'},
-            {q:'What must a linking word correctly match?', a:'The actual logical relationship between the ideas — contrast, addition, or consequence.'},
-            {q:'What is wrong with using "however" between two ideas that do not actually contrast?', a:'It incorrectly signals a contrast that is not really there, confusing the logical flow for the reader.'},
+            {q:'What is a common weakness in linking word use at this level?', a:'Relying on a limited range (only "and," "but," "so") or overusing "firstly, secondly, thirdly."', options:['Using too many different linking words','Relying on a limited range or overusing "firstly, secondly, thirdly"','Never using any linking words at all','Using linking words only in the introduction'], correct:1},
+            {q:'What must a linking word correctly match?', a:'The actual logical relationship between the ideas — contrast, addition, or consequence.', options:['The number of syllables in the surrounding words','The actual logical relationship between the ideas — contrast, addition, or consequence','The tense of the surrounding sentence only','Nothing — any linking word can be used interchangeably'], correct:1},
+            {q:'What is wrong with using "however" between two ideas that do not actually contrast?', a:'It incorrectly signals a contrast that is not really there, confusing the logical flow for the reader.', options:['Nothing, "however" can be used anywhere for variety','It incorrectly signals a contrast that is not really there, confusing the reader','It is grammatically incorrect in all contexts','It can only be used at the start of a paragraph'], correct:1},
           ],
         },
       ],Speaking:[
@@ -1258,9 +1258,9 @@ const TEST_DATA = {
           practice: 'Cue card bullet point: "explain why you like visiting it." A candidate answers only: "Because it is nice."<br><br>What is missing from this response, based on what Part 2 is looking for?',
           practiceAnswer: 'Development and specificity — a strong answer would explain WHAT about it feels nice, with a specific memory, feeling, or example, not just a one-word-level reason.',
           quiz: [
-            {q:'Roughly how long should you aim to speak for in Part 2?', a:'Up to 2 minutes — using close to the full time available.'},
-            {q:'Should the bullet points be treated as a strict one-sentence-each script?', a:'No — they are a guide; each point deserves genuine development with detail and examples.'},
-            {q:'What kind of content, beyond just facts, makes a Part 2 answer stronger?', a:'Personal feelings, opinions, and specific examples or memories.'},
+            {q:'Roughly how long should you aim to speak for in Part 2?', a:'Up to 2 minutes — using close to the full time available.', options:['30 seconds','Up to 2 minutes — using close to the full time available','5 minutes','As briefly as possible'], correct:1},
+            {q:'Should the bullet points be treated as a strict one-sentence-each script?', a:'No — they are a guide; each point deserves genuine development with detail and examples.', options:['Yes, exactly one sentence per bullet point','No — they are a guide; each point deserves genuine development','Only the first bullet point needs to be addressed','Bullet points should be ignored completely'], correct:1},
+            {q:'What kind of content, beyond just facts, makes a Part 2 answer stronger?', a:'Personal feelings, opinions, and specific examples or memories.', options:['Only more facts and statistics','Personal feelings, opinions, and specific examples or memories','Technical vocabulary the examiner may not know','A memorised script read from memory'], correct:1},
           ],
         },
         {
@@ -1273,9 +1273,9 @@ const TEST_DATA = {
           practice: 'Cue card: "Describe an object that is important to you." <br><br>What category is this, and what kind of content should the answer focus on?',
           practiceAnswer: 'Object category — the answer should focus on the object\'s appearance, its function/what it is used for, and importantly WHY it holds personal significance, rather than drifting into unrelated content.',
           quiz: [
-            {q:'Name one of the common Part 2 cue card categories.', a:'Person, Place, Object, or Event/Experience.'},
-            {q:'What does a "person" category cue card typically need, beyond physical description?', a:'Your relationship to them and their personality or influence on you.'},
-            {q:'Why does recognising the category quickly matter?', a:'It helps you plan more efficiently within the limited one-minute preparation time.'},
+            {q:'Name one of the common Part 2 cue card categories.', a:'Person, Place, Object, or Event/Experience.', options:['Grammar, Vocabulary, Pronunciation, Fluency','Person, Place, Object, or Event/Experience','Introduction, Body, Conclusion','Formal, Informal, Academic'], correct:1},
+            {q:'What does a "person" category cue card typically need, beyond physical description?', a:'Your relationship to them and their personality or influence on you.', options:['Only their date of birth','Your relationship to them and their personality or influence on you','A list of their achievements only','Their full legal name and occupation'], correct:1},
+            {q:'Why does recognising the category quickly matter?', a:'It helps you plan more efficiently within the limited one-minute preparation time.', options:['It has no real effect on the answer','It helps you plan more efficiently within the limited preparation time','It determines how loudly you should speak','It changes which examiner you are assigned'], correct:1},
           ],
         },
         {
@@ -1288,9 +1288,9 @@ const TEST_DATA = {
           practice: 'A candidate says: "The city was big and the museum was interesting." <br><br>How might this be rephrased using more precise, vivid vocabulary?',
           practiceAnswer: 'Something like: "The city was absolutely sprawling, and the museum turned out to be genuinely fascinating." — replacing "big" and "interesting" with more precise, engaging alternatives.',
           quiz: [
-            {q:'What is a common vocabulary weakness at this level?', a:'Relying repeatedly on the same few basic adjectives (nice, good, big, interesting) across different answers.'},
-            {q:'What should be checked before using an impressive-sounding new word?', a:'That you are confident of its actual correct meaning and usage.'},
-            {q:'Does adding descriptive vocabulary require fundamentally different content?', a:'No — often the same basic content can be made noticeably more vivid with more precise word choice.'},
+            {q:'What is a common vocabulary weakness at this level?', a:'Relying repeatedly on the same few basic adjectives (nice, good, big, interesting) across different answers.', options:['Using words that are too advanced for the examiner','Relying repeatedly on the same few basic adjectives across different answers','Speaking too quietly for the recording','Using too many different adjectives in one sentence'], correct:1},
+            {q:'What should be checked before using an impressive-sounding new word?', a:'That you are confident of its actual correct meaning and usage.', options:['That it has at least three syllables','That you are confident of its actual correct meaning and usage','That the examiner has not heard it before','That it rhymes with a previous word used'], correct:1},
+            {q:'Does adding descriptive vocabulary require fundamentally different content?', a:'No — often the same basic content can be made noticeably more vivid with more precise word choice.', options:['Yes, entirely new ideas are always needed','No — the same basic content can be made more vivid with more precise word choice','Yes, but only for Part 3 answers','No, vocabulary and content are unrelated'], correct:1},
           ],
         },
         {
@@ -1303,9 +1303,9 @@ const TEST_DATA = {
           practice: 'A candidate wants to connect these two ideas naturally while speaking: "I enjoy hiking." and "It helps me relax after a busy week."<br><br>How might these be joined using a natural spoken connector?',
           practiceAnswer: 'Something like: "I really enjoy hiking — mainly because it helps me relax after a busy week." — using a natural spoken connector ("mainly because") rather than a stiffer written-style option.',
           quiz: [
-            {q:'Why do written connectors like "furthermore" often sound unnatural when spoken?', a:'They are formal, written-style devices that do not match how people naturally connect ideas in real conversation.'},
-            {q:'Give an example of a natural spoken connecting phrase.', a:'Phrases like "on top of that," "the reason being," or "which meant that."'},
-            {q:'What is a risk of overusing just one spoken connector?', a:'It can sound repetitive, the same way overusing "firstly, secondly" does in writing.'},
+            {q:'Why do written connectors like "furthermore" often sound unnatural when spoken?', a:'They are formal, written-style devices that do not match how people naturally connect ideas in real conversation.', options:['They are grammatically incorrect in speech','They are formal, written-style devices that do not match natural conversation','They are too short to be heard clearly','They only work in Part 1, not Parts 2 or 3'], correct:1},
+            {q:'Give an example of a natural spoken connecting phrase.', a:'Phrases like "on top of that," "the reason being," or "which meant that."', options:['"Consequently" and "Nevertheless"','"On top of that," "the reason being," or "which meant that"','"Firstly" and "Secondly"','"In conclusion" and "To summarise"'], correct:1},
+            {q:'What is a risk of overusing just one spoken connector?', a:'It can sound repetitive, the same way overusing "firstly, secondly" does in writing.', options:['It can sound repetitive, the same way overusing "firstly, secondly" does in writing','It causes automatic point deduction from any correct sentence','It is grammatically incorrect after the second use','There is no real risk at all'], correct:0},
           ],
         },
         {
@@ -1318,9 +1318,9 @@ const TEST_DATA = {
           practice: 'Question: "Do you prefer studying alone or with others?" <br><br>Using comparison language, how might you structure an answer expressing a preference for studying alone?',
           practiceAnswer: 'Something like: "I definitely prefer studying alone — whereas group study can be helpful for discussion, I find I focus much better and get more done when it\'s just me, compared to when there are distractions around." — clear comparison structure with natural spoken language.',
           quiz: [
-            {q:'In which parts of the Speaking test might comparison questions appear?', a:'Across all three parts — comparing past and present, two options, or personal experiences.'},
-            {q:'Give one natural spoken phrase used for comparison.', a:'Phrases like "compared to," "whereas," "unlike," or "back then... but now."'},
-            {q:'What should be avoided when comparing two things?', a:'Vague comparison ("it\'s different now") without specific detail about how or why something has changed.'},
+            {q:'In which parts of the Speaking test might comparison questions appear?', a:'Across all three parts — comparing past and present, two options, or personal experiences.', options:['Only in Part 1','Only in Part 3','Across all three parts — past/present, options, or experiences','Only in the final 30 seconds of the test'], correct:2},
+            {q:'Give one natural spoken phrase used for comparison.', a:'Phrases like "compared to," "whereas," "unlike," or "back then... but now."', options:['"In summary" and "To conclude"','"Compared to," "whereas," "unlike," or "back then... but now"','"Firstly" and "Lastly"','"According to research"'], correct:1},
+            {q:'What should be avoided when comparing two things?', a:'Vague comparison ("it\'s different now") without specific detail about how or why something has changed.', options:['Using the word "whereas" more than once','Vague comparison without specific detail about how or why something changed','Comparing more than two things at once','Mentioning a personal experience'], correct:1},
           ],
         },
       ]} },
