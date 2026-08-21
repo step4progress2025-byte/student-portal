@@ -316,6 +316,7 @@
       <div class="nav-tile" onclick="openDocuments()"><div class="icon">📄</div><div class="label">My Documents</div></div>
       <div class="nav-tile" onclick="openCareer()"><div class="icon">💼</div><div class="label">Career &amp; Scholarships</div></div>
       <div class="nav-tile" onclick="openTestPrep()"><div class="icon">🎓</div><div class="label">Test Prep Hub</div></div>
+      <div class="nav-tile" onclick="openSpeakingPartner()"><div class="icon">🗣️</div><div class="label">AI Speaking Partner</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
@@ -405,6 +406,64 @@
         <button id="lstep-back-btn" class="lstep-back-btn" onclick="lessonStepBack()" style="display:none"><i class="ti ti-arrow-left"></i></button>
         <button id="lstep-next-btn" class="lstep-next-btn" onclick="lessonStepNext()">Continue</button>
       </div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-speaking-partner">
+    <span class="back-link" onclick="closeSpeakingPartner()">← Back</span>
+
+    <div id="sp-mode-select">
+      <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">AI Speaking Partner</h2>
+      <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Practise real spoken English with an AI conversation partner — talk or type, your choice.</p>
+      <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('open')">
+        <h4>💬 Open Conversation</h4>
+        <p>Chat naturally about anything — the AI keeps the conversation going and gently models corrections without interrupting the flow.</p>
+      </div>
+      <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-roleplay-select').style.display='block'">
+        <h4>🎭 Roleplay Scenarios</h4>
+        <p>Practise real-world situations — job interviews, ordering food, checking into a hotel — with the AI staying fully in character.</p>
+      </div>
+      <div class="tp-info-card" style="cursor:pointer" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-testprep-select').style.display='block'">
+        <h4>🎯 Test Speaking Practice</h4>
+        <p>Practise IELTS, PTE, TOEFL, or Duolingo-style speaking prompts with an AI acting as your examiner, plus structured feedback on request.</p>
+      </div>
+    </div>
+
+    <div id="sp-roleplay-select" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-roleplay-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
+      <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a scenario</h2>
+      <div id="sp-roleplay-grid"></div>
+    </div>
+
+    <div id="sp-testprep-select" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-testprep-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
+      <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a test</h2>
+      <div id="sp-testprep-grid"></div>
+    </div>
+
+    <div id="sp-chat-view" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div id="sp-chat-title" style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:16px"></div>
+          <div id="sp-chat-subtitle" style="font-size:12.5px;color:var(--ink3)"></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+          <input type="checkbox" id="sp-voice-toggle" checked> AI speaks replies
+        </label>
+      </div>
+      <div id="sp-messages" style="height:min(50vh,420px);overflow-y:auto;background:var(--cream);border-radius:var(--r);padding:14px;margin-bottom:10px"></div>
+      <div id="sp-typing-indicator" style="display:none;font-size:12.5px;color:var(--ink3);margin-bottom:6px">AI is typing…</div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <textarea id="sp-text-input" placeholder="Type your reply, or tap the mic to speak…" rows="2" style="flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;resize:none"></textarea>
+        <button class="btn" id="sp-mic-btn" style="width:auto;padding:10px 14px;flex-shrink:0" onclick="toggleSpeechInput()"><i class="ti ti-microphone"></i></button>
+        <button class="btn btn-p" style="width:auto;padding:10px 16px;flex-shrink:0" onclick="sendSpeakingMessage()"><i class="ti ti-send"></i></button>
+      </div>
+      <div id="sp-mic-status" style="font-size:12px;color:var(--ink3);margin-top:4px"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="getSpeakingFeedback()"><i class="ti ti-report-analytics"></i> Get Feedback</button>
+        <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="endSpeakingSession()"><i class="ti ti-x"></i> End Session</button>
+      </div>
+      <div id="sp-feedback-panel" style="display:none;margin-top:12px"></div>
     </div>
   </div>
 
@@ -3211,6 +3270,21 @@ const TEST_DATA = {
             {q:'What is the most effective strategy for this task type?', options:['Carefully defining each word before deciding','Trusting fast instinctive recognition over slow analysis','Only selecting the shortest words in the list','Skipping any word longer than two syllables'], correct:1, a:'Trusting fast, instinctive recognition works better than consciously analysing each word, since the task is designed to reward speed.'},
           ],
         },
+        {
+          id: 'dl-li2', title: 'Building Genuine Word Recognition Speed Through Exposure', time: '15-20 minutes',
+          objectives: ['Understand why word recognition speed is a trainable skill, not a fixed trait', 'Learn how regular reading exposure genuinely builds this skill over time', 'Practise a simple daily habit that develops recognition speed before test day'],
+          concept: 'Fast, instinctive word recognition is not something people either simply "have" or "don\'t have" — it is a skill built through repeated exposure to real English text over time. The more real words a reader has genuinely encountered, the faster and more automatic recognising them becomes, since the brain builds a larger library of instantly-recognisable patterns rather than needing to consciously process each one.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A student who reads English news articles or books daily for several weeks typically recognises common words like "nevertheless" or "consequently" instantly, without effort. A student who rarely reads authentic English text often needs a moment of conscious thought for the same words — the difference is genuine accumulated exposure, not natural talent.',
+          vocab: [['trainable skill','an ability that genuinely improves with practice, rather than being fixed'],['authentic text','real, naturally-written English, as opposed to simplified practice material'],['automatic processing','recognising something instantly and effortlessly, without conscious thought'],['accumulated exposure','the total amount of real contact with something over time'],['pattern library','the brain\'s built-up collection of instantly-recognisable word shapes from repeated exposure']],
+          mistakes: ['Assuming recognition speed is a fixed trait that cannot be improved before test day.', 'Only practising with test-specific word lists instead of genuine, varied English reading.', 'Expecting improvement without consistent, regular exposure over time.', 'Underestimating how much simple daily reading habits can genuinely help.'],
+          practice: 'What is one simple, realistic daily habit that could genuinely build word recognition speed before a test date?',
+          practiceAnswer: 'Reading a short piece of authentic English content daily — a news article, a book chapter, or similar — genuinely builds recognition speed over time through real, varied exposure, more effectively than only reviewing test-specific word lists.',
+          quiz: [
+            {q:'Is word recognition speed a fixed trait, or something that can improve?', options:['A completely fixed trait that cannot change', 'A trainable skill that improves through regular exposure to real text', 'Something that only improves through formal grammar study', 'Irrelevant to actual test performance'], correct:1, a:'It is a genuinely trainable skill that improves through regular, real exposure to English text over time.'},
+            {q:'What builds this recognition speed most effectively?', options:['Memorising isolated word lists only', 'Regular exposure to authentic, varied English text', 'Avoiding reading until test day', 'Only studying grammar rules'], correct:1, a:'Regular exposure to authentic, varied English text builds a larger library of instantly-recognisable patterns.'},
+            {q:'Why does authentic text matter more than test-specific word lists alone?', options:['It does not matter at all', 'It provides varied, realistic exposure that builds genuine automatic recognition', 'Authentic text is always shorter', 'Word lists are more effective on their own'], correct:1, a:'Authentic, varied text provides the kind of genuine exposure that builds real automatic recognition, more effectively than isolated word lists alone.'},
+          ],
+        },
       ],Comprehension:[
         {
           id: 'dl-co1', title: 'Listen and Type: Capturing Exact Wording at Speed', time: '15-20 minutes',
@@ -3225,6 +3299,21 @@ const TEST_DATA = {
             {q:'What does Listen and Type specifically check, beyond general comprehension?', options:['Whether you can summarise the main idea', 'Whether you captured the exact words, including small function words', 'Your spoken pronunciation of the sentence', 'Your ability to translate the sentence into another language'], correct:1, a:'It checks for exact wording, including small function words that are easy to mishear or accidentally drop.'},
             {q:'Why is typing speed relevant to this task?', options:['It is not relevant at all', 'The audio plays only once, so slow typing causes missed words', 'Faster typing automatically improves the score regardless of accuracy', 'The task has a strict character limit'], correct:1, a:'Since the audio plays only once, slow or hesitant typing can cause you to miss capturing later parts of the sentence.'},
             {q:'What is a common mistake in this task type?', options:['Typing too many words', 'Paraphrasing the meaning instead of typing the exact sentence heard', 'Using capital letters incorrectly', 'Typing faster than the audio plays'], correct:1, a:'A common mistake is paraphrasing the general meaning rather than typing the precise words that were actually said.'},
+          ],
+        },
+        {
+          id: 'dl-co2', title: 'Understanding Natural Spoken English at Real Speed', time: '15-20 minutes',
+          objectives: ['Understand why natural connected speech differs from slow, carefully-enunciated audio', 'Learn to recognise common ways words blend together in real spoken English', 'Practise adjusting expectations away from textbook-perfect pronunciation'],
+          concept: 'Test audio is often recorded at a genuinely natural speaking pace, where words connect and blend together the way people actually speak — not the slow, over-enunciated pace sometimes used in basic learning materials. Sounds like "want to" becoming "wanna," or "going to" becoming "gonna," or word endings blending into the next word\'s beginning, are all normal features of natural spoken English, not exceptions to prepare for separately.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A learner used to slow, textbook-style audio might expect to hear "What are you going to do?" enunciated clearly, word by word. Natural spoken audio often sounds closer to "Whatcha gonna do?" — genuinely natural, connected speech that a listener needs to be prepared for, not a mistake in the recording.',
+          vocab: [['connected speech','the natural way words blend and link together in fluent spoken English'],['enunciation','pronouncing words clearly and distinctly, often exaggerated in slow learning audio'],['reduction (in speech)','when a word or sound is shortened or simplified in natural fast speech'],['textbook pace','an artificially slow, clear speaking style sometimes used in basic learning materials'],['natural speaking pace','the genuine speed and connected style people actually use in real conversation']],
+          mistakes: ['Expecting all test audio to sound like slow, textbook-style pronunciation.', 'Being thrown off by natural contractions or blended sounds instead of recognising them as normal.', 'Only practising with slow, simplified listening material before the test.', 'Panicking when audio sounds "too fast" instead of adjusting to natural pace through practice.'],
+          practice: 'How might "I am going to" sound in fast, natural connected speech, compared to how it looks written?',
+          practiceAnswer: 'It often sounds closer to "I\'m gonna" in natural fast speech — a genuine, normal feature of connected spoken English, not a mistake to be confused by.',
+          quiz: [
+            {q:'How does test audio often differ from slow, textbook-style learning material?', options:['There is no real difference at all', 'It is often recorded at a genuinely natural speaking pace, with connected speech', 'It is always slower than textbook material', 'It never includes any natural speech features'], correct:1, a:'Test audio is often at a natural pace, with genuine connected speech features, unlike artificially slow textbook material.'},
+            {q:'What is "connected speech"?', options:['Speech that has no natural flow at all', 'The natural way words blend and link together in fluent spoken English', 'A formal, careful pronunciation style', 'Speech that only occurs in written text'], correct:1, a:'Connected speech refers to the natural blending and linking of words that occurs in fluent, real spoken English.'},
+            {q:'What helps a listener adjust to natural spoken pace before test day?', options:['Only practising with slow, simplified audio', 'Regular practice listening to genuinely natural-paced spoken English', 'Avoiding listening practice altogether', 'Memorising a list of formal vocabulary only'], correct:1, a:'Regular practice with genuinely natural-paced spoken English helps a listener adjust and become comfortable with real connected speech.'},
           ],
         },
       ],Conversation:[
@@ -3243,6 +3332,21 @@ const TEST_DATA = {
             {q:'What is a common problem with weaker responses to this task?', options:['They are too long and detailed', 'They stop after a few short sentences, well under the time given', 'They use too much descriptive vocabulary', 'They focus too much on the closing thought'], correct:1, a:'A common weakness is describing the photo too briefly and stopping well before the full time is used.'},
           ],
         },
+        {
+          id: 'dl-cv2', title: 'Staying Calm and Fluent Under the Recording Timer', time: '15-20 minutes',
+          objectives: ['Understand why timed recording pressure affects fluency differently than free conversation', 'Learn a simple technique for managing the moment right before recording starts', 'Practise recovering smoothly from a small stumble instead of restarting or freezing'],
+          concept: 'Speaking into a timer with no listener present, knowing it is being recorded and scored, genuinely feels different from a normal conversation — this pressure can cause hesitation or freezing even in someone who speaks fluently in casual conversation. Recognising this as a normal, common reaction (not a sign of poor English ability) is the first step; the second is having a simple, practised way to start speaking immediately rather than waiting for a "perfect" opening line.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A confident English speaker freezes for several seconds when the recording starts, wasting valuable time waiting for the "ideal" first sentence. A prepared speaker instead starts immediately with a simple, safe opening ("This shows..." or "I can see...") the moment recording begins, then develops the response naturally from there — trading a "perfect" start for genuinely using the available time.',
+          vocab: [['recording pressure','the specific stress of speaking while being recorded and scored, distinct from casual conversation'],['safe opening line','a simple, reliable first sentence used to start speaking immediately, without needing to plan extensively first'],['recover (from a stumble)','continuing smoothly after a small mistake, rather than stopping or restarting'],['freezing (in speech)','becoming unable to speak temporarily, often from nervousness or pressure'],['practised technique','a method rehearsed in advance so it feels automatic under real pressure']],
+          mistakes: ['Waiting silently for a "perfect" opening sentence instead of starting immediately.', 'Stopping completely and restarting after a small stumble, wasting valuable time.', 'Treating a moment of nervousness as a sign of poor English ability, rather than a normal reaction.', 'Not having any practised, simple way to begin speaking under pressure.'],
+          practice: 'What is a simple, safe opening phrase that could be used to start speaking immediately for almost any photo-description prompt?',
+          practiceAnswer: 'Something like "This shows..." or "I can see..." — a simple, reliable opening that can be used immediately for nearly any photo, avoiding wasted silence while searching for something more elaborate.',
+          quiz: [
+            {q:'Why can recording pressure affect fluency even for a confident speaker?', options:['It never actually affects fluency at all', 'Speaking into a timer while being recorded genuinely feels different from casual conversation', 'Only weak English speakers experience this', 'Recording pressure only affects listening tasks'], correct:1, a:'Recording pressure genuinely feels different from casual conversation, and can cause hesitation even in an otherwise fluent, confident speaker.'},
+            {q:'What helps avoid wasted silence at the very start of a response?', options:['Waiting for the perfect opening sentence', 'Having a simple, practised safe opening line ready to use immediately', 'Staying silent until a full plan is formed', 'Speaking as quietly as possible at first'], correct:1, a:'A simple, practised safe opening line helps avoid wasted silence while searching for a "perfect" start.'},
+            {q:'What should happen after a small stumble mid-response?', options:['Stopping completely and restarting from the beginning', 'Recovering smoothly and continuing, rather than restarting', 'Ending the response immediately', 'Repeating the exact same sentence again'], correct:1, a:'Recovering smoothly and continuing is more effective than stopping completely and restarting, which wastes valuable time.'},
+          ],
+        },
       ],Production:[
         {
           id: 'dl-pr1', title: 'Write About the Photo: Building a Complete Response Fast', time: '15-20 minutes',
@@ -3257,6 +3361,21 @@ const TEST_DATA = {
             {q:'What does the Production subscore specifically measure?', options:['Recognising correct words from a list', 'The active ability to create original written English under time pressure', 'Listening comprehension speed', 'Spoken pronunciation accuracy'], correct:1, a:'It measures the active production of original written English, distinct from tasks that only require recognising or selecting existing text.'},
             {q:'What is a common weak pattern in photo-writing responses?', options:['Using too many complete sentences', 'Writing a flat list of disconnected words instead of full sentences', 'Describing too much detail', 'Using too much sentence variety'], correct:1, a:'A common weakness is writing a flat list of words or fragments rather than complete, connected sentences.'},
             {q:'Why does sentence variety matter in this task?', options:['It does not matter at all', 'It genuinely demonstrates written production ability, not just vocabulary recall', 'It is required to reach the minimum word count only', 'It only matters for advanced-level responses'], correct:1, a:'Varying sentence structure helps genuinely demonstrate active written production ability, rather than just recalling isolated vocabulary.'},
+          ],
+        },
+        {
+          id: 'dl-pr2', title: 'Grammar Accuracy Fundamentals Under Time Pressure', time: '15-20 minutes',
+          objectives: ['Understand which grammar mistakes most commonly appear under timed writing pressure', 'Learn a quick, targeted proofreading approach that fits within a short time limit', 'Practise catching subject-verb agreement and article errors specifically'],
+          concept: 'Under time pressure, certain grammar mistakes appear far more often than others — most commonly subject-verb agreement ("the dogs is" instead of "the dogs are") and missing or incorrect articles ("a," "an," "the"). Given the very short time available in photo-writing tasks, a full careful proofread is not realistic — instead, a quick, TARGETED check specifically for these two common error types catches a meaningful share of mistakes without costing much time.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Written under time pressure: "The children is playing in park."<br><br>Two targeted fixes: "is" → "are" (subject-verb agreement — "children" is plural), and adding "the" before "park" (missing article) — both quick, high-value fixes findable in a few seconds of targeted review, without needing to reread the entire response carefully.',
+          vocab: [['targeted proofreading','checking specifically for the most common error types, rather than a full careful review'],['subject-verb agreement','matching a verb\'s form correctly to whether its subject is singular or plural'],['article (grammar)','the words "a," "an," and "the" used before nouns'],['high-value fix','a correction that is quick to make but meaningfully improves accuracy'],['time-realistic approach','a strategy genuinely achievable within the actual time available, not an idealised full review']],
+          mistakes: ['Attempting a full, careful proofread that does not realistically fit the available time.', 'Skipping proofreading entirely due to time pressure, missing easy, high-value fixes.', 'Not knowing which specific error types are worth targeting quickly.', 'Spending proofreading time on minor style choices instead of genuine grammar errors.'],
+          practice: 'Under time pressure, you wrote: "A dog were running near beach." What two quick, targeted fixes would most likely improve this sentence?',
+          practiceAnswer: '"were" → "was" (subject-verb agreement — "a dog" is singular), and adding "the" before "beach" (missing article) — two quick, high-value fixes findable through targeted review alone.',
+          quiz: [
+            {q:'Why is a full, careful proofread often unrealistic in this task type?', options:['Careful proofreading is always fast enough to fit', 'The very short time limit does not realistically allow for it', 'Proofreading is not useful for this task at all', 'Grammar accuracy does not matter in this task'], correct:1, a:'The short time limit for photo-writing tasks does not realistically allow for a full, careful proofread.'},
+            {q:'What is a targeted proofreading approach?', options:['Reviewing every possible aspect of the writing equally', 'Checking specifically for the most common error types, like subject-verb agreement and articles', 'Skipping proofreading entirely', 'Only checking spelling, never grammar'], correct:1, a:'A targeted approach checks specifically for the most common, high-value error types rather than attempting a full review.'},
+            {q:'Name one of the most common grammar error types under time pressure.', options:['Overuse of complex vocabulary', 'Subject-verb agreement or missing/incorrect articles', 'Excessive use of punctuation', 'Writing in the wrong language entirely'], correct:1, a:'Subject-verb agreement and missing or incorrect articles are among the most common error types under time pressure.'},
           ],
         },
       ]} },
@@ -3276,6 +3395,21 @@ const TEST_DATA = {
             {q:'What happens if the right word is chosen but misspelled?', options:['It still counts as fully correct', 'It does not correctly demonstrate the spelling accuracy this task measures', 'Spelling is not evaluated in this task at all', 'Only capitalisation matters, not spelling'], correct:1, a:'Since this task specifically tests spelling as well as comprehension, a misspelled completion does not fully demonstrate the required accuracy.'},
           ],
         },
+        {
+          id: 'dd-li2', title: 'Recognising Common Spelling Patterns and Word Families', time: '15-20 minutes',
+          objectives: ['Understand how recognising word families speeds up spelling completion tasks', 'Learn common English spelling patterns that repeat across many words', 'Practise using a known word to correctly spell a related, unfamiliar one'],
+          concept: 'English words often share patterns within "families" — words built from the same root, or following the same spelling rule. Recognising these patterns means that correctly spelling one familiar word can help correctly complete a related, less familiar one, rather than needing to know every single word individually. This is especially useful under time pressure, where recalling a spelling pattern is much faster than uncertain guessing.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Knowing "responsible" is spelled with "-ible" (not "-able") helps correctly complete related words following the same pattern, like "possible" and "sensible" — recognising the shared "-ible" family, rather than treating each word as an entirely separate spelling to memorise individually.',
+          vocab: [['word family','a group of words sharing a common root or spelling pattern'],['spelling rule','a consistent pattern that applies across multiple related words'],['root word','the core part of a word that related words are built from'],['pattern recognition','identifying a repeating structure or rule, rather than treating each case as unique'],['related word','a word connected to another through shared origin, spelling, or meaning']],
+          mistakes: ['Treating every word as an entirely separate spelling challenge, without noticing shared patterns.', 'Guessing randomly instead of drawing on a known related word.', 'Not recognising common English spelling patterns like "-ible" versus "-able."', 'Assuming pattern recognition is not useful under time pressure, when it often saves significant time.'],
+          practice: 'If you know "believe" is spelled with "ie" (not "ei"), what does this suggest about spelling the related word "relieve"?',
+          practiceAnswer: 'It suggests "relieve" likely also follows the "ie" pattern (as in the general "i before e" pattern common in English) — recognising this shared pattern helps spell it correctly without needing to memorise it as a completely separate case.',
+          quiz: [
+            {q:'What is a "word family," in this context?', options:['A group of unrelated words with no connection', 'A group of words sharing a common root or spelling pattern', 'Only words that sound identical', 'A list of the most common English words'], correct:1, a:'A word family is a group of words that share a common root or spelling pattern.'},
+            {q:'Why is recognising spelling patterns useful under time pressure?', options:['It is not useful at all under time pressure', 'It allows a known word to help correctly complete a related, less familiar one', 'It only works for very short words', 'It replaces the need to read the passage at all'], correct:1, a:'Recognising patterns lets a known word\'s spelling help correctly complete a related word, saving time compared to uncertain guessing.'},
+            {q:'What is a risk of NOT recognising word families?', options:['Nothing changes either way', 'Treating every word as a separate, unrelated spelling challenge, wasting time', 'Automatically getting every answer wrong', 'It only affects listening tasks'], correct:1, a:'Without recognising patterns, every word must be treated as a separate challenge, which is slower and less reliable under time pressure.'},
+          ],
+        },
       ],Comprehension:[
         {
           id: 'dd-co1', title: 'Read, Then Speak: Responding to a Passage Aloud', time: '15-20 minutes',
@@ -3290,6 +3424,21 @@ const TEST_DATA = {
             {q:'What does Read Then Speak specifically combine?', options:['Two separate, unrelated skills tested one after another', 'Reading comprehension AND spoken response together', 'Only listening and writing', 'Only vocabulary recognition'], correct:1, a:'It combines reading comprehension with spoken response, testing whether you can process written content and speak about it coherently.'},
             {q:'What is a common mistake in this task type?', options:['Speaking too clearly', 'Reading the passage aloud verbatim instead of actually responding to the prompt', 'Understanding the passage too quickly', 'Using too many complete sentences'], correct:1, a:'Reading the passage aloud instead of genuinely responding to the specific prompt is a common, significant mistake.'},
             {q:'What should a strong response demonstrate?', options:['Memorisation of the passage word for word', 'Genuine understanding, expressed in the speaker\'s own words', 'The fastest possible speaking speed', 'Avoidance of the passage\'s actual topic'], correct:1, a:'A strong response demonstrates genuine understanding of the passage, expressed in the speaker\'s own words, not memorised repetition.'},
+          ],
+        },
+        {
+          id: 'dd-co2', title: 'Balancing Reading Speed With Genuine Comprehension', time: '15-20 minutes',
+          objectives: ['Understand the tradeoff between reading quickly and understanding deeply', 'Learn to identify which parts of a passage need careful reading versus a quick pass', 'Practise adjusting reading speed based on a passage\'s actual difficulty and importance'],
+          concept: 'Reading too slowly can waste valuable time, but reading too quickly risks missing the actual meaning needed to respond well. The skill is not simply "read faster" — it is recognising which parts of a passage carry the essential meaning (worth reading carefully) versus which parts are supporting detail (safe to skim more quickly), adjusting pace accordingly rather than reading everything at one fixed speed.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A passage\'s opening and closing sentences often carry the main point, while a middle example or statistic supports that point without needing to be memorised in detail. A reader who spends equal careful attention on every sentence often runs short on time; one who quickly identifies the essential sentences and skims the rest reads more efficiently without losing the meaning needed to respond well.',
+          vocab: [['reading pace','the speed at which someone reads a text'],['essential meaning','the core point or idea a passage is actually communicating'],['supporting detail','information that develops the main point without being essential on its own'],['skim (a passage)','to read quickly for general sense, without processing every word carefully'],['adjust pace','changing reading speed based on the importance of what is currently being read']],
+          mistakes: ['Reading every sentence at the exact same careful pace, wasting time on less essential detail.', 'Skimming so quickly that the passage\'s essential meaning is missed entirely.', 'Not recognising which parts of a passage are more likely to carry the main point.', 'Panicking about time and rushing through the passage\'s most important sentences too.'],
+          practice: 'A passage\'s first sentence states its main point clearly; the middle gives one specific supporting example. How might reading pace reasonably differ between these two parts?',
+          practiceAnswer: 'The opening sentence (carrying the main point) likely deserves careful, attentive reading, while the middle example (supporting detail) can often be read more quickly, since its role is to illustrate rather than add essential new meaning.',
+          quiz: [
+            {q:'What is the actual skill being described here, beyond just "reading faster"?', options:['Reading every word as fast as physically possible', 'Adjusting reading pace based on which parts carry essential meaning', 'Skipping the passage entirely', 'Reading only the very first word of each sentence'], correct:1, a:'The real skill is adjusting pace intelligently — reading essential parts carefully and skimming supporting detail more quickly.'},
+            {q:'What often carries a passage\'s main point?', options:['A random sentence in the middle', 'Often the opening and/or closing sentences', 'Only the very last word of the passage', 'Nothing — main points are never clearly stated'], correct:1, a:'Opening and closing sentences often carry a passage\'s main point, though this varies by passage.'},
+            {q:'What is a risk of reading everything at the exact same careful pace?', options:['Nothing — this is always the ideal approach', 'Wasting time on less essential detail, potentially running short on time overall', 'Missing the passage\'s meaning entirely', 'It has no real effect either way'], correct:1, a:'Reading everything at the same careful pace can waste time on less essential detail, risking running short on time overall.'},
           ],
         },
       ],Conversation:[
@@ -3308,6 +3457,21 @@ const TEST_DATA = {
             {q:'What should be avoided when reading the sentence aloud?', options:['Natural stress on key words', 'A flat, robotic, monotone delivery', 'Reading at a natural pace', 'Clear pronunciation'], correct:1, a:'A flat, robotic delivery without natural stress should be avoided in favour of natural spoken rhythm.'},
           ],
         },
+        {
+          id: 'dd-cv2', title: 'Handling an Unfamiliar Word While Reading Aloud', time: '15-20 minutes',
+          objectives: ['Understand why encountering an unfamiliar word mid-sentence is normal, not a failure', 'Learn a practical technique for pronouncing an unfamiliar word confidently using spelling patterns', 'Practise continuing smoothly rather than stopping completely on an unknown word'],
+          concept: 'Even strong English speakers occasionally encounter a word they do not immediately recognise while reading aloud — this is normal, not a sign of poor ability. The key skill is having a practical technique for this moment: using familiar spelling patterns and letter combinations to make a confident, reasonable attempt at pronunciation, then continuing smoothly, rather than stopping completely or panicking.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A reader encounters the unfamiliar word "meticulous" mid-sentence. Rather than stopping completely, they break it into familiar parts ("met-ic-u-lous"), make a confident, reasonable attempt based on typical English pronunciation patterns, and continue the sentence smoothly — a much stronger approach than freezing or restarting the whole sentence.',
+          vocab: [['unfamiliar word','a word the reader does not immediately recognise or know how to pronounce confidently'],['break down (a word)','dividing an unfamiliar word into smaller, more familiar parts'],['confident attempt','making a reasonable pronunciation effort rather than hesitating or refusing to attempt it'],['pronunciation pattern','a typical, recognisable way certain letter combinations are usually pronounced in English'],['smooth continuation','moving on naturally after a difficult moment, rather than stopping or restarting entirely']],
+          mistakes: ['Stopping completely and refusing to attempt an unfamiliar word.', 'Restarting the entire sentence from the beginning after hesitating on one word.', 'Panicking and losing composure over a single unfamiliar word.', 'Not having any practical technique prepared for this genuinely common situation.'],
+          practice: 'While reading aloud, you encounter the unfamiliar word "ubiquitous" mid-sentence. What is a more effective approach than stopping completely?',
+          practiceAnswer: 'Breaking the word into smaller, more familiar parts (e.g., "u-bi-qui-tous") and making a confident, reasonable pronunciation attempt based on typical English patterns, then continuing the sentence smoothly, rather than stopping or restarting entirely.',
+          quiz: [
+            {q:'Is encountering an unfamiliar word while reading aloud a sign of poor English ability?', options:['Yes, it always indicates weak ability', 'No — it is a normal occurrence even for strong speakers', 'Only for beginner-level speakers', 'It only happens in test conditions, never in real life'], correct:1, a:'Encountering an unfamiliar word occasionally is normal, even for strong English speakers, not a sign of poor ability.'},
+            {q:'What is a practical technique for pronouncing an unfamiliar word?', options:['Refusing to attempt it at all', 'Breaking it into smaller, familiar parts and making a confident attempt', 'Skipping the word entirely and continuing without it', 'Restarting the whole passage from the beginning'], correct:1, a:'Breaking the word into smaller, familiar parts and making a confident, reasonable attempt is a practical, effective technique.'},
+            {q:'What should happen after attempting an unfamiliar word?', options:['Stopping the entire response immediately', 'Continuing smoothly with the rest of the sentence', 'Repeating the same word multiple times', 'Restarting the sentence from its beginning'], correct:1, a:'Continuing smoothly after the attempt is more effective than stopping completely or restarting the sentence.'},
+          ],
+        },
       ],Production:[
         {
           id: 'dd-pr1', title: 'Read, Then Write: Responding in Writing to a Passage', time: '15-20 minutes',
@@ -3322,6 +3486,21 @@ const TEST_DATA = {
             {q:'What does Read Then Write specifically combine?', options:['Two entirely unrelated, separately tested skills', 'Reading comprehension AND original written production together', 'Only spoken response ability', 'Only vocabulary memorisation'], correct:1, a:'It combines genuine reading comprehension with original written production based on the passage.'},
             {q:'What is a common mistake in this task type?', options:['Writing complete sentences', 'Copying sentences directly from the passage instead of writing an original response', 'Reading the passage carefully first', 'Directly addressing the prompt'], correct:1, a:'Copying directly from the passage instead of producing an original response is a common, significant mistake.'},
             {q:'What should a strong written response do?', options:['Ignore the specific prompt and write generally about the topic', 'Directly address the specific prompt using the passage\'s actual content', 'Repeat the passage word for word', 'Avoid referencing the passage at all'], correct:1, a:'A strong response directly addresses the specific prompt, genuinely engaging with the passage\'s actual content.'},
+          ],
+        },
+        {
+          id: 'dd-pr2', title: 'Splitting Time Wisely Between Reading and Writing', time: '15-20 minutes',
+          objectives: ['Understand why time allocation between reading and writing genuinely matters', 'Learn a reasonable rough time split for a combined reading-then-writing task', 'Practise recognising when too much time has been spent on the reading portion'],
+          concept: 'A combined Read Then Write task has one overall time limit covering BOTH reading the passage AND writing the response — meaning time spent on one directly reduces time available for the other. Spending too long reading and re-reading the passage, aiming for perfect understanding, can leave insufficient time to actually write a complete, well-developed response. A rough, deliberate time split helps prevent this imbalance.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Given a combined 5-minute task, a student spends 4 minutes carefully re-reading the passage multiple times, leaving only 1 minute to write — resulting in a rushed, underdeveloped response despite excellent comprehension. A student allocating roughly 1.5-2 minutes to reading and the remainder to writing produces a far more complete response, even with slightly less exhaustive reading.',
+          vocab: [['time allocation','deliberately dividing available time between different parts of a task'],['combined time limit','one single time limit covering multiple task components together, not separate limits for each'],['underdeveloped response','a written answer that is too brief or incomplete due to insufficient time'],['rough time split','an approximate, deliberate division of time between task components, not an exact science'],['imbalance (in time use)','spending disproportionately more time on one part of a task than it actually needs']],
+          mistakes: ['Spending most of the available time on reading, leaving little time to actually write.', 'Not having any rough sense of how time should be divided before starting.', 'Re-reading the passage multiple times when a good-enough understanding was already reached.', 'Realising too late that writing time is running out, resulting in a rushed, incomplete response.'],
+          practice: 'A combined Read Then Write task gives 6 minutes total. What might be a reasonable rough time split between reading and writing?',
+          practiceAnswer: 'Something like 2 minutes for reading (enough for solid comprehension without excessive re-reading) and the remaining 4 minutes for writing a complete, well-developed response — an approximate, deliberate split rather than an exact rule.',
+          quiz: [
+            {q:'Why does time allocation matter in a combined Read Then Write task?', options:['It does not matter at all', 'Time spent reading directly reduces time available for writing, since they share one limit', 'Reading and writing have completely separate time limits', 'Only the writing portion is actually timed'], correct:1, a:'Since reading and writing share one combined time limit, time spent on one directly reduces what remains for the other.'},
+            {q:'What is a risk of spending too much time reading and re-reading?', options:['No real risk at all', 'Leaving insufficient time to write a complete, well-developed response', 'The passage becomes harder to understand', 'It has no effect on the final written response'], correct:1, a:'Excessive time spent reading can leave too little time to write a complete response, even with strong comprehension.'},
+            {q:'What helps prevent this kind of time imbalance?', options:['Avoiding any time planning at all', 'Having a rough, deliberate sense of how time should be divided in advance', 'Reading the passage as many times as possible', 'Writing before reading the passage at all'], correct:1, a:'A rough, deliberate time split planned in advance helps prevent spending disproportionate time on one part of the task.'},
           ],
         },
       ]} },
@@ -4097,6 +4276,214 @@ function speakLessonText(elementId,buttonEl){
 }
 function resetSpeakButton(buttonEl){
   if(buttonEl)buttonEl.innerHTML='<i class="ti ti-volume"></i> Listen to this example';
+}
+
+/* ============================================================
+   AI SPEAKING PARTNER — real-time conversation practice, three
+   modes (open / roleplay / test_practice), voice or text input,
+   optional spoken AI replies, on-demand structured feedback.
+   ============================================================ */
+const SPEAKING_PARTNER_URL = 'https://jfrtleleblsphyztyhaf.supabase.co/functions/v1/ai-speaking-partner';
+const SP_ROLEPLAY_SCENARIOS = [
+  {id:'job-interview', icon:'💼', title:'Job Interview', desc:'Practise answering common interview questions naturally.', character:'a hiring manager conducting a job interview for an entry-level office role'},
+  {id:'restaurant', icon:'🍽️', title:'Ordering Food', desc:'Order a meal, ask about the menu, request the bill.', character:'a friendly waiter at a casual restaurant taking an order'},
+  {id:'hotel', icon:'🏨', title:'Hotel Check-In', desc:'Check into a hotel, ask about amenities, resolve a room issue.', character:'a hotel receptionist checking in a guest who has just arrived'},
+  {id:'directions', icon:'🗺️', title:'Asking for Directions', desc:'Ask a stranger for directions to somewhere in an unfamiliar city.', character:'a helpful local giving directions to a lost tourist'},
+  {id:'small-talk', icon:'☕','title':'Small Talk at an Event', desc:'Make natural small talk with someone new at a social gathering.', character:'a friendly guest at a casual social event, making conversation with someone new'},
+  {id:'shop-return', icon:'🛍️', title:'Returning a Faulty Product', desc:'Explain a problem with a purchase and request a refund or exchange.', character:'a shop assistant at a customer service desk, handling a product return'},
+  {id:'doctor', icon:'🩺', title:'Booking a Doctor\'s Appointment', desc:'Call to book an appointment and briefly explain your symptoms.', character:'a receptionist at a doctor\'s clinic, booking an appointment over the phone'},
+  {id:'friend-plans', icon:'👋', title:'Weekend Plans With a Friend', desc:'Casually discuss and plan weekend activities with a friend.', character:'a close friend casually chatting about weekend plans'},
+];
+let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false};
+
+function openSpeakingPartner(){
+  showScreen('screen-speaking-partner');
+  document.getElementById('sp-mode-select').style.display='block';
+  document.getElementById('sp-roleplay-select').style.display='none';
+  document.getElementById('sp-testprep-select').style.display='none';
+  document.getElementById('sp-chat-view').style.display='none';
+  renderSpRoleplayGrid();
+  renderSpTestprepGrid();
+}
+function closeSpeakingPartner(){
+  stopSpeechInput();
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  showScreen('screen-dashboard');
+}
+function renderSpRoleplayGrid(){
+  document.getElementById('sp-roleplay-grid').innerHTML=SP_ROLEPLAY_SCENARIOS.map(s=>`
+    <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('roleplay','${s.id}')">
+      <h4>${s.icon} ${esc(s.title)}</h4>
+      <p>${esc(s.desc)}</p>
+    </div>
+  `).join('');
+}
+function renderSpTestprepGrid(){
+  const tests=['IELTS','PTE','TOEFL','Duolingo'];
+  document.getElementById('sp-testprep-grid').innerHTML=tests.map(t=>`
+    <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('test_practice',null,'${t}')">
+      <h4>${TEST_ICONS[t]||'🎓'} ${esc(t)}</h4>
+      <p>Practise ${esc(t)}-style speaking prompts with an AI examiner, plus feedback on request.</p>
+    </div>
+  `).join('');
+}
+
+async function startSpeakingSession(mode,scenarioId,testType){
+  spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false};
+  let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
+  let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
+
+  if(mode==='roleplay'){
+    const sc=SP_ROLEPLAY_SCENARIOS.find(s=>s.id===scenarioId);
+    spState.scenario=sc.character;
+    spState.scenarioTitle=sc.title;
+    title=sc.title;
+    subtitle='Roleplay — the AI is staying fully in character.';
+    kickoffPrompt='Begin the roleplay scenario naturally, in character, the way this situation would actually start.';
+  } else if(mode==='test_practice'){
+    title=testType+' Speaking Practice';
+    subtitle='The AI is acting as your examiner.';
+    kickoffPrompt='Give the student an appropriate opening speaking prompt for this test, in character as the examiner.';
+    spState.skillPrompt='(the AI will set its own opening prompt)';
+  }
+
+  document.getElementById('sp-mode-select').style.display='none';
+  document.getElementById('sp-roleplay-select').style.display='none';
+  document.getElementById('sp-testprep-select').style.display='none';
+  document.getElementById('sp-chat-view').style.display='block';
+  document.getElementById('sp-chat-title').textContent=title;
+  document.getElementById('sp-chat-subtitle').textContent=subtitle;
+  document.getElementById('sp-messages').innerHTML='';
+  document.getElementById('sp-feedback-panel').style.display='none';
+  document.getElementById('sp-typing-indicator').style.display='block';
+
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      conversationHistory:[], userMessage:kickoffPrompt,
+    })});
+    const data=await r.json();
+    document.getElementById('sp-typing-indicator').style.display='none';
+    if(!r.ok||data.error){ addSpMessage('assistant', 'Sorry, I had trouble starting — '+(data.error||'please try again.')); return; }
+    addSpMessage('assistant', data.reply);
+    spState.history.push({role:'user',content:kickoffPrompt},{role:'assistant',content:data.reply});
+    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
+  }catch(e){
+    document.getElementById('sp-typing-indicator').style.display='none';
+    addSpMessage('assistant', 'Sorry, something went wrong starting this session. Please try again.');
+  }
+}
+
+function addSpMessage(role,text){
+  const wrap=document.getElementById('sp-messages');
+  const isUser=role==='user';
+  const bubble=document.createElement('div');
+  bubble.style.cssText=`display:flex;justify-content:${isUser?'flex-end':'flex-start'};margin-bottom:10px`;
+  bubble.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;background:${isUser?'var(--pine)':'#fff'};color:${isUser?'#fff':'var(--ink)'};border:${isUser?'none':'1.5px solid var(--line)'}">${esc(text)}</div>`;
+  wrap.appendChild(bubble);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+
+async function sendSpeakingMessage(){
+  const input=document.getElementById('sp-text-input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  addSpMessage('user',text);
+  document.getElementById('sp-typing-indicator').style.display='block';
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      conversationHistory:spState.history, userMessage:text,
+    })});
+    const data=await r.json();
+    document.getElementById('sp-typing-indicator').style.display='none';
+    if(!r.ok||data.error){ addSpMessage('assistant', 'Sorry, something went wrong — '+(data.error||'please try again.')); return; }
+    addSpMessage('assistant', data.reply);
+    spState.history.push({role:'user',content:text},{role:'assistant',content:data.reply});
+    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
+  }catch(e){
+    document.getElementById('sp-typing-indicator').style.display='none';
+    addSpMessage('assistant', 'Sorry, something went wrong sending that. Please try again.');
+  }
+}
+
+function speakText(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=1;
+  speechSynthesis.speak(utterance);
+}
+
+// Speech-to-text via the browser's native SpeechRecognition — free, no
+// external service, but genuinely only well-supported in Chrome/Edge
+// (Safari/Firefox support is poor or absent). Text input always
+// remains available as a fallback regardless of browser support.
+let spRecognition=null;
+function toggleSpeechInput(){
+  if(spState.recognizing){ stopSpeechInput(); return; }
+  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!Recognition){
+    document.getElementById('sp-mic-status').textContent='Speech recognition isn\'t supported in this browser — try Chrome, or just type your reply instead.';
+    return;
+  }
+  spRecognition=new Recognition();
+  spRecognition.lang='en-US';
+  spRecognition.interimResults=true;
+  spRecognition.continuous=false;
+  const input=document.getElementById('sp-text-input');
+  const statusEl=document.getElementById('sp-mic-status');
+  const micBtn=document.getElementById('sp-mic-btn');
+  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i>'; statusEl.textContent='Listening…'; };
+  spRecognition.onresult=(e)=>{
+    let transcript='';
+    for(let i=0;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
+    input.value=transcript;
+  };
+  spRecognition.onerror=(e)=>{ statusEl.textContent='Mic error: '+e.error+' — you can type instead.'; };
+  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i>'; statusEl.textContent=''; };
+  spRecognition.start();
+}
+function stopSpeechInput(){
+  if(spRecognition&&spState.recognizing) spRecognition.stop();
+}
+
+async function getSpeakingFeedback(){
+  const panel=document.getElementById('sp-feedback-panel');
+  if(!spState.history.length){
+    panel.style.display='block';
+    panel.innerHTML='<div class="tp-info-card"><p>Have a bit of a conversation first, then ask for feedback.</p></div>';
+    return;
+  }
+  panel.style.display='block';
+  panel.innerHTML='<div class="tp-info-card"><p>Reviewing the conversation…</p></div>';
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      action:'feedback', conversationHistory:spState.history,
+    })});
+    const data=await r.json();
+    if(!r.ok||data.error){ panel.innerHTML=`<div class="tp-info-card"><p>Couldn't generate feedback — ${esc(data.error||'please try again.')}</p></div>`; return; }
+    const f=data.feedback;
+    panel.innerHTML=`
+      <div class="tp-info-card">
+        <h4>📊 Feedback so far</h4>
+        <p><b>Fluency:</b> ${esc(f.fluency)}</p>
+        <p style="margin-top:6px"><b>Grammar:</b> ${esc(f.grammar)}</p>
+        <p style="margin-top:6px"><b>Vocabulary:</b> ${esc(f.vocabulary)}</p>
+        <p style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><b>💡 Try this next:</b> ${esc(f.tip)}</p>
+      </div>`;
+  }catch(e){
+    panel.innerHTML='<div class="tp-info-card"><p>Something went wrong getting feedback. Please try again.</p></div>';
+  }
+}
+
+function endSpeakingSession(){
+  stopSpeechInput();
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false};
+  document.getElementById('sp-chat-view').style.display='none';
+  document.getElementById('sp-mode-select').style.display='block';
 }
 
 // ── Microphone/camera recording for Speaking practice — free, browser-
