@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#5B4FE9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* Deliberately vivid/bold — a different brief from the CRM on purpose.
@@ -442,21 +443,33 @@
     </div>
 
     <div id="sp-chat-view" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
         <div>
           <div id="sp-chat-title" style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:16px"></div>
           <div id="sp-chat-subtitle" style="font-size:12.5px;color:var(--ink3)"></div>
         </div>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-          <input type="checkbox" id="sp-voice-toggle" checked> AI speaks replies
-        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+            <input type="checkbox" id="sp-voice-toggle" checked> AI speaks replies
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+            <input type="checkbox" id="sp-tamil-toggle"> Tamil-English mix
+          </label>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+            <span style="color:var(--ink3)">Correction:</span>
+            <select id="sp-correction-mode" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream)">
+              <option value="gentle" selected>Gentle (natural flow)</option>
+              <option value="strict">Strict (explain every mistake)</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div id="sp-messages" style="height:min(50vh,420px);overflow-y:auto;background:var(--cream);border-radius:var(--r);padding:14px;margin-bottom:10px"></div>
       <div id="sp-typing-indicator" style="display:none;font-size:12.5px;color:var(--ink3);margin-bottom:6px">AI is typing…</div>
       <div style="display:flex;gap:8px;align-items:flex-end">
-        <textarea id="sp-text-input" placeholder="Type your reply, or tap the mic to speak…" rows="2" style="flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;resize:none"></textarea>
-        <button class="btn" id="sp-mic-btn" style="width:auto;padding:10px 14px;flex-shrink:0" onclick="toggleSpeechInput()"><i class="ti ti-microphone"></i></button>
-        <button class="btn btn-p" style="width:auto;padding:10px 16px;flex-shrink:0" onclick="sendSpeakingMessage()"><i class="ti ti-send"></i></button>
+        <textarea id="sp-text-input" placeholder="Type your reply, or tap the mic to speak…" rows="2" style="flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;resize:none" oninput="if(!spState.recognizing)spState.lastInputWasVoice=false"></textarea>
+        <button class="btn" id="sp-mic-btn" style="width:auto;padding:10px 14px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:13px" onclick="toggleSpeechInput()"><i class="ti ti-microphone"></i> Speak</button>
+        <button class="btn btn-p" style="width:auto;padding:10px 16px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:13px" onclick="sendSpeakingMessage()"><i class="ti ti-send"></i> Send</button>
       </div>
       <div id="sp-mic-status" style="font-size:12px;color:var(--ink3);margin-top:4px"></div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
@@ -719,6 +732,324 @@ function triggerResumeUpload(){
    TEST PREP HUB
    ============================================================ */
 const TEST_DATA = {
+  Grammar: {
+    name: 'Grammar Foundations', ready: false,
+    stats: [['19','Lessons'],['4','Topic areas'],['Free','No test fee — this is a prep track, not an exam']],
+    modules: ['Parts of Speech','Sentence Building','Tenses & Agreement','Practical Fixes'],
+    gettingStarted: [
+      {
+        id: 'gr-gs1', title: 'Why Grammar Terms Actually Matter', time: '10-12 minutes',
+        objectives: ['Understand why learning a few grammar terms speeds up everything else in this app', 'See how "noun," "verb," and "clause" are just labels for things already understood intuitively', 'Get comfortable with the idea that mistakes while learning these terms are completely normal'],
+        concept: 'Every lesson on this app — IELTS, TOEFL, PTE, Duolingo, Speaking Partner feedback — uses words like "verb," "clause," or "subject-verb agreement" without stopping to explain them, because those lessons assume the reader already knows basic grammar terms. This track exists to fill that gap first, from zero, so nothing later feels confusing just because of unfamiliar labels.<br><br>Here is the reassuring part: a person does not need to learn NEW ideas to understand grammar terms — only new NAMES for things already used correctly every day without thinking about it. Anyone who can say "The dog is sleeping" already understands what a noun and a verb are; they just have not been told which word is which yet.',
+        example: '<i>(Original example)</i><br><br>Take the sentence: <b>"My sister cooks dinner."</b><br><br>Without knowing any grammar terms, anyone can sense that "sister" is a person/thing, and "cooks" is an action. That is genuinely all "noun" and "verb" mean at the most basic level — a NAME for the person/thing, and a NAME for the action. The grammar terms are just labels attached to understanding that already exists.',
+        vocab: [['grammar term','a label used to describe a part of a sentence or a rule about how sentences work'],['intuitive','understood naturally, without needing to be formally taught'],['label (in grammar)','a name given to a category, like calling a word a "noun" or a "verb"'],['foundation (in learning)','a basic level of knowledge that later, more advanced learning depends on'],['confidence (in language learning)','the comfort to try speaking or writing without fear of small mistakes']],
+        mistakes: ['Believing grammar terms are complicated new ideas, rather than just new names for things already understood.', 'Feeling embarrassed about not knowing terms like "noun" or "clause" — this is extremely common and nothing to feel behind about.', 'Skipping this track and going straight to IELTS/TOEFL content, then feeling lost when those lessons use grammar terms without explaining them.', 'Trying to memorise definitions without connecting them to real, familiar sentences.'],
+        practice: 'Read this sentence: <b>"The teacher explained the lesson clearly."</b><br><br>Without worrying about exact grammar terms yet, try to notice: which word names a person? Which word names the action that person did?',
+        practiceAnswer: '"Teacher" names the person (this will be called a noun). "Explained" names the action that person did (this will be called a verb). No formal knowledge was needed to spot these — just noticing what was already understood.',
+        quiz: [
+          {q:'What is the main purpose of grammar terms like "noun" and "verb"?', options:['To introduce completely new ideas never encountered before','To give names to things already understood intuitively','To make sentences more complicated to write','To replace the need for practising real English'], correct:1, a:'Grammar terms are labels for things already understood intuitively — not new concepts.'},
+          {q:'Why does this track exist before the IELTS/TOEFL/PTE/Duolingo content?', options:['Because grammar terms are unrelated to those tests','Because those lessons assume grammar terms are already known, and this fills that gap','Because it must be completed to unlock other content','Because it replaces the need for those tracks entirely'], correct:1, a:'The other tracks use grammar terms without explaining them, assuming they are already known — this track fills that gap first.'},
+        ],
+      },
+    ],
+    levels: [
+      { key:'core', name:'Grammar Foundations', band:'Start here — no prior knowledge needed', skills:{
+        'Parts of Speech':[
+          {
+            id: 'gr-pos1', title: 'Nouns — Naming People, Places, and Things', time: '12-15 minutes',
+            objectives: ['Understand what a noun is and recognise common vs. proper nouns', 'Learn the difference between singular and plural nouns', 'Practise spotting nouns inside real sentences'],
+            concept: 'A noun is a word that names a person, place, thing, or idea — "teacher," "London," "phone," and "happiness" are all nouns. Nouns are usually the words a sentence is actually ABOUT.<br><br>Common nouns name general things ("city," "book," "friend") and are not capitalised unless starting a sentence. Proper nouns name ONE specific person, place, or thing ("Chennai," "Ravi," "Samsung") and are always capitalised, no matter where they appear in a sentence.<br><br>Nouns can also be singular (one — "book") or plural (more than one — "books"), which matters a lot for later lessons on subject-verb agreement.',
+            example: '<i>(Original example)</i><br><br>Sentence: <b>"My friend Priya bought two books from a shop in Coimbatore."</b><br><br>Nouns: friend (common), Priya (proper), books (common, plural), shop (common), Coimbatore (proper).<br><br>Notice "Priya" and "Coimbatore" are capitalised even though they appear in the middle of the sentence — because they are proper nouns naming one specific person and one specific place.',
+            vocab: [['noun','a word naming a person, place, thing, or idea'],['common noun','a noun naming a general person, place, or thing, not capitalised mid-sentence'],['proper noun','a noun naming one specific person, place, or thing, always capitalised'],['singular','referring to exactly one of something'],['plural','referring to more than one of something']],
+            mistakes: ['Forgetting to capitalise a proper noun (a specific name) in the middle of a sentence.', 'Capitalising a common noun that is not actually a specific name.', 'Confusing singular and plural nouns, especially with irregular plurals like "child" → "children."', 'Missing that abstract ideas ("happiness," "freedom") are also nouns, not just physical objects.'],
+            practice: 'Find the nouns in this sentence and say whether each is common or proper: <b>"Ahmed studies engineering at a college in Dubai."</b>',
+            practiceAnswer: 'Ahmed (proper), engineering (common), college (common), Dubai (proper).',
+            quiz: [
+              {q:'What is a noun?', options:['A word describing an action','A word naming a person, place, thing, or idea','A word connecting two sentences','A word describing another word'], correct:1, a:'A noun names a person, place, thing, or idea.'},
+              {q:'Which of these is a proper noun?', options:['city','Mumbai','book','happiness'], correct:1, a:'"Mumbai" names one specific city, so it is a proper noun and is always capitalised.'},
+              {q:'Why does singular vs. plural matter for later lessons?', options:['It does not matter at all','It affects which form of a verb should be used with it','It only matters for proper nouns','It only affects punctuation'], correct:1, a:'Singular and plural nouns affect subject-verb agreement, covered in a later lesson.'},
+            ],
+          },
+          {
+            id: 'gr-pos2', title: 'Pronouns — Standing In for Nouns', time: '12-15 minutes',
+            objectives: ['Understand what a pronoun is and why they are used', 'Learn the main personal pronouns (I, you, he, she, it, we, they) and their forms', 'Practise replacing repeated nouns with the correct pronoun'],
+            concept: 'A pronoun is a word that stands in for a noun, so the same noun does not need repeating over and over. Without pronouns, sentences would sound very unnatural: "Priya went to Priya\'s house because Priya forgot Priya\'s keys" instead of "Priya went to her house because she forgot her keys."<br><br>The main personal pronouns are: I, you, he, she, it, we, they (used as the subject — the one doing the action), and me, you, him, her, it, us, them (used as the object — the one receiving the action). Choosing the correct form matters: "He called me" is correct; "Him called I" is not.',
+            example: '<i>(Original example)</i><br><br>Without pronouns: <b>"Rahul likes cricket. Rahul plays cricket every weekend with Rahul\'s friends."</b><br><br>With pronouns: <b>"Rahul likes cricket. He plays it every weekend with his friends."</b><br><br>"He" replaces "Rahul" (subject), "it" replaces "cricket" (object), and "his" shows the friends belong to Rahul — all without needlessly repeating "Rahul" three times.',
+            vocab: [['pronoun','a word that stands in for a noun, avoiding repetition'],['subject pronoun','a pronoun used as the doer of the action (I, he, she, they...)'],['object pronoun','a pronoun used as the receiver of the action (me, him, her, them...)'],['possessive pronoun/adjective','a pronoun showing ownership (his, her, their, my...)'],['repetition (to avoid)','saying the same word unnecessarily many times']],
+            mistakes: ['Using an object pronoun where a subject pronoun is needed, e.g. "Him is my friend" instead of "He is my friend."', 'Repeating the same noun many times instead of switching to a pronoun after the first mention.', 'Confusing "its" (possessive, no apostrophe) with "it\'s" (short for "it is").', 'Using the wrong pronoun gender or number, e.g. calling a group "he" instead of "they."'],
+            practice: 'Rewrite this to avoid repeating the noun: <b>"Mother cooked Mother\'s favourite dish for Mother\'s guests."</b>',
+            practiceAnswer: '"Mother cooked her favourite dish for her guests." — "her" (possessive) replaces "Mother\'s" both times, avoiding the awkward repetition.',
+            quiz: [
+              {q:'What does a pronoun do?', options:['Describes a noun in more detail','Stands in for a noun to avoid repeating it','Connects two full sentences','Shows the time an action happened'], correct:1, a:'A pronoun stands in for a noun so it does not need to be repeated.'},
+              {q:'Which sentence uses the correct pronoun form?', options:['Him is my brother.','He is my brother.','Her am my friend.','Them is coming.'], correct:1, a:'"He" is the correct subject pronoun for the doer of the action "is."'},
+              {q:'What is the difference between "its" and "it\'s"?', options:['There is no real difference','"Its" shows possession; "it\'s" means "it is"','"It\'s" shows possession; "its" means "it is"','Both mean exactly the same thing'], correct:1, a:'"Its" (no apostrophe) shows possession; "it\'s" (with apostrophe) is short for "it is."'},
+            ],
+          },
+          {
+            id: 'gr-pos3', title: 'Verbs — Naming Actions and States of Being', time: '14-16 minutes',
+            objectives: ['Understand what a verb is, including both action verbs and "being" verbs', 'Recognise the verb in a sentence, even when it is a form of "to be"', 'Understand that every complete sentence needs a verb'],
+            concept: 'A verb names an action ("run," "eat," "study") or a state of being ("is," "am," "are," "was," "were" — forms of the verb "to be"). Every complete English sentence needs at least one verb; without one, it is not actually a full sentence.<br><br>Action verbs are usually easy to spot ("She sings," "They played"). Being verbs are trickier because they do not describe a visible action, but they are still verbs: "She is a doctor" — "is" is the verb, even though nothing is physically happening.',
+            example: '<i>(Original example)</i><br><br>Sentence 1: <b>"The children play outside."</b> — "play" is an action verb.<br>Sentence 2: <b>"The weather is cold today."</b> — "is" is a being verb; no physical action happens, but it still connects the subject ("weather") to a description ("cold").<br><br>Both sentences are complete because both have a verb. "The children outside" (no verb) would NOT be a complete sentence.',
+            vocab: [['verb','a word naming an action or a state of being'],['action verb','a verb describing something physically or mentally done (run, think, eat)'],['being verb','a form of "to be" (is, am, are, was, were) showing a state rather than an action'],['complete sentence','a sentence containing at minimum a subject and a verb, expressing a full thought'],['state of being','a condition or situation, rather than an action']],
+            mistakes: ['Believing only physical actions count as verbs, and missing "is/am/are/was/were" as verbs.', 'Writing a sentence fragment that is missing a verb entirely, e.g. "The tall building" (no verb — not a complete sentence).', 'Confusing a noun that looks similar to a verb, e.g. "the run" (noun) vs. "to run" (verb).', 'Forgetting that a sentence can have more than one verb: "She cooked and cleaned."'],
+            practice: 'Identify the verb in each: <b>1) "He was tired." 2) "The dog barked loudly."</b>',
+            practiceAnswer: '1) "was" (a being verb, showing his state). 2) "barked" (an action verb, showing what the dog did).',
+            quiz: [
+              {q:'Which of these is a "being" verb?', options:['run','eat','is','jump'], correct:2, a:'"Is" is a form of the verb "to be," showing a state rather than a physical action.'},
+              {q:'Why does "The tall building" fail to be a complete sentence?', options:['It has too many words','It has no verb','It has no noun','It has no adjective'], correct:1, a:'It is missing a verb, so it does not express a complete action or state — it is only a phrase.'},
+              {q:'What does a verb name?', options:['A person, place, or thing','An action or a state of being','A description of a noun','A connection between two sentences'], correct:1, a:'A verb names an action (run, eat) or a state of being (is, was).'},
+            ],
+          },
+          {
+            id: 'gr-pos4', title: 'Adjectives — Describing Nouns', time: '10-12 minutes',
+            objectives: ['Understand what an adjective is and what it describes', 'Practise identifying adjectives in sentences', 'Learn the natural order adjectives usually follow when several are used together'],
+            concept: 'An adjective describes or gives more information about a noun — "a tall building," "a delicious meal," "three red apples." Adjectives usually answer questions like: What kind? How many? Which one?<br><br>When multiple adjectives describe the same noun, English speakers naturally follow a rough order — quantity, then opinion, then size, then age, then colour, then noun (e.g. "three beautiful old red houses" sounds natural; "red old beautiful three houses" does not) — though this is learned mostly by ear over time, not by memorising a strict rule.',
+            example: '<i>(Original example)</i><br><br>Sentence: <b>"She bought two expensive silk sarees."</b><br><br>"Two" (how many), "expensive" (opinion/quality), "silk" (type/material) — all describing the noun "sarees." Notice how this order (number → opinion → material) sounds natural, while "silk expensive two sarees" would sound clearly wrong to a native ear, even to someone who could not explain exactly why.',
+            vocab: [['adjective','a word that describes or gives more detail about a noun'],['describe (in grammar)','to give more specific information about something'],['adjective order','the natural sequence multiple adjectives tend to follow before a noun'],['quality/opinion adjective','an adjective expressing a judgement, like "beautiful" or "boring"'],['material adjective','an adjective describing what something is made of, like "silk" or "wooden"']],
+            mistakes: ['Placing multiple adjectives in an order that sounds unnatural to a native speaker.', 'Confusing an adjective with the noun it describes, e.g. treating "beauty" and "beautiful" as the same word.', 'Overusing adjectives, making a sentence feel cluttered rather than clear.', 'Forgetting that adjectives in English do not change form for singular/plural (unlike in some other languages) — "three red apple" should be "three red apples," with only the noun changing.'],
+            practice: 'Put these into a natural adjective order before the noun "car": <b>[red, old, four, my]</b>',
+            practiceAnswer: '"My four old red cars" (or similar natural ordering) — possessive/quantity generally comes before opinion/age/colour, which comes right before the noun.',
+            quiz: [
+              {q:'What does an adjective do?', options:['Names a person, place, or thing','Describes or gives more detail about a noun','Shows an action','Connects two clauses'], correct:1, a:'An adjective describes or gives more information about a noun.'},
+              {q:'In "three red apples," what does "three" describe?', options:['The colour of the apples','How many apples there are','The type of apples','The taste of the apples'], correct:1, a:'"Three" is an adjective answering "how many," describing the quantity of apples.'},
+              {q:'Does the adjective itself change for plural nouns in English (e.g. "red" → "reds" for "apples")?', options:['Yes, always','No — only the noun changes, not the adjective','Only for colours','Only for numbers'], correct:1, a:'In English, adjectives stay the same form regardless of singular/plural — only the noun changes.'},
+            ],
+          },
+          {
+            id: 'gr-pos5', title: 'Adverbs — Describing Verbs, Adjectives, and Other Adverbs', time: '12-14 minutes',
+            objectives: ['Understand what an adverb is and what it can describe', 'Recognise common "-ly" adverbs and some irregular ones', 'Practise telling adjectives and adverbs apart'],
+            concept: 'An adverb usually describes a verb (how, when, where, or how often something happens), but can also describe an adjective or another adverb. Many adverbs end in "-ly" ("quickly," "carefully," "quietly"), though not all do ("fast," "well," "often").<br><br>A common confusion: adjectives describe NOUNS, while adverbs describe VERBS (and adjectives/other adverbs). "She is a careful driver" (adjective describing the noun "driver") vs. "She drives carefully" (adverb describing the verb "drives").',
+            example: '<i>(Original example)</i><br><br>Sentence: <b>"He speaks English fluently and answers questions very quickly."</b><br><br>"Fluently" describes the verb "speaks" (how he speaks). "Very" describes the adverb "quickly" (to what degree). "Quickly" describes the verb "answers" (how he answers). None of these describe a noun directly — that is the key difference from adjectives.',
+            vocab: [['adverb','a word that describes a verb, adjective, or another adverb'],['degree (adverb of)','an adverb showing how much or to what extent, like "very" or "extremely"'],['frequency (adverb of)','an adverb showing how often, like "always" or "rarely"'],['manner (adverb of)','an adverb showing how something is done, like "carefully" or "loudly"'],['irregular adverb','an adverb that does not follow the usual "-ly" pattern, like "fast" or "well"']],
+            mistakes: ['Using an adjective where an adverb is needed, e.g. "She drives careful" instead of "She drives carefully."', 'Assuming every "-ly" word is automatically an adverb (a few, like "friendly," are actually adjectives).', 'Confusing "good" (adjective, describes a noun) with "well" (adverb, describes a verb) — "She sings good" should be "She sings well."', 'Placing an adverb of frequency in an unnatural position, e.g. "I go always to school" instead of "I always go to school."'],
+            practice: 'Correct this sentence: <b>"He plays football good and runs very quick."</b>',
+            practiceAnswer: '"He plays football well and runs very quickly." — "well" (not "good") describes the verb "plays," and "quickly" (not "quick") describes the verb "runs."',
+            quiz: [
+              {q:'What is the key difference between an adjective and an adverb?', options:['There is no real difference','Adjectives describe nouns; adverbs describe verbs, adjectives, or other adverbs','Adverbs describe nouns; adjectives describe verbs','Adjectives are always longer words'], correct:1, a:'Adjectives describe nouns, while adverbs describe verbs, adjectives, or other adverbs.'},
+              {q:'Which sentence uses the adverb correctly?', options:['She sings good.','She sings well.','She good sings.','She sings goodly.'], correct:1, a:'"Well" is the correct adverb form describing how she sings; "good" is an adjective and cannot describe a verb this way.'},
+              {q:'Do all adverbs end in "-ly"?', options:['Yes, always','No — some common adverbs like "fast" and "well" do not','No adverbs end in "-ly"','Only adverbs of time end in "-ly"'], correct:1, a:'Many adverbs end in "-ly," but common ones like "fast," "well," and "hard" do not.'},
+            ],
+          },
+          {
+            id: 'gr-pos6', title: 'Prepositions — Showing Relationships (in, on, at, under...)', time: '14-16 minutes',
+            objectives: ['Understand what a preposition is and what kind of relationships it shows', 'Learn the common time/place prepositions "in," "on," and "at" and how they differ', 'Practise choosing the correct preposition in context'],
+            concept: 'A preposition shows the relationship between a noun/pronoun and another word in the sentence — usually about place, time, or direction ("in the box," "on Monday," "under the table," "to school"). Prepositions are one of the hardest parts of English for many learners because the "correct" one often cannot be worked out logically — it simply has to be learned through exposure.<br><br>A useful starting pattern for time: "at" for exact times/points ("at 5pm," "at night"), "on" for specific days/dates ("on Monday," "on 15th August"), "in" for longer periods ("in 2026," "in the morning," "in summer"). This is a helpful starting guide, not a rule with zero exceptions.',
+            example: '<i>(Original example)</i><br><br>"I have a meeting <b>at</b> 3pm <b>on</b> Friday <b>in</b> March."<br><br>"At 3pm" (exact time), "on Friday" (specific day), "in March" (longer period). Learners often mix these up because their own language may use one word for all three situations — English genuinely requires learning this pattern separately, since it does not always follow logic.',
+            vocab: [['preposition','a word showing the relationship between a noun/pronoun and another word — often place, time, or direction'],['exposure (in language learning)','repeated real contact with a language that builds natural familiarity over time'],['exact time','a specific point in time, like "at 5pm"'],['specific day/date','a single named day, like "on Monday"'],['longer period','an extended stretch of time, like a month, year, or season']],
+            mistakes: ['Directly translating a preposition from another language, which often does not match English usage.', 'Confusing "in," "on," and "at" for time expressions.', 'Confusing "in," "on," and "at" for place expressions (e.g. "in the corner" vs. "on the corner" vs. "at the corner" — all correct, but for different meanings).', 'Assuming there is always one single logical rule — some preposition choices in English simply have to be memorised.'],
+            practice: 'Fill the gaps: <b>"The exam is ___ 9am ___ Monday ___ March."</b>',
+            practiceAnswer: '"The exam is at 9am on Monday in March." — "at" for the exact time, "on" for the specific day, "in" for the longer period (the month).',
+            quiz: [
+              {q:'What does a preposition typically show?', options:['An action being performed','The relationship between a noun/pronoun and another word, often time/place','A description of a noun','A question being asked'], correct:1, a:'A preposition shows relationships — commonly involving time, place, or direction.'},
+              {q:'Which preposition typically goes with an exact time like "5pm"?', options:['in','on','at','to'], correct:2, a:'"At" is typically used for exact times or points, like "at 5pm."'},
+              {q:'Why are prepositions considered especially difficult for many English learners?', options:['They are always spelled incorrectly','Correct usage often cannot be worked out logically and must be learned through exposure','They never appear in real sentences','They are identical in every language'], correct:1, a:'Preposition choice often cannot be reasoned out logically and simply requires learning through exposure and practice.'},
+            ],
+          },
+          {
+            id: 'gr-pos7', title: 'Conjunctions — Joining Words and Ideas', time: '12-14 minutes',
+            objectives: ['Understand what a conjunction is and why it is used', 'Learn the common coordinating conjunctions (FANBOYS)', 'Practise joining two short sentences into one using a conjunction'],
+            concept: 'A conjunction joins words, phrases, or whole sentences together. The most common type — coordinating conjunctions — are remembered with the acronym FANBOYS: For, And, Nor, But, Or, Yet, So. Each shows a slightly different relationship: "and" adds, "but" contrasts, "so" shows a result, "or" shows a choice.<br><br>Using conjunctions well helps avoid the choppy, disconnected feel of many short separate sentences, letting ideas connect naturally the way they do in fluent spoken and written English.',
+            example: '<i>(Original example)</i><br><br>Two separate sentences: <b>"I wanted to go out. It was raining heavily."</b><br><br>Joined naturally with a conjunction: <b>"I wanted to go out, but it was raining heavily."</b><br><br>"But" signals a contrast between wanting to go out and the rain preventing it — connecting the two ideas far more naturally than leaving them as two disconnected sentences.',
+            vocab: [['conjunction','a word that joins words, phrases, or sentences together'],['coordinating conjunction','one of seven specific joining words: for, and, nor, but, or, yet, so'],['FANBOYS','a memory acronym for the seven coordinating conjunctions'],['contrast (in conjunctions)','showing a difference or opposite idea, typically using "but" or "yet"'],['result (in conjunctions)','showing an outcome or consequence, typically using "so"']],
+            mistakes: ['Using "and" for every connection, when a more precise conjunction ("but," "so," "or") would show the relationship more clearly.', 'Forgetting the comma that usually comes before a coordinating conjunction joining two full sentences.', 'Overusing conjunctions to create one extremely long, hard-to-follow sentence.', 'Confusing "so" (showing result) with "so that" (showing purpose) — they are not interchangeable.'],
+            practice: 'Join these two sentences naturally using an appropriate conjunction: <b>"She studied hard. She passed the exam."</b>',
+            practiceAnswer: '"She studied hard, so she passed the exam." — "so" correctly shows that passing was the result of studying hard.',
+            quiz: [
+              {q:'What does a conjunction do?', options:['Describes a noun','Joins words, phrases, or sentences together','Names an action','Shows a location'], correct:1, a:'A conjunction joins words, phrases, or full sentences together.'},
+              {q:'Which conjunction correctly shows contrast?', options:['and','so','but','for'], correct:2, a:'"But" is the conjunction typically used to show contrast between two ideas.'},
+              {q:'What does the acronym FANBOYS help remember?', options:['The seven coordinating conjunctions','The seven types of nouns','The seven irregular verbs','The seven punctuation marks'], correct:0, a:'FANBOYS stands for the seven coordinating conjunctions: for, and, nor, but, or, yet, so.'},
+            ],
+          },
+          {
+            id: 'gr-pos8', title: 'Articles — A, An, and The', time: '12-14 minutes',
+            objectives: ['Understand the difference between indefinite articles (a/an) and the definite article (the)', 'Learn when to use "a" versus "an"', 'Practise choosing the correct article in context'],
+            concept: 'Articles are small words that come before a noun to show whether something is general/unspecified or one specific thing already known. "A" and "an" (indefinite articles) introduce something for the first time, or something non-specific ("I saw a dog" — any dog, or a dog not mentioned before). "The" (definite article) refers to something specific, already known, or already mentioned ("I saw the dog" — a specific dog already known or previously mentioned).<br><br>"A" is used before words starting with a consonant SOUND ("a book," "a university" — "university" starts with a "y" sound); "an" is used before words starting with a vowel SOUND ("an apple," "an hour" — "hour" starts with a silent "h," so it sounds like it begins with a vowel).',
+            example: '<i>(Original example)</i><br><br>"I bought <b>a</b> book yesterday. <b>The</b> book was about history."<br><br>First mention: "a book" (indefinite — not specific to the listener yet). Second mention: "the book" (definite — now it is a specific, already-known book, the same one just mentioned).',
+            vocab: [['article','a small word (a, an, the) placed before a noun to show whether it is general or specific'],['indefinite article','"a" or "an," used for something general or mentioned for the first time'],['definite article','"the," used for something specific or already known/mentioned'],['consonant sound','the sound at the start of a word that is not a vowel sound, even if the letter looks different'],['vowel sound','the sound at the start of a word that is a vowel sound (a, e, i, o, u sound), even if the letter looks different']],
+            mistakes: ['Using "a" before a vowel SOUND instead of "an" (e.g. "a apple" instead of "an apple").', 'Using "an" before a consonant SOUND just because the spelling starts with a vowel letter, e.g. "an university" instead of "a university."', 'Using "the" for something being mentioned for the very first time, when "a/an" is more natural.', 'Forgetting articles entirely, which happens especially to speakers of languages that do not use articles the same way — English requires them in most cases where a singular countable noun is used.'],
+            practice: 'Choose the correct article: <b>"She is ___ honest person and ___ engineer. ___ engineer she works with is from Chennai."</b>',
+            practiceAnswer: '"She is an honest person and an engineer. The engineer she works with is from Chennai." — "an" before "honest" (silent h, vowel sound) and "engineer" (vowel sound); "The" for the second, now-specific mention of "engineer."',
+            quiz: [
+              {q:'When is "the" typically used instead of "a/an"?', options:['For something mentioned for the very first time','For something specific or already known/mentioned','Only before plural nouns','Only before proper nouns'], correct:1, a:'"The" is used for something specific, already known, or already mentioned earlier.'},
+              {q:'Which is correct: "an hour" or "a hour"?', options:['a hour','an hour','Both are equally correct','Neither is correct'], correct:1, a:'"An hour" is correct because "hour" starts with a silent h, making it sound like it begins with a vowel.'},
+              {q:'What determines whether "a" or "an" is used — spelling or sound?', options:['Spelling only','Sound only','Both equally, always','Neither — it is random'], correct:1, a:'The choice is based on the SOUND at the start of the following word, not just the spelling.'},
+            ],
+          },
+        ],
+        'Sentence Building':[
+          {
+            id: 'gr-sb1', title: 'Subject and Predicate — The Two Halves of Every Sentence', time: '12-14 minutes',
+            objectives: ['Understand that every complete sentence has a subject and a predicate', 'Learn to identify the subject (who/what the sentence is about)', 'Learn to identify the predicate (what is said about the subject)'],
+            concept: 'Every complete English sentence divides into two parts: the SUBJECT (who or what the sentence is about) and the PREDICATE (everything that is said about the subject, always including the verb). Understanding this split makes it much easier to check whether a sentence is actually complete, and to understand more advanced grammar terms later.<br><br>The subject is usually a noun or pronoun near the start of the sentence. The predicate is everything else — usually starting with the verb.',
+            example: '<i>(Original example)</i><br><br>Sentence: <b>"My younger brother plays cricket every evening."</b><br><br>Subject: "My younger brother" (who the sentence is about).<br>Predicate: "plays cricket every evening" (everything said about the subject, including the verb "plays").',
+            vocab: [['subject','the noun or pronoun a sentence is mainly about — the "who" or "what"'],['predicate','everything said about the subject, always including the verb'],['complete thought','a full idea that makes sense on its own, requiring both a subject and predicate'],['sentence fragment','an incomplete piece of a sentence, missing either a subject or a full predicate'],['split (subject/predicate)','dividing a sentence into its two essential grammatical halves']],
+            mistakes: ['Writing a sentence fragment that has only a subject with no complete predicate (e.g. "My brother, who loves cricket" — incomplete on its own).', 'Believing the subject must always be a single word, when it can be a longer phrase ("My younger brother" is the whole subject, not just "brother").', 'Confusing the subject with the first word of the sentence, when the true subject may come after an introductory phrase (e.g. "In the evening, my brother plays cricket" — the subject is still "my brother," not "evening").', 'Missing that the predicate must include the verb, not just extra description.'],
+            practice: 'Split this sentence into subject and predicate: <b>"The new student from Kerala joined our class yesterday."</b>',
+            practiceAnswer: 'Subject: "The new student from Kerala." Predicate: "joined our class yesterday."',
+            quiz: [
+              {q:'What is the subject of a sentence?', options:['Everything said about the main noun','The noun or pronoun the sentence is mainly about','Only the verb in the sentence','Any descriptive word in the sentence'], correct:1, a:'The subject is the noun or pronoun that the sentence is mainly about.'},
+              {q:'What must the predicate always include?', options:['An adjective','A preposition','The verb','A conjunction'], correct:2, a:'The predicate always includes the verb, along with everything else said about the subject.'},
+              {q:'In "In the evening, my brother plays cricket," what is the actual subject?', options:['In the evening','My brother','Plays cricket','Evening'], correct:1, a:'"My brother" is the true subject — "In the evening" is only an introductory phrase, not the subject.'},
+            ],
+          },
+          {
+            id: 'gr-sb2', title: 'Phrases vs. Clauses — A Key Distinction', time: '14-16 minutes',
+            objectives: ['Understand the difference between a phrase and a clause', 'Learn that a clause must contain both a subject and a verb, while a phrase does not', 'Practise telling phrases and clauses apart in real sentences'],
+            concept: 'A PHRASE is a group of related words that does NOT contain both a subject and a verb ("in the morning," "under the table," "a very tall building"). A CLAUSE is a group of words that DOES contain both a subject and a verb ("the sun rises," "she left early").<br><br>This distinction matters a lot for the next few lessons, since sentence types are built entirely out of how clauses are combined.',
+            example: '<i>(Original example)</i><br><br>Phrase: <b>"under the old bridge"</b> — no subject+verb pair, just a group of related words.<br>Clause: <b>"the cat slept under the old bridge"</b> — "the cat" (subject) + "slept" (verb) makes this a clause, even though it contains the same phrase "under the old bridge" inside it.',
+            vocab: [['phrase','a group of related words without both a subject and a verb together'],['clause','a group of words containing both a subject and a verb'],['distinction (in grammar)','a meaningful difference between two related grammar terms'],['contains (subject+verb)','having both parts present together within the same group of words'],['building block (of a sentence)','a smaller grammatical unit that combines with others to form a full sentence']],
+            mistakes: ['Assuming any group of several words is automatically a clause, without checking for both a subject and a verb.', 'Missing that a clause can be quite short, as long as it has a subject and verb ("she left" is a full clause).', 'Confusing a long phrase for a clause simply because of its length, when length is not what defines a clause.', 'Not recognising that a phrase can appear INSIDE a clause, as part of a larger structure.'],
+            practice: 'Decide whether each is a phrase or a clause: <b>1) "after the long meeting" 2) "he arrived late"</b>',
+            practiceAnswer: '1) Phrase (no subject+verb pair — just describes a time). 2) Clause ("he" = subject, "arrived" = verb).',
+            quiz: [
+              {q:'What is the key requirement for a group of words to be called a clause?', options:['It must be at least five words long','It must contain both a subject and a verb','It must start with a capital letter','It must contain a preposition'], correct:1, a:'A clause must contain both a subject and a verb together.'},
+              {q:'Is "in the morning" a phrase or a clause?', options:['A phrase — no subject+verb pair','A clause — it has a subject and verb','Neither a phrase nor a clause','Both, depending on context'], correct:0, a:'"In the morning" has no subject+verb pair, so it is a phrase, not a clause.'},
+              {q:'Can a phrase appear inside a clause?', options:['No, they are always completely separate','Yes — a clause can contain a phrase as part of its structure','Only in questions','Only in very long sentences'], correct:1, a:'A phrase can absolutely appear inside a clause, as part of the larger structure.'},
+            ],
+          },
+          {
+            id: 'gr-sb3', title: 'Independent vs. Dependent Clauses', time: '16-18 minutes',
+            objectives: ['Understand the difference between an independent and a dependent clause', 'Recognise common words that signal a dependent clause', 'Understand why a dependent clause alone is not a complete sentence'],
+            concept: 'An INDEPENDENT clause contains a subject and verb AND expresses a complete thought that can stand alone as its own sentence ("She finished her homework"). A DEPENDENT clause also contains a subject and verb, but does NOT express a complete thought on its own — it depends on being attached to an independent clause to make full sense ("because she finished her homework" — this leaves the reader waiting for "...then what?").<br><br>Dependent clauses are usually signalled by words like: because, although, since, when, if, while, after, before. Spotting these words is a fast way to recognise a dependent clause is starting.',
+            example: '<i>(Original example)</i><br><br>Independent clause alone (complete): <b>"She went home early."</b> ✓ A full sentence on its own.<br>Dependent clause alone (incomplete): <b>"Because she was tired."</b> ✗ Leaves the reader waiting for more — not a complete sentence by itself.<br>Combined correctly: <b>"She went home early because she was tired."</b> ✓ Now complete — the independent clause carries the dependent one.',
+            vocab: [['independent clause','a clause that expresses a complete thought and can stand alone as a sentence'],['dependent clause','a clause with a subject and verb that cannot stand alone as a complete sentence'],['subordinating word','a word like "because," "although," or "when" that signals a dependent clause is starting'],['stand alone (grammatically)','to function as a complete, grammatically correct sentence by itself'],['complete thought','an idea that feels finished and does not leave the reader expecting more']],
+            mistakes: ['Writing a dependent clause alone as if it were a complete sentence, e.g. "Because I was late." with a full stop, and nothing else.', 'Not recognising subordinating words (because, although, since...) as signals that a dependent clause is beginning.', 'Forgetting the comma that is often needed when a dependent clause comes BEFORE the independent clause it is attached to.', 'Believing a dependent clause is grammatically wrong on its own, rather than simply incomplete — it is grammatically fine, just not a full sentence by itself.'],
+            practice: 'Identify which is the independent clause and which is the dependent clause: <b>"Although it was raining, they continued the match."</b>',
+            practiceAnswer: 'Dependent clause: "Although it was raining" (cannot stand alone — signalled by "although"). Independent clause: "they continued the match" (a complete thought on its own).',
+            quiz: [
+              {q:'What makes a clause "independent"?', options:['It is longer than five words','It expresses a complete thought and can stand alone as a sentence','It always comes first in a sentence','It never contains a subordinating word'], correct:1, a:'An independent clause expresses a complete thought and can function as its own sentence.'},
+              {q:'Which of these signals a dependent clause is likely starting?', options:['and','because','the','very'], correct:1, a:'"Because" is a subordinating word commonly signalling the start of a dependent clause.'},
+              {q:'Can "Because I was late." stand alone as a complete sentence?', options:['Yes, it is perfectly complete','No — it is a dependent clause and needs an independent clause attached','Yes, but only in speech, never in writing','No, because it uses the wrong verb'], correct:1, a:'It is a dependent clause and leaves the reader expecting more — it needs to be attached to an independent clause.'},
+            ],
+          },
+          {
+            id: 'gr-sb4', title: 'Simple, Compound, and Complex Sentences', time: '16-18 minutes',
+            objectives: ['Understand how simple, compound, and complex sentences differ', 'Learn to build each sentence type from independent and dependent clauses', 'Practise varying sentence types for more natural writing and speaking'],
+            concept: 'Now that independent and dependent clauses are understood, sentence TYPES are just different combinations of them:<br>• A SIMPLE sentence has exactly one independent clause and nothing else ("She studies English.").<br>• A COMPOUND sentence joins two or more independent clauses with a coordinating conjunction (and, but, so...) ("She studies English, and she also practises speaking daily.").<br>• A COMPLEX sentence joins one independent clause with at least one dependent clause ("She studies English because she wants to work abroad.").<br><br>Using only simple sentences over and over sounds repetitive and unnatural; mixing all three types — the way fluent speakers naturally do — makes writing and speech sound far more natural and controlled.',
+            example: '<i>(Original example)</i><br><br>Simple: <b>"He works hard."</b><br>Compound: <b>"He works hard, and he also volunteers on weekends."</b><br>Complex: <b>"He works hard because he wants a promotion."</b><br><br>All three are grammatically correct — the difference is purely in how many clauses are combined and how.',
+            vocab: [['simple sentence','a sentence containing exactly one independent clause'],['compound sentence','two or more independent clauses joined by a coordinating conjunction'],['complex sentence','an independent clause combined with at least one dependent clause'],['sentence variety','using a natural mix of sentence types rather than repeating the same structure'],['coordinating conjunction (recap)','one of the seven FANBOYS words joining independent clauses in a compound sentence']],
+            mistakes: ['Writing only simple sentences throughout a piece of writing or speech, which sounds repetitive and less fluent.', 'Joining two independent clauses with just a comma and no conjunction (a common error called a "comma splice").', 'Confusing a compound sentence (two independent clauses) with a complex sentence (independent + dependent).', 'Overcomplicating a sentence with too many clauses joined together, making it hard to follow.'],
+            practice: 'Identify the type of each sentence: <b>1) "She smiled." 2) "She smiled, and she waved." 3) "She smiled when she saw him."</b>',
+            practiceAnswer: '1) Simple (one independent clause). 2) Compound (two independent clauses joined by "and"). 3) Complex (independent clause + dependent clause starting with "when").',
+            quiz: [
+              {q:'What defines a compound sentence?', options:['One independent clause only','Two or more independent clauses joined by a coordinating conjunction','An independent clause plus a dependent clause','A sentence with no verb'], correct:1, a:'A compound sentence joins two or more independent clauses with a coordinating conjunction.'},
+              {q:'What defines a complex sentence?', options:['Two independent clauses joined together','An independent clause combined with at least one dependent clause','A sentence longer than ten words','A sentence with no subject'], correct:1, a:'A complex sentence combines an independent clause with at least one dependent clause.'},
+              {q:'Why is mixing simple, compound, and complex sentences useful?', options:['It is required by strict grammar rules with no exceptions','It makes writing and speech sound more natural and less repetitive','It is only useful in academic writing, never in speech','It makes sentences shorter overall'], correct:1, a:'A natural mix of sentence types avoids repetitive-sounding writing or speech, closer to how fluent speakers actually communicate.'},
+            ],
+          },
+        ],
+        'Tenses & Agreement':[
+          {
+            id: 'gr-ta1', title: 'Present, Past, and Future Simple — The Three Basic Tenses', time: '16-18 minutes',
+            objectives: ['Understand what "tense" means and why it matters', 'Learn the basic form of present, past, and future simple tense', 'Practise choosing the correct simple tense for a given time context'],
+            concept: 'Tense shows WHEN an action happens — in the present, past, or future. The three simple tenses are the starting point for everything else in later, more detailed tense lessons:<br>• PRESENT SIMPLE — for habits, facts, and routines: "I study every day."<br>• PAST SIMPLE — for completed actions in the past: "I studied yesterday."<br>• FUTURE SIMPLE — for actions expected to happen later: "I will study tomorrow."<br><br>Notice past simple regular verbs usually add "-ed" ("study" → "studied"), but many common verbs are irregular and change completely ("go" → "went," "eat" → "ate") — these irregular forms simply have to be memorised individually over time.',
+            example: '<i>(Original example)</i><br><br>Present: <b>"She works in Chennai."</b> (a fact/routine, true now)<br>Past: <b>"She worked in Chennai last year."</b> (completed, finished in the past)<br>Future: <b>"She will work in Chennai next year."</b> (expected to happen later)<br><br>Same basic sentence, three different tenses, each placing the action at a different point in time.',
+            vocab: [['tense','the grammatical form of a verb showing when an action happens'],['present simple','the tense for habits, facts, and routines'],['past simple','the tense for actions that are completed and finished in the past'],['future simple','the tense for actions expected to happen later, often using "will"'],['irregular verb','a verb that does not follow the standard "-ed" pattern for its past form']],
+            mistakes: ['Using present simple to describe something that already happened, e.g. "I go yesterday" instead of "I went yesterday."', 'Forgetting the "-ed" ending on regular past-tense verbs, especially in fast speech.', 'Treating all verbs as regular, when common irregular verbs (go, eat, have, do, see) do not follow the "-ed" pattern.', 'Using "will" for a habitual, ongoing routine, when present simple is actually correct — "I will go to school every day" should be "I go to school every day."'],
+            practice: 'Put the correct tense form of the verb in brackets: <b>"Yesterday, she (go) to the market and (buy) vegetables."</b>',
+            practiceAnswer: '"Yesterday, she went to the market and bought vegetables." — both are irregular past forms, describing completed past actions.',
+            quiz: [
+              {q:'Which tense is used for habits and routines?', options:['Past simple','Present simple','Future simple','None of the above'], correct:1, a:'Present simple is used for habits, facts, and routines.'},
+              {q:'What is the correct past simple form of "go"?', options:['goed','went','going','gone'], correct:1, a:'"Go" is irregular — its past simple form is "went," not "goed."'},
+              {q:'What does past simple describe?', options:['An action happening right now','A completed action that is finished in the past','An action expected in the future','A permanent fact only'], correct:1, a:'Past simple describes actions that are completed and finished in the past.'},
+            ],
+          },
+          {
+            id: 'gr-ta2', title: 'Continuous and Perfect Forms — A First Introduction', time: '18-20 minutes',
+            objectives: ['Understand the basic difference between continuous and simple tenses', 'Understand what perfect tense forms generally show', 'Recognise the basic structure of present continuous and present perfect'],
+            concept: 'Beyond the three simple tenses, English uses CONTINUOUS forms (also called progressive) for actions happening at a specific moment, still in progress: "I am studying right now" (present continuous, formed with am/is/are + verb-ing).<br><br>PERFECT forms connect a past action to the present in some way — either the action happened at an unspecified time but still matters now, or it is a very recent completed action: "I have finished my homework" (present perfect, formed with have/has + past participle). This is different from simple past ("I finished my homework yesterday"), which gives a specific completed time, while present perfect deliberately leaves the exact time vague or connects it to right now.<br><br>This is only a first introduction — continuous and perfect forms have many more layers covered in the IELTS/TOEFL/PTE tracks once this foundation is in place.',
+            example: '<i>(Original example)</i><br><br>Present continuous: <b>"She is cooking dinner right now."</b> — happening at this specific moment.<br>Present perfect: <b>"She has cooked dinner already."</b> — completed, but the exact time is not the focus; what matters is that it is done, relevant to now.<br>Compare to simple past: <b>"She cooked dinner at 6pm."</b> — a specific, stated time.',
+            vocab: [['continuous/progressive tense','a verb form for actions in progress at a specific time, using am/is/are/was/were + verb-ing'],['perfect tense','a verb form connecting a past action to the present, using have/has/had + past participle'],['past participle','the verb form used with "have/has/had" (e.g. "eaten," "gone," "finished")'],['in progress','still happening, not yet completed, at the moment being discussed'],['unspecified time','a time that is not stated exactly, often used with perfect tenses']],
+            mistakes: ['Using simple present instead of present continuous for something happening right now, e.g. "I study now" instead of "I am studying now."', 'Confusing the past participle with the simple past form for irregular verbs, e.g. "have went" instead of "have gone."', 'Using present perfect with a specific past time word like "yesterday," which actually requires simple past instead ("I have finished yesterday" should be "I finished yesterday").', 'Forgetting the "have/has" auxiliary verb entirely when forming present perfect.'],
+            practice: 'Choose the correct form: <b>"Right now, she (write) an email. She (already/finish) the report."</b>',
+            practiceAnswer: '"Right now, she is writing an email. She has already finished the report." — continuous for the ongoing action, perfect for the completed one connected to now.',
+            quiz: [
+              {q:'What is present continuous typically used for?', options:['Habits and routines','Actions happening right now, in progress','Actions completed at a specific past time','Actions expected far in the future'], correct:1, a:'Present continuous describes actions currently in progress, at this specific moment.'},
+              {q:'What auxiliary verb is used to form present perfect?', options:['will','am/is/are','have/has','was/were'], correct:2, a:'Present perfect is formed using "have" or "has" plus the past participle.'},
+              {q:'Why is "I have finished yesterday" incorrect?', options:['"Finished" is spelled wrong','Present perfect should not be used with a specific past time word like "yesterday"','"Have" should be "has" here','It is actually correct'], correct:1, a:'Present perfect is not used with a specific past time word; simple past ("I finished yesterday") is correct instead.'},
+            ],
+          },
+          {
+            id: 'gr-ta3', title: 'Subject-Verb Agreement — Making Subjects and Verbs Match', time: '16-18 minutes',
+            objectives: ['Understand what subject-verb agreement means and why it matters', 'Learn the basic rule for singular vs. plural subjects', 'Practise spotting and fixing subject-verb agreement mistakes'],
+            concept: 'Subject-verb agreement means the verb must match the subject in number — a singular subject needs a singular verb form, and a plural subject needs a plural verb form. In present simple, this mostly means adding "-s" to the verb for singular subjects (he/she/it): "She works" not "She work"; but "They work" (no -s, since "they" is plural).<br><br>This trips up many learners because it feels backwards at first — the "-s" goes on the VERB for singular, which is the opposite of how "-s" normally shows PLURAL on nouns.',
+            example: '<i>(Original example)</i><br><br>Correct: <b>"My sister works in Bangalore. My parents work in Chennai."</b><br><br>"Sister" (singular) → "works" (with -s). "Parents" (plural) → "work" (no -s). The pattern feels counterintuitive at first: -s appears on the verb for ONE person, but disappears from the verb for MORE than one — the opposite of how nouns normally work.',
+            vocab: [['subject-verb agreement','the grammar rule that a verb must match its subject in number (singular/plural)'],['third-person singular','he, she, it, or a singular noun — this is where "-s" is added to present simple verbs'],['counterintuitive','feeling backwards or opposite to what would naturally be expected'],['collective noun','a singular-form noun referring to a group (team, family, class) — usually takes a singular verb'],['number agreement','matching singular with singular, and plural with plural, throughout a sentence']],
+            mistakes: ['Forgetting to add "-s" to the verb for a singular third-person subject, e.g. "She go to work" instead of "She goes to work."', 'Mistakenly adding "-s" to the verb for a plural subject, e.g. "They goes to work" instead of "They go to work."', 'Getting confused when the subject is separated from the verb by other words, e.g. "The list of items (is/are) long" — the verb should agree with "list" (singular), not "items."', 'Treating collective nouns like "team" or "family" as automatically plural, when they are often grammatically singular ("The team is winning," not "The team are winning," in most everyday usage).'],
+            practice: 'Correct any agreement mistakes: <b>"My brother work every day. His friends works with him too."</b>',
+            practiceAnswer: '"My brother works every day. His friends work with him too." — "works" (singular, for "brother"), "work" (no -s, for the plural "friends").',
+            quiz: [
+              {q:'In present simple, when is "-s" added to the verb?', options:['For all subjects, always','For third-person singular subjects (he/she/it)','Only for plural subjects','Never — "-s" is only for nouns'], correct:1, a:'"-s" is added to present simple verbs for third-person singular subjects: he, she, it.'},
+              {q:'Which sentence has correct subject-verb agreement?', options:['They goes to school.','He go to school.','She goes to school.','I goes to school.'], correct:2, a:'"She" is third-person singular, correctly taking "goes" with the "-s" ending.'},
+              {q:'In "The list of items is long," why does the verb agree with "list" and not "items"?', options:['Because "items" is not a real noun','Because "list" is the true subject of the sentence, not "items"','Because "is" only works with plural nouns','There is no correct reason — this is simply an exception'], correct:1, a:'"List" is the actual subject; "of items" is just a describing phrase, so the verb must agree with "list," not "items."'},
+            ],
+          },
+          {
+            id: 'gr-ta4', title: 'Forming Questions and Negatives', time: '16-18 minutes',
+            objectives: ['Understand the basic pattern for forming yes/no questions in English', 'Learn the basic pattern for forming negative sentences', 'Practise both patterns with different tenses'],
+            concept: 'English typically forms yes/no QUESTIONS and NEGATIVES using a "helping" (auxiliary) verb — do/does/did for simple tenses, or by reordering am/is/are/have/has/will for others.<br><br>Questions (present simple): <b>Do/Does + subject + base verb?</b> — "Does she work here?" (not "Works she here?").<br>Negatives (present simple): <b>Subject + do/does + not + base verb.</b> — "She does not work here" (not "She works not here").<br><br>This "do/does/did" pattern is one of the most common sources of unnatural-sounding sentences for learners whose first language forms questions and negatives differently (often by simply changing word order or adding a single word) — English specifically needs this extra helping verb for simple tenses.',
+            example: '<i>(Original example)</i><br><br>Statement: <b>"He plays cricket."</b><br>Question: <b>"Does he play cricket?"</b> (auxiliary "does" + base form "play," NOT "plays")<br>Negative: <b>"He does not play cricket."</b> (auxiliary carries the "-s," so the main verb returns to its base form)<br><br>Notice the main verb loses its "-s" once "does" is added — the "-s" only ever appears once in the sentence.',
+            vocab: [['auxiliary verb','a "helping" verb (do, does, did, have, will...) used to form questions, negatives, and other structures'],['base form (of a verb)','the plain, unchanged form of a verb, with no -s, -ed, or -ing added (play, go, eat)'],['yes/no question','a question that can be answered with a simple "yes" or "no"'],['word order (in questions)','the specific arrangement of words required to form a grammatically correct question'],['double marking (error)','mistakenly adding the same grammar marker twice, e.g. "does" and "-s" together']],
+            mistakes: ['Forgetting the auxiliary "do/does/did" entirely and just changing word order, e.g. "Works she here?" instead of "Does she work here?"', 'Keeping the "-s" on the main verb even after adding "does," e.g. "Does she works here?" instead of "Does she work here?" (a double-marking error).', 'Placing "not" incorrectly, e.g. "She not works here" instead of "She does not work here."', 'Using "do/does" with the being verb "is/am/are," which does not need it — "Is she a teacher?" not "Does she is a teacher?"'],
+            practice: 'Turn this into a question, then a negative: <b>"They live in Dubai."</b>',
+            practiceAnswer: 'Question: "Do they live in Dubai?" Negative: "They do not live in Dubai." — "do" (not "does," since "they" is plural), and the main verb "live" stays in its base form both times.',
+            quiz: [
+              {q:'What is used to form a yes/no question in present simple?', options:['Just reordering the words','An auxiliary verb like "do/does" plus the base form of the verb','Adding "-ing" to the verb','Removing the subject entirely'], correct:1, a:'Present simple questions use "do/does" plus the base (unchanged) form of the main verb.'},
+              {q:'Which sentence correctly forms a negative?', options:['She not works here.','She does not works here.','She does not work here.','She do not work here.'], correct:2, a:'"She does not work here" is correct — "does" carries the agreement, and the main verb stays in its base form.'},
+              {q:'Why is "Does she works here?" incorrect?', options:['It is actually correct','The "-s" should not appear on the main verb once "does" is already there','"Does" should be "do" for "she"','"Works" should come before "does"'], correct:1, a:'This is a double-marking error — once "does" carries the agreement, the main verb must return to its base form.'},
+            ],
+          },
+        ],
+        'Practical Fixes':[
+          {
+            id: 'gr-pf1', title: 'Common Mistakes for Tamil-Speaking English Learners', time: '18-20 minutes',
+            objectives: ['Recognise a few sentence patterns that commonly transfer incorrectly from Tamil word order into English', 'Understand why English word order (Subject-Verb-Object) differs from Tamil (Subject-Object-Verb)', 'Practise reordering a few common sentence patterns correctly'],
+            concept: 'Tamil typically follows a Subject-Object-Verb (SOV) word order, while English follows Subject-Verb-Object (SVO) — this single structural difference is behind many of the most common mistakes Tamil-speaking learners make when first learning English, since directly translating word-for-word often produces the wrong order.<br><br>Example pattern: in Tamil, it is natural for the verb to come at the very end of the sentence. Directly carrying that habit into English produces sentences like "I rice eating am" instead of the correct English order "I am eating rice." This is not a sign of not understanding English — it is simply the SOV habit of the first language showing through, and it fades with deliberate practice noticing the SVO pattern.<br><br>Another very common pattern: English strictly needs the auxiliary verbs "is/am/are" for the continuous tense and states of being, which some other language structures may express differently or omit — leading to sentences like "She going to market" instead of "She is going to the market."',
+            example: '<i>(Original example, illustrating the pattern, not any specific individual\'s speech)</i><br><br>Word-for-word SOV habit: <b>"I book reading am."</b> (Subject - Object - Verb - auxiliary, matching Tamil order)<br>Correct English SVO: <b>"I am reading a book."</b> (Subject - auxiliary+Verb - Object)<br><br>The fix is not about vocabulary at all — every single word above is correct English vocabulary. The fix is purely about REORDERING into Subject → Verb → Object.',
+            vocab: [['word order','the sequence in which subject, verb, and object appear in a sentence'],['SOV (Subject-Object-Verb)','a word order pattern where the verb comes last, common in Tamil and several other languages'],['SVO (Subject-Verb-Object)','the standard English word order, where the verb comes directly after the subject'],['transfer (in language learning)','when a habit from a first language carries over into a second language, sometimes incorrectly'],['auxiliary omission','leaving out a required helping verb like "is/am/are," which English usually needs but some patterns may not']],
+            mistakes: ['Placing the verb at the end of an English sentence, following Tamil SOV order, instead of directly after the subject.', 'Dropping "is/am/are" before a continuous verb (-ing form), e.g. "She going" instead of "She is going."', 'Feeling that these mistakes reflect not understanding English, when they are actually just a structural habit from the first language that fades with targeted practice.', 'Trying to fix pronunciation or vocabulary when the actual issue is word order — the two are different problems needing different practice.'],
+            practice: 'Reorder into correct English SVO: <b>"She movie watching is."</b>',
+            practiceAnswer: '"She is watching a movie." — Subject (She) + auxiliary+Verb (is watching) + Object (a movie), following English SVO order.',
+            quiz: [
+              {q:'What is the key structural difference between Tamil and English word order?', options:['Tamil has no verbs at all','Tamil typically follows SOV order; English follows SVO order','English has no subjects','There is no real difference'], correct:1, a:'Tamil typically places the verb last (SOV); English places the verb right after the subject (SVO).'},
+              {q:'What does "She going to market" need to be corrected to?', options:['"She is going to the market" — adding the required auxiliary "is"','"Market going she to" — reordering only','"Going she market to" — moving all the words'], correct:0, a:'The auxiliary "is" is required before the continuous verb "going" in standard English.'},
+              {q:'Why is it helpful to know this pattern has a name (SOV vs. SVO)?', options:['It makes no practical difference to know this','Recognising the pattern makes the mistake easier to notice and consciously fix, rather than feeling like a random error','It is only useful for passing grammar exams','It replaces the need for any further practice'], correct:1, a:'Naming the underlying pattern makes it easier to consciously notice and correct, rather than each instance feeling like an unrelated, random mistake.'},
+            ],
+          },
+          {
+            id: 'gr-pf2', title: 'Basic Punctuation — Capital Letters, Full Stops, Commas, and Question Marks', time: '14-16 minutes',
+            objectives: ['Learn the basic rules for capital letters at the start of sentences and for proper nouns', 'Understand when to use a full stop vs. a question mark', 'Learn a few essential comma rules'],
+            concept: 'A few punctuation basics make writing look far more polished and are checked by every test on this app (IELTS/TOEFL/PTE Writing especially):<br>• Capital letters start every sentence, and every proper noun (names of people, places, days, months) — but NOT ordinary common nouns.<br>• A full stop (.) ends a statement. A question mark (?) ends a genuine question.<br>• A comma is used: after an introductory phrase ("After lunch, we went home"), between items in a list ("apples, bananas, and oranges"), and before a coordinating conjunction joining two independent clauses ("I was tired, but I kept working").',
+            example: '<i>(Original example)</i><br><br>Incorrect: <b>"my Friend from chennai asked are you free tomorrow"</b><br><br>Correct: <b>"My friend from Chennai asked, \'Are you free tomorrow?\'"</b><br><br>Fixed: capital "My" (sentence start), lowercase "friend" (common noun), capital "Chennai" (proper noun), question mark for the actual question being asked, and a comma introducing the quoted question.',
+            vocab: [['capitalisation','the use of capital letters at appropriate points in writing'],['full stop/period','the punctuation mark (.) ending a statement'],['question mark','the punctuation mark (?) ending a genuine question'],['introductory phrase','a phrase at the start of a sentence, often followed by a comma, before the main clause'],['list (punctuation)','a comma-separated series of items within a sentence']],
+            mistakes: ['Forgetting to capitalise the first word of a sentence.', 'Capitalising ordinary common nouns that are not proper nouns.', 'Ending a genuine question with a full stop instead of a question mark, or vice versa for a statement.', 'Missing the comma after an introductory phrase, making the sentence harder to read at a glance.'],
+            practice: 'Fix the punctuation and capitalisation: <b>"after the meeting rahul asked did you finish the report"</b>',
+            practiceAnswer: '"After the meeting, Rahul asked, \'Did you finish the report?\'" — capital "After" (sentence start), comma after the introductory phrase, capital "Rahul" (proper noun), question mark for the genuine question.',
+            quiz: [
+              {q:'When should a word be capitalised in the middle of a sentence?', options:['Never, only sentence starts are capitalised','When it is a proper noun (a specific name)','Only for verbs','Only for adjectives'], correct:1, a:'Proper nouns (specific names of people, places, etc.) are always capitalised, even mid-sentence.'},
+              {q:'What ends a genuine question?', options:['A full stop','A question mark','A comma','No punctuation is needed'], correct:1, a:'A question mark is used to end a genuine question.'},
+              {q:'When is a comma typically used after a phrase at the start of a sentence?', options:['Never','After most introductory phrases, before the main clause begins','Only in questions','Only before proper nouns'], correct:1, a:'A comma is typically used after an introductory phrase, before the main clause of the sentence begins.'},
+            ],
+          },
+          {
+            id: 'gr-pf3', title: 'Putting It All Together — A Full Review', time: '18-20 minutes',
+            objectives: ['Review all the grammar terms covered across this track in one place', 'Practise identifying multiple grammar elements within the same sentences', 'Feel ready to move confidently into the IELTS/TOEFL/PTE/Duolingo tracks, which assume this knowledge'],
+            concept: 'This final lesson pulls everything together. By this point, the following terms should feel like familiar labels for things already understood, not confusing new concepts: noun, pronoun, verb, adjective, adverb, preposition, conjunction, article, subject, predicate, phrase, clause (independent and dependent), simple/compound/complex sentences, the three simple tenses, continuous and perfect forms, subject-verb agreement, question/negative formation, and basic punctuation.<br><br>None of this needs to be memorised perfectly before moving on — the goal was simply to build enough familiarity that these words no longer feel like a barrier when they appear, without explanation, in the other tracks on this app.',
+            example: '<i>(Original example, fully labelled)</i><br><br>Sentence: <b>"Although she was tired, Priya finished her homework quickly because the deadline was tomorrow."</b><br><br>"Although she was tired" = dependent clause. "Priya finished her homework quickly" = independent clause ("Priya" = subject/proper noun, "finished" = verb/past tense, "homework" = noun, "quickly" = adverb). "because the deadline was tomorrow" = second dependent clause. Overall: a complex sentence, combining one independent clause with two dependent clauses.',
+            vocab: [['review (in learning)','revisiting previously learned material to strengthen and confirm understanding'],['familiarity (with terms)','a comfortable, working recognition of vocabulary, even without perfect memorisation'],['foundation track','a starting course covering essential basics before more advanced, specialised content'],['confidence (recap)','the comfort to engage with more advanced material without feeling lost over basic terminology'],['building block (recap)','a fundamental grammar unit — like a clause — that combines with others to form larger structures']],
+            mistakes: ['Feeling that every term must be perfectly memorised before moving on to other tracks — familiarity, not perfection, was always the goal.', 'Skipping review and moving straight to advanced content without reinforcing these basics through actual practice.', 'Forgetting that these terms will keep appearing and reinforcing themselves naturally throughout the IELTS/TOEFL/PTE/Duolingo lessons.', 'Underestimating how much a small amount of grammar vocabulary genuinely speeds up understanding more advanced lessons later.'],
+            practice: 'Label as many grammar elements as possible in this sentence: <b>"My brother, who lives in Dubai, called me yesterday because he missed home."</b>',
+            practiceAnswer: '"My brother" = subject/noun phrase. "who lives in Dubai" = dependent clause describing "brother." "called me yesterday" = main verb phrase, past tense, with "yesterday" as a time adverb. "because he missed home" = dependent clause showing reason. Overall: a complex sentence with two dependent clauses attached to one independent clause.',
+            quiz: [
+              {q:'What was the main goal of this Grammar Foundations track?', options:['To memorise every grammar rule in English perfectly','To build enough familiarity with basic grammar terms so they stop being a barrier in other tracks','To replace the need for the IELTS/TOEFL/PTE/Duolingo tracks','To pass a formal grammar exam'], correct:1, a:'The goal was building working familiarity with grammar terms, not perfect memorisation — so they stop being confusing when used elsewhere.'},
+              {q:'In "Although she was tired, Priya finished her homework quickly," what type of sentence is this?', options:['Simple sentence','Compound sentence','Complex sentence','Not a complete sentence'], correct:2, a:'This is a complex sentence — it combines a dependent clause ("Although she was tired") with an independent clause.'},
+              {q:'Should someone feel ready to move to other tracks even without perfect recall of every term?', options:['No — every term must be perfectly memorised first','Yes — reasonable familiarity is enough, and the terms will keep reinforcing themselves in later lessons','No — this track must be repeated until scoring 100% on every quiz','Only if every single quiz question was answered correctly the first time'], correct:1, a:'Reasonable familiarity is enough to move on — these terms will keep naturally reinforcing themselves throughout the other tracks.'},
+            ],
+          },
+        ],
+      }},
+    ],
+  },
   IELTS: {
     name: 'IELTS', ready: true,
     stats: [['₹19,000','Test fee (India)'],['1-9','Band scale'],['2 yrs','Validity']],
@@ -3647,7 +3978,7 @@ function openTestPrep(){
   document.getElementById('tp-detail-view').style.display='none';
   renderTpGrid();
 }
-const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐' };
+const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘' };
 
 async function renderTpGrid(){
   const el=document.getElementById('tp-test-grid');
@@ -4038,7 +4369,9 @@ function renderLstepStep(direction){
     nextBtn.textContent='Start lesson';
   } else if(step.kind==='concept'){
     html=`<div class="lstep-badge concept"><i class="ti ti-bulb"></i> Concept</div>
-      <div class="tp-info-card"><p>${lesson.concept}</p></div>`;
+      <div class="tp-info-card"><p id="lesson-concept-text">${lesson.concept}</p></div>
+      <button class="btn-outline btn" id="lesson-tamil-btn" style="width:auto;padding:8px 16px;font-size:13px;margin-top:10px" onclick="explainInTamil(this)"><i class="ti ti-language"></i> Explain in Tamil</button>
+      <div id="lesson-tamil-box" style="display:none;margin-top:10px;background:var(--cream);border-radius:var(--r);padding:12px 14px;font-size:14.5px;color:var(--ink2)"></div>`;
     nextBtn.textContent='Continue';
   } else if(step.kind==='example'){
     html=`<div class="lstep-badge example"><i class="ti ti-book"></i> Worked example</div>
@@ -4278,6 +4611,38 @@ function resetSpeakButton(buttonEl){
   if(buttonEl)buttonEl.innerHTML='<i class="ti ti-volume"></i> Listen to this example';
 }
 
+// On-demand Tamil explanation for the current lesson's concept text.
+// Reuses the ai-speaking-partner function (action:'translate') rather
+// than a whole separate Edge Function, since this is a small addition
+// to the same "AI text helper" surface. Not cached across sessions —
+// just avoids re-fetching if the student toggles it on the same step.
+let lessonTamilCache={};
+async function explainInTamil(buttonEl){
+  const box=document.getElementById('lesson-tamil-box');
+  const key=lstepState.lesson.title+'|'+lstepState.idx;
+  if(box.style.display==='block'){ box.style.display='none'; return; }
+  if(lessonTamilCache[key]){ box.textContent=lessonTamilCache[key]; box.style.display='block'; return; }
+  const original=buttonEl.innerHTML;
+  buttonEl.innerHTML='<i class="ti ti-loader-2"></i> Translating…';
+  buttonEl.disabled=true;
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({
+      action:'translate', text:document.getElementById('lesson-concept-text').innerText, targetLanguage:'ta',
+    })});
+    const data=await r.json();
+    if(!r.ok||data.error||!data.translation){ box.textContent="Couldn't translate right now — please try again."; box.style.display='block'; return; }
+    lessonTamilCache[key]=data.translation;
+    box.textContent=data.translation;
+    box.style.display='block';
+  }catch(e){
+    box.textContent="Couldn't translate right now — please try again.";
+    box.style.display='block';
+  }finally{
+    buttonEl.innerHTML=original;
+    buttonEl.disabled=false;
+  }
+}
+
 /* ============================================================
    AI SPEAKING PARTNER — real-time conversation practice, three
    modes (open / roleplay / test_practice), voice or text input,
@@ -4294,7 +4659,7 @@ const SP_ROLEPLAY_SCENARIOS = [
   {id:'doctor', icon:'🩺', title:'Booking a Doctor\'s Appointment', desc:'Call to book an appointment and briefly explain your symptoms.', character:'a receptionist at a doctor\'s clinic, booking an appointment over the phone'},
   {id:'friend-plans', icon:'👋', title:'Weekend Plans With a Friend', desc:'Casually discuss and plan weekend activities with a friend.', character:'a close friend casually chatting about weekend plans'},
 ];
-let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false};
+let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false};
 
 function openSpeakingPartner(){
   showScreen('screen-speaking-partner');
@@ -4361,6 +4726,7 @@ async function startSpeakingSession(mode,scenarioId,testType){
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked,
       conversationHistory:[], userMessage:kickoffPrompt,
     })});
     const data=await r.json();
@@ -4389,12 +4755,15 @@ async function sendSpeakingMessage(){
   const input=document.getElementById('sp-text-input');
   const text=input.value.trim();
   if(!text)return;
+  const wasVoice=spState.lastInputWasVoice;
+  spState.lastInputWasVoice=false;
   input.value='';
   addSpMessage('user',text);
   document.getElementById('sp-typing-indicator').style.display='block';
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked, inputWasVoice:wasVoice,
       conversationHistory:spState.history, userMessage:text,
     })});
     const data=await r.json();
@@ -4436,14 +4805,15 @@ function toggleSpeechInput(){
   const input=document.getElementById('sp-text-input');
   const statusEl=document.getElementById('sp-mic-status');
   const micBtn=document.getElementById('sp-mic-btn');
-  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i>'; statusEl.textContent='Listening…'; };
+  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i> Stop'; statusEl.textContent='Listening…'; };
   spRecognition.onresult=(e)=>{
     let transcript='';
     for(let i=0;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
     input.value=transcript;
+    spState.lastInputWasVoice=true;
   };
   spRecognition.onerror=(e)=>{ statusEl.textContent='Mic error: '+e.error+' — you can type instead.'; };
-  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i>'; statusEl.textContent=''; };
+  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i> Speak'; statusEl.textContent=''; };
   spRecognition.start();
 }
 function stopSpeechInput(){
