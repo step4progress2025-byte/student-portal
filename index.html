@@ -597,6 +597,7 @@
     <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">🛂 Visa Assistance</h2>
     <p style="font-size:14.5px;color:var(--ink3);margin-bottom:10px">General guidance by destination, plus an AI mock visa interview to build real confidence before the real one.</p>
+    <div id="visa-profile-banner"></div>
     <div class="tp-info-card" style="background:var(--gold-l);border:1.5px solid #FFD4C4;margin-bottom:16px">
       <p style="font-size:12.5px;color:#7A3418;margin:0"><b>⚠️ General guidance only.</b> Visa rules change and vary by individual case — always confirm current requirements with the official government source for your destination, or a Step4Progress counsellor, before applying.</p>
     </div>
@@ -613,6 +614,7 @@
     <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">🎓 University Interview Prep</h2>
     <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Interview tips, the latest updates from our team, and an AI mock interview whenever you want to practise.</p>
+    <div id="uni-profile-banner"></div>
 
     <div class="tp-subtabs" style="display:flex;gap:8px;margin-bottom:14px">
       <button class="uni-subtab active" data-sub="tips" onclick="setUniSubtab('tips')">Tips</button>
@@ -621,10 +623,47 @@
     <div id="uni-subtab-content"></div>
 
     <div class="tp-info-card" style="margin-top:16px;text-align:center">
+      <h4>💡 Want tips tailored to you?</h4>
+      <p style="margin-bottom:10px">Generate likely questions, answering techniques, and things to watch for — personalized if you've filled in your profile.</p>
+      <button class="btn-outline btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="getPersonalizedTips('university',null,'uni-tips-result')">Get Personalized Tips</button>
+      <div id="uni-tips-result" style="margin-top:10px;text-align:left"></div>
+    </div>
+
+    <div class="tp-info-card" style="margin-top:12px;text-align:center">
       <h4>🗣️ Ready to practise?</h4>
-      <p style="margin-bottom:10px">Start a live AI mock admissions interview — realistic questions, asked one at a time, with feedback on request.</p>
+      <p style="margin-bottom:10px">Start a live AI mock admissions interview — personalized to your profile, with feedback on request.</p>
       <button class="btn" onclick="startSpeakingSession('university_interview')">Start Mock Interview</button>
     </div>
+  </div>
+
+  <!-- My Profile — quick-fill form used to personalize AI mock interviews.
+       Deliberately structured short fields rather than parsing the
+       uploaded resume file (see Career screen for that upload) — this
+       is what the AI actually reads to tailor questions and tips. -->
+  <div class="screen" id="screen-my-profile">
+    <span class="back-link" onclick="closeMyProfile()">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">📝 My Profile</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Fill this in once — it's what the AI uses to ask you personalized visa and admissions interview questions, instead of generic ones.</p>
+    <div class="tp-info-card" style="background:var(--sky-l);border:1.5px solid #C7DBFB;margin-bottom:16px">
+      <p style="font-size:12.5px;color:#1E3A5F;margin:0">💡 Don't forget to also <span style="color:var(--pine);font-weight:600;text-decoration:underline;cursor:pointer" onclick="showScreen('screen-career')">upload your CV/Resume</span> under Career &amp; Scholarships — your counsellor sees that too.</p>
+    </div>
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Target course</label>
+    <input id="profile-course" type="text" placeholder="e.g. MSc Data Science" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px">
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Target university</label>
+    <input id="profile-university" type="text" placeholder="e.g. University of Toronto" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px">
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Destination country</label>
+    <select id="profile-destination" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px;background:#fff">
+      <option value="">Select…</option>
+      <option>United Kingdom</option><option>United States</option><option>Canada</option><option>Australia</option><option>Ireland</option><option>New Zealand</option><option>Other</option>
+    </select>
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Academic background</label>
+    <textarea id="profile-background" rows="3" placeholder="e.g. BSc Computer Science, graduated 2025, 3.6 GPA" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px;resize:vertical"></textarea>
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Work/internship experience</label>
+    <textarea id="profile-work" rows="3" placeholder="e.g. 6-month data analyst internship at a fintech startup" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px;resize:vertical"></textarea>
+    <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Achievements / extracurriculars</label>
+    <textarea id="profile-achievements" rows="3" placeholder="e.g. Led university coding club, published a research paper" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:16px;resize:vertical"></textarea>
+    <button class="btn" onclick="saveMyProfile()">Save Profile</button>
+    <div id="profile-save-status" style="font-size:13px;color:var(--sage);margin-top:8px"></div>
   </div>
 
 </div>
@@ -5106,10 +5145,105 @@ id: 'ta-s4', title: 'Delivering a Polished, Well-Paced Response With Minimal Hes
 };
 
 /* ============================================================
+   MY PROFILE — quick-fill personalization data for AI mock
+   interviews. Cached in memory after first load so both Visa and
+   Uni screens can show a banner without refetching every time.
+   ============================================================ */
+let myProfileCache=undefined; // undefined = not yet loaded, null = loaded but empty
+async function loadMyProfile(force){
+  if(myProfileCache!==undefined&&!force)return myProfileCache;
+  if(!currentSession){ myProfileCache=null; return null; }
+  try{
+    const{data,error}=await sb.from('student_profiles').select('*').eq('student_id',currentSession.user.id).maybeSingle();
+    myProfileCache=(!error&&data)?data:null;
+  }catch(e){ myProfileCache=null; }
+  return myProfileCache;
+}
+function profileIsFilled(p){
+  return !!(p&&(p.target_course||p.target_university||p.destination_country||p.background));
+}
+async function renderProfileBanner(elementId){
+  const el=document.getElementById(elementId);
+  if(!el)return;
+  const p=await loadMyProfile();
+  if(profileIsFilled(p)){
+    const parts=[p.target_course,p.target_university,p.destination_country].filter(Boolean).join(' · ');
+    el.innerHTML=`<div class="tp-info-card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
+      <div><b style="font-size:13px;color:var(--pine)">✅ Profile set</b><div style="font-size:12.5px;color:var(--ink3)">${esc(parts||'Tap to view')}</div></div>
+      <button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:12.5px;flex-shrink:0" onclick="openMyProfile()">Edit</button>
+    </div>`;
+  } else {
+    el.innerHTML=`<div class="tp-info-card" style="background:var(--sky-l);border:1.5px solid #C7DBFB;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
+      <div><b style="font-size:13px;color:#1E3A5F">📝 Add your profile</b><div style="font-size:12.5px;color:#1E3A5F">Get personalized interview questions instead of generic ones</div></div>
+      <button class="btn" style="width:auto;padding:7px 14px;font-size:12.5px;flex-shrink:0" onclick="openMyProfile()">Set up</button>
+    </div>`;
+  }
+}
+let profileReturnScreen='screen-dashboard';
+async function openMyProfile(){
+  profileReturnScreen=document.querySelector('.screen.active')?.id||'screen-dashboard';
+  showScreen('screen-my-profile');
+  document.getElementById('profile-save-status').textContent='';
+  const p=await loadMyProfile();
+  document.getElementById('profile-course').value=p?.target_course||'';
+  document.getElementById('profile-university').value=p?.target_university||'';
+  document.getElementById('profile-destination').value=p?.destination_country||'';
+  document.getElementById('profile-background').value=p?.background||'';
+  document.getElementById('profile-work').value=p?.work_experience||'';
+  document.getElementById('profile-achievements').value=p?.achievements||'';
+}
+function closeMyProfile(){
+  showScreen(profileReturnScreen);
+}
+async function saveMyProfile(){
+  if(!requireRealLogin())return;
+  const payload={
+    student_id:currentSession.user.id,
+    target_course:document.getElementById('profile-course').value.trim(),
+    target_university:document.getElementById('profile-university').value.trim(),
+    destination_country:document.getElementById('profile-destination').value,
+    background:document.getElementById('profile-background').value.trim(),
+    work_experience:document.getElementById('profile-work').value.trim(),
+    achievements:document.getElementById('profile-achievements').value.trim(),
+    updated_at:new Date().toISOString(),
+  };
+  const status=document.getElementById('profile-save-status');
+  status.style.color='var(--ink3)';
+  status.textContent='Saving…';
+  try{
+    const{error}=await sb.from('student_profiles').upsert(payload);
+    if(error){ status.style.color='var(--rose)'; status.textContent="Couldn't save — please try again."; return; }
+    myProfileCache=payload;
+    status.style.color='var(--sage)';
+    status.textContent='✓ Saved';
+    setTimeout(()=>{ closeMyProfile(); },600);
+  }catch(e){
+    status.style.color='var(--rose)';
+    status.textContent="Couldn't save — please try again.";
+  }
+}
+// Turns the saved profile into a short natural-language paragraph the
+// AI system prompt can use directly — kept concise so it doesn't
+// crowd out the actual conversation instructions.
+function profileToPromptText(p){
+  if(!profileIsFilled(p))return null;
+  const bits=[];
+  if(p.target_course)bits.push(`applying for ${p.target_course}`);
+  if(p.target_university)bits.push(`at ${p.target_university}`);
+  if(p.destination_country)bits.push(`in ${p.destination_country}`);
+  let text=bits.length?`The student is ${bits.join(' ')}.`:'';
+  if(p.background)text+=` Academic background: ${p.background}.`;
+  if(p.work_experience)text+=` Relevant experience: ${p.work_experience}.`;
+  if(p.achievements)text+=` Notable achievements: ${p.achievements}.`;
+  return text.trim()||null;
+}
+
+/* ============================================================
    VISA ASSISTANCE — screen logic
    ============================================================ */
 function openVisaPrep(){
   showScreen('screen-visa-prep');
+  renderProfileBanner('visa-profile-banner');
   const grid=document.getElementById('visa-country-grid');
   grid.innerHTML=Object.keys(VISA_COUNTRIES).map(key=>{
     const c=VISA_COUNTRIES[key];
@@ -5135,11 +5269,50 @@ function openVisaDetail(key){
     <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⏱ Typical Processing Time</h4>
     <div class="tp-info-card"><p>${esc(c.processingTime)}</p></div>
     <div class="tp-info-card" style="text-align:center;margin-top:16px">
+      <h4>💡 Want tips tailored to you?</h4>
+      <p style="margin-bottom:10px">Generate likely questions, answering techniques, and things to watch for — personalized if you've filled in your profile.</p>
+      <button class="btn-outline btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="getPersonalizedTips('visa','${esc(c.name)}','visa-tips-result')">Get Personalized Tips</button>
+      <div id="visa-tips-result" style="margin-top:10px;text-align:left"></div>
+    </div>
+    <div class="tp-info-card" style="text-align:center;margin-top:12px">
       <h4>🗣️ Ready to practise?</h4>
       <p style="margin-bottom:10px">Start a live AI mock visa interview for ${esc(c.name)} — realistic officer-style questions, with feedback on request.</p>
       <button class="btn" onclick="startSpeakingSession('visa_interview',null,null,'${key}')">Start Mock Interview</button>
     </div>
   `;
+}
+// Shared by both Visa and Uni Prep screens — generates likely
+// questions, answering techniques, and things to watch for, using the
+// student's saved profile when available for genuine personalization.
+async function getPersonalizedTips(tipsFor,tipsContext,resultElementId){
+  if(!requireRealLogin())return;
+  const resultEl=document.getElementById(resultElementId);
+  resultEl.innerHTML='<div class="tp-info-card"><p>Generating your personalized tips…</p></div>';
+  const p=await loadMyProfile();
+  const studentProfile=profileToPromptText(p);
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
+      action:'tips', tipsFor, tipsContext:tipsContext||null, studentProfile,
+    })});
+    const data=await r.json();
+    if(!r.ok||data.error||!data.tips){
+      resultEl.innerHTML=`<div class="tp-info-card"><p>Couldn't generate tips right now — ${esc(data.error||'please try again.')}</p></div>`;
+      return;
+    }
+    const t=data.tips;
+    resultEl.innerHTML=`
+      <div class="tp-info-card">
+        ${!studentProfile?'<p style="font-size:12px;color:var(--ink3);margin-bottom:8px">💡 <span style="text-decoration:underline;cursor:pointer;color:var(--pine)" onclick="openMyProfile()">Add your profile</span> for tips tailored specifically to you.</p>':''}
+        <h4>❓ Likely Questions</h4>
+        <ul style="margin:4px 0 12px;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(t.likelyQuestions||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        <h4>🎯 Answering Techniques</h4>
+        <ul style="margin:4px 0 12px;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(t.answeringTechniques||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        <h4>⚠️ Watch Out For</h4>
+        <ul style="margin:4px 0 0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(t.redFlags||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+      </div>`;
+  }catch(e){
+    resultEl.innerHTML='<div class="tp-info-card"><p>Something went wrong generating tips. Please try again.</p></div>';
+  }
 }
 
 /* ============================================================
@@ -5147,6 +5320,7 @@ function openVisaDetail(key){
    ============================================================ */
 function openUniPrep(){
   showScreen('screen-uni-prep');
+  renderProfileBanner('uni-profile-banner');
   setUniSubtab('tips');
 }
 function setUniSubtab(sub){
@@ -6280,7 +6454,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
   if(!requireRealLogin())return;
   spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
   spPopulateVoiceSelect();
-  spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:scenarioId||null};
+  spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:scenarioId||null,studentProfileText:null};
   let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
   let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
 
@@ -6300,13 +6474,15 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     const c=VISA_COUNTRIES[visaCountry];
     spState.scenario=c.name+' visa officer, conducting a '+c.visaType+' visa interview';
     spState.testType=visaCountry;
+    spState.studentProfileText=profileToPromptText(await loadMyProfile());
     title=c.flag+' '+c.name+' Mock Visa Interview';
-    subtitle='The AI is acting as a visa interviewing officer.';
+    subtitle=spState.studentProfileText?'Personalized to your profile.':'The AI is acting as a visa interviewing officer.';
     kickoffPrompt='Begin the visa interview naturally, in character as the officer, the way a real visa interview would start — a brief greeting, then your first genuine question.';
   } else if(mode==='university_interview'){
     spState.scenario='a university admissions interviewer, conducting a genuine admissions interview';
+    spState.studentProfileText=profileToPromptText(await loadMyProfile());
     title='🎓 Mock University Interview';
-    subtitle='The AI is acting as an admissions interviewer.';
+    subtitle=spState.studentProfileText?'Personalized to your profile.':'The AI is acting as an admissions interviewer.';
     kickoffPrompt='Begin the admissions interview naturally, in character as the interviewer, the way a real university interview would start — a brief welcome, then your first genuine question about the student\'s motivation or background.';
   }
 
@@ -6323,7 +6499,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
 
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
-      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt, studentProfile:spState.studentProfileText||null,
       correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked,
       conversationHistory:[], userMessage:kickoffPrompt,
     })});
@@ -6377,7 +6553,7 @@ async function sendSpeakingMessage(){
   spSetThinking(true);
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
-      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
+      action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt, studentProfile:spState.studentProfileText||null,
       correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked, inputWasVoice:wasVoice,
       conversationHistory:spState.history, userMessage:text,
     })});
@@ -6496,7 +6672,7 @@ async function endSpeakingSession(){
     const newBadges=computeSpBadges(spSessionsCache).filter(b=>b.earned&&!prevBadges.includes(b.key));
     showSpSessionRecap(mc,bonusXp,newBadges[0]||null);
   }
-  spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false};
+  spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,studentProfileText:null};
 }
 function showSpSessionRecap(messageCount,bonusXp,newBadge){
   const colors=['var(--gold)','var(--pine)','var(--sage)','var(--sky)','var(--rose)'];
