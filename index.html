@@ -4329,6 +4329,7 @@ function renderSpTestprepGrid(){
 }
 
 async function startSpeakingSession(mode,scenarioId,testType){
+  if(!requireRealLogin())return;
   spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false};
   let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
   let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
@@ -4358,7 +4359,7 @@ async function startSpeakingSession(mode,scenarioId,testType){
   document.getElementById('sp-typing-indicator').style.display='block';
 
   try{
-    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
       conversationHistory:[], userMessage:kickoffPrompt,
     })});
@@ -4392,7 +4393,7 @@ async function sendSpeakingMessage(){
   addSpMessage('user',text);
   document.getElementById('sp-typing-indicator').style.display='block';
   try{
-    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
       conversationHistory:spState.history, userMessage:text,
     })});
@@ -4459,7 +4460,7 @@ async function getSpeakingFeedback(){
   panel.style.display='block';
   panel.innerHTML='<div class="tp-info-card"><p>Reviewing the conversation…</p></div>';
   try{
-    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'feedback', conversationHistory:spState.history,
     })});
     const data=await r.json();
