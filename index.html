@@ -218,6 +218,59 @@
   .lvlc-stat span{font-size:11px;color:var(--ink3)}
   .lvlc-btn{width:100%;animation:levelTextIn .4s ease .5s backwards}
 
+  /* AI Speaking Partner — full visual overhaul: glowing avatar orb,
+     animated typing/listening indicators, gamified stats/badges strip,
+     vivid mode-selection cards, and distinctly-styled correction chips
+     for the 📝 strict-mode grammar notes, instead of one flat list of
+     tp-info-cards and a plain "AI is typing…" text line. */
+  .sp-stats-strip{display:flex;gap:10px;margin-bottom:12px}
+  .sp-stats-strip .sp-stat-chip{flex:1;background:var(--cream);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;text-align:center}
+  .sp-stats-strip .sp-stat-chip b{display:block;font-family:var(--font-h);font-size:17px;color:var(--pine)}
+  .sp-stats-strip .sp-stat-chip span{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.03em}
+  .sp-badges-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px}
+  .sp-badge-chip{flex-shrink:0;width:68px;text-align:center;opacity:.4;filter:grayscale(1)}
+  .sp-badge-chip.earned{opacity:1;filter:none;animation:badgePop .4s cubic-bezier(.2,.9,.3,1.2) backwards}
+  .sp-badge-chip .sp-badge-icon{width:44px;height:44px;border-radius:50%;background:var(--gold-l);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 4px}
+  .sp-badge-chip.earned .sp-badge-icon{background:linear-gradient(145deg,var(--gold),var(--pine3));box-shadow:0 4px 12px rgba(255,107,74,.35)}
+  .sp-badge-chip span{font-size:9.5px;color:var(--ink3);line-height:1.2;display:block}
+  @keyframes badgePop{0%{opacity:0;transform:scale(.5)}70%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}
+
+  .sp-mode-card{position:relative;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:10px;padding:16px;border-radius:var(--rl);background:var(--paper);border:1.5px solid var(--line);overflow:hidden;transition:transform .15s ease,box-shadow .15s ease}
+  .sp-mode-card:active{transform:scale(.98)}
+  .sp-mode-card::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,var(--sp-grad1),var(--sp-grad2));opacity:0;transition:opacity .2s ease}
+  .sp-mode-card:hover{box-shadow:0 6px 20px rgba(26,26,46,.10)}
+  .sp-mode-icon{flex-shrink:0;width:50px;height:50px;border-radius:16px;background:linear-gradient(145deg,var(--sp-grad1),var(--sp-grad2));display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+  .sp-mode-card h4{margin:0 0 3px;font-size:15px;font-family:var(--font-h)}
+  .sp-mode-card p{margin:0;font-size:12.5px;color:var(--ink3);line-height:1.4}
+  .sp-mode-arrow{margin-left:auto;color:var(--ink3);font-size:20px;font-weight:700;flex-shrink:0}
+
+  .sp-avatar-orb{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,var(--pine),var(--pine3));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 0 rgba(91,79,233,.5);transition:box-shadow .3s ease}
+  .sp-avatar-orb-inner{color:#fff;font-size:18px;display:flex}
+  .sp-avatar-orb.thinking{animation:orbPulse 1.2s ease-in-out infinite}
+  @keyframes orbPulse{0%{box-shadow:0 0 0 0 rgba(91,79,233,.45)}70%{box-shadow:0 0 0 10px rgba(91,79,233,0)}100%{box-shadow:0 0 0 0 rgba(91,79,233,0)}}
+
+  .sp-typing-indicator{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink3);margin-bottom:6px}
+  .sp-typing-dots{display:flex;gap:3px}
+  .sp-typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--pine3);animation:typingBounce 1.1s ease-in-out infinite}
+  .sp-typing-dots span:nth-child(2){animation-delay:.15s}
+  .sp-typing-dots span:nth-child(3){animation-delay:.3s}
+  @keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+
+  .sp-waveform{display:flex;align-items:center;justify-content:center;gap:4px;height:28px;margin-bottom:6px}
+  .sp-waveform div{width:4px;border-radius:2px;background:var(--rose);animation:waveBar .9s ease-in-out infinite}
+  .sp-waveform div:nth-child(1){animation-delay:0s}.sp-waveform div:nth-child(2){animation-delay:.1s}.sp-waveform div:nth-child(3){animation-delay:.2s}.sp-waveform div:nth-child(4){animation-delay:.3s}.sp-waveform div:nth-child(5){animation-delay:.2s}.sp-waveform div:nth-child(6){animation-delay:.1s}.sp-waveform div:nth-child(7){animation-delay:0s}
+  @keyframes waveBar{0%,100%{height:6px}50%{height:24px}}
+
+  @keyframes spBubbleIn{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .sp-bubble-wrap{animation:spBubbleIn .28s cubic-bezier(.2,.9,.3,1.1) backwards}
+  .sp-correction-chip{margin-top:6px;max-width:80%;background:var(--gold-l);border:1.5px solid #FFD4C4;border-radius:12px;padding:9px 12px;font-size:13px;color:#7A3418;display:flex;gap:8px;align-items:flex-start;animation:spBubbleIn .3s ease}
+  .sp-correction-chip i{flex-shrink:0;margin-top:1px;color:var(--gold)}
+
+  /* Session-complete recap — reuses the lvlc- overlay/confetti classes
+     from the level-complete celebration for visual consistency, with a
+     mic-badge instead of a trophy so it reads as speaking-specific. */
+  .sp-badge-unlock{background:linear-gradient(90deg,var(--gold-l),var(--sky-l));border-radius:14px;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;color:#7A3418;animation:levelTextIn .4s ease .35s backwards}
+
 
   /* General Info & Coaching tabs — same principle: real visual
      differentiation instead of one flat card style for every section. */
@@ -448,18 +501,23 @@
 
     <div id="sp-mode-select">
       <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">AI Speaking Partner</h2>
-      <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Practise real spoken English with an AI conversation partner — talk or type, your choice.</p>
-      <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('open')">
-        <h4>💬 Open Conversation</h4>
-        <p>Chat naturally about anything — the AI keeps the conversation going and gently models corrections without interrupting the flow.</p>
+      <p style="font-size:14.5px;color:var(--ink3);margin-bottom:14px">Practise real spoken English with an AI conversation partner — talk or type, your choice.</p>
+      <div id="sp-stats-strip" class="sp-stats-strip"></div>
+      <div id="sp-badges-row" class="sp-badges-row"></div>
+      <div class="sp-mode-card" style="--sp-grad1:#5B4FE9;--sp-grad2:#8B7FFF" onclick="startSpeakingSession('open')">
+        <div class="sp-mode-icon">💬</div>
+        <div><h4>Open Conversation</h4><p>Chat naturally about anything — the AI keeps things flowing and gently models corrections.</p></div>
+        <div class="sp-mode-arrow">›</div>
       </div>
-      <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-roleplay-select').style.display='block'">
-        <h4>🎭 Roleplay Scenarios</h4>
-        <p>Practise real-world situations — job interviews, ordering food, checking into a hotel — with the AI staying fully in character.</p>
+      <div class="sp-mode-card" style="--sp-grad1:#FF6B4A;--sp-grad2:#FFB199" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-roleplay-select').style.display='block'">
+        <div class="sp-mode-icon">🎭</div>
+        <div><h4>Roleplay Scenarios</h4><p>Job interviews, ordering food, checking into a hotel — the AI stays fully in character.</p></div>
+        <div class="sp-mode-arrow">›</div>
       </div>
-      <div class="tp-info-card" style="cursor:pointer" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-testprep-select').style.display='block'">
-        <h4>🎯 Test Speaking Practice</h4>
-        <p>Practise IELTS, PTE, TOEFL, or Duolingo-style speaking prompts with an AI acting as your examiner, plus structured feedback on request.</p>
+      <div class="sp-mode-card" style="--sp-grad1:#00C896;--sp-grad2:#5CE8C4" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-testprep-select').style.display='block'">
+        <div class="sp-mode-icon">🎯</div>
+        <div><h4>Test Speaking Practice</h4><p>IELTS, PTE, TOEFL, or Duolingo-style prompts with an AI examiner, plus feedback on request.</p></div>
+        <div class="sp-mode-arrow">›</div>
       </div>
     </div>
 
@@ -477,14 +535,22 @@
 
     <div id="sp-chat-view" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div id="sp-chat-title" style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:16px"></div>
-          <div id="sp-chat-subtitle" style="font-size:12.5px;color:var(--ink3)"></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="sp-avatar-orb" class="sp-avatar-orb"><div class="sp-avatar-orb-inner"><i class="ti ti-message-chatbot"></i></div></div>
+          <div>
+            <div id="sp-chat-title" style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:16px"></div>
+            <div id="sp-chat-subtitle" style="font-size:12.5px;color:var(--ink3)"></div>
+          </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-            <input type="checkbox" id="sp-voice-toggle" checked> AI speaks replies
-          </label>
+          <div style="display:flex;gap:10px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+              <input type="checkbox" id="sp-voice-toggle" checked> AI speaks
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+              <input type="checkbox" id="sp-sound-toggle" checked> 🔊 SFX
+            </label>
+          </div>
           <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
             <input type="checkbox" id="sp-tamil-toggle"> Tamil-English mix
           </label>
@@ -498,7 +564,12 @@
         </div>
       </div>
       <div id="sp-messages" style="height:min(50vh,420px);overflow-y:auto;background:var(--cream);border-radius:var(--r);padding:14px;margin-bottom:10px"></div>
-      <div id="sp-typing-indicator" style="display:none;font-size:12.5px;color:var(--ink3);margin-bottom:6px">AI is typing…</div>
+      <div id="sp-typing-indicator" class="sp-typing-indicator" style="display:none">
+        <div class="sp-typing-dots"><span></span><span></span><span></span></div> AI is typing…
+      </div>
+      <div id="sp-waveform" class="sp-waveform" style="display:none">
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      </div>
       <div style="display:flex;gap:8px;align-items:flex-end">
         <textarea id="sp-text-input" placeholder="Type your reply, or tap the mic to speak…" rows="2" style="flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;resize:none" oninput="if(!spState.recognizing)spState.lastInputWasVoice=false"></textarea>
         <button class="btn" id="sp-mic-btn" style="width:auto;padding:10px 14px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:13px" onclick="toggleSpeechInput()"><i class="ti ti-microphone"></i> Speak</button>
@@ -4726,9 +4797,47 @@ const SP_ROLEPLAY_SCENARIOS = [
   {id:'doctor', icon:'🩺', title:'Booking a Doctor\'s Appointment', desc:'Call to book an appointment and briefly explain your symptoms.', character:'a receptionist at a doctor\'s clinic, booking an appointment over the phone'},
   {id:'friend-plans', icon:'👋', title:'Weekend Plans With a Friend', desc:'Casually discuss and plan weekend activities with a friend.', character:'a close friend casually chatting about weekend plans'},
 ];
-let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false};
+let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false};
 
-function openSpeakingPartner(){
+// ── Badge definitions — all computed on the fly from speaking_sessions
+// rows, so no separate "earned badges" table is needed; earned status
+// is always a pure, deterministic function of session history. ──
+const SP_BADGES=[
+  {key:'first_words', icon:'🗣️', name:'First Words', test:s=>s.length>=1},
+  {key:'chatterbox', icon:'💬', name:'Chatterbox', test:s=>s.length>=5},
+  {key:'conversationalist', icon:'🎙️', name:'Conversationalist', test:s=>s.length>=15},
+  {key:'roleplay_rookie', icon:'🎭', name:'Roleplay Rookie', test:s=>s.some(x=>x.mode==='roleplay')},
+  {key:'world_traveler', icon:'🌍', name:'World Traveler', test:s=>new Set(s.filter(x=>x.mode==='roleplay').map(x=>x.scenario_id)).size>=SP_ROLEPLAY_SCENARIOS.length},
+  {key:'exam_ready', icon:'🎯', name:'Exam Ready', test:s=>new Set(s.filter(x=>x.mode==='test_practice').map(x=>x.test_type)).size>=4},
+  {key:'feedback_fan', icon:'📊', name:'Feedback Fan', test:s=>s.filter(x=>x.got_feedback).length>=5},
+  {key:'streak_speaker', icon:'🔥', name:'Streak Speaker', test:s=>new Set(s.map(x=>x.created_at.slice(0,10))).size>=3},
+];
+function computeSpBadges(sessions){
+  return SP_BADGES.map(b=>({...b, earned:b.test(sessions)}));
+}
+let spSessionsCache=[];
+async function loadSpSessions(){
+  if(!currentSession)return [];
+  const{data,error}=await sb.from('speaking_sessions').select('*').eq('student_id',currentSession.user.id);
+  if(error||!data)return [];
+  return data;
+}
+function renderSpStatsAndBadges(sessions){
+  const strip=document.getElementById('sp-stats-strip');
+  const badges=computeSpBadges(sessions);
+  const earnedCount=badges.filter(b=>b.earned).length;
+  strip.innerHTML=`
+    <div class="sp-stat-chip"><b>${sessions.length}</b><span>Sessions</span></div>
+    <div class="sp-stat-chip"><b>${earnedCount}/${badges.length}</b><span>Badges</span></div>
+    <div class="sp-stat-chip"><b>${new Set(sessions.map(x=>x.created_at.slice(0,10))).size}</b><span>Days practised</span></div>`;
+  document.getElementById('sp-badges-row').innerHTML=badges.map((b,i)=>`
+    <div class="sp-badge-chip${b.earned?' earned':''}" style="animation-delay:${i*.05}s" title="${esc(b.name)}">
+      <div class="sp-badge-icon">${b.earned?b.icon:'🔒'}</div>
+      <span>${esc(b.name)}</span>
+    </div>`).join('');
+}
+
+async function openSpeakingPartner(){
   showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='block';
   document.getElementById('sp-roleplay-select').style.display='none';
@@ -4736,6 +4845,10 @@ function openSpeakingPartner(){
   document.getElementById('sp-chat-view').style.display='none';
   renderSpRoleplayGrid();
   renderSpTestprepGrid();
+  document.getElementById('sp-stats-strip').innerHTML='';
+  document.getElementById('sp-badges-row').innerHTML='';
+  spSessionsCache=await loadSpSessions();
+  renderSpStatsAndBadges(spSessionsCache);
 }
 function closeSpeakingPartner(){
   stopSpeechInput();
@@ -4743,26 +4856,56 @@ function closeSpeakingPartner(){
   showScreen('screen-dashboard');
 }
 function renderSpRoleplayGrid(){
-  document.getElementById('sp-roleplay-grid').innerHTML=SP_ROLEPLAY_SCENARIOS.map(s=>`
-    <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('roleplay','${s.id}')">
-      <h4>${s.icon} ${esc(s.title)}</h4>
-      <p>${esc(s.desc)}</p>
+  const grads=['#5B4FE9,#8B7FFF','#FF6B4A,#FFB199','#00C896,#5CE8C4','#3B82F6,#93C5FD'];
+  document.getElementById('sp-roleplay-grid').innerHTML=SP_ROLEPLAY_SCENARIOS.map((s,i)=>`
+    <div class="sp-mode-card" style="--sp-grad1:${grads[i%4].split(',')[0]};--sp-grad2:${grads[i%4].split(',')[1]}" onclick="startSpeakingSession('roleplay','${s.id}')">
+      <div class="sp-mode-icon">${s.icon}</div>
+      <div><h4>${esc(s.title)}</h4><p>${esc(s.desc)}</p></div>
+      <div class="sp-mode-arrow">›</div>
     </div>
   `).join('');
 }
 function renderSpTestprepGrid(){
   const tests=['IELTS','PTE','TOEFL','Duolingo'];
-  document.getElementById('sp-testprep-grid').innerHTML=tests.map(t=>`
-    <div class="tp-info-card" style="cursor:pointer;margin-bottom:10px" onclick="startSpeakingSession('test_practice',null,'${t}')">
-      <h4>${TEST_ICONS[t]||'🎓'} ${esc(t)}</h4>
-      <p>Practise ${esc(t)}-style speaking prompts with an AI examiner, plus feedback on request.</p>
+  const grads=['#5B4FE9,#8B7FFF','#FF6B4A,#FFB199','#00C896,#5CE8C4','#3B82F6,#93C5FD'];
+  document.getElementById('sp-testprep-grid').innerHTML=tests.map((t,i)=>`
+    <div class="sp-mode-card" style="--sp-grad1:${grads[i%4].split(',')[0]};--sp-grad2:${grads[i%4].split(',')[1]}" onclick="startSpeakingSession('test_practice',null,'${t}')">
+      <div class="sp-mode-icon">${TEST_ICONS[t]||'🎓'}</div>
+      <div><h4>${esc(t)}</h4><p>Practise ${esc(t)}-style speaking prompts with an AI examiner, plus feedback on request.</p></div>
+      <div class="sp-mode-arrow">›</div>
     </div>
   `).join('');
 }
 
+// ── Sound effects — short Web Audio API tones, no external audio files
+// to host or load. Subtle, toggleable via #sp-sound-toggle. ──
+let spAudioCtx=null;
+function spPlayTone(freq,durationMs,type){
+  if(!document.getElementById('sp-sound-toggle')?.checked)return;
+  try{
+    if(!spAudioCtx)spAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=spAudioCtx.createOscillator(), gain=spAudioCtx.createGain();
+    osc.type=type||'sine'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.08,spAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,spAudioCtx.currentTime+durationMs/1000);
+    osc.connect(gain); gain.connect(spAudioCtx.destination);
+    osc.start(); osc.stop(spAudioCtx.currentTime+durationMs/1000);
+  }catch(e){/* audio not available — silently skip, never block the feature */}
+}
+const spSoundSend=()=>spPlayTone(520,120,'sine');
+const spSoundReceive=()=>spPlayTone(720,160,'sine');
+const spSoundMicStart=()=>spPlayTone(880,90,'triangle');
+const spSoundMicStop=()=>spPlayTone(440,90,'triangle');
+const spSoundBadge=()=>{spPlayTone(660,140,'sine');setTimeout(()=>spPlayTone(880,220,'sine'),120);};
+
+function spSetThinking(on){
+  document.getElementById('sp-avatar-orb').classList.toggle('thinking',on);
+  document.getElementById('sp-typing-indicator').style.display=on?'flex':'none';
+}
+
 async function startSpeakingSession(mode,scenarioId,testType){
   if(!requireRealLogin())return;
-  spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false};
+  spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:scenarioId||null};
   let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
   let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
 
@@ -4788,7 +4931,7 @@ async function startSpeakingSession(mode,scenarioId,testType){
   document.getElementById('sp-chat-subtitle').textContent=subtitle;
   document.getElementById('sp-messages').innerHTML='';
   document.getElementById('sp-feedback-panel').style.display='none';
-  document.getElementById('sp-typing-indicator').style.display='block';
+  spSetThinking(true);
 
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
@@ -4797,23 +4940,38 @@ async function startSpeakingSession(mode,scenarioId,testType){
       conversationHistory:[], userMessage:kickoffPrompt,
     })});
     const data=await r.json();
-    document.getElementById('sp-typing-indicator').style.display='none';
+    spSetThinking(false);
     if(!r.ok||data.error){ addSpMessage('assistant', 'Sorry, I had trouble starting — '+(data.error||'please try again.')); return; }
     addSpMessage('assistant', data.reply);
+    spSoundReceive();
     spState.history.push({role:'user',content:kickoffPrompt},{role:'assistant',content:data.reply});
     if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
   }catch(e){
-    document.getElementById('sp-typing-indicator').style.display='none';
+    spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong starting this session. Please try again.');
   }
 }
 
+// Splits off a trailing "📝 ..." strict-correction line (see the Edge
+// Function's correction rules) so it renders as its own distinctly-
+// styled chip below the bubble, instead of blending into the same
+// plain paragraph as the natural conversational reply.
+function splitCorrectionLine(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const correctionIdx=lines.findIndex(l=>l.startsWith('📝'));
+  if(correctionIdx===-1)return {main:text,correction:null};
+  const correction=lines.splice(correctionIdx,1)[0].replace(/^📝\s*/,'');
+  return {main:lines.join(' '), correction};
+}
 function addSpMessage(role,text){
   const wrap=document.getElementById('sp-messages');
   const isUser=role==='user';
+  const {main,correction}=isUser?{main:text,correction:null}:splitCorrectionLine(text);
   const bubble=document.createElement('div');
-  bubble.style.cssText=`display:flex;justify-content:${isUser?'flex-end':'flex-start'};margin-bottom:10px`;
-  bubble.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;background:${isUser?'var(--pine)':'#fff'};color:${isUser?'#fff':'var(--ink)'};border:${isUser?'none':'1.5px solid var(--line)'}">${esc(text)}</div>`;
+  bubble.className='sp-bubble-wrap';
+  bubble.style.cssText=`display:flex;flex-direction:column;align-items:${isUser?'flex-end':'flex-start'};margin-bottom:10px`;
+  bubble.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;background:${isUser?'var(--pine)':'#fff'};color:${isUser?'#fff':'var(--ink)'};border:${isUser?'none':'1.5px solid var(--line)'}">${esc(main)}</div>
+    ${correction?`<div class="sp-correction-chip"><i class="ti ti-notes"></i><span>${esc(correction)}</span></div>`:''}`;
   wrap.appendChild(bubble);
   wrap.scrollTop=wrap.scrollHeight;
 }
@@ -4826,7 +4984,9 @@ async function sendSpeakingMessage(){
   spState.lastInputWasVoice=false;
   input.value='';
   addSpMessage('user',text);
-  document.getElementById('sp-typing-indicator').style.display='block';
+  spSoundSend();
+  spState.messageCount++;
+  spSetThinking(true);
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt,
@@ -4834,13 +4994,14 @@ async function sendSpeakingMessage(){
       conversationHistory:spState.history, userMessage:text,
     })});
     const data=await r.json();
-    document.getElementById('sp-typing-indicator').style.display='none';
+    spSetThinking(false);
     if(!r.ok||data.error){ addSpMessage('assistant', 'Sorry, something went wrong — '+(data.error||'please try again.')); return; }
     addSpMessage('assistant', data.reply);
+    spSoundReceive();
     spState.history.push({role:'user',content:text},{role:'assistant',content:data.reply});
     if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
   }catch(e){
-    document.getElementById('sp-typing-indicator').style.display='none';
+    spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong sending that. Please try again.');
   }
 }
@@ -4872,7 +5033,8 @@ function toggleSpeechInput(){
   const input=document.getElementById('sp-text-input');
   const statusEl=document.getElementById('sp-mic-status');
   const micBtn=document.getElementById('sp-mic-btn');
-  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i> Stop'; statusEl.textContent='Listening…'; };
+  const waveform=document.getElementById('sp-waveform');
+  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i> Stop'; statusEl.textContent='Listening…'; waveform.style.display='flex'; spSoundMicStart(); };
   spRecognition.onresult=(e)=>{
     let transcript='';
     for(let i=0;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
@@ -4880,7 +5042,7 @@ function toggleSpeechInput(){
     spState.lastInputWasVoice=true;
   };
   spRecognition.onerror=(e)=>{ statusEl.textContent='Mic error: '+e.error+' — you can type instead.'; };
-  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i> Speak'; statusEl.textContent=''; };
+  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i> Speak'; statusEl.textContent=''; waveform.style.display='none'; spSoundMicStop(); };
   spRecognition.start();
 }
 function stopSpeechInput(){
@@ -4902,6 +5064,7 @@ async function getSpeakingFeedback(){
     })});
     const data=await r.json();
     if(!r.ok||data.error){ panel.innerHTML=`<div class="tp-info-card"><p>Couldn't generate feedback — ${esc(data.error||'please try again.')}</p></div>`; return; }
+    spState.gotFeedback=true;
     const f=data.feedback;
     panel.innerHTML=`
       <div class="tp-info-card">
@@ -4916,12 +5079,61 @@ async function getSpeakingFeedback(){
   }
 }
 
-function endSpeakingSession(){
+// Ends the session, persists it (so XP/streak/badges survive across
+// visits — see 0007_speaking_sessions_table.sql), and shows a
+// Duolingo-style recap with any newly-unlocked badge highlighted.
+// Sessions with zero real exchanges (opened, then immediately left)
+// are not logged or rewarded, to keep XP tied to genuine practice.
+async function endSpeakingSession(){
   stopSpeechInput();
   if('speechSynthesis' in window)speechSynthesis.cancel();
-  spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false};
+  const mc=spState.messageCount, mode=spState.mode, gotFeedback=spState.gotFeedback;
+  const scenarioId=spState.scenarioId||null, testType=spState.testType||null;
   document.getElementById('sp-chat-view').style.display='none';
   document.getElementById('sp-mode-select').style.display='block';
+
+  if(mc>0&&currentSession&&mode){
+    const prevBadges=computeSpBadges(spSessionsCache).filter(b=>b.earned).map(b=>b.key);
+    try{
+      await sb.from('speaking_sessions').insert({
+        student_id:currentSession.user.id, mode, scenario_id:scenarioId, test_type:testType,
+        message_count:mc, got_feedback:gotFeedback,
+      });
+    }catch(e){/* best-effort — a failed log shouldn't block the student from moving on */}
+    const bonusXp=mc>=4?15:5;
+    try{ await awardXpAndStreak(bonusXp); }catch(e){}
+    spSessionsCache=await loadSpSessions();
+    renderSpStatsAndBadges(spSessionsCache);
+    const newBadges=computeSpBadges(spSessionsCache).filter(b=>b.earned&&!prevBadges.includes(b.key));
+    showSpSessionRecap(mc,bonusXp,newBadges[0]||null);
+  }
+  spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false};
+}
+function showSpSessionRecap(messageCount,bonusXp,newBadge){
+  const colors=['var(--gold)','var(--pine)','var(--sage)','var(--sky)','var(--rose)'];
+  let confetti='';
+  for(let i=0;i<22;i++){
+    const left=(Math.random()*96).toFixed(1), delay=(Math.random()*0.5).toFixed(2), dur=(1.3+Math.random()*0.9).toFixed(2);
+    confetti+=`<div class="lvlc-confetti" style="left:${left}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${delay}s;animation-duration:${dur}s"></div>`;
+  }
+  const overlay=document.createElement('div');
+  overlay.className='lvlc-overlay';
+  overlay.innerHTML=`
+    <div class="lvlc-card">
+      ${confetti}
+      <div class="lvlc-badge" style="background:linear-gradient(145deg,var(--pine),var(--pine3))"><i class="ti ti-microphone-2" style="font-size:40px;color:#fff"></i></div>
+      <div class="lvlc-title">Great practice!</div>
+      <div class="lvlc-sub">Session complete — every real conversation adds up.</div>
+      ${newBadge?`<div class="sp-badge-unlock">${newBadge.icon} New badge unlocked: ${esc(newBadge.name)}!</div>`:''}
+      <div class="lvlc-stats">
+        <div class="lvlc-stat"><b>${messageCount}</b><span>messages sent</span></div>
+        <div class="lvlc-stat"><b>+${bonusXp}</b><span>XP earned</span></div>
+      </div>
+      <button class="btn btn-p lvlc-btn" id="sp-recap-continue-btn">Continue</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('sp-recap-continue-btn').onclick=()=>overlay.remove();
+  if(newBadge) spSoundBadge();
 }
 
 // ── Microphone/camera recording for Speaking practice — free, browser-
