@@ -551,6 +551,10 @@
               <input type="checkbox" id="sp-sound-toggle" checked> 🔊 SFX
             </label>
           </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+            <span style="color:var(--ink3)">Voice:</span>
+            <select id="sp-voice-select" onchange="spOnVoiceChange()" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream);max-width:150px"></select>
+          </div>
           <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
             <input type="checkbox" id="sp-tamil-toggle"> Tamil-English mix
           </label>
@@ -3955,6 +3959,21 @@ const TEST_DATA = {
             {q:'What should be trusted for quick, accurate responses in this task?', options:['Conscious, slow spelling-based analysis', 'Instant auditory recognition built from genuine familiarity', 'Random guessing', 'Only words that are visually familiar'], correct:1, a:'Instant recognition based on genuine familiarity with how real words actually sound should be trusted over slow conscious analysis.'},
           ],
         },
+        {
+          id: 'di-li2', title: 'Building Broader Listening Vocabulary Through Genuine Audio Exposure', time: '15-20 minutes',
+          objectives: ['Understand why Listen and Select gets harder as vocabulary breadth increases at this level', 'Learn how genuine listening exposure builds auditory vocabulary differently from reading exposure', 'Practise a simple habit that broadens listening-based word recognition before test day'],
+          concept: 'At Intermediate level, Listen and Select draws from a genuinely wider vocabulary range than Foundation — words that are less common in everyday conversation start appearing, which means recognising them purely by sound depends on having actually HEARD them before, not just read them. A word can be perfectly familiar in text and still sound unfamiliar the first few times it is heard spoken, especially with natural stress and rhythm.<br><br>This means listening-specific exposure — podcasts, spoken audio, videos with natural speech — builds a genuinely different, complementary vocabulary base than reading alone, and becomes increasingly important as the word range widens at this level.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A learner who has read the word "meticulous" many times in books may still hesitate when hearing it spoken aloud for the first time, because the sound pattern itself is unfamiliar, even though the spelling is not. Regular listening practice closes exactly this gap.',
+          vocab: [['auditory vocabulary','the set of words a person can recognise by sound, as distinct from recognising them in writing'],['complementary exposure','a different type of practice that builds a related but distinct skill alongside another'],['natural stress and rhythm','the real patterns of emphasis and timing in spoken English, different from how words are said in isolation'],['word range','the breadth of vocabulary a task or level draws from'],['hesitation gap','the delay caused by a word being familiar in one form (text) but not another (sound)']],
+          mistakes: ['Assuming strong reading vocabulary automatically transfers to equally strong listening recognition.', 'Only practising with slow, clearly-enunciated test-style audio instead of natural spoken English.', 'Underestimating how much unfamiliar stress patterns alone can cause hesitation on an otherwise known word.', 'Skipping listening-specific practice because reading feels like enough preparation.'],
+          practice: 'Name one type of everyday audio content (not textbook material) that could genuinely build natural listening vocabulary before a test date.',
+          practiceAnswer: 'Something like a podcast, an English-language video, or a radio programme — genuine natural spoken content builds real auditory familiarity with words and their natural rhythm, in a way reading alone cannot.',
+          quiz: [
+            {q:'Why can a word be familiar in reading but unfamiliar when heard?', options:['This cannot actually happen','Sound recognition depends on genuine listening exposure, which is different from reading exposure','Spoken and written words are always identical to recognise','Only rare words cause this effect'], correct:1, a:'Recognising a word by sound depends on having genuinely heard it before, which reading exposure alone does not provide.'},
+            {q:'What does genuine listening exposure build, alongside reading?', options:['Nothing useful beyond reading','A complementary, genuinely different auditory vocabulary base','The exact same skill as reading, with no real difference','Only grammar knowledge'], correct:1, a:'Listening exposure builds a genuinely complementary auditory vocabulary base, distinct from what reading alone develops.'},
+            {q:'What kind of audio content is most useful for this kind of practice?', options:['Only slow, artificially clear test-style audio','Natural, everyday spoken content with real stress and rhythm','No audio content is actually useful','Only audio with no unfamiliar words at all'], correct:1, a:'Natural spoken content, with real stress and rhythm, builds the kind of genuine familiarity that helps most on test day.'},
+          ],
+        },
       ],Comprehension:[
         {
           id: 'di-co1', title: 'Listen, Then Speak: Responding Aloud to Audio', time: '15-20 minutes',
@@ -3969,6 +3988,21 @@ const TEST_DATA = {
             {q:'Why does this task genuinely test real-time listening, more than a reading task might?', options:['It does not test listening at all', 'The audio plays only once, unlike text that can be re-read', 'The audio repeats continuously until you respond', 'There is no real difference from a reading-based task'], correct:1, a:'Since the audio plays only once, active, real-time comprehension is required from the very start, unlike text that can be re-read.'},
             {q:'What should be mentally noted while the audio plays?', options:['Every single exact word spoken', 'The overall key points, not word-for-word detail', 'Nothing — focus only on speaking afterward', 'Only the very first sentence'], correct:1, a:'Noting the overall key points, rather than trying to remember every exact word, is more useful for a coherent response afterward.'},
             {q:'What is a weak response to this task type?', options:['A specific, accurate summary of the audio\'s content', 'A vague, general reaction unrelated to the audio\'s specific content', 'A response given immediately after the audio ends', 'A clearly organised spoken answer'], correct:1, a:'A vague, general reaction that does not reflect the audio\'s actual specific content is a weak response.'},
+          ],
+        },
+        {
+          id: 'di-co2', title: 'Structuring a Spoken Response Before You Start Talking', time: '15-20 minutes',
+          objectives: ['Understand why a few seconds of mental structuring improves a Listen Then Speak response', 'Learn a simple structure to mentally apply before speaking begins', 'Practise briefly planning a response\'s shape before producing it aloud'],
+          concept: 'Immediately speaking without any mental structure often produces a response that wanders, repeats itself, or misses the point — even when the speaker genuinely understood the audio. Spending even a few seconds mentally organising a response into a simple shape (e.g., main point first, then one supporting detail) generally produces a clearer, more complete answer than speaking without any structure at all.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Unstructured response: "So there was this audio about a company and they did something with packaging and people were not happy I think and then something changed." (Rambling, uncertain, hard to follow.)<br><br>Structured response: "The audio described a company reducing its plastic packaging after customer complaints." (Same understanding, delivered with a clear, direct shape.)',
+          vocab: [['mental structuring','briefly organising thoughts internally before speaking or writing'],['wander (in speech)','to speak without clear direction, losing focus on the main point'],['main point first','a structuring approach that states the central idea before adding supporting detail'],['clarity of delivery','how clearly and directly a response is communicated, separate from its underlying content'],['brief planning pause','a short, deliberate moment used to organise thoughts before responding']],
+          mistakes: ['Starting to speak immediately with no mental structure, leading to a wandering response.', 'Mentally planning for so long that too little time remains to actually speak.', 'Repeating the same point multiple times instead of adding new supporting detail.', 'Losing the main point partway through an unstructured response.'],
+          practice: 'Audio: a short clip about a local council introducing a new bike-sharing scheme that was well-received by residents. <br><br>Mentally structure a response using "main point first, then one supporting detail" before writing it out.',
+          practiceAnswer: 'Something like: "The audio described a local council introducing a new bike-sharing scheme, which was well-received by residents." — main point first (the scheme), followed directly by the supporting detail (well-received), delivered clearly rather than as a rambling account.',
+          quiz: [
+            {q:'What commonly happens when a response is spoken with no mental structure first?', options:['It is always automatically clearer', 'It often wanders, repeats itself, or misses the main point', 'It has no real disadvantage', 'It becomes shorter than a structured response'], correct:1, a:'An unstructured response often wanders or repeats itself, even when the underlying understanding is genuinely correct.'},
+            {q:'What is a simple structure that can help before speaking?', options:['No structure is ever necessary', 'Main point first, then one supporting detail', 'Speaking as many separate points as possible with no order', 'Repeating the audio\'s exact wording only'], correct:1, a:'Stating the main point first, then adding one supporting detail, is a simple, effective structure for a spoken response.'},
+            {q:'What is the risk of planning for too long before speaking?', options:['There is no such risk', 'Too little time may remain to actually deliver the response', 'The response automatically becomes incorrect', 'Planning too long has no real downside'], correct:1, a:'Spending excessive time planning can leave too little time to actually produce the spoken response.'},
           ],
         },
       ],Conversation:[
@@ -3987,6 +4021,21 @@ const TEST_DATA = {
             {q:'What helps sustain a longer response effectively?', options:['A long pause at the very start to plan extensively', 'Starting with a quick position, then adding a specific example or reason', 'Speaking only in very general, vague terms', 'Repeating the prompt itself multiple times'], correct:1, a:'Starting quickly with a clear position, then developing it with a specific example or reason, helps sustain a longer, organised response.'},
           ],
         },
+        {
+          id: 'di-cv2', title: 'Avoiding Filler Words and Long Pauses While Speaking', time: '15-20 minutes',
+          objectives: ['Understand how filler words and long pauses affect a Speak About the Topic response', 'Learn a few simple techniques to keep speech flowing naturally under pressure', 'Practise sustaining a response without excessive hesitation'],
+          concept: 'Speak About the Topic requires sustaining speech for an extended period without a visual anchor to fall back on, which naturally increases the temptation to fill silence with "um," "uh," or long pauses while searching for what to say next. While occasional natural hesitation is normal even for fluent speakers, excessive filler words or long silent pauses noticeably disrupt the impression of fluency, even when the underlying content is genuinely good.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Heavily hesitant: "So, um, I think, uh, the best skill is, um, maybe like... communication, because, um..." (Frequent filler words disrupt the flow significantly.)<br><br>More fluent: "I think communication is one of the most important skills to learn, because it affects almost every part of daily life." (Same idea, delivered with far fewer interruptions.)',
+          vocab: [['filler word','a sound or word like "um" or "uh" used to fill silence while thinking'],['fluency (spoken)','the smoothness and natural flow of spoken language, separate from grammatical accuracy'],['sustain (recap)','to continue speaking coherently without trailing off or stopping for long periods'],['natural hesitation','brief, occasional pausing that is normal even for fluent speakers'],['disrupt flow','to interrupt the natural continuity of spoken delivery']],
+          mistakes: ['Using frequent filler words as a habitual way of buying thinking time.', 'Stopping completely for long silent pauses instead of continuing to speak while organising thoughts.', 'Believing all hesitation is bad, when occasional brief pausing is actually natural and normal.', 'Not practising sustained speech regularly, making fluency harder to maintain under pressure.'],
+          practice: 'What is one simple technique that could help reduce reliance on filler words while speaking under time pressure?',
+          practiceAnswer: 'One example: starting with a simple, prepared opening phrase for the topic type (e.g., "I think..." or "One thing that comes to mind is...") reduces the need to fill the very first moment of hesitation with filler words, since the beginning is already planned.',
+          quiz: [
+            {q:'Why do filler words tend to increase in tasks like Speak About the Topic?', options:['They never increase in this task', 'Sustaining speech without a visual anchor increases the temptation to fill silence while thinking', 'Filler words are actually required by this task', 'This task does not involve extended speech at all'], correct:1, a:'Sustaining extended speech without a visual anchor increases the natural temptation to fill silence with filler words while thinking.'},
+            {q:'Is all hesitation while speaking necessarily a problem?', options:['Yes, any hesitation at all is a serious problem', 'No — brief, occasional hesitation is natural, but excessive filler words or long pauses disrupt fluency', 'No hesitation of any kind is ever noticeable', 'Hesitation only matters in written tasks'], correct:1, a:'Occasional brief hesitation is natural even for fluent speakers; it is excessive filler words or long silent pauses that noticeably disrupt fluency.'},
+            {q:'What can help reduce filler-word reliance at the very start of a response?', options:['Waiting silently until an idea fully forms', 'Having a simple, prepared opening phrase ready in advance', 'Speaking as quickly as possible with no plan', 'Avoiding speaking until absolutely certain of every word'], correct:1, a:'A simple, prepared opening phrase reduces the need to fill the earliest moment of hesitation with filler words.'},
+          ],
+        },
       ],Production:[
         {
           id: 'di-pr1', title: 'Listen, Then Write: Writing a Response to Audio', time: '15-20 minutes',
@@ -4001,6 +4050,21 @@ const TEST_DATA = {
             {q:'What does Listen Then Write combine, similar to Listen Then Speak?', options:['Two entirely unrelated skills', 'Real-time listening comprehension AND written production', 'Only vocabulary memorisation', 'Only reading speed'], correct:1, a:'It combines real-time listening comprehension with organised written production, similar to Listen Then Speak but in written form.'},
             {q:'Why is this considered "real-time" comprehension?', options:['The audio can be replayed as many times as needed', 'The audio plays only once, requiring active listening from the start', 'There is no audio involved at all', 'The written prompt appears before the audio plays'], correct:1, a:'Since the audio plays only once, genuine active, real-time comprehension is required, without the chance to replay it.'},
             {q:'What should the written response consist of?', options:['A disconnected list of words heard', 'Complete, grammatically correct sentences reflecting the audio\'s content', 'The exact same words as the audio, copied verbatim', 'A single unrelated word'], correct:1, a:'The response should be complete, grammatically correct sentences that accurately reflect the audio\'s actual content.'},
+          ],
+        },
+        {
+          id: 'di-pr2', title: 'Proofreading Quickly Without Losing Writing Time', time: '15-20 minutes',
+          objectives: ['Understand why quick proofreading matters even under time pressure', 'Learn a fast, targeted proofreading approach rather than a full careful re-read', 'Practise catching a few common error types quickly'],
+          concept: 'Under time pressure, some students skip proofreading entirely to save time, while others proofread so thoroughly that too little time remains to actually finish writing — both are avoidable imbalances. A brief, TARGETED proofread — scanning specifically for a few common, easy-to-catch error types (missing words, subject-verb agreement, obvious spelling slips) rather than re-reading every word carefully — genuinely catches many errors in a small amount of time.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A response reads: "The audio describe a company launch a new programme for employee." A brief targeted proofread quickly catches: "describe" should be "described," "launch" should be "launching" or "that launched," and "employee" should be "employees" — all fixable in seconds without a full careful re-read.',
+          vocab: [['proofreading','briefly reviewing written work specifically to catch errors before finishing'],['targeted scan','checking specifically for certain error types, rather than reading everything with equal care'],['common error type','a mistake pattern (like subject-verb agreement) that occurs frequently and is quick to check for'],['time imbalance (recap)','spending disproportionate time on one part of a task, at the expense of another'],['fixable slip','a small, easily corrected error, often caught with just a quick review']],
+          mistakes: ['Skipping proofreading entirely to save time, missing easily fixable errors.', 'Proofreading so thoroughly and slowly that too little time remains for anything else.', 'Reading for overall meaning during proofreading instead of scanning specifically for error types.', 'Not knowing which common error types to check for, making the proofread less efficient.'],
+          practice: 'What are 2-3 specific error types worth quickly scanning for during a fast proofread, given limited time?',
+          practiceAnswer: 'A few efficient targets: missing or extra words, subject-verb agreement (e.g. "he go" instead of "he goes"), and obvious spelling slips — scanning specifically for these known patterns is faster and often more effective than a slow, general re-read of every word.',
+          quiz: [
+            {q:'What is a common mistake regarding proofreading under time pressure?', options:['Always proofreading the perfect amount', 'Either skipping it entirely or spending far too long on it', 'Proofreading is never actually useful', 'There is no realistic way to balance this'], correct:1, a:'A common imbalance is either skipping proofreading entirely, or spending so long on it that too little time remains for the rest of the task.'},
+            {q:'What does a "targeted" proofread involve?', options:['Reading every single word with equal careful attention', 'Scanning specifically for a few common, easy-to-catch error types', 'Skipping proofreading altogether', 'Rewriting the entire response from scratch'], correct:1, a:'A targeted proofread scans specifically for known common error types, rather than reading everything with equal slow attention.'},
+            {q:'Why is this approach generally more efficient under time pressure?', options:['It is not actually more efficient', 'It catches many common errors quickly without the time cost of a full careful re-read', 'It guarantees a perfect response', 'It replaces the need to write carefully in the first place'], correct:1, a:'Scanning specifically for common error types catches many mistakes efficiently, without the time cost of a full slow re-read.'},
           ],
         },
       ]} },
@@ -4020,6 +4084,21 @@ const TEST_DATA = {
             {q:'What does this task type specifically test, beyond single-item tasks?', options:['Nothing different at all', 'Sustained comprehension maintained across an entire longer text', 'Only spelling ability', 'Only vocabulary memorisation'], correct:1, a:'It tests sustained comprehension across a longer text, not just understanding of one isolated point.'},
           ],
         },
+        {
+          id: 'da-li2', title: 'Managing Time Efficiently Across a Multi-Question Reading Set', time: '20-25 minutes',
+          objectives: ['Understand why time management becomes a distinct skill in Interactive Reading', 'Learn a simple approach to allocating time across a passage and its multiple questions', 'Practise recognising when to move on rather than over-investing in one question'],
+          concept: 'Because Interactive Reading involves one passage and several questions sharing a combined time limit, time management becomes a genuinely distinct skill from comprehension itself — a student can understand a passage perfectly and still run out of time if too long is spent on any single question. A simple, deliberate approach — a rough initial read for overall structure, then returning efficiently for each question — generally outperforms reading with no time plan at all.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A student spends nearly half the available time perfecting their answer to question 1, then must rush through questions 2-4 with far less care, despite understanding the passage well throughout. A rough time budget per question, decided in advance, would have prevented this imbalance.',
+          vocab: [['time budget','a rough, deliberate plan for how much time to spend on each part of a task'],['over-investing','spending disproportionately more time on one part of a task than it actually requires'],['initial read','a first pass through a passage focused on overall structure rather than every detail'],['efficient return','going back to the right part of a passage quickly, without re-reading unnecessarily'],['time imbalance','spending too much time on some parts of a task, leaving too little for the rest']],
+          mistakes: ['Spending disproportionate time perfecting one question while others still remain.', 'Not forming any rough time plan before starting the passage.', 'Re-reading the entire passage in full for every single question.', 'Panicking and rushing through remaining questions carelessly after running short on time.'],
+          practice: 'A passage has 5 questions and a combined 12-minute time limit, including reading time. Roughly how might the available time be divided?',
+          practiceAnswer: 'Something like: 3-4 minutes for an initial read of the passage, then roughly 1.5-2 minutes per question for the remaining 5 questions — a rough plan like this, adjusted as needed, prevents any single part consuming a disproportionate share of the time.',
+          quiz: [
+            {q:'Why does time management become a distinct skill in Interactive Reading specifically?', options:['It does not — time is never a factor','One passage and several questions share a single combined time limit','Every question has its own separate unlimited time','Interactive Reading has no time limit at all'], correct:1, a:'Since the passage and all its questions share one combined time limit, poor time allocation can hurt performance even with strong comprehension.'},
+            {q:'What is a risk of spending too long perfecting one question?', options:['No real risk exists','Leaving too little time for the remaining questions in the set','The passage becomes easier to understand','It has no effect on the rest of the task'], correct:1, a:'Over-investing time in one question can leave insufficient time for the rest of the question set.'},
+            {q:'What approach generally helps manage time across a multi-question set?', options:['Reading the passage in full again for every question','A rough initial read, followed by efficient, targeted returns to the passage per question','Ignoring time entirely and focusing only on accuracy','Answering questions before reading the passage at all'], correct:1, a:'A rough initial read followed by efficient, targeted returns to the passage for each question generally manages time better than no plan at all.'},
+          ],
+        },
       ],Comprehension:[
         {
           id: 'da-co1', title: 'Interactive Listening: Following an Extended Audio Passage', time: '20-25 minutes',
@@ -4034,6 +4113,21 @@ const TEST_DATA = {
             {q:'How does Interactive Listening differ from a task like Listen and Type?', options:['There is no real difference', 'It uses one longer, extended audio passage with multiple related questions', 'It involves no audio at all', 'It only ever has one single question'], correct:1, a:'Interactive Listening uses one extended audio passage with several related questions, unlike a single short, self-contained clip.'},
             {q:'What can help track a longer audio\'s structure while listening?', options:['Ignoring the audio\'s overall structure entirely', 'Brief mental or written notes on key points as they occur', 'Focusing only on the very last sentence heard', 'Waiting until the audio ends to think about any of it'], correct:1, a:'Brief notes on key points help track the audio\'s structure, supporting accurate answers to later questions about earlier content.'},
             {q:'What is a common mistake in this task type?', options:['Taking brief notes during listening', 'Focusing only on the most recent part of the audio, losing track of earlier content', 'Tracking the audio\'s overall structure', 'Answering questions about different sections accurately'], correct:1, a:'Focusing only on the most recent content and losing track of earlier parts of the audio is a common mistake.'},
+          ],
+        },
+        {
+          id: 'da-co2', title: 'Telling Detail Questions Apart From Main-Idea Questions', time: '20-25 minutes',
+          objectives: ['Understand the difference between a detail question and a main-idea question in Interactive Listening', 'Learn to recognise which type a question is asking, before searching for the answer', 'Practise adjusting listening/note-taking strategy based on the question type expected'],
+          concept: 'Interactive Listening questions generally fall into two broad types: DETAIL questions, asking about one specific fact from the audio, and MAIN-IDEA questions, asking about the audio\'s overall point or purpose. Answering a detail question requires locating one specific moment; answering a main-idea question requires synthesising the audio as a whole. Treating one type like the other — searching for one exact detail when the real question is about the overall idea, or vice versa — is a common source of wrong answers even with good comprehension.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Audio describes a company\'s history: founding, a period of struggle, and eventual growth.<br><br>Detail question: "In what year did the company face its main struggle?" (needs one specific fact.)<br><br>Main-idea question: "What is this audio mainly about?" (needs the overall arc — a company\'s journey from founding to eventual success — not one isolated detail.)',
+          vocab: [['detail question','a question asking about one specific fact or moment from a passage or audio'],['main-idea question','a question asking about the overall point or purpose of a passage or audio'],['synthesise','to combine multiple pieces of information into one overall understanding'],['locate (a detail)','to find one specific piece of information within a longer passage or audio'],['question type','the category a question falls into, which affects the strategy needed to answer it correctly']],
+          mistakes: ['Searching for one exact detail when the question is actually asking about the overall main idea.', 'Giving an overly broad, general answer to a question that actually wants one specific detail.', 'Not pausing to identify which type of question is being asked before searching for the answer.', 'Assuming every question requires the same listening or note-taking strategy.'],
+          practice: 'Question: "What was the overall purpose of the audio?" — is this a detail question or a main-idea question, and what kind of answer does it need?',
+          practiceAnswer: 'This is a main-idea question — it needs a synthesised answer covering the audio\'s overall point or purpose, not one isolated fact from a single moment.',
+          quiz: [
+            {q:'What does a detail question typically ask for?', options:['The overall purpose of the entire audio', 'One specific fact or moment from the audio', 'A completely unrelated topic', 'Nothing specific at all'], correct:1, a:'A detail question asks about one specific fact or moment, requiring the listener to locate that exact point.'},
+            {q:'What does a main-idea question typically require?', options:['One exact isolated fact', 'A synthesised understanding of the audio\'s overall point', 'Ignoring most of the audio', 'The same approach as a detail question'], correct:1, a:'A main-idea question requires synthesising the audio as a whole, rather than locating one specific detail.'},
+            {q:'Why does identifying the question type matter?', options:['It does not matter at all', 'Different question types require different search or synthesis strategies to answer correctly', 'All questions require an identical approach regardless of type', 'Only detail questions matter for scoring'], correct:1, a:'Detail and main-idea questions require genuinely different strategies, so misidentifying the type is a common source of avoidable errors.'},
           ],
         },
       ],Conversation:[
@@ -4052,6 +4146,21 @@ const TEST_DATA = {
             {q:'What helps ensure every part of a multi-part prompt gets addressed?', options:['Speaking as quickly as possible without any planning', 'Briefly identifying every distinct part of the prompt before starting to speak', 'Focusing only on the most interesting part', 'Ignoring the prompt\'s exact wording'], correct:1, a:'Briefly identifying every distinct part of the prompt before speaking helps ensure the full response genuinely addresses everything asked.'},
           ],
         },
+        {
+          id: 'da-cv2', title: 'Managing Pacing and Nerves During a Longer Spoken Response', time: '20-25 minutes',
+          objectives: ['Understand why pacing becomes harder to manage in longer, multi-part spoken responses', 'Learn a simple technique for managing nerves during an extended response', 'Practise maintaining steady pacing across a longer answer'],
+          concept: 'Longer, multi-part spoken responses carry more real-time pressure than short answers — there is more content to organise, more time to fill, and more opportunity for nerves to affect pacing, causing a response to speed up anxiously, trail off, or lose its structure partway through. Deliberately maintaining a steady, natural pace — rather than rushing through content out of nervousness — generally produces a clearer, more complete response.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>A nervous response to a multi-part prompt often accelerates noticeably partway through, as if trying to "get it over with," which can cause the later parts of the prompt to be rushed or missed entirely. A response paced deliberately and evenly is more likely to genuinely address every part of the prompt with equal care.',
+          vocab: [['pacing (in speech)','the speed and rhythm at which a response is delivered'],['multi-part response (recap)','a response that must address more than one distinct requirement from the prompt'],['anxious acceleration','speeding up noticeably due to nervousness, rather than deliberate pacing'],['deliberate pace','a steady, intentional speaking speed maintained on purpose'],['sustained composure','remaining calm and steady throughout a longer response, rather than only at the start']],
+          mistakes: ['Speeding up noticeably partway through a longer response due to nervousness.', 'Rushing through later parts of a multi-part prompt to "finish" more quickly.', 'Losing track of the response\'s structure once nerves take over midway through.', 'Not practising longer, sustained responses regularly, making pacing harder to control under pressure.'],
+          practice: 'What is one simple technique that could help maintain steady pacing during a longer, multi-part spoken response?',
+          practiceAnswer: 'One example: briefly identifying all parts of the prompt before starting, then deliberately allocating roughly equal time/attention to each part as the response is delivered — this structure itself helps prevent the anxious speeding-up that comes from feeling behind or unsure what comes next.',
+          quiz: [
+            {q:'Why does pacing become harder to manage in longer, multi-part responses?', options:['It does not become harder at all', 'More content, more time, and more opportunity for nerves to affect delivery', 'Longer responses have no real time pressure', 'Pacing is irrelevant in speaking tasks'], correct:1, a:'Longer, multi-part responses involve more content and real-time pressure, giving nerves more opportunity to affect steady pacing.'},
+            {q:'What commonly happens when nerves affect a longer response?', options:['The response automatically becomes clearer', 'The speaker may speed up anxiously or lose structure partway through', 'Nerves have no observable effect on delivery', 'The response always slows down evenly'], correct:1, a:'Nervousness can cause a response to speed up anxiously or lose its structure, particularly partway through a longer answer.'},
+            {q:'What generally helps maintain steady pacing across a longer response?', options:['Rushing to finish as quickly as possible', 'Briefly identifying all required parts first, then deliberately pacing through each one', 'Avoiding any structure or planning at all', 'Speaking only about the easiest part of the prompt'], correct:1, a:'Identifying all required parts in advance and deliberately pacing through each one helps maintain steady delivery under pressure.'},
+          ],
+        },
       ],Production:[
         {
           id: 'da-pr1', title: 'Extended Writing: Developing a Fuller Written Response', time: '20-25 minutes',
@@ -4066,6 +4175,21 @@ const TEST_DATA = {
             {q:'What does an extended writing prompt require, beyond a brief photo description?', options:['Nothing different at all', 'Genuine internal structure and developed supporting detail', 'Only a single short sentence', 'Avoiding any specific examples'], correct:1, a:'It requires genuine internal structure (opening, development, closing) and real supporting detail, not just a brief description.'},
             {q:'What is a common weakness in this task type?', options:['Including a specific example', 'Restating the same basic point in different words instead of genuinely developing it', 'Having a clear opening position', 'Acknowledging some nuance in the topic'], correct:1, a:'Restating the same point repeatedly instead of genuinely developing it with detail is a common weakness.'},
             {q:'What does genuine development of a point typically involve?', options:['Repeating the point using different vocabulary', 'Building on it with real detail, such as a specific example', 'Avoiding any further explanation', 'Writing it in a shorter sentence'], correct:1, a:'Genuine development involves building on the point with real, specific detail or examples, not just repeating it differently.'},
+          ],
+        },
+        {
+          id: 'da-pr2', title: 'Building a Genuinely Balanced, Persuasive Argument', time: '20-25 minutes',
+          objectives: ['Understand what makes a written argument genuinely persuasive rather than one-sided', 'Learn to briefly acknowledge nuance without weakening the main position', 'Practise writing a position that is confident but not dismissive of other views'],
+          concept: 'A genuinely persuasive extended written response is not the same as a purely one-sided response — briefly acknowledging that a topic has some nuance or a reasonable opposing view, before still clearly maintaining the main position, tends to read as more thoughtful and credible than a response that ignores any complexity entirely. This is different from being indecisive: the position remains clear and confident throughout, but its credibility is strengthened by showing genuine awareness of the fuller picture.',
+          example: '<i>(Original scenario — not from a real Duolingo English Test)</i><br><br>Purely one-sided: "Remote work is completely better than office work in every way, with no downsides at all." (Reads as dismissive of any nuance.)<br><br>Balanced but still confident: "While remote work does involve some loss of in-person collaboration, its benefits for flexibility and focus make it the stronger option overall for most people." (Clear position, while genuinely acknowledging a real trade-off.)',
+          vocab: [['persuasive writing','writing intended to convince the reader of a particular position'],['nuance (recap)','a subtle, more complex aspect of an issue beyond a simple, one-sided view'],['credibility (in writing)','how trustworthy and thoughtful a piece of writing appears to the reader'],['dismissive','ignoring or refusing to acknowledge a reasonable alternative view'],['confident position','a clearly stated stance that remains firm, even while acknowledging some complexity']],
+          mistakes: ['Writing a purely one-sided argument that ignores any reasonable opposing view entirely.', 'Acknowledging so much nuance that the main position becomes unclear or indecisive.', 'Treating acknowledgment of nuance as weakness, rather than as something that strengthens credibility.', 'Failing to return clearly to the main position after briefly mentioning a counterpoint.'],
+          practice: 'Prompt: "Is it better to live in a city or the countryside?" <br><br>Write one sentence that states a clear position while still briefly acknowledging a genuine trade-off.',
+          practiceAnswer: 'Example: "While countryside living offers a slower pace that some genuinely value, city living\'s access to opportunities makes it the stronger choice overall for most people\'s long-term goals." — a clear position, while still genuinely acknowledging the other side\'s real appeal.',
+          quiz: [
+            {q:'What tends to make a persuasive written argument more credible?', options:['Ignoring any opposing view entirely', 'Briefly acknowledging genuine nuance while still maintaining a clear position', 'Being as indecisive as possible', 'Avoiding taking any position at all'], correct:1, a:'Briefly acknowledging genuine nuance, while still clearly maintaining the main position, tends to read as more thoughtful and credible.'},
+            {q:'What is the risk of acknowledging too much nuance?', options:['There is no risk at all', 'The main position can become unclear or indecisive', 'The response automatically becomes more persuasive', 'This risk does not actually exist'], correct:1, a:'Acknowledging too much nuance without returning clearly to the main position can make the overall argument feel indecisive.'},
+            {q:'Is acknowledging a genuine trade-off a sign of weakness in an argument?', options:['Yes, it always weakens the argument', 'No — done briefly and followed by a clear position, it can strengthen credibility', 'It has no effect on the argument either way', 'Only in spoken responses, never in writing'], correct:1, a:'Briefly acknowledging a genuine trade-off, followed by a clear position, tends to strengthen rather than weaken an argument\'s credibility.'},
           ],
         },
       ]} },
@@ -4174,19 +4298,108 @@ function setTpSubtab(sub){
   } else if(sub==='lessons'){
     renderLessonsRoot();
   } else if(sub==='mocks'){
-    const templates=Object.entries(t.mockTemplates||{});
-    if(!templates.length){
-      el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
-      return;
-    }
-    el.innerHTML=templates.map(([key,tpl])=>`
-      <div class="tp-info-card">
-        <h4>🎯 ${esc(tpl.title)}</h4>
-        <p>${tpl.questionCount} questions · ${tpl.timeLimitMinutes} minutes · A genuinely new set every time you take it</p>
-        <button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${key}')">Start Practice Mock</button>
-      </div>
-    `).join('')+`<div class="tp-info-card" style="opacity:.75"><p style="font-size:12.5px">Practice mocks are unlimited and always unique. Level Final and Course Final mocks (with real stakes — limited attempts, full exam simulation) unlock as more content is added.</p></div>`;
+    renderMocksTab();
   }
+}
+
+// ── Level Final / Course Final gating helpers ──────────────────────
+// Both tiers reuse the SAME AI-generated templates as Practice Mocks —
+// no new content needed — just add real stakes on top: completion-
+// gating and a shared 3-attempts-per-24h limit (shared across every
+// skill within the tier, not per skill, so a student can't just churn
+// through one skill repeatedly to dodge the limit).
+async function loadMockAttempts(testKey){
+  if(!currentSession)return [];
+  const{data,error}=await sb.from('mock_attempts').select('*').eq('student_id',currentSession.user.id).eq('test_type',testKey);
+  return (!error&&data)?data:[];
+}
+function isLevelComplete(testKey,levelKey){
+  const t=TEST_DATA[testKey];
+  const lvl=(t.levels||[]).find(l=>l.key===levelKey);
+  if(!lvl)return false;
+  const ids=Object.values(lvl.skills).flat().map(l=>l.id);
+  return ids.length>0 && ids.every(id=>(tpProgressCache[testKey]||{})[id]);
+}
+function isCourseComplete(testKey){
+  const t=TEST_DATA[testKey];
+  return (t.levels||[]).length>0 && (t.levels||[]).every(lvl=>isLevelComplete(testKey,lvl.key));
+}
+function computeMockGating(attempts,tier,levelKey){
+  const relevant=attempts.filter(a=>a.tier===tier&&(tier!=='level_final'||a.level_key===levelKey));
+  const cutoff=Date.now()-24*60*60*1000;
+  const recent=relevant.filter(a=>new Date(a.created_at).getTime()>cutoff).sort((x,y)=>new Date(x.created_at)-new Date(y.created_at));
+  const max=3, used=recent.length;
+  if(used<max)return {allowed:true,used,max,cooldownText:null};
+  const freeAt=new Date(recent[0].created_at).getTime()+24*60*60*1000;
+  const msLeft=Math.max(0,freeAt-Date.now());
+  const h=Math.floor(msLeft/3600000), m=Math.floor((msLeft%3600000)/60000);
+  return {allowed:false,used,max,cooldownText:`Next attempt available in ${h}h ${m}m`};
+}
+let mockAttemptsCache=[];
+async function renderMocksTab(){
+  const t=TEST_DATA[currentTpTest];
+  const el=document.getElementById('tp-subtab-content');
+  const templates=Object.entries(t.mockTemplates||{});
+  if(!templates.length){
+    el.innerHTML=`<div class="tp-info-card"><h4>🎯 Mock Tests — Coming Soon</h4><p>AI-generated practice tests, unique every time you take one, are being built for ${esc(t.name)}. You'll be notified the moment they're ready.</p></div>`;
+    return;
+  }
+  el.innerHTML='<div class="empty">Loading…</div>';
+  mockAttemptsCache=await loadMockAttempts(currentTpTest);
+
+  let html=`<h4 style="font-size:14px;color:var(--pine);margin-bottom:8px">📝 Practice Mocks</h4>`;
+  html+=templates.map(([key,tpl])=>`
+    <div class="tp-info-card">
+      <h4>🎯 ${esc(tpl.title)}</h4>
+      <p>${tpl.questionCount} questions · ${tpl.timeLimitMinutes} minutes · A genuinely new set every time you take it</p>
+      <button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${key}','practice',null)">Start Practice Mock</button>
+    </div>
+  `).join('');
+  html+=`<div class="tp-info-card" style="opacity:.75;margin-bottom:6px"><p style="font-size:12.5px">Practice mocks are unlimited and always unique.</p></div>`;
+
+  if(t.levels&&t.levels.length){
+    html+=`<h4 style="font-size:14px;color:var(--pine);margin:18px 0 4px">🏆 Level Final Mocks</h4>
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">Unlocks once every lesson in a level is complete. Max 3 attempts per 24 hours per level — these count for real, so make them deliberate.</p>`;
+    t.levels.forEach(lvl=>{
+      const skillKeys=t.modules.filter(skill=>t.mockTemplates[lvl.key+'-'+skill]);
+      if(!skillKeys.length)return;
+      const complete=isLevelComplete(currentTpTest,lvl.key);
+      const gate=computeMockGating(mockAttemptsCache,'level_final',lvl.key);
+      html+=`<div style="font-size:13px;font-weight:700;color:var(--ink2);margin:10px 0 6px">${esc(lvl.name)}</div>`;
+      skillKeys.forEach(skill=>{
+        const key=lvl.key+'-'+skill, tpl=t.mockTemplates[key];
+        html+=`<div class="tp-info-card"${complete?'':' style="opacity:.6"'}>
+          <h4>${complete?'🏆':'🔒'} ${esc(tpl.title.replace('Practice Mock','Level Final'))}</h4>
+          <p>${tpl.questionCount} questions · ${tpl.timeLimitMinutes} minutes</p>
+          ${!complete?`<p style="font-size:12.5px;color:var(--ink3);margin-top:6px">Complete every lesson in ${esc(lvl.name)} to unlock.</p>`
+            :gate.allowed?`<p style="font-size:12.5px;color:var(--ink3);margin-top:6px">${gate.used}/${gate.max} attempts used in the last 24h (shared across this level's skills)</p><button class="btn" style="margin-top:8px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${key}','level_final','${lvl.key}')">Start Level Final</button>`
+            :`<p style="font-size:12.5px;color:var(--rose);margin-top:6px">${gate.cooldownText}</p>`}
+        </div>`;
+      });
+    });
+
+    const courseComplete=isCourseComplete(currentTpTest);
+    const courseGate=computeMockGating(mockAttemptsCache,'course_final',null);
+    html+=`<h4 style="font-size:14px;color:var(--pine);margin:18px 0 4px">👑 Course Final Mocks</h4>
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">Unlocks once every level is complete — the full-course simulation. Max 3 attempts per 24 hours, shared across all skills.</p>`;
+    t.modules.forEach(skill=>{
+      let bestKey=null;
+      for(let i=t.levels.length-1;i>=0;i--){
+        const k=t.levels[i].key+'-'+skill;
+        if(t.mockTemplates[k]){ bestKey=k; break; }
+      }
+      if(!bestKey)return;
+      const tpl=t.mockTemplates[bestKey];
+      html+=`<div class="tp-info-card"${courseComplete?'':' style="opacity:.6"'}>
+        <h4>${courseComplete?'👑':'🔒'} ${esc(skill)} — Course Final</h4>
+        <p>${tpl.questionCount} questions · ${tpl.timeLimitMinutes} minutes · Full-course simulation</p>
+        ${!courseComplete?`<p style="font-size:12.5px;color:var(--ink3);margin-top:6px">Complete every level to unlock.</p>`
+          :courseGate.allowed?`<p style="font-size:12.5px;color:var(--ink3);margin-top:6px">${courseGate.used}/${courseGate.max} attempts used in the last 24h</p><button class="btn" style="margin-top:8px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${bestKey}','course_final',null)">Start Course Final</button>`
+          :`<p style="font-size:12.5px;color:var(--rose);margin-top:6px">${courseGate.cooldownText}</p>`}
+      </div>`;
+    });
+  }
+  el.innerHTML=html;
 }
 
 // ── Mock Test taking flow ────────────────────────────────────────
@@ -4196,8 +4409,21 @@ function setTpSubtab(sub){
 // rather than failing silently.
 const GENERATE_MOCK_URL = SUPABASE_URL + "/functions/v1/generate-mock-test";
 let currentMockAttempt=null;
-async function startMockTest(testKey,templateKey){
+async function startMockTest(testKey,templateKey,tier,levelKey){
   if(!requireRealLogin())return;
+  tier=tier||'practice'; levelKey=levelKey||null;
+  if(tier!=='practice'){
+    // Defense in depth — the UI already only shows the button when
+    // unlocked/allowed, but re-verify against fresh data here too, in
+    // case of a stale render (e.g. another tab already used an
+    // attempt) rather than trusting whatever the button's onclick
+    // captured at render time.
+    const freshAttempts=await loadMockAttempts(testKey);
+    const unlocked=tier==='level_final'?isLevelComplete(testKey,levelKey):isCourseComplete(testKey);
+    if(!unlocked){ alert('This mock is still locked — complete the required lessons first.'); return; }
+    const gate=computeMockGating(freshAttempts,tier,levelKey);
+    if(!gate.allowed){ alert(`You've used all ${gate.max} attempts for this in the last 24 hours. ${gate.cooldownText}`); return; }
+  }
   const template=TEST_DATA[testKey].mockTemplates[templateKey];
   document.getElementById('tp-subtab-content').parentElement.style.display='none';
   const lv=document.getElementById('tp-lesson-view');
@@ -4215,7 +4441,7 @@ async function startMockTest(testKey,templateKey){
       document.getElementById('tp-lesson-content').innerHTML=`<div class="tp-info-card"><h4>Couldn't generate a test right now</h4><p>${esc(data.error||'The mock test generator isn\'t reachable yet — it may not be deployed. Try again shortly, or let your team know if this keeps happening.')}</p></div>`;
       return;
     }
-    currentMockAttempt={template,testKey,templateKey,questions:data.questions,passages:data.passages||[],answers:new Array(data.questions.length).fill('')};
+    currentMockAttempt={template,testKey,templateKey,tier,levelKey,questions:data.questions,passages:data.passages||[],answers:new Array(data.questions.length).fill('')};
     renderMockTestQuestions();
   }catch(err){
     document.getElementById('tp-lesson-content').innerHTML=`<div class="tp-info-card"><h4>Couldn't generate a test right now</h4><p>Something went wrong reaching the generator. Please try again.</p></div>`;
@@ -4318,8 +4544,12 @@ async function submitMockTest(){
   const scoreLine=exactTotal>0
     ?`<div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:var(--pine)">${exactCorrect}/${exactTotal} correct</div><div style="color:var(--ink3);font-size:13px">${Math.round((exactCorrect/exactTotal)*100)}%</div>`
     :`<div style="font-size:14px;color:var(--ink3)">Self-assess each answer below against the model response.</div>`;
+  const tierBadge=a.tier==='level_final'?'<div style="display:inline-block;background:var(--gold-l);color:#7A3418;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px">🏆 LEVEL FINAL RESULT</div><br>'
+    :a.tier==='course_final'?'<div style="display:inline-block;background:var(--gold-l);color:#7A3418;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px">👑 COURSE FINAL RESULT</div><br>'
+    :'';
   document.getElementById('tp-lesson-content').innerHTML=`
     <div style="text-align:center;margin-bottom:20px">
+      ${tierBadge}
       <div style="font-size:40px">${exactTotal===0||exactCorrect/Math.max(exactTotal,1)>=0.7?'🎉':'💪'}</div>
       ${scoreLine}
     </div>
@@ -4330,6 +4560,7 @@ async function submitMockTest(){
     await sb.from('mock_attempts').insert({
       student_id:currentSession.user.id,test_type:a.testKey,template_key:a.templateKey,
       score_correct:exactCorrect,score_total:exactTotal||a.questions.length,
+      tier:a.tier||'practice',level_key:a.levelKey||null,
     });
   }
 }
@@ -4708,6 +4939,69 @@ function stripHtmlForSpeech(html){
   tmp.innerHTML=html;
   return tmp.textContent||tmp.innerText||'';
 }
+
+// ── Voice selection — the browser's built-in speechSynthesis only ever
+// sounds as good as whatever voices the OS/browser ships, which varies
+// a lot (Chrome desktop/Android generally has decent Google voices;
+// iOS Safari's default is noticeably flatter). This picks the best
+// available ENGLISH FEMALE voice automatically using a preference list
+// of known better-sounding voices, falls back to any female voice, then
+// any English voice at all — and lets the student override the pick
+// from a real dropdown of whatever voices their device actually has,
+// remembered in localStorage so the choice sticks next visit.
+// NOTE: this is a genuine ceiling of what free, built-in browser TTS
+// can sound like — for a real "not robotic at all" voice matching a
+// paid app like Duolingo, the honest next step is a neural TTS API
+// (e.g. ElevenLabs, Google Cloud TTS, OpenAI TTS) proxied through an
+// Edge Function so the API key stays server-side — a real but separate
+// upgrade with its own ongoing cost, not something browser TTS can do.
+const SP_PREFERRED_VOICE_NAMES=[
+  'Google UK English Female','Google US English','Microsoft Zira','Microsoft Jenny',
+  'Microsoft Aria','Samantha','Karen','Moira','Tessa','Victoria','Fiona','Ava',
+];
+let spVoicesCache=[];
+function spLoadVoices(){
+  spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
+  if(spVoicesCache.length) spPopulateVoiceSelect();
+}
+if('speechSynthesis' in window){
+  spLoadVoices();
+  speechSynthesis.onvoiceschanged=spLoadVoices;
+}
+function spPickBestFemaleVoice(){
+  const saved=localStorage.getItem('sp_voice_uri');
+  if(saved){ const m=spVoicesCache.find(v=>v.voiceURI===saved); if(m)return m; }
+  const englishVoices=spVoicesCache.filter(v=>v.lang&&v.lang.toLowerCase().startsWith('en'));
+  for(const name of SP_PREFERRED_VOICE_NAMES){
+    const m=englishVoices.find(v=>v.name.includes(name));
+    if(m)return m;
+  }
+  const femaleGuess=englishVoices.find(v=>/female|zira|jenny|aria|samantha|karen|moira|tessa|victoria|fiona|ava|salli|joanna/i.test(v.name));
+  if(femaleGuess)return femaleGuess;
+  return englishVoices[0]||spVoicesCache[0]||null;
+}
+function spPopulateVoiceSelect(){
+  const sel=document.getElementById('sp-voice-select');
+  if(!sel)return;
+  const englishVoices=spVoicesCache.filter(v=>v.lang&&v.lang.toLowerCase().startsWith('en'));
+  const list=englishVoices.length?englishVoices:spVoicesCache;
+  const current=spPickBestFemaleVoice();
+  sel.innerHTML=list.map(v=>`<option value="${esc(v.voiceURI)}"${current&&v.voiceURI===current.voiceURI?' selected':''}>${esc(v.name)}${v.lang?' ('+esc(v.lang)+')':''}</option>`).join('');
+}
+function spOnVoiceChange(){
+  const sel=document.getElementById('sp-voice-select');
+  if(sel&&sel.value) localStorage.setItem('sp_voice_uri',sel.value);
+}
+function spApplyVoice(utterance){
+  const v=spPickBestFemaleVoice();
+  if(v)utterance.voice=v;
+  // Slightly above default pitch and just under full rate reads as
+  // noticeably warmer/less mechanical on most built-in voices, without
+  // tipping into sounding sped-up or unnatural.
+  utterance.pitch=1.05;
+  utterance.rate=utterance.rate||0.97;
+}
+
 function speakLessonText(elementId,buttonEl){
   if(!('speechSynthesis' in window)){
     alert('Your browser doesn\'t support text-to-speech — try a recent version of Chrome or Safari.');
@@ -4723,6 +5017,7 @@ function speakLessonText(elementId,buttonEl){
   const text=stripHtmlForSpeech(el.innerHTML);
   const utterance=new SpeechSynthesisUtterance(text);
   utterance.rate=0.95;
+  spApplyVoice(utterance);
   utterance.onend=()=>resetSpeakButton(buttonEl);
   utterance.onerror=()=>resetSpeakButton(buttonEl);
   buttonEl.innerHTML='<i class="ti ti-player-pause"></i> Stop';
@@ -4905,6 +5200,8 @@ function spSetThinking(on){
 
 async function startSpeakingSession(mode,scenarioId,testType){
   if(!requireRealLogin())return;
+  spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
+  spPopulateVoiceSelect();
   spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:scenarioId||null};
   let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
   let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
@@ -5010,7 +5307,8 @@ function speakText(text){
   if(!('speechSynthesis' in window))return;
   speechSynthesis.cancel();
   const utterance=new SpeechSynthesisUtterance(text);
-  utterance.rate=1;
+  utterance.rate=0.97;
+  spApplyVoice(utterance);
   speechSynthesis.speak(utterance);
 }
 
