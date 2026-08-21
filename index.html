@@ -111,6 +111,8 @@
   .tp-progress-fill{height:100%;background:linear-gradient(90deg,var(--pine),var(--pine3));border-radius:99px}
   .tp-subtab{background:none;border:none;padding:9px 12px;font-size:14.5px;font-weight:700;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
   .tp-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
+  .uni-subtab{background:none;border:none;padding:9px 12px;font-size:14.5px;font-weight:700;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
+  .uni-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
   .tp-info-card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
 
   /* Lesson detail page — genuine visual differentiation per section type,
@@ -404,6 +406,8 @@
       <div class="nav-tile" onclick="openCareer()"><div class="icon">💼</div><div class="label">Career &amp; Scholarships</div></div>
       <div class="nav-tile" onclick="openTestPrep()"><div class="icon">🎓</div><div class="label">Test Prep Hub</div></div>
       <div class="nav-tile" onclick="openSpeakingPartner()"><div class="icon">🗣️</div><div class="label">AI Speaking Partner</div></div>
+      <div class="nav-tile" onclick="openVisaPrep()"><div class="icon">🛂</div><div class="label">Visa Assistance</div></div>
+      <div class="nav-tile" onclick="openUniPrep()"><div class="icon">🎓</div><div class="label">University Interview Prep</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
@@ -585,6 +589,41 @@
         <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="endSpeakingSession()"><i class="ti ti-x"></i> End Session</button>
       </div>
       <div id="sp-feedback-panel" style="display:none;margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- Visa Assistance — country info guide + AI mock visa interview -->
+  <div class="screen" id="screen-visa-prep">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">🛂 Visa Assistance</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:10px">General guidance by destination, plus an AI mock visa interview to build real confidence before the real one.</p>
+    <div class="tp-info-card" style="background:var(--gold-l);border:1.5px solid #FFD4C4;margin-bottom:16px">
+      <p style="font-size:12.5px;color:#7A3418;margin:0"><b>⚠️ General guidance only.</b> Visa rules change and vary by individual case — always confirm current requirements with the official government source for your destination, or a Step4Progress counsellor, before applying.</p>
+    </div>
+    <div id="visa-country-grid"></div>
+  </div>
+
+  <div class="screen" id="screen-visa-detail">
+    <span class="back-link" onclick="showScreen('screen-visa-prep')">← All countries</span>
+    <div id="visa-detail-content"></div>
+  </div>
+
+  <!-- University Interview Prep — tips, staff-posted updates feed, AI mock interview -->
+  <div class="screen" id="screen-uni-prep">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">🎓 University Interview Prep</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Interview tips, the latest updates from our team, and an AI mock interview whenever you want to practise.</p>
+
+    <div class="tp-subtabs" style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="uni-subtab active" data-sub="tips" onclick="setUniSubtab('tips')">Tips</button>
+      <button class="uni-subtab" data-sub="updates" onclick="setUniSubtab('updates')">Updates</button>
+    </div>
+    <div id="uni-subtab-content"></div>
+
+    <div class="tp-info-card" style="margin-top:16px;text-align:center">
+      <h4>🗣️ Ready to practise?</h4>
+      <p style="margin-bottom:10px">Start a live AI mock admissions interview — realistic questions, asked one at a time, with feedback on request.</p>
+      <button class="btn" onclick="startSpeakingSession('university_interview')">Start Mock Interview</button>
     </div>
   </div>
 
@@ -4886,6 +4925,98 @@ id: 'ta-s4', title: 'Delivering a Polished, Well-Paced Response With Minimal Hes
   },
 };
 
+/* ============================================================
+   VISA ASSISTANCE — screen logic
+   ============================================================ */
+function openVisaPrep(){
+  showScreen('screen-visa-prep');
+  const grid=document.getElementById('visa-country-grid');
+  grid.innerHTML=Object.keys(VISA_COUNTRIES).map(key=>{
+    const c=VISA_COUNTRIES[key];
+    return `<div class="tp-info-card" style="cursor:pointer" onclick="openVisaDetail('${key}')">
+      <h4>${c.flag} ${esc(c.name)}</h4>
+      <p style="font-size:12.5px;color:var(--ink3)">${esc(c.visaType)}</p>
+    </div>`;
+  }).join('');
+}
+function openVisaDetail(key){
+  const c=VISA_COUNTRIES[key];
+  showScreen('screen-visa-detail');
+  document.getElementById('visa-detail-content').innerHTML=`
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:2px">${c.flag} ${esc(c.name)}</h2>
+    <p style="font-size:13px;color:var(--ink3);margin-bottom:14px">${esc(c.visaType)}</p>
+    <div class="tp-info-card"><p>${esc(c.overview)}</p></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">✅ Key Requirements</h4>
+    <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${c.requirements.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">📄 Documents Typically Needed</h4>
+    <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${c.documents.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⚠️ Common Mistakes</h4>
+    <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${c.commonMistakes.map(m=>`<li>${esc(m)}</li>`).join('')}</ul></div>
+    <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⏱ Typical Processing Time</h4>
+    <div class="tp-info-card"><p>${esc(c.processingTime)}</p></div>
+    <div class="tp-info-card" style="text-align:center;margin-top:16px">
+      <h4>🗣️ Ready to practise?</h4>
+      <p style="margin-bottom:10px">Start a live AI mock visa interview for ${esc(c.name)} — realistic officer-style questions, with feedback on request.</p>
+      <button class="btn" onclick="startSpeakingSession('visa_interview',null,null,'${key}')">Start Mock Interview</button>
+    </div>
+  `;
+}
+
+/* ============================================================
+   UNIVERSITY INTERVIEW PREP — screen logic
+   ============================================================ */
+function openUniPrep(){
+  showScreen('screen-uni-prep');
+  setUniSubtab('tips');
+}
+function setUniSubtab(sub){
+  document.querySelectorAll('.uni-subtab').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
+  const el=document.getElementById('uni-subtab-content');
+  if(sub==='tips'){
+    const t=UNI_INTERVIEW_TIPS;
+    el.innerHTML=`
+      <h4 style="font-size:14px;color:var(--pine);margin-bottom:8px">📋 Format</h4>
+      <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${t.format.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">❓ Common Questions</h4>
+      <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${t.commonQuestions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⏮ Before</h4>
+      <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${t.beforeTips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">▶️ During</h4>
+      <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${t.duringTips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <h4 style="font-size:14px;color:var(--pine);margin:14px 0 8px">⏭ After</h4>
+      <div class="tp-info-card"><ul style="margin:0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${t.afterTips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    `;
+  } else if(sub==='updates'){
+    el.innerHTML='<div class="empty">Loading…</div>';
+    loadUniUpdates();
+  }
+}
+// Updates are staff-posted (via Supabase directly, or a future CRM
+// integration — this student-facing file has no authoring UI, since
+// staff already work in the CRM) and read-only here. This is real
+// current information whenever your team posts it — not an automatic
+// feed, since the app has no live internet access to know about
+// policy changes on its own.
+async function loadUniUpdates(){
+  const el=document.getElementById('uni-subtab-content');
+  try{
+    const{data,error}=await sb.from('portal_updates').select('*').eq('category','university').order('created_at',{ascending:false}).limit(20);
+    if(error||!data||!data.length){
+      el.innerHTML='<div class="tp-info-card"><p>No updates posted yet — check back soon.</p></div>';
+      return;
+    }
+    el.innerHTML=data.map(u=>`
+      <div class="tp-info-card">
+        <h4>${esc(u.title)}</h4>
+        <p>${esc(u.body)}</p>
+        <p style="font-size:11px;color:var(--ink3);margin-top:8px">${new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</p>
+      </div>
+    `).join('');
+  }catch(e){
+    el.innerHTML='<div class="tp-info-card"><p>Couldn\'t load updates right now — please try again.</p></div>';
+  }
+}
+
 let currentTpTest = null;
 let tpProgressCache = {}; // { testKey: { moduleKey: true } }
 
@@ -4896,6 +5027,82 @@ function openTestPrep(){
   renderTpGrid();
 }
 const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘' };
+
+/* ============================================================
+   VISA ASSISTANCE — general, non-legal-advice guidance per
+   destination country, plus AI mock visa interview (reuses the
+   Speaking Partner engine below with a new 'visa_interview' mode).
+   Content reflects general knowledge as of early 2026 — visa rules
+   change; this is a starting reference point, not a substitute for
+   checking official government sources or a StepForward counsellor
+   before applying. This disclaimer is shown directly in the UI too.
+   ============================================================ */
+var VISA_COUNTRIES = {
+  UK: {
+    name: 'United Kingdom', flag: '🇬🇧', visaType: 'Student Route (formerly Tier 4)',
+    overview: 'The UK Student Route visa is for students holding an unconditional offer from a licensed student sponsor, with a Confirmation of Acceptance for Studies (CAS) issued by the institution.',
+    requirements: ['A CAS (Confirmation of Acceptance for Studies) from a licensed sponsor institution', 'Proof of funds covering tuition plus living costs (usually 9 months, unless in London where the amount is higher)', 'A valid passport', 'English language proficiency (usually IELTS UKVI, PTE UKVI — not standard IELTS/PTE)', 'Tuberculosis test results, for applicants from certain countries'],
+    documents: ['CAS reference number', 'Bank statements showing required funds held for a consecutive 28-day period', 'Passport-size photo', 'Academic transcripts and certificates', 'ATAS certificate, if studying certain sensitive subjects'],
+    commonMistakes: ['Bank statements not covering the required continuous 28-day holding period.', 'Using a standard IELTS/PTE score instead of the UKVI-approved version required for the visa specifically.', 'Applying too early or too late relative to the course start date.'],
+    processingTime: 'Typically 3 weeks outside the UK, though this varies by country and season.',
+  },
+  USA: {
+    name: 'United States', flag: '🇺🇸', visaType: 'F-1 Student Visa',
+    overview: 'The F-1 visa is for full-time students at a SEVP-certified US institution, requiring an I-20 form issued by the school and a visa interview at a US embassy or consulate.',
+    requirements: ['Form I-20 issued by a SEVP-certified school', 'SEVIS I-901 fee payment', 'DS-160 online application form completed', 'Proof of sufficient funds for tuition and living costs', 'Strong ties to home country, demonstrating genuine intent to return after studies'],
+    documents: ['I-20 form', 'SEVIS fee receipt', 'DS-160 confirmation page', 'Valid passport', 'Financial documents (bank statements, sponsor letters, loan approval)', 'Academic transcripts and standardized test scores'],
+    commonMistakes: ['Struggling to clearly demonstrate ties to the home country during the interview, raising intent-to-return concerns.', 'Providing vague or memorized-sounding answers about course/university choice, rather than genuine reasoning.', 'Financial documentation that does not clearly match the I-20\'s stated cost of attendance.'],
+    processingTime: 'Visa interview wait times vary significantly by embassy location and season — often several weeks to a few months for an appointment slot.',
+  },
+  Canada: {
+    name: 'Canada', flag: '🇨🇦', visaType: 'Study Permit',
+    overview: 'A Canadian Study Permit is required for programmes longer than 6 months, requiring an acceptance letter from a Designated Learning Institution (DLI) and proof of financial support.',
+    requirements: ['Letter of acceptance from a Designated Learning Institution (DLI)', 'Proof of financial support (tuition plus living costs, per IRCC guidelines)', 'Valid passport', 'Statement of purpose explaining study plans', 'Clean criminal record and medical exam, if required'],
+    documents: ['DLI acceptance letter', 'Proof of funds (GIC, bank statements, or education loan)', 'Passport', 'Statement of Purpose', 'Academic transcripts', 'Language test results (IELTS/PTE/TOEFL)'],
+    commonMistakes: ['A Statement of Purpose that reads as generic rather than genuinely specific to the chosen programme and institution.', 'Proof of funds that does not clearly meet IRCC\'s specific minimum requirements.', 'Applying through the Student Direct Stream without meeting all of its specific eligibility criteria.'],
+    processingTime: 'Varies by country of application — often several weeks to a few months.',
+  },
+  Australia: {
+    name: 'Australia', flag: '🇦🇺', visaType: 'Student Visa (Subclass 500)',
+    overview: 'The Subclass 500 visa allows full-time study in Australia, requiring a Confirmation of Enrolment (CoE) and meeting the Genuine Temporary Entrant (GTE) requirement.',
+    requirements: ['Confirmation of Enrolment (CoE) from an Australian institution', 'Genuine Temporary Entrant (GTE) statement', 'Overseas Student Health Cover (OSHC)', 'Proof of financial capacity', 'English language proficiency evidence'],
+    documents: ['CoE', 'GTE statement', 'OSHC proof of purchase', 'Financial evidence (bank statements, loan documents)', 'Passport', 'Academic and English test results'],
+    commonMistakes: ['A GTE statement that does not genuinely and specifically address why Australia and this particular course, rather than reading as a generic template.', 'Underestimating how strictly financial capacity requirements are checked.', 'Gaps in academic history not clearly explained in supporting documents.'],
+    processingTime: 'Typically several weeks, though can vary significantly by individual case complexity.',
+  },
+  Ireland: {
+    name: 'Ireland', flag: '🇮🇪', visaType: 'Study Visa (D Type, for courses over 90 days)',
+    overview: 'Non-EU students on courses longer than 90 days need a D-type study visa, requiring proof of enrolment in a course on the Interim List of Eligible Programmes (ILEP).',
+    requirements: ['Letter of acceptance from an ILEP-listed institution', 'Proof of course fees paid or arranged', 'Proof of funds (approx. €10,000 for living costs, in addition to fees)', 'Private medical insurance', 'Evidence of genuine intention to study'],
+    documents: ['Acceptance letter', 'Proof of fee payment', 'Bank statements', 'Medical insurance proof', 'Passport', 'Academic transcripts'],
+    commonMistakes: ['Applying for a course not on the official ILEP list, which is not eligible for this visa route.', 'Insufficient proof of the required living-cost funds specifically, separate from tuition fees.', 'Missing the private medical insurance requirement.'],
+    processingTime: 'Typically 4-8 weeks, though this varies by application volume and location.',
+  },
+  'New Zealand': {
+    name: 'New Zealand', flag: '🇳🇿', visaType: 'Student Visa',
+    overview: 'New Zealand\'s student visa requires an Offer of Place from an accredited institution and evidence of sufficient funds for the full duration of study.',
+    requirements: ['Offer of Place from an accredited education provider', 'Evidence of sufficient funds (tuition plus a set living-cost amount per year)', 'Return airfare or proof of funds to cover it', 'Health and character requirements (medical exam, police certificate for longer stays)'],
+    documents: ['Offer of Place letter', 'Financial evidence', 'Passport', 'Medical examination results, if required', 'Police certificate, for longer courses', 'Academic transcripts and English test results'],
+    commonMistakes: ['Underestimating the specific annual living-cost fund requirement, which is a fixed government-set amount.', 'Not budgeting for the return airfare requirement.', 'Missing health/character requirement documentation for longer-duration courses.'],
+    processingTime: 'Typically several weeks, varying by country of application.',
+  },
+};
+
+/* ============================================================
+   UNIVERSITY INTERVIEW PREP — general tips content, plus a
+   staff-postable "current updates" feed (read-only for students;
+   see 0009_portal_updates_table.sql for how staff post to it — this
+   student portal file itself has no staff-authoring UI, since staff
+   already work in the CRM), plus AI mock admissions interview (reuses
+   the Speaking Partner engine with a new 'university_interview' mode).
+   ============================================================ */
+var UNI_INTERVIEW_TIPS = {
+  format: ['Most university admissions interviews run 15-30 minutes, either in person, by phone, or over video call.', 'Interviewers are typically assessing genuine motivation, fit for the specific programme, and communication ability — not testing memorised facts.', 'Some interviews are purely conversational; others include a short task, like discussing a piece of your own work or a hypothetical scenario related to your field.'],
+  commonQuestions: ['Why do you want to study this specific course, at this specific university?', 'What are your career goals, and how does this programme connect to them?', 'Tell me about a challenge you have faced and how you handled it.', 'What do you do outside of academics — hobbies, extracurriculars, work experience?', 'Do you have any questions for us?'],
+  beforeTips: ['Research the specific programme\'s curriculum, faculty, and what makes it distinct from similar courses elsewhere — generic answers about "a good university" are noticeably weaker than specific, genuine reasons.', 'Prepare 2-3 genuine, specific examples from your own experience that could support answers about challenges, teamwork, or motivation.', 'Prepare a few genuine questions to ask the interviewer — having none can read as low genuine interest.'],
+  duringTips: ['Speak at a natural, steady pace — nervousness often causes rushing, which can make answers harder to follow.', 'It is completely fine to pause briefly to think before answering, rather than rushing into a weaker response.', 'Give specific, genuine examples rather than vague general statements — "I am passionate about this field" is much weaker than a specific story showing that passion.'],
+  afterTips: ['A brief thank-you email/note afterward is a considerate, professional touch, though not always required.', 'Reflect honestly on which questions felt strong and which felt weaker, to genuinely improve for future interviews.'],
+};
 
 async function renderTpGrid(){
   const el=document.getElementById('tp-test-grid');
@@ -5795,6 +6002,8 @@ const SP_BADGES=[
   {key:'exam_ready', icon:'🎯', name:'Exam Ready', test:s=>new Set(s.filter(x=>x.mode==='test_practice').map(x=>x.test_type)).size>=4},
   {key:'feedback_fan', icon:'📊', name:'Feedback Fan', test:s=>s.filter(x=>x.got_feedback).length>=5},
   {key:'streak_speaker', icon:'🔥', name:'Streak Speaker', test:s=>new Set(s.map(x=>x.created_at.slice(0,10))).size>=3},
+  {key:'visa_ready', icon:'🛂', name:'Visa Ready', test:s=>new Set(s.filter(x=>x.mode==='visa_interview').map(x=>x.test_type)).size>=3},
+  {key:'interview_pro', icon:'🎓', name:'Interview Pro', test:s=>s.filter(x=>x.mode==='university_interview').length>=5},
 ];
 function computeSpBadges(sessions){
   return SP_BADGES.map(b=>({...b, earned:b.test(sessions)}));
@@ -5887,7 +6096,7 @@ function spSetThinking(on){
   document.getElementById('sp-typing-indicator').style.display=on?'flex':'none';
 }
 
-async function startSpeakingSession(mode,scenarioId,testType){
+async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
   if(!requireRealLogin())return;
   spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
   spPopulateVoiceSelect();
@@ -5907,8 +6116,21 @@ async function startSpeakingSession(mode,scenarioId,testType){
     subtitle='The AI is acting as your examiner.';
     kickoffPrompt='Give the student an appropriate opening speaking prompt for this test, in character as the examiner.';
     spState.skillPrompt='(the AI will set its own opening prompt)';
+  } else if(mode==='visa_interview'){
+    const c=VISA_COUNTRIES[visaCountry];
+    spState.scenario=c.name+' visa officer, conducting a '+c.visaType+' visa interview';
+    spState.testType=visaCountry;
+    title=c.flag+' '+c.name+' Mock Visa Interview';
+    subtitle='The AI is acting as a visa interviewing officer.';
+    kickoffPrompt='Begin the visa interview naturally, in character as the officer, the way a real visa interview would start — a brief greeting, then your first genuine question.';
+  } else if(mode==='university_interview'){
+    spState.scenario='a university admissions interviewer, conducting a genuine admissions interview';
+    title='🎓 Mock University Interview';
+    subtitle='The AI is acting as an admissions interviewer.';
+    kickoffPrompt='Begin the admissions interview naturally, in character as the interviewer, the way a real university interview would start — a brief welcome, then your first genuine question about the student\'s motivation or background.';
   }
 
+  showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='none';
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
