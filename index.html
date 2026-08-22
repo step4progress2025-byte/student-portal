@@ -417,6 +417,7 @@
   </div>
 
   <!-- Celebration overlay — shown briefly when a lesson is completed -->
+  <audio id="tts-audio-player" style="display:none"></audio>
   <div id="celebration-overlay" class="celebration-overlay" style="display:none">
     <div class="celebration-card">
       <div class="celebration-emoji">🎉</div>
@@ -6715,7 +6716,7 @@ function closeLessonView(){
   // Stop anything still running before leaving — a mic left recording or
   // speech still playing in the background after navigating away would
   // be a genuinely bad experience, not just a cosmetic issue.
-  if('speechSynthesis' in window)speechSynthesis.cancel();
+  if('speechSynthesis' in window)stopSpeaking();
   Object.keys(recorderInstances).forEach(id=>{
     const state=recorderInstances[id];
     if(state?.isRecording&&state.stream){
@@ -6798,26 +6799,68 @@ function spApplyVoice(utterance){
   utterance.rate=utterance.rate||0.97;
 }
 
+// ── Real neural text-to-speech, via ElevenLabs proxied through the
+// Edge Function's 'speak' action (keeps the API key server-side).
+// Falls back automatically to the browser's built-in voice if
+// ELEVENLABS_API_KEY isn't set yet, the request fails, or there's no
+// network — so nothing breaks while this is being configured, and
+// nothing breaks later if ElevenLabs has an outage either. ──
+let ttsAudioEl=null;
+function getTtsAudioEl(){
+  if(!ttsAudioEl)ttsAudioEl=document.getElementById('tts-audio-player');
+  return ttsAudioEl;
+}
+function stopSpeaking(){
+  const audio=getTtsAudioEl();
+  if(audio){ audio.pause(); audio.currentTime=0; }
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+}
+function isSpeaking(){
+  const audio=getTtsAudioEl();
+  return (audio&&!audio.paused&&!audio.ended) || (('speechSynthesis' in window)&&speechSynthesis.speaking);
+}
+async function synthesizeAndPlay(text,opts){
+  opts=opts||{};
+  stopSpeaking();
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({action:'speak',text})});
+    if(r.ok&&(r.headers.get('content-type')||'').includes('audio')){
+      const blob=await r.blob();
+      const audio=getTtsAudioEl();
+      audio.src=URL.createObjectURL(blob);
+      audio.onended=()=>{ if(opts.onEnd)opts.onEnd(); };
+      audio.onerror=()=>{ speakWithBrowserVoice(text,opts); };
+      await audio.play();
+      return;
+    }
+  }catch(e){/* network failure or non-audio error response — fall through to browser voice below */}
+  speakWithBrowserVoice(text,opts);
+}
+function speakWithBrowserVoice(text,opts){
+  opts=opts||{};
+  if(!('speechSynthesis' in window)){ if(opts.onError)opts.onError(); return; }
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=opts.rate||0.97;
+  spApplyVoice(utterance);
+  utterance.onend=()=>{ if(opts.onEnd)opts.onEnd(); };
+  utterance.onerror=()=>{ if(opts.onError)opts.onError(); };
+  speechSynthesis.speak(utterance);
+}
+
 function speakLessonText(elementId,buttonEl){
-  if(!('speechSynthesis' in window)){
-    alert('Your browser doesn\'t support text-to-speech — try a recent version of Chrome or Safari.');
-    return;
-  }
-  if(speechSynthesis.speaking){
-    speechSynthesis.cancel();
+  if(isSpeaking()){
+    stopSpeaking();
     resetSpeakButton(buttonEl);
     return;
   }
   const el=document.getElementById(elementId);
   if(!el)return;
   const text=stripHtmlForSpeech(el.innerHTML);
-  const utterance=new SpeechSynthesisUtterance(text);
-  utterance.rate=0.95;
-  spApplyVoice(utterance);
-  utterance.onend=()=>resetSpeakButton(buttonEl);
-  utterance.onerror=()=>resetSpeakButton(buttonEl);
   buttonEl.innerHTML='<i class="ti ti-player-pause"></i> Stop';
-  speechSynthesis.speak(utterance);
+  synthesizeAndPlay(text,{
+    onEnd:()=>resetSpeakButton(buttonEl),
+    onError:()=>resetSpeakButton(buttonEl),
+  });
 }
 function resetSpeakButton(buttonEl){
   if(buttonEl)buttonEl.innerHTML='<i class="ti ti-volume"></i> Listen to this example';
@@ -7054,7 +7097,7 @@ function viewSpHistoryDetail(i){
 }
 function closeSpeakingPartner(){
   stopSpeechInput();
-  if('speechSynthesis' in window)speechSynthesis.cancel();
+  stopSpeaking();
   showScreen('screen-dashboard');
 }
 function renderSpRoleplayGrid(){
@@ -7248,12 +7291,7 @@ async function sendSpeakingMessage(){
 }
 
 function speakText(text){
-  if(!('speechSynthesis' in window))return;
-  speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(text);
-  utterance.rate=0.97;
-  spApplyVoice(utterance);
-  speechSynthesis.speak(utterance);
+  synthesizeAndPlay(text,{});
 }
 
 // Speech-to-text via the browser's native SpeechRecognition — free, no
@@ -7328,7 +7366,7 @@ async function getSpeakingFeedback(){
 // are not logged or rewarded, to keep XP tied to genuine practice.
 async function endSpeakingSession(){
   stopSpeechInput();
-  if('speechSynthesis' in window)speechSynthesis.cancel();
+  stopSpeaking();
   const mc=spState.messageCount, mode=spState.mode, gotFeedback=spState.gotFeedback;
   const scenarioId=spState.scenarioId||null, testType=spState.testType||null;
   const transcript=spState.history||[];
