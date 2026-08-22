@@ -113,6 +113,8 @@
   .tp-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
   .uni-subtab{background:none;border:none;padding:9px 12px;font-size:14.5px;font-weight:700;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
   .uni-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
+  .sop-subtab{background:none;border:none;padding:9px 12px;font-size:14.5px;font-weight:700;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
+  .sop-subtab.active{color:var(--pine);border-bottom-color:var(--pine3)}
   .tp-info-card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
 
   /* Lesson detail page — genuine visual differentiation per section type,
@@ -408,6 +410,7 @@
       <div class="nav-tile" onclick="openSpeakingPartner()"><div class="icon">🗣️</div><div class="label">AI Speaking Partner</div></div>
       <div class="nav-tile" onclick="openVisaPrep()"><div class="icon">🛂</div><div class="label">Visa Assistance</div></div>
       <div class="nav-tile" onclick="openUniPrep()"><div class="icon">🎓</div><div class="label">University Interview Prep</div></div>
+      <div class="nav-tile" onclick="openSopReview()"><div class="icon">📝</div><div class="label">SOP / Essay Review</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
@@ -634,6 +637,11 @@
       <p style="margin-bottom:10px">Start a live AI mock admissions interview — personalized to your profile, with feedback on request.</p>
       <button class="btn" onclick="startSpeakingSession('university_interview')">Start Mock Interview</button>
     </div>
+    <div class="tp-info-card" style="margin-top:12px;text-align:center">
+      <h4>📝 Have your SOP or essay ready?</h4>
+      <p style="margin-bottom:10px">Get honest, specific feedback on your draft before you submit it.</p>
+      <button class="btn-outline btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="openSopReview()">Review My Essay</button>
+    </div>
   </div>
 
   <!-- My Profile — quick-fill form used to personalize AI mock interviews.
@@ -664,6 +672,42 @@
     <textarea id="profile-achievements" rows="3" placeholder="e.g. Led university coding club, published a research paper" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:16px;resize:vertical"></textarea>
     <button class="btn" onclick="saveMyProfile()">Save Profile</button>
     <div id="profile-save-status" style="font-size:13px;color:var(--sage);margin-top:8px"></div>
+  </div>
+
+  <!-- SOP / Essay Review — honest, structured AI feedback on a pasted
+       essay draft, using the saved profile for context. History is
+       saved so past feedback isn't lost when the student navigates
+       away or comes back to revise a later draft. -->
+  <div class="screen" id="screen-sop-review">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">📝 SOP / Essay Review</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Paste your draft for honest, specific feedback — not just encouragement.</p>
+
+    <div class="tp-subtabs" style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="sop-subtab active" data-sub="new" onclick="setSopSubtab('new')">New Review</button>
+      <button class="sop-subtab" data-sub="history" onclick="setSopSubtab('history')">History</button>
+    </div>
+
+    <div id="sop-new-view">
+      <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Essay type</label>
+      <select id="sop-essay-type" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px;background:#fff">
+        <option value="sop">Statement of Purpose</option>
+        <option value="personal_statement">Personal Statement</option>
+        <option value="scholarship_essay">Scholarship Essay</option>
+        <option value="other">Other</option>
+      </select>
+      <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Prompt/question (optional)</label>
+      <input id="sop-prompt-text" type="text" placeholder="e.g. Describe a challenge you've overcome" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:12px">
+      <label style="font-size:13px;font-weight:600;color:var(--ink2);display:block;margin-bottom:4px">Your essay</label>
+      <textarea id="sop-essay-text" rows="12" placeholder="Paste your full draft here…" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:8px;resize:vertical"></textarea>
+      <div id="sop-word-count" style="font-size:11.5px;color:var(--ink3);margin-bottom:14px"></div>
+      <button class="btn" onclick="submitSopReview()">Get Feedback</button>
+      <div id="sop-review-result" style="margin-top:16px"></div>
+    </div>
+
+    <div id="sop-history-view" style="display:none">
+      <div id="sop-history-list"></div>
+    </div>
   </div>
 
 </div>
@@ -5155,8 +5199,9 @@ async function loadMyProfile(force){
   if(!currentSession){ myProfileCache=null; return null; }
   try{
     const{data,error}=await sb.from('student_profiles').select('*').eq('student_id',currentSession.user.id).maybeSingle();
+    if(error)console.error('loadMyProfile error (likely migration 0011 not run yet):',error);
     myProfileCache=(!error&&data)?data:null;
-  }catch(e){ myProfileCache=null; }
+  }catch(e){ console.error('loadMyProfile exception:',e); myProfileCache=null; }
   return myProfileCache;
 }
 function profileIsFilled(p){
@@ -5212,14 +5257,25 @@ async function saveMyProfile(){
   status.textContent='Saving…';
   try{
     const{error}=await sb.from('student_profiles').upsert(payload);
-    if(error){ status.style.color='var(--rose)'; status.textContent="Couldn't save — please try again."; return; }
+    if(error){
+      status.style.color='var(--rose)';
+      // Surface the real reason rather than a generic message — a
+      // missing-table error here almost always means migration
+      // 0011_student_profiles_table.sql hasn't been run on this
+      // Supabase project yet, which is far more useful to know than
+      // just "please try again".
+      status.textContent="Couldn't save — "+(error.message||'please try again.');
+      console.error('saveMyProfile error:',error);
+      return;
+    }
     myProfileCache=payload;
     status.style.color='var(--sage)';
     status.textContent='✓ Saved';
     setTimeout(()=>{ closeMyProfile(); },600);
   }catch(e){
     status.style.color='var(--rose)';
-    status.textContent="Couldn't save — please try again.";
+    status.textContent="Couldn't save — "+(e?.message||'please try again.');
+    console.error('saveMyProfile exception:',e);
   }
 }
 // Turns the saved profile into a short natural-language paragraph the
@@ -5236,6 +5292,116 @@ function profileToPromptText(p){
   if(p.work_experience)text+=` Relevant experience: ${p.work_experience}.`;
   if(p.achievements)text+=` Notable achievements: ${p.achievements}.`;
   return text.trim()||null;
+}
+
+/* ============================================================
+   SOP / ESSAY REVIEW
+   ============================================================ */
+const SOP_TYPE_LABELS={sop:'Statement of Purpose',personal_statement:'Personal Statement',scholarship_essay:'Scholarship Essay',other:'Essay'};
+function openSopReview(){
+  if(!requireRealLogin())return;
+  showScreen('screen-sop-review');
+  setSopSubtab('new');
+  document.getElementById('sop-essay-text').oninput=()=>{
+    const words=document.getElementById('sop-essay-text').value.trim().split(/\s+/).filter(Boolean).length;
+    document.getElementById('sop-word-count').textContent=words?`${words} words`:'';
+  };
+}
+function setSopSubtab(sub){
+  document.querySelectorAll('.sop-subtab').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
+  document.getElementById('sop-new-view').style.display=sub==='new'?'block':'none';
+  document.getElementById('sop-history-view').style.display=sub==='history'?'block':'none';
+  if(sub==='history')loadSopHistory();
+}
+async function submitSopReview(){
+  const essayType=document.getElementById('sop-essay-type').value;
+  const promptText=document.getElementById('sop-prompt-text').value.trim();
+  const essayText=document.getElementById('sop-essay-text').value.trim();
+  const resultEl=document.getElementById('sop-review-result');
+  if(essayText.split(/\s+/).filter(Boolean).length<30){
+    resultEl.innerHTML='<div class="tp-info-card" style="background:var(--gold-l);border:1.5px solid #FFD4C4"><p style="color:#7A3418">Paste your full draft (at least a few sentences) so the feedback has enough to actually work with.</p></div>';
+    return;
+  }
+  resultEl.innerHTML='<div class="tp-info-card"><p>Reading your essay carefully — this takes a moment longer than a quick reply…</p></div>';
+  const p=await loadMyProfile();
+  const studentProfile=profileToPromptText(p);
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
+      action:'review_sop', essayType, promptText:promptText||null, essayText, studentProfile,
+    })});
+    const data=await r.json();
+    if(!r.ok||data.error||!data.feedback){
+      resultEl.innerHTML=`<div class="tp-info-card"><p>Couldn't generate feedback — ${esc(data.error||'please try again.')}</p></div>`;
+      return;
+    }
+    renderSopFeedback(resultEl,data.feedback);
+    try{
+      await sb.from('sop_reviews').insert({
+        student_id:currentSession.user.id, essay_type:essayType, prompt_text:promptText||null,
+        essay_text:essayText, feedback:data.feedback,
+      });
+    }catch(e){/* feedback is already shown either way — a failed save shouldn't hide it */}
+  }catch(e){
+    resultEl.innerHTML='<div class="tp-info-card"><p>Something went wrong generating feedback. Please try again.</p></div>';
+  }
+}
+function renderSopFeedback(el,f){
+  el.innerHTML=`
+    <div class="tp-info-card">
+      <h4>💬 Overall Impression</h4>
+      <p>${esc(f.overallImpression||'')}</p>
+    </div>
+    <div class="tp-info-card">
+      <h4>✅ Strengths</h4>
+      <ul style="margin:4px 0 0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(f.strengths||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    </div>
+    <div class="tp-info-card">
+      <h4>⚠️ Weaknesses</h4>
+      <ul style="margin:4px 0 0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(f.weaknesses||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    </div>
+    <div class="tp-info-card">
+      <h4>🎯 Specific Suggestions</h4>
+      <ul style="margin:4px 0 0;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.7">${(f.specificSuggestions||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    </div>
+    ${(f.redFlags&&f.redFlags.length)?`<div class="tp-info-card" style="background:var(--rose-l);border:1.5px solid #F5B8B8"><h4 style="color:#8A2020">🚩 Red Flags</h4><ul style="margin:4px 0 0;padding-left:20px;font-size:13.5px;color:#8A2020;line-height:1.7">${f.redFlags.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+  `;
+}
+async function loadSopHistory(){
+  const el=document.getElementById('sop-history-list');
+  el.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const{data,error}=await sb.from('sop_reviews').select('*').eq('student_id',currentSession.user.id).order('created_at',{ascending:false}).limit(20);
+    if(error||!data||!data.length){
+      el.innerHTML='<div class="tp-info-card"><p>No reviews yet — submit your first draft under "New Review".</p></div>';
+      return;
+    }
+    el.innerHTML=data.map((rev,i)=>`
+      <div class="tp-info-card" style="cursor:pointer" onclick="toggleSopHistoryItem(${i})">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h4 style="margin:0">${esc(SOP_TYPE_LABELS[rev.essay_type]||'Essay')}</h4>
+            <p style="font-size:11px;color:var(--ink3);margin-top:2px">${new Date(rev.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} · ${rev.essay_text.split(/\s+/).filter(Boolean).length} words</p>
+          </div>
+          <i class="ti ti-chevron-down" id="sop-hist-chevron-${i}"></i>
+        </div>
+        <div id="sop-hist-body-${i}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"></div>
+      </div>
+    `).join('');
+    window._sopHistoryCache=data;
+  }catch(e){
+    el.innerHTML='<div class="tp-info-card"><p>Couldn\'t load your review history right now.</p></div>';
+  }
+}
+function toggleSopHistoryItem(i){
+  const body=document.getElementById('sop-hist-body-'+i);
+  const chevron=document.getElementById('sop-hist-chevron-'+i);
+  const isOpen=body.style.display==='block';
+  body.style.display=isOpen?'none':'block';
+  chevron.style.transform=isOpen?'':'rotate(180deg)';
+  if(!isOpen&&!body.dataset.rendered){
+    renderSopFeedback(body,window._sopHistoryCache[i].feedback);
+    body.dataset.rendered='1';
+  }
 }
 
 /* ============================================================
