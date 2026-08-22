@@ -411,6 +411,7 @@
       <div class="nav-tile" onclick="openVisaPrep()"><div class="icon">🛂</div><div class="label">Visa Assistance</div></div>
       <div class="nav-tile" onclick="openUniPrep()"><div class="icon">🎓</div><div class="label">University Interview Prep</div></div>
       <div class="nav-tile" onclick="openSopReview()"><div class="icon">📝</div><div class="label">SOP / Essay Review</div></div>
+      <div class="nav-tile" onclick="openParentView()"><div class="icon">👨‍👩‍👧</div><div class="label">Parent View</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
@@ -526,6 +527,11 @@
         <div><h4>Test Speaking Practice</h4><p>IELTS, PTE, TOEFL, or Duolingo-style prompts with an AI examiner, plus feedback on request.</p></div>
         <div class="sp-mode-arrow">›</div>
       </div>
+      <div class="sp-mode-card" style="--sp-grad1:#8B5CF6;--sp-grad2:#C4B5FD" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-grammar-select').style.display='block'">
+        <div class="sp-mode-icon">📘</div>
+        <div><h4>Grammar Practice</h4><p>Talk your way through a grammar topic — the AI deliberately draws it out and corrects every slip.</p></div>
+        <div class="sp-mode-arrow">›</div>
+      </div>
     </div>
 
     <div id="sp-roleplay-select" style="display:none">
@@ -538,6 +544,13 @@
       <span class="back-link" onclick="document.getElementById('sp-testprep-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
       <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a test</h2>
       <div id="sp-testprep-grid"></div>
+    </div>
+
+    <div id="sp-grammar-select" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-grammar-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
+      <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a grammar topic</h2>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Correction is set to Strict automatically for this mode, since the point is catching every slip — you can still switch it back to Gentle once the conversation starts.</p>
+      <div id="sp-grammar-grid"></div>
     </div>
 
     <div id="sp-chat-view" style="display:none">
@@ -710,6 +723,20 @@
     </div>
   </div>
 
+  <!-- PARENT VIEW — read-only progress report, same login as the
+       student (no separate account/invite system). Aggregates data
+       already collected elsewhere in the app into one clean summary a
+       parent can check without needing to understand the app itself.
+       Interactive features (messaging a counsellor, fee payment) are
+       intentionally not built yet — flagged as "coming soon" so the
+       door is visibly open without pretending they exist. -->
+  <div class="screen" id="screen-parent-view">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">👨‍👩‍👧 Parent View</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">A quick read-only summary — no separate login needed, just share this screen.</p>
+    <div id="parent-view-content"><div class="empty">Loading…</div></div>
+  </div>
+
 </div>
 
 <script>
@@ -861,6 +888,87 @@ async function openStatus(){
   }catch(err){
     el.innerHTML='<div class="empty">Could not load your status right now. Please try again shortly.</div>';
   }
+}
+
+/* ============================================================
+   PARENT VIEW — read-only, same login as the student. Aggregates
+   application status, test-prep progress, streak/XP, and recent mock
+   scores into one clean summary, without needing to understand or
+   navigate the rest of the app.
+   ============================================================ */
+async function openParentView(){
+  if(!requireRealLogin())return;
+  showScreen('screen-parent-view');
+  const el=document.getElementById('parent-view-content');
+  el.innerHTML='<div class="empty">Loading…</div>';
+
+  const [statusRes, progressRes, studentRes, sessionsData, mockRes] = await Promise.allSettled([
+    fetch(GET_STATUS_URL,{headers:{Authorization:'Bearer '+currentSession.access_token}}).then(r=>r.json()),
+    sb.from('student_test_progress').select('test_type,module_key').eq('student_id',currentSession.user.id),
+    sb.from('students').select('current_streak,longest_streak,total_xp').eq('id',currentSession.user.id).single(),
+    loadSpSessions(),
+    sb.from('mock_attempts').select('test_type,template_key,score_correct,score_total,tier,created_at').eq('student_id',currentSession.user.id).order('created_at',{ascending:false}).limit(5),
+  ]);
+
+  // Application status
+  const statusData=(statusRes.status==='fulfilled')?statusRes.value:null;
+  const statusHtml=(statusData&&statusData.found)
+    ? `<div class="status-hero"><div class="eyebrow">Application for</div><h2>${esc(statusData.program||'Programme')}${statusData.destination?' → '+esc(statusData.destination):''}</h2><span class="status-pill">${esc(statusData.status||'In Progress')}</span></div>`
+    : `<div class="tp-info-card"><p>No application on file yet — this appears automatically once your Step4Progress counsellor has one set up.</p></div>`;
+
+  // Test prep progress, all tracks
+  const progressRows=(progressRes.status==='fulfilled'&&progressRes.value.data)?progressRes.value.data:[];
+  const doneByTest={};
+  progressRows.forEach(r=>{ if(!doneByTest[r.test_type])doneByTest[r.test_type]=new Set(); doneByTest[r.test_type].add(r.module_key); });
+  const progressHtml=Object.keys(TEST_DATA).map(tk=>{
+    const t=TEST_DATA[tk];
+    const gsIds=(t.gettingStarted||[]).map(l=>l.id);
+    const levelIds=(t.levels||[]).flatMap(lvl=>Object.values(lvl.skills).flat().map(l=>l.id));
+    const total=gsIds.length+levelIds.length;
+    if(!total)return '';
+    const done=(doneByTest[tk]||new Set()).size;
+    const pct=Math.round((done/total)*100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><b>${esc(t.name)}</b><span style="color:var(--ink3)">${pct}%</span></div>
+      <div class="tp-progress-track"><div class="tp-progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  // Streak/XP
+  const student=(studentRes.status==='fulfilled'&&studentRes.value.data)?studentRes.value.data:null;
+  const speakingSessions=(sessionsData.status==='fulfilled')?sessionsData.value:[];
+  const badgesEarned=computeSpBadges(speakingSessions||[]).filter(b=>b.earned).length;
+
+  // Recent mock scores
+  const mocks=(mockRes.status==='fulfilled'&&mockRes.value.data)?mockRes.value.data:[];
+  const mocksHtml=mocks.length
+    ? mocks.map(m=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px">
+        <span>${esc(m.test_type)} — ${esc((m.template_key||'').replace(/-/g,' '))}${m.tier&&m.tier!=='practice'?' <span style="color:var(--gold);font-weight:600">('+esc(m.tier.replace('_',' '))+')</span>':''}</span>
+        <span style="font-weight:700;color:var(--pine)">${m.score_correct}/${m.score_total}</span>
+      </div>`).join('')
+    : '<p style="font-size:13px;color:var(--ink3)">No mock tests taken yet.</p>';
+
+  el.innerHTML=`
+    <h4 style="font-size:14px;color:var(--pine);margin-bottom:8px">📋 Application Status</h4>
+    ${statusHtml}
+
+    <h4 style="font-size:14px;color:var(--pine);margin:18px 0 8px">📚 Test Prep Progress</h4>
+    <div class="tp-info-card">${progressHtml||'<p style="font-size:13px;color:var(--ink3)">No lessons started yet.</p>'}</div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin:18px 0 8px">🔥 Activity</h4>
+    <div class="sp-stats-strip" style="margin-bottom:16px">
+      <div class="sp-stat-chip"><b>${student?.current_streak||0}</b><span>Day Streak</span></div>
+      <div class="sp-stat-chip"><b>${student?.total_xp||0}</b><span>Total XP</span></div>
+      <div class="sp-stat-chip"><b>${badgesEarned}</b><span>Badges</span></div>
+    </div>
+
+    <h4 style="font-size:14px;color:var(--pine);margin-bottom:8px">🎯 Recent Mock Test Scores</h4>
+    <div class="tp-info-card">${mocksHtml}</div>
+
+    <div class="tp-info-card" style="background:var(--cream);border-style:dashed;margin-top:16px;text-align:center">
+      <p style="font-size:12.5px;color:var(--ink3);margin:0">💬 Messaging your counsellor directly and fee payment from this view are coming soon.</p>
+    </div>
+  `;
 }
 
 /* ============================================================
@@ -2878,6 +2986,51 @@ id: 'pf-r4', title: 'Building Foundational Reading Speed and Skimming Habits', t
             {q:'Should the summary include every detail mentioned?', a:'No — it should capture the main idea and key supporting points, not every minor detail.'},
           ],
         },
+        {
+id: 'pf-l2', title: 'Multiple Choice, Single Answer — Listening', time: '15-20 minutes',
+  objectives: ['Understand the format of Multiple Choice, Single Answer for Listening', 'Learn to listen for the specific detail the question actually asks about', 'Practise selecting exactly one correct answer from audio content'],
+  concept: 'Multiple Choice, Single Answer for Listening plays a short audio clip, then asks a question with several options, exactly ONE of which is correct. Since the audio plays only once (or a limited number of times), listening with the question type already in mind — expecting to identify one specific correct detail — is more effective than listening passively and hoping the answer becomes obvious afterward.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio describes a company\'s quarterly results, mentioning revenue, costs, and profit figures. If the question asks specifically about PROFIT, focus needs to be on that one figure — not trying to memorise every number mentioned, which is unnecessary and can cause the actually relevant detail to be missed.',
+  vocab: [['single answer (recap)','exactly one correct option, unlike multi-select questions'],['active listening','listening with a specific goal or expectation in mind, rather than passively'],['audio playback limit','the restriction on how many times audio can be played, unlike text which can be re-read'],['specific detail focus','concentrating on the one piece of information a question is actually asking about'],['passive listening (contrast)','listening without a specific goal, hoping relevant information will stand out afterward']],
+  mistakes: ['Listening passively without a specific focus, then struggling to recall the relevant detail afterward.', 'Trying to memorise every detail in the audio instead of focusing on what the question likely asks.', 'Missing the one correct answer while overthinking plausible-sounding distractors.', 'Not using the brief time before playback (if given) to anticipate what kind of detail matters.'],
+  practice: 'Why might listening with an anticipated focus be more effective than listening passively for this task type?',
+  practiceAnswer: 'Because audio typically cannot be replayed freely, listening with a specific expectation in mind (once the question type is known) helps catch the one relevant detail as it happens, rather than trying to recall everything afterward.',
+  quiz: [
+    {q:'How many correct answers does Multiple Choice, Single Answer (Listening) have?', a:'Exactly one.'},
+    {q:'Why is active, focused listening more effective here than passive listening?', a:'Audio typically cannot be freely replayed, so listening with a specific expectation helps catch the relevant detail as it happens.'},
+    {q:'What is a risk of trying to memorise every detail in the audio?', a:'It can cause the actually relevant, question-specific detail to be missed among excessive unnecessary detail.'},
+  ],
+        },
+        {
+id: 'pf-l3', title: 'Select Missing Word — Predicting Sentence Endings', time: '15-20 minutes',
+  objectives: ['Understand the format of Select Missing Word', 'Learn to use context and grammar to predict a logical ending', 'Practise choosing the option that best completes the audio\'s meaning'],
+  concept: 'Select Missing Word plays an audio clip that cuts off before its final word or short phrase (often replaced by a beep), and several options are given for what that missing ending could be. Success depends on tracking the sentence\'s meaning and grammar right up to the cutoff point, then judging which option would logically and grammatically complete it.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio: "Despite the setbacks, the team remained confident they would eventually..." [beep]. A logical completion continues the sentence\'s meaning and grammar — something like "succeed" or "achieve their goal" — while an option like "give up entirely" would contradict the established tone of confidence, making it an unlikely fit despite being grammatically possible.',
+  vocab: [['missing word/phrase','the cut-off ending of an audio clip that must be identified from given options'],['logical completion','an ending that fits both the grammar and the established meaning of the sentence'],['established tone','the overall attitude or direction a sentence has built up to before being cut off'],['grammatical fit (recap)','whether an option correctly matches the sentence\'s grammatical structure'],['contradiction (in completion)','an option that conflicts with the meaning already established, even if grammatically possible']],
+  mistakes: ['Choosing an option that fits grammatically but contradicts the sentence\'s established meaning or tone.', 'Losing focus right before the cutoff point, missing crucial context needed to predict the ending.', 'Not considering the sentence\'s overall direction, only its most recent few words.', 'Selecting an option based on general plausibility rather than genuine fit with this specific sentence.'],
+  practice: 'Audio: "The research team spent years studying the phenomenon, and their findings finally..." [beep]. Which fits better: "confirmed their original theory" or "were completely irrelevant"?',
+  practiceAnswer: '"Confirmed their original theory" fits better — the sentence\'s buildup (years of study, "finally") establishes an expectation of a meaningful outcome, which "were completely irrelevant" would contradict.',
+  quiz: [
+    {q:'What does Select Missing Word require, beyond grammatical knowledge?', a:'Tracking the sentence\'s established meaning and tone, to judge which option logically fits, not just grammatically.'},
+    {q:'Why might a grammatically correct option still be the wrong answer?', a:'It can contradict the meaning or tone already established by the rest of the sentence.'},
+    {q:'When is it most important to focus closely on the audio?', a:'Right up to the cutoff point, since that context is needed to predict a logical ending.'},
+  ],
+        },
+        {
+id: 'pf-l4', title: 'Building Basic Listening Stamina and Focus', time: '15-20 minutes',
+  objectives: ['Understand why sustained listening focus is a trainable skill', 'Learn a simple habit for building listening stamina over time', 'Practise recognising early signs of losing focus during audio'],
+  concept: 'A full PTE Listening section involves sustained focus across many different audio clips in a row — genuinely trainable stamina, not just raw listening skill. A common pattern for beginners is strong focus on the first few clips, followed by a noticeable drop in concentration partway through. Regularly practising with LONGER stretches of listening (not just short clips) builds the stamina needed to maintain focus for a full section.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A student who only ever practises with short, 30-second audio clips may find their focus genuinely wavers by the 10th question in a real test, since they never trained for sustained focus across many consecutive clips — much like someone who only trains short sprints struggling with a longer run.',
+  vocab: [['listening stamina','the ability to maintain focused attention across many consecutive audio clips or a longer duration'],['sustained focus (recap)','concentration maintained continuously, without significant lapses'],['concentration drop-off','a noticeable decline in focus partway through an extended listening task'],['trainable skill (recap)','an ability that genuinely improves through deliberate, repeated practice'],['practice duration','the length of audio used during practice sessions, which should build toward realistic test length']],
+  mistakes: ['Only practising with short audio clips, never training for a full section\'s sustained length.', 'Not noticing early signs of focus dropping off, allowing it to worsen further into a section.', 'Assuming listening stamina is fixed rather than something that improves with deliberate practice.', 'Practising only when fully alert and rested, never under any realistic time or fatigue pressure.'],
+  practice: 'Why might practising with only short audio clips fail to prepare a student for the actual demands of a full listening section?',
+  practiceAnswer: 'A full section requires SUSTAINED focus across many consecutive clips — practising only short clips never trains this stamina, so concentration may genuinely drop off partway through the real, longer section, even if performance on any single short clip in isolation is strong.',
+  quiz: [
+    {q:'Is listening stamina a fixed trait, or a trainable skill?', a:'A genuinely trainable skill, built through deliberate, sustained practice.'},
+    {q:'What is a common concentration pattern for beginners across a full listening section?', a:'Strong focus on the first few clips, followed by a noticeable drop-off in concentration partway through.'},
+    {q:'What kind of practice helps build listening stamina specifically?', a:'Practising with longer stretches of sustained listening, not just short isolated clips.'},
+  ],
+        },
       ]} },
       { key:'developing', name:'Developing', band:'Score 43-57', skills:{'Speaking & Writing':[
         {
@@ -3016,6 +3169,51 @@ id: 'pd-r4', title: 'Recognising Common Collocation Patterns in Reading Passages
             {q:'What is the recommended technique — writing during listening, or waiting until the audio ends?', a:'Writing fragments down in real time while listening, not waiting until the end.'},
             {q:'Do small errors in spelling or capitalisation actually affect the score?', a:'Yes — this task is scored on exact accuracy, including spelling and punctuation.'},
           ],
+        },
+        {
+id: 'pd-l2', title: 'Fill in the Blanks — Listening', time: '15-20 minutes',
+  objectives: ['Understand how this task differs from the Reading-based Fill in the Blanks tasks', 'Learn to type the exact word heard, including correct spelling', 'Practise following a transcript-style passage while listening'],
+  concept: 'Fill in the Blanks (Listening) presents a written passage with blanks WHILE the corresponding audio plays, and each blank must be filled with the exact word heard — testing accurate listening AND correct spelling together, similar in spirit to Write From Dictation but embedded within a longer passage rather than a single sentence.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Written passage: "The committee _____ to postpone the decision until further review." Audio says "agreed" — the blank must be filled with "agreed," spelled correctly, based on what is actually heard, not a synonym like "decided" even if it fits the sentence\'s general meaning.',
+  vocab: [['transcript-style passage','a written text with blanks, read alongside matching audio'],['exact word requirement','the need to type precisely what was heard, not just a synonym with similar meaning'],['combined skill demand','testing both listening accuracy and spelling together, as one integrated task'],['following along','tracking a written passage in real time as its matching audio plays'],['synonym trap','choosing a similar-meaning word instead of the exact word actually heard']],
+  mistakes: ['Writing a synonym instead of the exact word actually heard.', 'Misspelling the correct word despite hearing and understanding it correctly.', 'Losing track of which blank corresponds to the current point in the audio.', 'Focusing only on the blanks and losing overall comprehension of the surrounding passage.'],
+  practice: 'Passage: "Researchers _____ the results before publishing them." If the audio says "verified," why would "checked" be an incorrect answer, even though it has a similar meaning?',
+  practiceAnswer: '"Checked" would be incorrect because the task requires the EXACT word actually heard ("verified"), not merely a word with a similar general meaning — the specific wording, not just the concept, is what is being scored.',
+  quiz: [
+    {q:'What must each blank in this task be filled with?', a:'The exact word heard in the audio, correctly spelled — not a synonym.'},
+    {q:'What two skills does this task combine?', a:'Accurate listening and correct spelling, tested together as one integrated task.'},
+    {q:'Why would writing a synonym of the correct word still be marked wrong?', a:'The task specifically requires the exact word actually heard, not just a word conveying a similar meaning.'},
+  ],
+        },
+        {
+id: 'pd-l3', title: 'Highlight Correct Summary — Selecting the Best Match', time: '15-20 minutes',
+  objectives: ['Understand the format of Highlight Correct Summary', 'Learn to identify which summary genuinely matches the audio\'s content', 'Practise spotting summaries that are close but subtly inaccurate'],
+  concept: 'Highlight Correct Summary plays an audio clip, then presents several written summary paragraphs, only ONE of which accurately reflects the audio\'s actual content. The incorrect options are often deliberately close — capturing the general topic correctly but misrepresenting a specific detail, tone, or conclusion — making careful comparison against the actual audio content essential.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio genuinely concludes a policy had "mixed results, with some clear benefits but also notable drawbacks." A tempting but incorrect summary option might state the policy was "highly successful" — capturing the general topic but misrepresenting the audio\'s actual, more nuanced conclusion.',
+  vocab: [['deliberately close option','a wrong answer designed to seem plausible by capturing the general topic while misrepresenting a specific detail'],['nuanced conclusion','a more complex, qualified outcome, rather than a simple positive or negative one'],['general topic match','when a summary correctly identifies the subject but not the audio\'s actual specific content or conclusion'],['careful comparison','directly checking a summary option against the actual, specific audio content, not just its general topic'],['misrepresentation','when a summary inaccurately conveys the audio\'s actual meaning or conclusion']],
+  mistakes: ['Selecting a summary based on general topic match alone, without checking its specific accuracy.', 'Missing a subtle misrepresentation of the audio\'s actual tone or conclusion.', 'Not comparing multiple summary options carefully enough against each other.', 'Being drawn to a summary that sounds more confident or definitive than the audio\'s actual, more nuanced content.'],
+  practice: 'Audio describes a product launch as having "a promising start, though it is too early to call it a success." Why would a summary calling it "a proven success" be incorrect?',
+  practiceAnswer: 'It misrepresents the audio\'s actual, more cautious conclusion ("too early to call it a success") by overstating certainty — this is exactly the kind of deliberately close but inaccurate option this task type tests for.',
+  quiz: [
+    {q:'How many summary options in Highlight Correct Summary are actually accurate?', a:'Only one.'},
+    {q:'What often makes the incorrect options deliberately tricky?', a:'They capture the general topic correctly but misrepresent a specific detail, tone, or conclusion.'},
+    {q:'What should be checked, beyond a summary\'s general topic match?', a:'Its specific accuracy against the audio\'s actual content, tone, and conclusion.'},
+  ],
+        },
+        {
+id: 'pd-l4', title: 'Avoiding Common Dictation Spelling Errors', time: '15-20 minutes',
+  objectives: ['Learn common spelling error patterns that occur under Write From Dictation\'s time pressure', 'Understand why familiar words can still be misspelled when rushed', 'Practise a quick self-check habit specifically for spelling'],
+  concept: 'Even words a student knows well can be misspelled under Write From Dictation\'s time pressure — common patterns include double letters being dropped (e.g. "occured" instead of "occurred"), homophone confusion (e.g. "there" versus "their"), and simple letter-order slips from typing quickly. A brief, targeted spelling check — even just re-reading the typed sentence once before moving on — catches many of these easily preventable errors.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A student who knows "recommend" perfectly well might type "recomend" under time pressure, dropping a letter purely from typing speed, not genuine unfamiliarity with the word. A quick re-read before moving to the next sentence catches this kind of slip that a first, rushed pass missed.',
+  vocab: [['dictation spelling error','a spelling mistake specifically caused by typing quickly under dictation time pressure'],['double letter drop','omitting one of a pair of repeated letters in a word, a common fast-typing error'],['homophone confusion','mixing up words that sound identical but are spelled differently and mean different things'],['letter-order slip','accidentally typing letters in the wrong order due to typing speed, not lack of knowledge'],['targeted spelling check','a quick review specifically focused on spelling accuracy, not full re-comprehension']],
+  mistakes: ['Assuming a spelling error reflects not knowing a word, when it may simply be a rushed typing slip.', 'Not building in even a brief spelling check before moving to the next sentence.', 'Confusing common homophones under time pressure.', 'Dropping a letter from a double-letter word due to fast typing.'],
+  practice: 'What is a quick habit that could catch a rushed typing slip like "occured" instead of "occurred," without costing significant extra time?',
+  practiceAnswer: 'A brief re-read of the typed sentence immediately after typing it, before moving to the next one — this quick check specifically targets exactly this kind of easily-missed, easily-fixed typing slip.',
+  quiz: [
+    {q:'Does a spelling error always mean a word is genuinely unfamiliar?', a:'No — it can simply be a rushed typing slip under time pressure, even for a well-known word.'},
+    {q:'What is a "double letter drop"?', a:'Omitting one of a pair of repeated letters in a word, a common fast-typing error.'},
+    {q:'What simple habit helps catch these kinds of errors?', a:'A brief, targeted re-read of the typed sentence immediately after typing it.'},
+  ],
         },
       ]} },
       { key:'intermediate', name:'Intermediate', band:'Score 58-72', skills:{'Speaking & Writing':[
@@ -3156,6 +3354,51 @@ id: 'pi-r4', title: 'Managing Time Across Multiple Reading Passages', time: '15-
             {q:'What should you do if you miss catching one mismatch?', a:'Keep tracking forward rather than losing your place trying to go back — later mismatches still need to be caught.'},
           ],
         },
+        {
+id: 'pi-l2', title: 'Multiple Choice, Multiple Answers — Listening', time: '15-20 minutes',
+  objectives: ['Understand how negative marking applies to this Listening task type', 'Learn to apply disciplined, confidence-based selection while listening', 'Practise identifying multiple correct details from a single audio clip'],
+  concept: 'Multiple Choice, Multiple Answers for Listening carries the same negative-marking structure as its Reading counterpart — more than one option can be correct, but incorrect selections actively subtract points. Since the audio typically plays only once, this adds real difficulty: options must be judged for genuine confidence in real time, without the ability to re-read and reconsider the way a reading passage allows.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio describes three benefits of a new policy, but only two are explicitly and clearly stated; a third option sounds plausible but was never actually mentioned. Selecting all three "to be safe" risks a lower net score than confidently selecting only the two genuinely, clearly heard.',
+  vocab: [['negative marking (recap)','a scoring system where incorrect selections actively subtract points'],['real-time judgment','evaluating options for confidence as audio plays, without the ability to re-read'],['one-time audio (recap)','the constraint that audio typically cannot be freely replayed, unlike written text'],['disciplined selection (recap)','choosing options based on genuine confidence, not broad guessing'],['plausible but unheard option','a choice that sounds believable but was not actually stated in the audio']],
+  mistakes: ['Selecting an option that sounds plausible but was not actually confirmed by the audio.', 'Applying the same broad-guessing approach used for tasks without negative marking.', 'Losing track of which details were genuinely confirmed versus merely plausible, since audio cannot be re-checked.', 'Not adjusting strategy for the added real-time difficulty compared to the Reading version of this task type.'],
+  practice: 'Why does Multiple Choice, Multiple Answers (Listening) carry extra difficulty compared to the same task type for Reading?',
+  practiceAnswer: 'Because audio typically plays only once, options must be judged for genuine confidence in real time as they are heard, without the ability to re-read and reconsider the way a reading passage allows.',
+  quiz: [
+    {q:'Does this Listening task type use the same negative-marking structure as its Reading counterpart?', a:'Yes — incorrect selections actively subtract points, just as in the Reading version.'},
+    {q:'What makes this task type harder for Listening than for Reading?', a:'Audio typically cannot be freely replayed, so real-time confidence judgments are required rather than careful re-reading.'},
+    {q:'What is the risk of selecting a plausible-sounding but unconfirmed option?', a:'It risks lowering the net score, given the negative-marking structure applies here just as in the Reading version.'},
+  ],
+        },
+        {
+id: 'pi-l3', title: 'Distinguishing Similar-Sounding Words in Highlight Incorrect Words', time: '15-20 minutes',
+  objectives: ['Understand why similar-sounding word pairs are a common source of error in this task', 'Learn to recognise common similar-sounding word confusions', 'Practise catching subtle mismatches between text and audio'],
+  concept: 'In Highlight Incorrect Words, some of the trickiest mismatches involve similar-sounding word pairs — where the transcript shows one word, but the audio actually says a similar-sounding one (e.g., "affect" versus "effect," "quiet" versus "quite"). These are easy to miss because the general sound is so close that careless listening can register them as matching, when they are actually genuine mismatches.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Transcript shows "the results were quite significant," but the audio actually says "quiet significant" — a subtle mismatch that could easily be missed without close attention, since the words sound extremely similar despite meaning something completely different.',
+  vocab: [['similar-sounding word pair','two words that sound alike but differ in spelling and meaning'],['subtle mismatch','a difference between transcript and audio that is easy to miss due to close sound similarity'],['careless listening (contrast)','listening without close enough attention to catch subtle sound differences'],['close attention (recap)','focused, careful listening specifically aimed at catching small discrepancies'],['genuine mismatch','an actual difference between what the transcript shows and what the audio says, not just a false alarm']],
+  mistakes: ['Registering a similar-sounding word as matching without checking closely enough.', 'Not building active familiarity with commonly confused similar-sounding word pairs.', 'Losing focus during less obviously important parts of the transcript, where a subtle error might be hiding.', 'Assuming an error must sound obviously different, missing genuinely close, subtle mismatches.'],
+  practice: 'What makes similar-sounding word pairs like "affect" and "effect" particularly tricky for this task type?',
+  practiceAnswer: 'Because they sound extremely close, careless or less-than-fully-attentive listening can cause the actual mismatch between transcript and audio to be missed, even though the words have genuinely different spellings and meanings.',
+  quiz: [
+    {q:'What is a "similar-sounding word pair"?', a:'Two words that sound alike but differ in spelling and meaning, like "affect" and "effect."'},
+    {q:'Why are these pairs a common source of error in this task?', a:'Their close sound similarity makes it easy to register them as matching without close enough attention.'},
+    {q:'What helps catch these subtle mismatches?', a:'Close, focused attention throughout the passage, rather than assuming errors will always sound obviously different.'},
+  ],
+        },
+        {
+id: 'pi-l4', title: 'Managing Focus Across a Longer Listening Passage', time: '15-20 minutes',
+  objectives: ['Understand why longer passages present a distinct focus challenge', 'Learn to recognise early signs of attention drifting mid-passage', 'Practise a simple technique for re-engaging focus if it starts to slip'],
+  concept: 'Longer listening passages at this level present a genuine focus challenge distinct from shorter clips — sustained attention across several minutes of continuous audio is harder to maintain than short bursts, and a brief lapse partway through can mean missing content relevant to later questions. Recognising early signs of drifting focus (mind wandering, needing to consciously pull attention back) and having a simple re-engagement habit helps limit the damage of an inevitable occasional lapse.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A student notices, partway through a longer passage, that they cannot recall the last 15 seconds of content — rather than panicking or giving up on that section, consciously re-focusing immediately and continuing to track the remaining content limits the damage to just that one missed section, rather than losing the rest of the passage too.',
+  vocab: [['sustained attention (recap)','concentration maintained continuously across an extended period'],['attention drift','the natural tendency for focus to wander during longer periods of concentration'],['re-engagement habit','a conscious technique for pulling attention back once a lapse is noticed'],['limiting the damage','containing a focus lapse to the smallest possible section, rather than losing track entirely'],['early recognition (of drift)','noticing attention beginning to wander before it fully derails comprehension']],
+  mistakes: ['Not noticing attention has drifted until a significant amount of content has already been missed.', 'Giving up on tracking the rest of a passage after noticing one lapse, rather than re-engaging.', 'Assuming perfect, unbroken focus is realistic for a genuinely long passage.', 'Panicking after a lapse, which can cause further attention loss rather than recovery.'],
+  practice: 'Why is consciously re-engaging focus immediately after noticing a lapse better than continuing to feel distracted or giving up on the rest of the passage?',
+  practiceAnswer: 'Because it limits the damage to just the section actually missed, rather than allowing the lapse to cascade into losing track of the rest of the passage — occasional lapses are normal in longer passages, and what matters most is how quickly focus is recovered.',
+  quiz: [
+    {q:'Why do longer listening passages present a distinct focus challenge?', a:'Sustained attention across several minutes of continuous audio is genuinely harder to maintain than short bursts.'},
+    {q:'What should be done immediately after noticing a lapse in focus?', a:'Consciously re-engage and continue tracking the remaining content, rather than giving up or panicking.'},
+    {q:'Is perfect, unbroken focus realistic for a genuinely long passage?', a:'Not necessarily — occasional lapses are normal; what matters most is limiting the damage through quick re-engagement.'},
+  ],
+        },
       ]} },
       { key:'advanced', name:'Advanced', band:'Score 73-90', skills:{'Speaking & Writing':[
         {
@@ -3294,6 +3537,51 @@ id: 'pa-r4', title: 'Reading Dense Academic Passages Efficiently Under Time Pres
             {q:'Should false starts and hesitations be processed as separate pieces of information?', a:'No — they are natural speech patterns; the goal is to identify the speaker\'s actual underlying point.'},
             {q:'Is only practising with slow, clearly-enunciated audio sufficient preparation for this level?', a:'No — genuine practice with natural, unscripted-sounding speech patterns is needed too.'},
           ],
+        },
+        {
+id: 'pa-l2', title: 'Capturing Natural Speech Features — Hesitations and False Starts', time: '20-25 minutes',
+  objectives: ['Understand why natural, unscripted audio includes genuine speech disfluencies', 'Learn to filter out hesitations and false starts while still capturing core meaning', 'Practise distinguishing genuine content from natural speech filler'],
+  concept: 'Genuinely natural, unscripted-sounding audio at advanced level includes real speech features — hesitations, false starts, self-corrections ("the result was— actually, let me rephrase that—") — that scripted, clearly-read audio does not have. A skilled listener filters these disfluencies out while still capturing the speaker\'s actual core meaning, rather than being confused by the messiness or mistakenly treating a false start as genuine content.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>Audio: "The findings suggest— well, I should say, the PRELIMINARY findings suggest a possible connection." A listener should recognise the self-correction and focus on the speaker\'s actual, refined final point ("preliminary findings suggest a possible connection"), rather than getting confused by the initial false start or treating both versions as equally valid content.',
+  vocab: [['speech disfluency','a natural interruption in speech flow, like a hesitation, false start, or self-correction'],['false start','beginning to say something, then stopping and rephrasing'],['self-correction (recap)','a speaker revising their own statement mid-sentence for greater accuracy'],['filtering (in listening)','mentally setting aside natural speech disfluencies while still tracking core meaning'],['refined final point','a speaker\'s actual, corrected meaning after a self-correction, as opposed to their initial false start']],
+  mistakes: ['Being confused by natural hesitations or false starts, rather than filtering them out.', 'Treating an initial false start as equally valid content alongside the speaker\'s actual corrected point.', 'Assuming all audio will be as clean and scripted-sounding as earlier, simpler practice materials.', 'Losing track of the speaker\'s actual meaning while processing a self-correction in real time.'],
+  practice: 'Audio: "The policy was, um, actually it wasn\'t entirely successful, more like partially successful." What is the speaker\'s actual final point?',
+  practiceAnswer: 'The policy was "partially successful" — this is the speaker\'s refined, corrected final point, after the hesitation ("um") and initial false start ("wasn\'t entirely successful") are filtered out as natural speech disfluencies.',
+  quiz: [
+    {q:'What are "speech disfluencies"?', a:'Natural interruptions in speech flow, like hesitations, false starts, and self-corrections.'},
+    {q:'Why does genuinely natural audio include these features, unlike clean scripted audio?', a:'Real, unscripted speech naturally includes hesitation and self-correction, which fully scripted, clearly-read audio does not.'},
+    {q:'What should a skilled listener do with a speaker\'s self-correction?', a:'Filter out the initial false start and focus on the speaker\'s actual, refined final point.'},
+  ],
+        },
+        {
+id: 'pa-l3', title: 'Summarizing Audio With Non-Standard Accents Confidently', time: '20-25 minutes',
+  objectives: ['Understand why exposure to varied accents matters at advanced level', 'Learn to focus on overall meaning rather than getting stuck on unfamiliar pronunciation', 'Practise building confidence with accent variation through genuine exposure'],
+  concept: 'Advanced-level listening audio may feature speakers with a range of accents, not just one standard "textbook" pronunciation — genuinely reflecting how English is spoken globally by fluent speakers with many different backgrounds. Getting stuck trying to fully process every word in an unfamiliar accent can cause a listener to lose the audio\'s overall meaning; a more effective approach is trusting overall comprehension built from context, even if a few individual words sound unfamiliar in their pronunciation.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A listener unfamiliar with a specific regional accent might initially struggle with a few individual words\' pronunciation, but can still track the audio\'s overall meaning through context and the words that ARE clearly understood — rather than stalling entirely because of a few unfamiliar-sounding pronunciations.',
+  vocab: [['accent variation','differences in pronunciation across different English-speaking backgrounds and regions'],['standard pronunciation (contrast)','a single, often "textbook" pronunciation pattern, distinct from the genuine variety of real-world English speech'],['contextual comprehension','understanding overall meaning through surrounding context, even when some specific words are unclear'],['genuine exposure','real practice with varied, authentic accents, building comfort over time'],['getting stuck (recap)','losing overall comprehension by over-focusing on one specific unfamiliar element']],
+  mistakes: ['Getting stuck trying to fully process every word in an unfamiliar accent, losing overall meaning.', 'Assuming only one "standard" accent will appear in real listening content.', 'Not building genuine exposure to varied accents through practice before test day.', 'Panicking when an unfamiliar accent is encountered, rather than trusting contextual comprehension.'],
+  practice: 'Why might trusting overall contextual comprehension be more effective than trying to precisely process every word in an unfamiliar accent?',
+  practiceAnswer: 'Because genuinely understanding overall meaning through context and the words that ARE clearly understood is usually sufficient, while getting stuck on individual unfamiliar-sounding words risks losing track of the passage\'s broader, more important meaning.',
+  quiz: [
+    {q:'Does advanced-level listening audio always feature one standard accent?', a:'No — it may feature a genuine range of accents, reflecting how English is actually spoken globally.'},
+    {q:'What is a risk of getting stuck on an unfamiliar accent\'s pronunciation?', a:'Losing the audio\'s overall meaning while over-focusing on processing one specific unfamiliar element.'},
+    {q:'What helps build genuine comfort with accent variation before test day?', a:'Real, varied listening exposure through practice, rather than only ever practising with one standard accent.'},
+  ],
+        },
+        {
+id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '20-25 minutes',
+  objectives: ['Understand how time management challenges differ across the whole Listening section', 'Learn to maintain consistent focus and pace across varied task types', 'Practise a mental strategy for transitioning smoothly between task types'],
+  concept: 'The full PTE Listening section combines many different task types in sequence, each with its own format and demands — smoothly transitioning between them, without one task type\'s difficulty bleeding into distraction during the next, is a genuine advanced-level skill. A brief mental "reset" between task types — consciously refocusing rather than carrying over frustration or distraction from a difficult previous item — helps maintain consistent performance across the whole section.',
+  example: '<i>(Original scenario — not from a real PTE test)</i><br><br>A student who struggles with one difficult Highlight Incorrect Words item may carry residual frustration or distraction into the NEXT task (perhaps Select Missing Word), causing otherwise avoidable mistakes there too. Consciously resetting focus between each task type — treating each as a fresh start — helps prevent this kind of carryover effect.',
+  vocab: [['task-type transition','the shift from one listening task format to the next within a mixed section'],['mental reset','consciously refocusing attention between tasks, rather than carrying over frustration or distraction'],['carryover effect','when difficulty or distraction from one task negatively affects performance on the next'],['consistent performance (recap)','maintaining steady focus and quality across an entire varied section, not just isolated parts'],['fresh start (mentality)','treating each new task as independent, rather than letting a previous struggle affect it']],
+  mistakes: ['Carrying frustration or distraction from a difficult task into the next one, causing avoidable mistakes there too.', 'Not consciously resetting focus between different task types within the section.', 'Assuming difficulty with one task type predicts difficulty with all others, causing unnecessary anxiety.', 'Losing overall section pacing while dwelling on a single difficult item longer than warranted.'],
+  practice: 'Why might a brief mental "reset" between different task types help maintain consistent performance across a full Listening section?',
+  practiceAnswer: 'Because it prevents a carryover effect, where frustration or distraction from a difficult task bleeds into and negatively affects performance on the next, structurally different task — treating each task type as a fresh start helps maintain steady focus throughout.',
+  quiz: [
+    {q:'What is a "carryover effect" in the context of a mixed listening section?', a:'When difficulty or distraction from one task negatively affects performance on the next, different task.'},
+    {q:'What helps prevent this carryover effect?', a:'A brief, conscious mental reset between different task types, treating each as a fresh start.'},
+    {q:'Why is smooth transition between task types considered an advanced-level skill?', a:'It requires managing focus and pacing across genuinely varied formats and demands within one continuous section.'},
+  ],
         },
       ]} },
     ],
@@ -6508,7 +6796,19 @@ const SP_ROLEPLAY_SCENARIOS = [
   {id:'doctor', icon:'🩺', title:'Booking a Doctor\'s Appointment', desc:'Call to book an appointment and briefly explain your symptoms.', character:'a receptionist at a doctor\'s clinic, booking an appointment over the phone'},
   {id:'friend-plans', icon:'👋', title:'Weekend Plans With a Friend', desc:'Casually discuss and plan weekend activities with a friend.', character:'a close friend casually chatting about weekend plans'},
 ];
-let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false};
+// Mirrors the Grammar Foundations track's own module breakdown, so a
+// student who just finished, say, the Tenses & Agreement lessons can
+// go straight into a conversation designed to naturally draw those
+// exact patterns out and correct them — not disconnected from what
+// they actually studied.
+const SP_GRAMMAR_TOPICS = [
+  {id:'general', icon:'🗣️', title:'General Grammar Practice', desc:'A free conversation with correction turned up — good all-round practice.', focus:'a broad mix of everyday grammar (tenses, subject-verb agreement, articles, prepositions)'},
+  {id:'parts_of_speech', icon:'🔤', title:'Parts of Speech', desc:'Nouns, pronouns, verbs, adjectives, adverbs, prepositions — natural use in conversation.', focus:'correct natural use of nouns, pronouns, verbs, adjectives, adverbs, and prepositions'},
+  {id:'sentence_building', icon:'🧩', title:'Sentence Building', desc:'Practise speaking in varied, well-structured sentences — not just short simple ones.', focus:'building varied, well-structured spoken sentences (simple, compound, and complex), avoiding fragments or run-ons'},
+  {id:'tenses_agreement', icon:'⏱️', title:'Tenses & Agreement', desc:'Present/past/future forms and subject-verb agreement, drawn out through real conversation.', focus:'correct tense choice (present/past/future, simple and continuous) and subject-verb agreement'},
+  {id:'practical_fixes', icon:'🛠️', title:'Practical Fixes', desc:'Common Tamil-English word-order slips and everyday mistakes, corrected in real time.', focus:'common transfer errors from Tamil word order (SOV vs SVO), missing auxiliary verbs, and other frequent everyday mistakes'},
+];
+let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,studentProfileText:null,scenarioId:null};
 
 // ── Badge definitions — all computed on the fly from speaking_sessions
 // rows, so no separate "earned badges" table is needed; earned status
@@ -6555,9 +6855,11 @@ async function openSpeakingPartner(){
   document.getElementById('sp-mode-select').style.display='block';
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
+  document.getElementById('sp-grammar-select').style.display='none';
   document.getElementById('sp-chat-view').style.display='none';
   renderSpRoleplayGrid();
   renderSpTestprepGrid();
+  renderSpGrammarGrid();
   document.getElementById('sp-stats-strip').innerHTML='';
   document.getElementById('sp-badges-row').innerHTML='';
   spSessionsCache=await loadSpSessions();
@@ -6585,6 +6887,16 @@ function renderSpTestprepGrid(){
     <div class="sp-mode-card" style="--sp-grad1:${grads[i%4].split(',')[0]};--sp-grad2:${grads[i%4].split(',')[1]}" onclick="startSpeakingSession('test_practice',null,'${t}')">
       <div class="sp-mode-icon">${TEST_ICONS[t]||'🎓'}</div>
       <div><h4>${esc(t)}</h4><p>Practise ${esc(t)}-style speaking prompts with an AI examiner, plus feedback on request.</p></div>
+      <div class="sp-mode-arrow">›</div>
+    </div>
+  `).join('');
+}
+function renderSpGrammarGrid(){
+  const grads=['#8B5CF6,#C4B5FD','#5B4FE9,#8B7FFF','#FF6B4A,#FFB199','#00C896,#5CE8C4','#3B82F6,#93C5FD'];
+  document.getElementById('sp-grammar-grid').innerHTML=SP_GRAMMAR_TOPICS.map((g,i)=>`
+    <div class="sp-mode-card" style="--sp-grad1:${grads[i%5].split(',')[0]};--sp-grad2:${grads[i%5].split(',')[1]}" onclick="startSpeakingSession('grammar_practice','${g.id}')">
+      <div class="sp-mode-icon">${g.icon}</div>
+      <div><h4>${esc(g.title)}</h4><p>${esc(g.desc)}</p></div>
       <div class="sp-mode-arrow">›</div>
     </div>
   `).join('');
@@ -6650,12 +6962,24 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     title='🎓 Mock University Interview';
     subtitle=spState.studentProfileText?'Personalized to your profile.':'The AI is acting as an admissions interviewer.';
     kickoffPrompt='Begin the admissions interview naturally, in character as the interviewer, the way a real university interview would start — a brief welcome, then your first genuine question about the student\'s motivation or background.';
+  } else if(mode==='grammar_practice'){
+    const g=SP_GRAMMAR_TOPICS.find(x=>x.id===scenarioId)||SP_GRAMMAR_TOPICS[0];
+    spState.scenario=g.focus;
+    spState.scenarioTitle=g.title;
+    title='📘 '+g.title;
+    subtitle='A natural conversation, deliberately steered to draw this out.';
+    kickoffPrompt='Start a natural, friendly conversation that will genuinely give the student real opportunities to use and practise this grammar focus area, without it feeling like a lesson — just a normal conversation that happens to be steered this way.';
+    // The whole point of this mode is catching mistakes, so default the
+    // correction dropdown to Strict when entering it — the student can
+    // still switch it back to Gentle once the chat view is open.
+    document.getElementById('sp-correction-mode').value='strict';
   }
 
   showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='none';
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
+  document.getElementById('sp-grammar-select').style.display='none';
   document.getElementById('sp-chat-view').style.display='block';
   document.getElementById('sp-chat-title').textContent=title;
   document.getElementById('sp-chat-subtitle').textContent=subtitle;
