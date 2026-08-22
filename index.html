@@ -528,6 +528,11 @@
         <div><h4>Open Conversation</h4><p>Chat naturally about anything — the AI keeps things flowing and gently models corrections.</p></div>
         <div class="sp-mode-arrow">›</div>
       </div>
+      <div class="sp-mode-card" style="--sp-grad1:#E5484D;--sp-grad2:#FF9494" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-survival-select').style.display='block'">
+        <div class="sp-mode-icon">🆘</div>
+        <div><h4>Survival English</h4><p>Real everyday situations abroad, at a genuinely beginner pace — no pressure, just building the courage to speak.</p></div>
+        <div class="sp-mode-arrow">›</div>
+      </div>
       <div class="sp-mode-card" style="--sp-grad1:#FF6B4A;--sp-grad2:#FFB199" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-roleplay-select').style.display='block'">
         <div class="sp-mode-icon">🎭</div>
         <div><h4>Roleplay Scenarios</h4><p>Job interviews, ordering food, checking into a hotel — the AI stays fully in character.</p></div>
@@ -543,6 +548,13 @@
         <div><h4>Grammar Practice</h4><p>Talk your way through a grammar topic — the AI deliberately draws it out and corrects every slip.</p></div>
         <div class="sp-mode-arrow">›</div>
       </div>
+    </div>
+
+    <div id="sp-survival-select" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-survival-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
+      <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a situation</h2>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">This mode is built for genuine beginners — simple language from the AI, gentle correction only, and Tamil mixing turned on automatically (you can turn it off if you'd rather practise English only).</p>
+      <div id="sp-survival-grid"></div>
     </div>
 
     <div id="sp-roleplay-select" style="display:none">
@@ -6993,6 +7005,23 @@ const SP_GRAMMAR_TOPICS = [
   {id:'tenses_agreement', icon:'⏱️', title:'Tenses & Agreement', desc:'Present/past/future forms and subject-verb agreement, drawn out through real conversation.', focus:'correct tense choice (present/past/future, simple and continuous) and subject-verb agreement'},
   {id:'practical_fixes', icon:'🛠️', title:'Practical Fixes', desc:'Common Tamil-English word-order slips and everyday mistakes, corrected in real time.', focus:'common transfer errors from Tamil word order (SOV vs SVO), missing auxiliary verbs, and other frequent everyday mistakes'},
 ];
+// Genuinely basic, essential, confidence-first situations — built for
+// students who lack real speaking confidence, not students polishing
+// already-decent English. Deliberately more foundational than the
+// roleplay scenarios above, which assume some fluency already. The
+// AI's own tone and system prompt for this mode (see the Edge
+// Function) is markedly more patient and simplified than every other
+// mode — the goal here is courage to speak at all, not performance.
+const SP_SURVIVAL_SCENARIOS = [
+  {id:'not-understand', icon:'❓', title:'"I Don\'t Understand"', desc:'Practise polite ways to ask someone to repeat, slow down, or explain differently.', character:'a patient stranger who just said something the student didn\'t catch, willing to repeat, rephrase, or slow down when asked'},
+  {id:'lost-help', icon:'🧭', title:'Lost and Asking for Help', desc:'You\'re genuinely lost — explain the situation simply and ask a stranger for help.', character:'a helpful passerby approached by someone who looks lost and unsure in an unfamiliar place'},
+  {id:'checkout', icon:'🛒', title:'Supermarket Checkout', desc:'Basic, everyday transactional English — greeting, paying, saying thank you.', character:'a supermarket cashier processing a routine checkout with a customer'},
+  {id:'sim-card', icon:'📱', title:'Buying a SIM Card', desc:'One of the very first things you\'ll need to do — a simple phone shop conversation.', character:'a phone shop staff member helping a customer buy and set up a new SIM card'},
+  {id:'simple-problem', icon:'🤔', title:'Explaining a Simple Problem', desc:'"My card isn\'t working," "I think I\'m on the wrong bus" — expressing a problem with limited vocabulary.', character:'a helpful staff member or stranger being calmly told about a simple, everyday problem'},
+  {id:'emergency-call', icon:'🚨', title:'Calling for Help in an Emergency', desc:'Practise calmly giving your location and situation clearly — pure conversation practice, not medical advice.', character:'a calm emergency operator or helpline staff member asking a caller for their location and situation'},
+  {id:'waiting-smalltalk', icon:'⏳', title:'Small Talk While Waiting', desc:'Filling silence naturally in a queue or waiting room — real everyday comfort-building.', character:'a friendly stranger making light small talk while waiting together in a queue or waiting room'},
+  {id:'simple-intro', icon:'👋', title:'Introducing Yourself Simply', desc:'Even a first introduction can feel hard — name, where you\'re from, why you\'re here.', character:'someone meeting the student for the first time, asking simple, friendly getting-to-know-you questions'},
+];
 let spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,studentProfileText:null,scenarioId:null};
 
 // ── Badge definitions — all computed on the fly from speaking_sessions
@@ -7009,6 +7038,8 @@ const SP_BADGES=[
   {key:'streak_speaker', icon:'🔥', name:'Streak Speaker', test:s=>new Set(s.map(x=>x.created_at.slice(0,10))).size>=3},
   {key:'visa_ready', icon:'🛂', name:'Visa Ready', test:s=>new Set(s.filter(x=>x.mode==='visa_interview').map(x=>x.test_type)).size>=3},
   {key:'interview_pro', icon:'🎓', name:'Interview Pro', test:s=>s.filter(x=>x.mode==='university_interview').length>=5},
+  {key:'survivor', icon:'🆘', name:'Survivor', test:s=>new Set(s.filter(x=>x.mode==='survival_english').map(x=>x.scenario_id)).size>=SP_SURVIVAL_SCENARIOS.length},
+  {key:'brave_first_step', icon:'💪', name:'Brave First Step', test:s=>s.some(x=>x.mode==='survival_english')},
 ];
 function computeSpBadges(sessions){
   return SP_BADGES.map(b=>({...b, earned:b.test(sessions)}));
@@ -7038,12 +7069,14 @@ function renderSpStatsAndBadges(sessions){
 async function openSpeakingPartner(){
   showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='block';
+  document.getElementById('sp-survival-select').style.display='none';
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
   document.getElementById('sp-grammar-select').style.display='none';
   document.getElementById('sp-history-select').style.display='none';
   document.getElementById('sp-history-detail').style.display='none';
   document.getElementById('sp-chat-view').style.display='none';
+  renderSpSurvivalGrid();
   renderSpRoleplayGrid();
   renderSpTestprepGrid();
   renderSpGrammarGrid();
@@ -7175,6 +7208,16 @@ function renderSpGrammarGrid(){
     </div>
   `).join('');
 }
+function renderSpSurvivalGrid(){
+  const grads=['#E5484D,#FF9494','#FF6B4A,#FFB199','#8B5CF6,#C4B5FD','#5B4FE9,#8B7FFF','#00C896,#5CE8C4','#3B82F6,#93C5FD','#E5484D,#FFB199','#FF6B4A,#C4B5FD'];
+  document.getElementById('sp-survival-grid').innerHTML=SP_SURVIVAL_SCENARIOS.map((s,i)=>`
+    <div class="sp-mode-card" style="--sp-grad1:${grads[i%8].split(',')[0]};--sp-grad2:${grads[i%8].split(',')[1]}" onclick="startSpeakingSession('survival_english','${s.id}')">
+      <div class="sp-mode-icon">${s.icon}</div>
+      <div><h4>${esc(s.title)}</h4><p>${esc(s.desc)}</p></div>
+      <div class="sp-mode-arrow">›</div>
+    </div>
+  `).join('');
+}
 
 // ── Sound effects — short Web Audio API tones, no external audio files
 // to host or load. Subtle, toggleable via #sp-sound-toggle. ──
@@ -7247,10 +7290,25 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     // correction dropdown to Strict when entering it — the student can
     // still switch it back to Gentle once the chat view is open.
     document.getElementById('sp-correction-mode').value='strict';
+  } else if(mode==='survival_english'){
+    const s=SP_SURVIVAL_SCENARIOS.find(x=>x.id===scenarioId)||SP_SURVIVAL_SCENARIOS[0];
+    spState.scenario=s.character;
+    spState.scenarioTitle=s.title;
+    title='🆘 '+s.title;
+    subtitle='Genuine beginner pace — take your time.';
+    kickoffPrompt='Begin this real-life situation naturally, in character, but keep your own dialogue genuinely simple and patient — the way a kind real person would naturally slow down for someone still building their English confidence.';
+    // This mode exists specifically to remove pressure — force gentle
+    // correction (Strict would directly undermine the point), and
+    // default the language mix to Tamil so the student isn't dropped
+    // into English-only from the very first message. Both remain
+    // fully overridable once the chat view opens.
+    document.getElementById('sp-correction-mode').value='gentle';
+    if(!document.getElementById('sp-lang-mix-select').value) document.getElementById('sp-lang-mix-select').value='ta';
   }
 
   showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='none';
+  document.getElementById('sp-survival-select').style.display='none';
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
   document.getElementById('sp-grammar-select').style.display='none';
