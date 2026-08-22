@@ -512,6 +512,10 @@
       <p style="font-size:14.5px;color:var(--ink3);margin-bottom:14px">Practise real spoken English with an AI conversation partner — talk or type, your choice.</p>
       <div id="sp-stats-strip" class="sp-stats-strip"></div>
       <div id="sp-badges-row" class="sp-badges-row"></div>
+      <div id="sp-focus-areas"></div>
+      <div style="text-align:right;margin-bottom:10px">
+        <span style="font-size:12.5px;color:var(--pine);font-weight:600;text-decoration:underline;cursor:pointer" onclick="openSpHistory()">📜 View past conversations</span>
+      </div>
       <div class="sp-mode-card" style="--sp-grad1:#5B4FE9;--sp-grad2:#8B7FFF" onclick="startSpeakingSession('open')">
         <div class="sp-mode-icon">💬</div>
         <div><h4>Open Conversation</h4><p>Chat naturally about anything — the AI keeps things flowing and gently models corrections.</p></div>
@@ -551,6 +555,17 @@
       <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a grammar topic</h2>
       <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Correction is set to Strict automatically for this mode, since the point is catching every slip — you can still switch it back to Gentle once the conversation starts.</p>
       <div id="sp-grammar-grid"></div>
+    </div>
+
+    <div id="sp-history-select" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-history-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Back</span>
+      <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Past Conversations</h2>
+      <div id="sp-history-list-view"></div>
+    </div>
+
+    <div id="sp-history-detail" style="display:none">
+      <span class="back-link" onclick="document.getElementById('sp-history-detail').style.display='none';document.getElementById('sp-history-select').style.display='block'">← All conversations</span>
+      <div id="sp-history-detail-content"></div>
     </div>
 
     <div id="sp-chat-view" style="display:none">
@@ -1073,7 +1088,7 @@ const TEST_DATA = {
   Grammar: {
     name: 'Grammar Foundations', ready: false,
     stats: [['19','Lessons'],['4','Topic areas'],['Free','No test fee — this is a prep track, not an exam']],
-    modules: ['Parts of Speech','Sentence Building','Tenses & Agreement','Practical Fixes'],
+    modules: ['Parts of Speech','Sentence Building','Tenses & Agreement','Practical Fixes','Beyond the Basics'],
     gettingStarted: [
       {
         id: 'gr-gs1', title: 'Why Grammar Terms Actually Matter', time: '10-12 minutes',
@@ -1383,6 +1398,83 @@ const TEST_DATA = {
               {q:'In "Although she was tired, Priya finished her homework quickly," what type of sentence is this?', options:['Simple sentence','Compound sentence','Complex sentence','Not a complete sentence'], correct:2, a:'This is a complex sentence — it combines a dependent clause ("Although she was tired") with an independent clause.'},
               {q:'Should someone feel ready to move to other tracks even without perfect recall of every term?', options:['No — every term must be perfectly memorised first','Yes — reasonable familiarity is enough, and the terms will keep reinforcing themselves in later lessons','No — this track must be repeated until scoring 100% on every quiz','Only if every single quiz question was answered correctly the first time'], correct:1, a:'Reasonable familiarity is enough to move on — these terms will keep naturally reinforcing themselves throughout the other tracks.'},
             ],
+          },
+        ],
+        'Beyond the Basics':[
+          {
+id: 'gr-bb1', title: 'Modal Verbs — Expressing Ability, Possibility, and Obligation', time: '16-18 minutes',
+  objectives: ['Understand what modal verbs are and what they add to a sentence', 'Learn the core modal verbs and their main uses (ability, possibility, obligation, permission)', 'Practise choosing the right modal verb for a given situation'],
+  concept: 'Modal verbs (can, could, may, might, must, should, will, would) are a special group of verbs that add meaning ABOUT another verb — showing ability ("can swim"), possibility ("might rain"), obligation ("must finish"), permission ("may leave"), or advice ("should rest") — rather than describing an action directly themselves.<br><br>A key feature: modal verbs never change form for different subjects ("she can," not "she cans") and are always followed directly by the base form of the main verb, with no "to" in between ("can go," not "can to go").',
+  example: '<i>(Original example)</i><br><br>Sentence: <b>"You must submit the form by Friday, but you could also email it if that\'s easier."</b><br><br>"Must" expresses a strong obligation (a requirement); "could" expresses a possibility/suggestion (a softer, optional alternative). Both are modal verbs, followed directly by the base verb ("submit," "email") with no "to."',
+  vocab: [['modal verb','a special verb (can, must, should, etc.) that adds meaning like ability, possibility, or obligation to another verb'],['ability (in modals)','the meaning shown by "can" or "could," expressing capability to do something'],['obligation (in modals)','the meaning shown by "must" or "have to," expressing a requirement'],['base form (recap)','the plain, unchanged form of a verb, used directly after a modal with no "to"'],['permission (in modals)','the meaning shown by "may" or "can," expressing that something is allowed']],
+  mistakes: ['Adding "-s" to a modal verb for third-person subjects, e.g. "she cans swim" instead of "she can swim."', 'Inserting "to" between a modal and the main verb, e.g. "must to go" instead of "must go."', 'Confusing the strength of obligation between "must" (strong, often a rule) and "should" (advice, weaker).', 'Using two modal verbs together, e.g. "might could go" — English does not stack modals this way.'],
+  practice: 'Choose the correct modal for the meaning shown: <b>"It\'s just a suggestion, but you ___ consider arriving early." (advice, not a strict rule)</b>',
+  practiceAnswer: '"Should" — it expresses advice/a suggestion, which is a softer meaning than "must," which would imply a strict requirement rather than a friendly suggestion.',
+  quiz: [
+    {q:'What do modal verbs add to a sentence?', options:['A new subject','Meaning like ability, possibility, or obligation about another verb','A description of a noun','A time reference only'], correct:1, a:'Modal verbs add meaning such as ability, possibility, obligation, or permission to another verb.'},
+    {q:'What form does the main verb take directly after a modal verb?', options:['The base form, with no "to"','The "-ing" form','The past tense form','The infinitive with "to"'], correct:0, a:'A modal verb is followed directly by the base form of the main verb, with no "to" in between.'},
+    {q:'Which modal typically expresses a strong obligation or rule?', options:['Might','Could','Must','Would'], correct:2, a:'"Must" typically expresses a strong obligation or requirement, stronger than "should," which is more like advice.'},
+  ],
+          },
+          {
+id: 'gr-bb2', title: 'Passive Voice — Shifting the Focus Away From Who Did It', time: '16-18 minutes',
+  objectives: ['Understand the difference between active and passive voice', 'Learn how to form the passive voice correctly', 'Practise recognising when passive voice is genuinely useful'],
+  concept: 'In ACTIVE voice, the subject performs the action ("The chef cooked the meal"). In PASSIVE voice, the subject RECEIVES the action instead ("The meal was cooked [by the chef]") — formed with a form of "to be" plus the past participle of the main verb.<br><br>Passive voice is genuinely useful when the ACTION matters more than who did it, when the doer is unknown, or in formal/academic writing where a more objective tone is wanted ("The results were recorded" rather than "I recorded the results").',
+  example: '<i>(Original example)</i><br><br>Active: <b>"The company launched a new product."</b> (Focus on the company, the doer.)<br><br>Passive: <b>"A new product was launched [by the company]."</b> (Focus shifts to the product, the thing receiving the action — the doer can even be dropped entirely if it\'s not important or already understood.)',
+  vocab: [['active voice','a sentence structure where the subject performs the action'],['passive voice','a sentence structure where the subject receives the action, formed with "to be" + past participle'],['past participle (recap)','the verb form used with "have/has/had" or "to be" in passive voice, e.g. "cooked," "written," "seen"'],['doer (of the action)','the person or thing actually performing the action, which may be dropped in passive voice'],['objective tone','a more neutral, fact-focused style often used in formal or academic writing']],
+  mistakes: ['Forgetting to use the correct past participle form of the main verb in passive voice.', 'Using passive voice unnecessarily, making writing feel indirect or vague when active voice would be clearer.', 'Missing the correct form of "to be" that must match the tense (e.g. "was," "is," "has been").', 'Including "by [doer]" every time, even when it is unnecessary or already obvious from context.'],
+  practice: 'Change this active sentence into passive voice: <b>"The committee approved the proposal."</b>',
+  practiceAnswer: '"The proposal was approved [by the committee]." — the object of the active sentence ("proposal") becomes the subject, and "was approved" is formed using "was" (past tense of "to be") plus the past participle "approved."',
+  quiz: [
+    {q:'In passive voice, what does the subject of the sentence do?', options:['Performs the action','Receives the action','Describes another noun','Nothing — passive sentences have no subject'], correct:1, a:'In passive voice, the subject receives the action rather than performing it.'},
+    {q:'How is passive voice formed?', options:['A form of "to be" plus the base verb','A form of "to be" plus the past participle','A form of "to have" plus the past participle','The main verb alone, with no auxiliary'], correct:1, a:'Passive voice uses a form of "to be" combined with the past participle of the main verb.'},
+    {q:'When is passive voice especially useful?', options:['When the doer of the action is the most important part','When the action matters more than who did it, or the doer is unknown', 'Only in casual spoken conversation','Passive voice is never actually useful'], correct:1, a:'Passive voice is useful when the action itself matters more than who performed it, or when the doer is unknown or unimportant.'},
+  ],
+          },
+          {
+id: 'gr-bb3', title: 'Reported Speech — Retelling What Someone Said', time: '18-20 minutes',
+  objectives: ['Understand the difference between direct and reported speech', 'Learn how tenses typically shift when reporting what someone said', 'Practise converting a direct quote into reported speech correctly'],
+  concept: 'Direct speech repeats someone\'s exact words, usually in quotation marks ("I am tired," she said). Reported (indirect) speech retells what was said WITHOUT quoting it exactly, and typically requires shifting the tense one step into the past ("She said [that] she was tired") — since the reporting itself usually happens after the original statement was made.<br><br>Common tense shifts: present simple → past simple, present continuous → past continuous, "will" → "would," "can" → "could." Time and place words often shift too ("today" → "that day," "here" → "there").',
+  example: '<i>(Original example)</i><br><br>Direct: <b>"I will call you tomorrow," he said.</b><br><br>Reported: <b>He said [that] he would call me the next day.</b><br><br>"Will" shifts to "would," "tomorrow" shifts to "the next day" (since the reporting may happen on a different day than when the promise was made), and "you" becomes "me" (from the reporter\'s new perspective).',
+  vocab: [['direct speech','repeating someone\'s exact words, usually in quotation marks'],['reported/indirect speech','retelling what someone said without quoting their exact words, usually with a tense shift'],['tense shift (recap)','the typical backward movement of tense when converting direct speech into reported speech'],['reporting verb','a verb like "said" or "told" that introduces reported speech'],['perspective shift','changes to pronouns, time words, and place words to match the reporter\'s new point of view']],
+  mistakes: ['Forgetting to shift the tense backward when converting direct speech into reported speech.', 'Keeping the original time/place words unchanged, when they should shift ("tomorrow" staying as "tomorrow" instead of becoming "the next day").', 'Forgetting to adjust pronouns to match the new reporting perspective.', 'Adding quotation marks to reported speech, when only direct speech uses them.'],
+  practice: 'Convert to reported speech: <b>"I am studying for my exam," Maya said.</b>',
+  practiceAnswer: '"Maya said [that] she was studying for her exam." — "am studying" (present continuous) shifts back to "was studying" (past continuous), and "I"/"my" shift to "she"/"her" to match the reporting perspective.',
+  quiz: [
+    {q:'What typically happens to tense when converting direct speech into reported speech?', options:['It stays exactly the same','It shifts one step back into the past','It always shifts into the future','Tense is removed entirely'], correct:1, a:'Reported speech typically requires shifting the tense one step back into the past, since the reporting usually happens after the original statement.'},
+    {q:'What happens to a word like "tomorrow" in reported speech?', options:['It always stays as "tomorrow"','It typically shifts to something like "the next day"','It is always deleted entirely','It becomes "yesterday"'], correct:1, a:'Time words like "tomorrow" typically shift to reflect the new reporting perspective, such as "the next day."'},
+    {q:'Does reported speech use quotation marks?', options:['Yes, always','No — only direct speech uses quotation marks','Only for questions','Only in formal writing'], correct:1, a:'Quotation marks are used for direct speech only; reported speech retells the content without quoting it exactly.'},
+  ],
+          },
+          {
+id: 'gr-bb4', title: 'Conditionals — Talking About "If" Situations', time: '18-20 minutes',
+  objectives: ['Understand the difference between real and unreal/hypothetical conditionals', 'Learn the basic structure of the first, second, and third conditionals', 'Practise choosing the right conditional form for a given situation'],
+  concept: 'Conditional sentences (using "if") describe a condition and its result, but different conditional types express very different degrees of reality:<br>• FIRST conditional — a real, likely possibility in the future: "If it rains, I will stay home." (if + present simple, will + base verb)<br>• SECOND conditional — a hypothetical or unlikely present/future situation: "If I won the lottery, I would travel the world." (if + past simple, would + base verb — despite "past simple," this is NOT about the past)<br>• THIRD conditional — an unreal past situation that did not actually happen: "If I had studied, I would have passed." (if + past perfect, would have + past participle)',
+  example: '<i>(Original example)</i><br><br>First (real possibility): <b>"If she finishes early, she will call us."</b> — a genuine, likely future possibility.<br><br>Second (hypothetical): <b>"If she had more time, she would learn another language."</b> — imagining a different present reality, not something likely to genuinely happen.<br><br>Third (unreal past): <b>"If she had known about the meeting, she would have attended."</b> — describing how the unchangeable past could have gone differently.',
+  vocab: [['conditional sentence','a sentence with an "if" clause describing a condition and its result'],['first conditional','a structure for real, likely future possibilities (if + present, will + base verb)'],['second conditional','a structure for hypothetical present/future situations (if + past simple, would + base verb)'],['third conditional','a structure for unreal past situations, imagining a different outcome (if + past perfect, would have + past participle)'],['hypothetical','imagined or unlikely, rather than a real, expected possibility']],
+  mistakes: ['Using "will" in the "if" clause itself, e.g. "If it will rain" instead of "If it rains."', 'Confusing second conditional\'s past-simple form with an actual reference to the past — it is about hypothetical present/future, not real past time.', 'Mixing conditional types within one sentence inconsistently, e.g. combining first-conditional and third-conditional structures.', 'Forgetting "would have" plus past participle in the third conditional, using just past simple instead.'],
+  practice: 'Which conditional type fits this situation: imagining how things would have gone if a past decision had been different: <b>"If I ___ (take) that job, I ___ (move) to another city."</b>',
+  practiceAnswer: 'Third conditional: "If I had taken that job, I would have moved to another city." — since this describes an unreal past situation (the job was not actually taken), it requires "had taken" (past perfect) and "would have moved" (would have + past participle).',
+  quiz: [
+    {q:'Which conditional type describes a real, likely future possibility?', options:['First conditional','Second conditional','Third conditional','None of them'], correct:0, a:'The first conditional (if + present simple, will + base verb) describes a real, likely future possibility.'},
+    {q:'What does the second conditional\'s past-simple form actually refer to?', options:['A real past event','A hypothetical present/future situation, not real past time','Always tomorrow specifically','A completed action'], correct:1, a:'Despite using past-simple form, the second conditional refers to a hypothetical present or future situation, not real past time.'},
+    {q:'What structure does the third conditional use?', options:['If + present simple, will + base verb','If + past simple, would + base verb','If + past perfect, would have + past participle','If + present perfect, will have + past participle'], correct:2, a:'The third conditional uses "if + past perfect" combined with "would have + past participle," describing an unreal past situation.'},
+  ],
+          },
+          {
+id: 'gr-bb5', title: 'Relative Clauses — Adding Extra Information With Who, Which, and That', time: '18-20 minutes',
+  objectives: ['Understand what a relative clause is and how it adds information to a noun', 'Learn when to use "who," "which," and "that" correctly', 'Practise combining two short sentences into one using a relative clause'],
+  concept: 'A relative clause adds extra information about a noun, introduced by a relative pronoun: "who" (for people), "which" (for things), or "that" (for people or things, especially in essential/defining clauses). Relative clauses let two related pieces of information be combined into one smoother sentence, rather than left as two short, choppy sentences.<br><br>A key distinction: DEFINING relative clauses give essential information needed to identify what/who is being talked about ("The book that I borrowed was excellent" — without the clause, we wouldn\'t know WHICH book). NON-DEFINING relative clauses add extra, non-essential detail, set off by commas ("My car, which is red, is parked outside" — the clause adds detail but isn\'t needed to identify the car).',
+  example: '<i>(Original example)</i><br><br>Two short sentences: <b>"I met a woman. She works as an engineer."</b><br><br>Combined with a relative clause: <b>"I met a woman who works as an engineer."</b> — "who works as an engineer" is a defining relative clause, giving essential identifying information about which woman is being discussed.',
+  vocab: [['relative clause','a clause adding extra information about a noun, introduced by a relative pronoun'],['relative pronoun','a word like "who," "which," or "that" that introduces a relative clause'],['defining relative clause','a clause giving essential information needed to identify the noun, with no commas'],['non-defining relative clause','a clause adding extra, non-essential detail, set off by commas'],['combine (sentences, recap)','joining two related pieces of information into one smoother sentence']],
+  mistakes: ['Using "who" for a thing or "which" for a person, mixing up which relative pronoun fits which noun type.', 'Adding commas around a defining relative clause, when only non-defining clauses need them.', 'Missing commas around a non-defining relative clause, making essential and non-essential information look identical.', 'Creating an unclear sentence by placing the relative clause too far from the noun it actually describes.'],
+  practice: 'Combine these two sentences using a relative clause: <b>"The restaurant is excellent. We went there for dinner last night."</b>',
+  practiceAnswer: '"The restaurant that/which we went to for dinner last night is excellent." — combining both pieces of information into one sentence using a relative pronoun, since a restaurant is a thing (that/which, not who).',
+  quiz: [
+    {q:'What does a relative clause do?', options:['Names a new subject','Adds extra information about a noun', 'Shows the time an action happened','Replaces the main verb'], correct:1, a:'A relative clause adds extra information about a noun, introduced by a relative pronoun like who, which, or that.'},
+    {q:'Which relative pronoun is used for people?', options:['Which','Who','Both are used equally for people','Neither — "that" is required for people'], correct:1, a:'"Who" is the relative pronoun typically used for people, while "which" is used for things.'},
+    {q:'What is the difference between defining and non-defining relative clauses?', options:['There is no real difference','Defining clauses give essential identifying information; non-defining clauses add extra, non-essential detail set off by commas','Non-defining clauses are always longer','Defining clauses always use "which"'], correct:1, a:'Defining clauses give essential information needed to identify the noun, while non-defining clauses add extra detail and are set off by commas.'},
+  ],
           },
         ],
       }},
@@ -6795,6 +6887,12 @@ const SP_ROLEPLAY_SCENARIOS = [
   {id:'shop-return', icon:'🛍️', title:'Returning a Faulty Product', desc:'Explain a problem with a purchase and request a refund or exchange.', character:'a shop assistant at a customer service desk, handling a product return'},
   {id:'doctor', icon:'🩺', title:'Booking a Doctor\'s Appointment', desc:'Call to book an appointment and briefly explain your symptoms.', character:'a receptionist at a doctor\'s clinic, booking an appointment over the phone'},
   {id:'friend-plans', icon:'👋', title:'Weekend Plans With a Friend', desc:'Casually discuss and plan weekend activities with a friend.', character:'a close friend casually chatting about weekend plans'},
+  {id:'airport-arrival', icon:'✈️', title:'Airport Arrival', desc:'Answer immigration questions and clear customs on arrival abroad.', character:'an immigration officer at an international airport, asking a newly arrived international student routine entry questions'},
+  {id:'bank-account', icon:'🏦', title:'Opening a Bank Account', desc:'Explain what you need and answer a bank staff member\'s questions.', character:'a bank staff member helping a new international student open their first local bank account'},
+  {id:'flatmate', icon:'🏠', title:'Meeting Your New Flatmate', desc:'Introduce yourself and sort out house rules with a new roommate.', character:'a new flatmate/roommate meeting the student for the first time in shared accommodation, chatting casually and sorting out a few house rules'},
+  {id:'professor-help', icon:'🎓', title:'Asking a Professor for Help', desc:'Visit office hours to ask about an assignment or extension.', character:'a university professor during their office hours, being asked for help by a student regarding coursework or a deadline'},
+  {id:'seminar-discussion', icon:'🗣️', title:'Speaking Up in a Seminar', desc:'Contribute an opinion and respond to classmates in a class discussion.', character:'a university seminar tutor leading a class discussion, calling on students and responding to what they say'},
+  {id:'renting-flat', icon:'🔑', title:'Viewing a Rental Apartment', desc:'Ask a letting agent questions while viewing a flat to rent.', character:'a letting agent showing a prospective tenant around a rental apartment, answering questions about the property and lease'},
 ];
 // Mirrors the Grammar Foundations track's own module breakdown, so a
 // student who just finished, say, the Tenses & Agreement lessons can
@@ -6856,14 +6954,103 @@ async function openSpeakingPartner(){
   document.getElementById('sp-roleplay-select').style.display='none';
   document.getElementById('sp-testprep-select').style.display='none';
   document.getElementById('sp-grammar-select').style.display='none';
+  document.getElementById('sp-history-select').style.display='none';
+  document.getElementById('sp-history-detail').style.display='none';
   document.getElementById('sp-chat-view').style.display='none';
   renderSpRoleplayGrid();
   renderSpTestprepGrid();
   renderSpGrammarGrid();
   document.getElementById('sp-stats-strip').innerHTML='';
   document.getElementById('sp-badges-row').innerHTML='';
+  document.getElementById('sp-focus-areas').innerHTML='';
   spSessionsCache=await loadSpSessions();
   renderSpStatsAndBadges(spSessionsCache);
+  renderSpFocusAreas(spSessionsCache);
+}
+
+// ── Focus Areas — scans recent stored transcripts for strict-mode
+// correction lines (the same "📝 ..." lines shown live during a
+// session) and surfaces the most recent few as a "what to work on"
+// widget. Entirely computed from data already stored — no extra AI
+// call needed. Only sessions saved after migration 0013 have a
+// transcript, so older sessions are silently skipped rather than
+// causing an error. ──
+function computeFocusAreas(sessions,limit){
+  const corrections=[];
+  // Most recent sessions first, so the widget reflects recent
+  // practice rather than being dominated by old history.
+  const sorted=[...sessions].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  for(const s of sorted){
+    if(!Array.isArray(s.transcript))continue;
+    for(const msg of s.transcript){
+      if(msg.role!=='assistant')continue;
+      const {correction}=splitCorrectionLine(msg.content||'');
+      if(correction)corrections.push(correction);
+      if(corrections.length>=(limit||5))return corrections;
+    }
+  }
+  return corrections;
+}
+function renderSpFocusAreas(sessions){
+  const el=document.getElementById('sp-focus-areas');
+  const items=computeFocusAreas(sessions,4);
+  if(!items.length){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="tp-info-card" style="background:var(--gold-l);border:1.5px solid #FFD4C4;margin-bottom:14px">
+    <h4 style="color:#7A3418">🎯 Recent Focus Areas</h4>
+    <p style="font-size:11.5px;color:#7A3418;margin-bottom:6px">From your last few Strict-mode corrections — worth keeping an eye on.</p>
+    <ul style="margin:0;padding-left:18px;font-size:12.5px;color:#7A3418;line-height:1.6">${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+  </div>`;
+}
+
+// ── Conversation History — every session saved after migration 0013
+// stores its full transcript, so past conversations are genuinely
+// reviewable, not just logged as a message count. ──
+function spSessionTitle(s){
+  if(s.mode==='roleplay'){ const sc=SP_ROLEPLAY_SCENARIOS.find(x=>x.id===s.scenario_id); return sc?sc.title:'Roleplay'; }
+  if(s.mode==='test_practice')return (s.test_type||'Test')+' Speaking Practice';
+  if(s.mode==='visa_interview'){ const c=VISA_COUNTRIES[s.test_type]; return c?c.flag+' '+c.name+' Visa Interview':'Visa Interview'; }
+  if(s.mode==='university_interview')return '🎓 University Interview';
+  if(s.mode==='grammar_practice'){ const g=SP_GRAMMAR_TOPICS.find(x=>x.id===s.scenario_id); return g?g.title:'Grammar Practice'; }
+  return 'Open Conversation';
+}
+async function openSpHistory(){
+  document.getElementById('sp-mode-select').style.display='none';
+  document.getElementById('sp-history-select').style.display='block';
+  const el=document.getElementById('sp-history-list-view');
+  el.innerHTML='<div class="empty">Loading…</div>';
+  const sessions=(spSessionsCache&&spSessionsCache.length)?spSessionsCache:await loadSpSessions();
+  const withTranscripts=sessions.filter(s=>Array.isArray(s.transcript)&&s.transcript.length).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if(!withTranscripts.length){
+    el.innerHTML='<div class="tp-info-card"><p>No reviewable conversations yet — future sessions you complete will show up here.</p></div>';
+    return;
+  }
+  window._spHistoryFull=withTranscripts;
+  el.innerHTML=withTranscripts.map((s,i)=>`
+    <div class="tp-info-card" style="cursor:pointer" onclick="viewSpHistoryDetail(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h4 style="margin:0">${esc(spSessionTitle(s))}</h4><p style="font-size:11px;color:var(--ink3);margin-top:2px">${new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})} · ${s.message_count} exchanges</p></div>
+        <i class="ti ti-chevron-right"></i>
+      </div>
+    </div>
+  `).join('');
+}
+function viewSpHistoryDetail(i){
+  const s=window._spHistoryFull[i];
+  document.getElementById('sp-history-select').style.display='none';
+  document.getElementById('sp-history-detail').style.display='block';
+  const bubbles=(s.transcript||[]).map(msg=>{
+    const isUser=msg.role==='user';
+    const {main,correction}=isUser?{main:msg.content,correction:null}:splitCorrectionLine(msg.content||'');
+    return `<div style="display:flex;flex-direction:column;align-items:${isUser?'flex-end':'flex-start'};margin-bottom:10px">
+      <div style="max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;background:${isUser?'var(--pine)':'#fff'};color:${isUser?'#fff':'var(--ink)'};border:${isUser?'none':'1.5px solid var(--line)'}">${esc(main)}</div>
+      ${correction?`<div class="sp-correction-chip"><i class="ti ti-notes"></i><span>${esc(correction)}</span></div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('sp-history-detail-content').innerHTML=`
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:2px">${esc(spSessionTitle(s))}</h2>
+    <p style="font-size:12.5px;color:var(--ink3);margin-bottom:14px">${new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</p>
+    <div style="background:var(--cream);border-radius:var(--r);padding:14px">${bubbles}</div>
+  `;
 }
 function closeSpeakingPartner(){
   stopSpeechInput();
@@ -7144,6 +7331,7 @@ async function endSpeakingSession(){
   if('speechSynthesis' in window)speechSynthesis.cancel();
   const mc=spState.messageCount, mode=spState.mode, gotFeedback=spState.gotFeedback;
   const scenarioId=spState.scenarioId||null, testType=spState.testType||null;
+  const transcript=spState.history||[];
   document.getElementById('sp-chat-view').style.display='none';
   document.getElementById('sp-mode-select').style.display='block';
 
@@ -7152,7 +7340,7 @@ async function endSpeakingSession(){
     try{
       await sb.from('speaking_sessions').insert({
         student_id:currentSession.user.id, mode, scenario_id:scenarioId, test_type:testType,
-        message_count:mc, got_feedback:gotFeedback,
+        message_count:mc, got_feedback:gotFeedback, transcript,
       });
     }catch(e){/* best-effort — a failed log shouldn't block the student from moving on */}
     const bonusXp=mc>=4?15:5;
