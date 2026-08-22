@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#5B4FE9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -32,6 +32,12 @@
     --font-h:'Baloo 2',system-ui,sans-serif;
     --font-b:'Inter',system-ui,sans-serif;
     --font-tamil:'Noto Sans Tamil','Inter',system-ui,sans-serif;
+    --font-telugu:'Noto Sans Telugu','Inter',system-ui,sans-serif;
+    --font-malayalam:'Noto Sans Malayalam','Inter',system-ui,sans-serif;
+    --font-hindi:'Noto Sans Devanagari','Inter',system-ui,sans-serif;
+    --font-urdu:'Noto Nastaliq Urdu','Inter',system-ui,sans-serif;
+    --font-arabic:'Noto Sans Arabic','Inter',system-ui,sans-serif;
+    --font-bengali:'Noto Sans Bengali','Inter',system-ui,sans-serif;
     --r:12px;--rl:18px;--rxl:26px;
     --sh:0 2px 10px rgba(91,79,233,.10),0 1px 3px rgba(91,79,233,.08);
   }
@@ -202,7 +208,7 @@
   .lesson-tamil-btn:active{transform:scale(.97)}
   .lesson-tamil-box{animation:tamilBoxIn .35s cubic-bezier(.2,.9,.3,1.1);margin-top:12px;background:linear-gradient(180deg,var(--sky-l),#fff);border:1.5px solid #C7DBFB;border-radius:var(--rl);padding:16px 18px;box-shadow:0 3px 14px rgba(59,130,246,.10)}
   .lesson-tamil-box-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--font-h);font-weight:700;color:var(--sky);font-size:13px;letter-spacing:.02em}
-  .lesson-tamil-box-text{font-family:var(--font-tamil);font-size:15.5px;line-height:1.85;color:var(--ink2)}
+  .lesson-tamil-box-text{font-size:15.5px;line-height:1.85;color:var(--ink2)}
 
   /* Level Complete celebration — full-screen overlay, distinct from the
      smaller per-lesson complete panel, with confetti particles and a
@@ -591,9 +597,19 @@
             <span style="color:var(--ink3)">Voice:</span>
             <select id="sp-voice-select" onchange="spOnVoiceChange()" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream);max-width:150px"></select>
           </div>
-          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
-            <input type="checkbox" id="sp-tamil-toggle"> Tamil-English mix
-          </label>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+            <span style="color:var(--ink3)">Mix in:</span>
+            <select id="sp-lang-mix-select" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream)">
+              <option value="">English only</option>
+              <option value="ta">Tamil</option>
+              <option value="te">Telugu</option>
+              <option value="ml">Malayalam</option>
+              <option value="hi">Hindi</option>
+              <option value="ur">Urdu</option>
+              <option value="ar">Arabic</option>
+              <option value="bn">Bengali</option>
+            </select>
+          </div>
           <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
             <span style="color:var(--ink3)">Correction:</span>
             <select id="sp-correction-mode" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream)">
@@ -6502,7 +6518,18 @@ function renderLstepStep(direction){
   } else if(step.kind==='concept'){
     html=`<div class="lstep-badge concept"><i class="ti ti-bulb"></i> Concept</div>
       <div class="tp-info-card"><p id="lesson-concept-text">${lesson.concept}</p></div>
-      <button class="btn-outline btn lesson-tamil-btn" id="lesson-tamil-btn" style="width:auto;padding:8px 16px;font-size:13px;margin-top:10px" onclick="explainInTamil(this)"><i class="ti ti-language"></i> Explain in Tamil</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <select id="lesson-lang-select" style="font-size:12.5px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--cream)">
+          <option value="ta">Tamil / தமிழ்</option>
+          <option value="te">Telugu / తెలుగు</option>
+          <option value="ml">Malayalam / മലയാളം</option>
+          <option value="hi">Hindi / हिन्दी</option>
+          <option value="ur">Urdu / اردو</option>
+          <option value="ar">Arabic / العربية</option>
+          <option value="bn">Bengali / বাংলা</option>
+        </select>
+        <button class="btn-outline btn lesson-tamil-btn" id="lesson-tamil-btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="explainInLanguage(this)"><i class="ti ti-language"></i> Explain</button>
+      </div>
       <div id="lesson-tamil-box" style="display:none"></div>`;
     nextBtn.textContent='Continue';
   } else if(step.kind==='example'){
@@ -6866,35 +6893,51 @@ function resetSpeakButton(buttonEl){
   if(buttonEl)buttonEl.innerHTML='<i class="ti ti-volume"></i> Listen to this example';
 }
 
-// On-demand Tamil explanation for the current lesson's concept text.
-// Reuses the ai-speaking-partner function (action:'translate') rather
-// than a whole separate Edge Function, since this is a small addition
-// to the same "AI text helper" surface. Not cached across sessions —
-// just avoids re-fetching if the student toggles it on the same step.
-let lessonTamilCache={};
-function renderTamilBox(box,text){
+// On-demand explanation for the current lesson's concept text, in any
+// of several supported languages. Reuses the ai-speaking-partner
+// function (action:'translate') rather than a whole separate Edge
+// Function. Cached per lesson+language so switching languages or
+// re-opening the box doesn't re-fetch what's already been translated.
+const SUPPORTED_LANGUAGES=[
+  {code:'ta', name:'Tamil', native:'தமிழில்', rtl:false, font:'var(--font-tamil)'},
+  {code:'te', name:'Telugu', native:'తెలుగులో', rtl:false, font:'var(--font-telugu)'},
+  {code:'ml', name:'Malayalam', native:'മലയാളത്തിൽ', rtl:false, font:'var(--font-malayalam)'},
+  {code:'hi', name:'Hindi', native:'हिन्दी में', rtl:false, font:'var(--font-hindi)'},
+  {code:'ur', name:'Urdu', native:'اردو میں', rtl:true, font:'var(--font-urdu)'},
+  {code:'ar', name:'Arabic', native:'بالعربية', rtl:true, font:'var(--font-arabic)'},
+  {code:'bn', name:'Bengali', native:'বাংলায়', rtl:false, font:'var(--font-bengali)'},
+];
+let lessonTranslateCache={};
+function renderTranslateBox(box,text,langCode){
+  const lang=SUPPORTED_LANGUAGES.find(l=>l.code===langCode);
   // Re-inject the card markup fresh each time (not just fill textContent)
   // so the CSS entrance animation replays whenever it's shown, rather
   // than only on the very first render.
   box.innerHTML=`<div class="lesson-tamil-box">
-    <div class="lesson-tamil-box-header"><i class="ti ti-language"></i> தமிழில் (In Tamil)</div>
-    <div class="lesson-tamil-box-text"></div>
+    <div class="lesson-tamil-box-header"><i class="ti ti-language"></i> ${esc(lang.native)} (${esc(lang.name)})</div>
+    <div class="lesson-tamil-box-text" style="font-family:${lang.font}" dir="${lang.rtl?'rtl':'ltr'}"></div>
   </div>`;
   box.querySelector('.lesson-tamil-box-text').textContent=text;
   box.style.display='block';
 }
-async function explainInTamil(buttonEl){
+async function explainInLanguage(buttonEl){
+  const select=document.getElementById('lesson-lang-select');
+  const langCode=select.value;
   const box=document.getElementById('lesson-tamil-box');
-  const key=lstepState.lesson.title+'|'+lstepState.idx;
+  const key=lstepState.lesson.title+'|'+lstepState.idx+'|'+langCode;
+  const shownLang=box.dataset.shownLang;
   const isShown=box.style.display==='block';
-  if(isShown){ box.style.display='none'; box.innerHTML=''; buttonEl.innerHTML='<i class="ti ti-language"></i> Explain in Tamil'; return; }
-  if(lessonTamilCache[key]){ renderTamilBox(box,lessonTamilCache[key]); buttonEl.innerHTML='<i class="ti ti-language"></i> Hide Tamil explanation'; return; }
+  // If already showing THIS language, toggle it off; if showing a
+  // different language, fall through and re-render in the new one
+  // instead of hiding, since the select just changed.
+  if(isShown&&shownLang===langCode){ box.style.display='none'; box.innerHTML=''; buttonEl.innerHTML='<i class="ti ti-language"></i> Explain'; return; }
+  if(lessonTranslateCache[key]){ renderTranslateBox(box,lessonTranslateCache[key],langCode); box.dataset.shownLang=langCode; buttonEl.innerHTML='<i class="ti ti-language"></i> Hide explanation'; return; }
   const original=buttonEl.innerHTML;
   buttonEl.innerHTML='<i class="ti ti-loader-2"></i> Translating…';
   buttonEl.disabled=true;
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({
-      action:'translate', text:document.getElementById('lesson-concept-text').innerText, targetLanguage:'ta',
+      action:'translate', text:document.getElementById('lesson-concept-text').innerText, targetLanguage:langCode,
     })});
     const data=await r.json();
     if(!r.ok||data.error||!data.translation){
@@ -6903,9 +6946,10 @@ async function explainInTamil(buttonEl){
       buttonEl.innerHTML=original;
       return;
     }
-    lessonTamilCache[key]=data.translation;
-    renderTamilBox(box,data.translation);
-    buttonEl.innerHTML='<i class="ti ti-language"></i> Hide Tamil explanation';
+    lessonTranslateCache[key]=data.translation;
+    renderTranslateBox(box,data.translation,langCode);
+    box.dataset.shownLang=langCode;
+    buttonEl.innerHTML='<i class="ti ti-language"></i> Hide explanation';
   }catch(e){
     box.innerHTML=`<div class="lesson-tamil-box"><div class="lesson-tamil-box-text">Couldn't translate right now — please try again.</div></div>`;
     box.style.display='block';
@@ -7220,7 +7264,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt, studentProfile:spState.studentProfileText||null,
-      correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked,
+      correctionMode:document.getElementById('sp-correction-mode').value, nativeLanguageMix:document.getElementById('sp-lang-mix-select').value||null,
       conversationHistory:[], userMessage:kickoffPrompt,
     })});
     const data=await r.json();
@@ -7274,7 +7318,7 @@ async function sendSpeakingMessage(){
   try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({
       action:'reply', mode:spState.mode, scenario:spState.scenario, testType:spState.testType, skillPrompt:spState.skillPrompt, studentProfile:spState.studentProfileText||null,
-      correctionMode:document.getElementById('sp-correction-mode').value, tamilMix:document.getElementById('sp-tamil-toggle').checked, inputWasVoice:wasVoice,
+      correctionMode:document.getElementById('sp-correction-mode').value, nativeLanguageMix:document.getElementById('sp-lang-mix-select').value||null, inputWasVoice:wasVoice,
       conversationHistory:spState.history, userMessage:text,
     })});
     const data=await r.json();
