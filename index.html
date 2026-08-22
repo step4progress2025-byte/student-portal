@@ -254,10 +254,10 @@
   .sp-mode-card p{margin:0;font-size:12.5px;color:var(--ink3);line-height:1.4}
   .sp-mode-arrow{margin-left:auto;color:var(--ink3);font-size:20px;font-weight:700;flex-shrink:0}
 
-  .sp-avatar-orb{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,var(--pine),var(--pine3));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 0 rgba(91,79,233,.5);transition:box-shadow .3s ease}
+  .sp-avatar-orb{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#F59E0B,#FCD34D);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 0 rgba(245,158,11,.5);transition:box-shadow .3s ease}
   .sp-avatar-orb-inner{color:#fff;font-size:18px;display:flex}
   .sp-avatar-orb.thinking{animation:orbPulse 1.2s ease-in-out infinite}
-  @keyframes orbPulse{0%{box-shadow:0 0 0 0 rgba(91,79,233,.45)}70%{box-shadow:0 0 0 10px rgba(91,79,233,0)}100%{box-shadow:0 0 0 0 rgba(91,79,233,0)}}
+  @keyframes orbPulse{0%{box-shadow:0 0 0 0 rgba(245,158,11,.45)}70%{box-shadow:0 0 0 10px rgba(245,158,11,0)}100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}}
 
   .sp-typing-indicator{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink3);margin-bottom:6px}
   .sp-typing-dots{display:flex;gap:3px}
@@ -413,7 +413,7 @@
       <div class="nav-tile" onclick="openDocuments()"><div class="icon">📄</div><div class="label">My Documents</div></div>
       <div class="nav-tile" onclick="openCareer()"><div class="icon">💼</div><div class="label">Career &amp; Scholarships</div></div>
       <div class="nav-tile" onclick="openTestPrep()"><div class="icon">🎓</div><div class="label">Test Prep Hub</div></div>
-      <div class="nav-tile" onclick="openSpeakingPartner()"><div class="icon">🗣️</div><div class="label">AI Speaking Partner</div></div>
+      <div class="nav-tile" onclick="openSpeakingPartner()"><div class="icon">⚡</div><div class="label">Spark</div></div>
       <div class="nav-tile" onclick="openVisaPrep()"><div class="icon">🛂</div><div class="label">Visa Assistance</div></div>
       <div class="nav-tile" onclick="openUniPrep()"><div class="icon">🎓</div><div class="label">University Interview Prep</div></div>
       <div class="nav-tile" onclick="openSopReview()"><div class="icon">📝</div><div class="label">SOP / Essay Review</div></div>
@@ -515,8 +515,11 @@
     <span class="back-link" onclick="closeSpeakingPartner()">← Back</span>
 
     <div id="sp-mode-select">
-      <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">AI Speaking Partner</h2>
-      <p style="font-size:14.5px;color:var(--ink3);margin-bottom:14px">Practise real spoken English with an AI conversation partner — talk or type, your choice.</p>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#F59E0B,#FCD34D);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(245,158,11,.35)"><span style="font-size:18px">⚡</span></div>
+        <h2 style="font-size:19px;color:var(--pine);margin:0">Spark</h2>
+      </div>
+      <p style="font-size:14.5px;color:var(--ink3);margin-bottom:14px">Your AI English speaking partner — talk or type, your choice, and Spark adjusts to whatever you need.</p>
       <div id="sp-stats-strip" class="sp-stats-strip"></div>
       <div id="sp-badges-row" class="sp-badges-row"></div>
       <div id="sp-focus-areas"></div>
@@ -528,9 +531,9 @@
         <div><h4>Open Conversation</h4><p>Chat naturally about anything — the AI keeps things flowing and gently models corrections.</p></div>
         <div class="sp-mode-arrow">›</div>
       </div>
-      <div class="sp-mode-card" style="--sp-grad1:#E5484D;--sp-grad2:#FF9494" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-survival-select').style.display='block'">
-        <div class="sp-mode-icon">🆘</div>
-        <div><h4>Survival English</h4><p>Real everyday situations abroad, at a genuinely beginner pace — no pressure, just building the courage to speak.</p></div>
+      <div class="sp-mode-card" style="--sp-grad1:#F59E0B;--sp-grad2:#FCD34D" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-survival-select').style.display='block'">
+        <div class="sp-mode-icon">🧳</div>
+        <div><h4>Everyday Situations</h4><p>Practical, real-world conversations you'll actually run into — at your own pace.</p></div>
         <div class="sp-mode-arrow">›</div>
       </div>
       <div class="sp-mode-card" style="--sp-grad1:#FF6B4A;--sp-grad2:#FFB199" onclick="document.getElementById('sp-mode-select').style.display='none';document.getElementById('sp-roleplay-select').style.display='block'">
@@ -553,7 +556,7 @@
     <div id="sp-survival-select" style="display:none">
       <span class="back-link" onclick="document.getElementById('sp-survival-select').style.display='none';document.getElementById('sp-mode-select').style.display='block'">← Choose a different mode</span>
       <h2 style="font-size:19px;color:var(--pine);margin:10px 0 4px">Pick a situation</h2>
-      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">This mode is built for genuine beginners — simple language from the AI, gentle correction only, and Tamil mixing turned on automatically (you can turn it off if you'd rather practise English only).</p>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:12px">Simple, natural conversation with gentle correction, and your language mixed in automatically — switch it off anytime if you'd rather practise English only.</p>
       <div id="sp-survival-grid"></div>
     </div>
 
@@ -592,6 +595,7 @@
         <div style="display:flex;align-items:center;gap:10px">
           <div id="sp-avatar-orb" class="sp-avatar-orb"><div class="sp-avatar-orb-inner"><i class="ti ti-message-chatbot"></i></div></div>
           <div>
+            <div style="font-size:10px;color:#B45309;font-weight:700;letter-spacing:.04em;text-transform:uppercase">⚡ Spark</div>
             <div id="sp-chat-title" style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:16px"></div>
             <div id="sp-chat-subtitle" style="font-size:12.5px;color:var(--ink3)"></div>
           </div>
@@ -633,7 +637,7 @@
       </div>
       <div id="sp-messages" style="height:min(50vh,420px);overflow-y:auto;background:var(--cream);border-radius:var(--r);padding:14px;margin-bottom:10px"></div>
       <div id="sp-typing-indicator" class="sp-typing-indicator" style="display:none">
-        <div class="sp-typing-dots"><span></span><span></span><span></span></div> AI is typing…
+        <div class="sp-typing-dots"><span></span><span></span><span></span></div> Spark is typing…
       </div>
       <div id="sp-waveform" class="sp-waveform" style="display:none">
         <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
@@ -1117,7 +1121,7 @@ const TEST_DATA = {
   Grammar: {
     name: 'Grammar Foundations', ready: false,
     stats: [['19','Lessons'],['4','Topic areas'],['Free','No test fee — this is a prep track, not an exam']],
-    modules: ['Parts of Speech','Sentence Building','Tenses & Agreement','Practical Fixes','Beyond the Basics'],
+    modules: ['Parts of Speech','Everyday Sentence Basics','Sentence Building','Tenses & Agreement','Practical Fixes','Beyond the Basics','Words & Idioms'],
     gettingStarted: [
       {
         id: 'gr-gs1', title: 'Why Grammar Terms Actually Matter', time: '10-12 minutes',
@@ -1256,6 +1260,83 @@ const TEST_DATA = {
               {q:'Which is correct: "an hour" or "a hour"?', options:['a hour','an hour','Both are equally correct','Neither is correct'], correct:1, a:'"An hour" is correct because "hour" starts with a silent h, making it sound like it begins with a vowel.'},
               {q:'What determines whether "a" or "an" is used — spelling or sound?', options:['Spelling only','Sound only','Both equally, always','Neither — it is random'], correct:1, a:'The choice is based on the SOUND at the start of the following word, not just the spelling.'},
             ],
+          },
+        ],
+        'Everyday Sentence Basics':[
+          {
+id: 'gr-sb-basics1', title: 'Is, Am, Are, Was, Were — Getting "To Be" Right Every Time', time: '18-20 minutes',
+  objectives: ['Learn exactly which form of "to be" matches which subject, in both present and past', 'Understand the full pattern in one place, side by side, instead of scattered across different lessons', 'Practise choosing the correct form quickly and confidently'],
+  concept: 'This is genuinely one of the most commonly confused areas in English, because the correct word depends on BOTH who you are talking about AND when it happened. Here is the complete pattern in one place:<br><br><b>Present:</b> I am · You are · He/She/It is · We are · They are<br><b>Past:</b> I was · You were · He/She/It was · We were · They were<br><br>Notice the pattern: "am" only ever pairs with "I." "Is/was" only ever pair with a single person or thing (he, she, it, or a singular name like "Priya"). "Are/were" pair with "you," "we," "they," or any plural subject.',
+  example: '<i>(Original example)</i><br><br><b>"I am ready. My brother is at work. My parents are travelling. Yesterday, I was tired, he was busy, and they were away."</b><br><br>Every single form matches its subject correctly: "am" with "I," "is" with the singular "my brother," "are" with the plural "my parents," and the same pattern shifted into the past with "was/were."',
+  vocab: [['to be (recap)','the verb showing existence or a state, appearing as am/is/are in the present and was/were in the past'],['singular subject (recap)','a subject referring to exactly one person or thing — takes is/was'],['plural subject (recap)','a subject referring to more than one person or thing — takes are/were'],['present form of "to be"','am, is, or are — used for something true right now'],['past form of "to be"','was or were — used for something true at an earlier time']],
+  mistakes: ['Using "is" with a plural subject, e.g. "They is happy" instead of "They are happy."', 'Using "was" with "you," "we," or "they," e.g. "They was late" instead of "They were late."', 'Using "am" with any subject other than "I," e.g. "She am tired" instead of "She is tired."', 'Mixing present and past forms in the same sentence without a genuine reason to shift time.'],
+  practice: 'Fill in the correct form of "to be": <b>"Right now, I ___ hungry. My friends ___ at the cinema. Yesterday, we ___ at the beach, and it ___ very hot."</b>',
+  practiceAnswer: '"Right now, I am hungry. My friends are at the cinema. Yesterday, we were at the beach, and it was very hot." — "am" with "I," "are" with the plural "friends," "were" with the plural "we," and "was" with the singular "it."',
+  quiz: [
+    {q:'Which form of "to be" is used ONLY with "I"?', options:['Is','Am','Are','Was'], correct:1, a:'"Am" is used exclusively with "I" in the present tense.'},
+    {q:'Which sentence is correct?', options:['They is at home.','They am at home.','They are at home.','They be at home.'], correct:2, a:'"They" is plural, so it correctly pairs with "are."'},
+    {q:'What is the past-tense form of "is"?', options:['Are','Were','Was','Am'], correct:2, a:'"Was" is the past-tense form matching singular subjects like "he," "she," "it," or a name.'},
+  ],
+          },
+          {
+id: 'gr-sb-basics2', title: 'They vs. Them, He vs. Him — Choosing the Right Pronoun Form', time: '18-20 minutes',
+  objectives: ['Understand why English pronouns change form depending on their job in the sentence', 'Learn to tell subject pronouns and object pronouns apart quickly', 'Practise choosing the correct pronoun form in real sentences'],
+  concept: 'This confusion happens because the SAME person can be referred to with two different words, depending on whether they are DOING the action (subject) or RECEIVING the action (object).<br><br><b>Subject pronouns</b> (do the action): I, you, he, she, it, we, they<br><b>Object pronouns</b> (receive the action): me, you, him, her, it, us, them<br><br>A simple test: if the pronoun comes right BEFORE the verb, doing the action, use the subject form ("They called me"). If it comes AFTER the verb or after a word like "to/for/with," receiving the action, use the object form ("I called them").',
+  example: '<i>(Original example)</i><br><br><b>"They invited us to the party, and we thanked them for it."</b><br><br>"They" (subject — doing the inviting) ... "us" (object — receiving the invitation) ... "we" (subject — doing the thanking) ... "them" (object — receiving the thanks). The same two people/groups appear twice each, in different forms, depending on their role each time.',
+  vocab: [['subject pronoun (recap)','a pronoun that performs the action — I, you, he, she, it, we, they'],['object pronoun (recap)','a pronoun that receives the action — me, you, him, her, it, us, them'],['role in the sentence','whether a pronoun is doing the action (subject) or receiving it (object)'],['simple test (for pronoun choice)','checking whether the pronoun comes before the verb (subject) or after it (object)'],['same person, different form','how one person can be referred to as "he" or "him" depending on their role']],
+  mistakes: ['Using an object pronoun where a subject pronoun is needed, e.g. "Him is my friend" instead of "He is my friend."', 'Using a subject pronoun where an object pronoun is needed, e.g. "Give it to they" instead of "Give it to them."', 'Getting confused specifically after prepositions like "to," "for," or "with," which always take the object form.', 'Mixing up "he/him" or "she/her" in longer sentences with multiple people mentioned.'],
+  practice: 'Choose the correct pronoun: <b>"___ (they/them) gave the tickets to ___ (we/us), and ___ (we/us) thanked ___ (they/them) warmly."</b>',
+  practiceAnswer: '"They gave the tickets to us, and we thanked them warmly." — "they" and "we" are subjects (doing the giving/thanking); "us" and "them" are objects (receiving the tickets/thanks).',
+  quiz: [
+    {q:'Which pronoun form is used when the pronoun performs the action?', options:['Object pronoun','Subject pronoun','Both work equally','Neither — a noun must be used instead'], correct:1, a:'The subject pronoun (I, he, she, we, they) is used when it performs the action.'},
+    {q:'Which sentence is correct?', options:['Him called me yesterday.','He called I yesterday.','He called me yesterday.','Him called I yesterday.'], correct:2, a:'"He" (subject, doing the calling) and "me" (object, receiving the call) are both correctly used.'},
+    {q:'What pronoun form always follows a word like "to," "for," or "with"?', options:['Subject pronoun','Object pronoun','Either form works','A possessive pronoun only'], correct:1, a:'Object pronouns (me, him, her, us, them) always follow prepositions like "to," "for," or "with."'},
+  ],
+          },
+          {
+id: 'gr-sb-basics3', title: 'Do, Does, Did — The Helper Verbs Behind Questions and Negatives', time: '18-20 minutes',
+  objectives: ['Understand why English needs "do/does/did" to form many questions and negatives', 'Learn which form matches which subject and tense', 'Practise building correct questions and negative sentences'],
+  concept: 'Many languages form questions or negatives just by changing word order or adding one word — English is different. For most verbs (not "to be"), English needs a HELPER verb — do, does, or did — to form a question or a negative sentence.<br><br><b>Do</b> — with I, you, we, they (present): "Do you like coffee?"<br><b>Does</b> — with he, she, it (present): "Does she like coffee?"<br><b>Did</b> — with any subject (past): "Did they like coffee?"<br><br>The key pattern to remember: once "do/does/did" is added, the MAIN verb goes back to its plain base form — "does she like" (not "likes"), "did they like" (not "liked"), even though the sentence is clearly about the present or the past.',
+  example: '<i>(Original example)</i><br><br>Statement: <b>"He works here. She worked here."</b><br>Question: <b>"Does he work here? Did she work here?"</b><br>Negative: <b>"He does not work here. She did not work here."</b><br><br>Notice "works" becomes "work" once "does" is added, and "worked" becomes "work" once "did" is added — the helper verb carries the tense, so the main verb returns to its base form.',
+  vocab: [['helper verb (recap)','an auxiliary verb like do/does/did that helps form questions and negatives'],['base form (recap)','the plain, unchanged form of a verb — the form used after do/does/did'],['double marking (recap)','a common error of keeping the tense marker on the main verb even after adding do/does/did'],['question formation (recap)','the process of turning a statement into a question, often using a helper verb'],['negative formation (recap)','the process of turning a statement into a negative, often using a helper verb plus "not"']],
+  mistakes: ['Keeping the tense ending on the main verb after adding do/does/did, e.g. "Does she works here?" instead of "Does she work here?"', 'Using "do" with a singular subject like "he/she/it," when "does" is needed instead.', 'Using "does" for a past-tense question, when "did" is actually needed.', 'Forgetting the helper verb entirely and just reordering words, e.g. "Works she here?" instead of "Does she work here?"'],
+  practice: 'Turn this into a question and then a negative: <b>"They visited Chennai last year."</b>',
+  practiceAnswer: 'Question: "Did they visit Chennai last year?" Negative: "They did not visit Chennai last year." — "did" carries the past tense, so "visited" returns to its base form "visit" in both cases.',
+  quiz: [
+    {q:'Which helper verb is used with "he," "she," or "it" in the present?', options:['Do','Does','Did','None — no helper verb is needed'], correct:1, a:'"Does" is used with third-person singular subjects (he, she, it) in the present.'},
+    {q:'What happens to the main verb once "did" is added to a sentence?', options:['It stays in the past tense form','It returns to its plain base form','It changes to the "-ing" form','It disappears entirely'], correct:1, a:'Once "did" carries the past tense, the main verb returns to its base form, e.g. "did go," not "did went."'},
+    {q:'Which is correct?', options:['Does she works here?','Does she work here?','Do she work here?','Did she works here?'], correct:1, a:'"Does" correctly matches "she," and the main verb "work" stays in its base form.'},
+  ],
+          },
+          {
+id: 'gr-sb-basics4', title: 'Building a Sentence Step by Step: Subject, Verb, Object', time: '18-20 minutes',
+  objectives: ['Learn a simple, reliable order for building an English sentence from scratch', 'Understand why English word order matters more than in some other languages', 'Practise building correct sentences piece by piece'],
+  concept: 'When unsure how to phrase a sentence, a reliable starting formula is: SUBJECT (who/what) → VERB (the action) → OBJECT (who/what receives the action) → EXTRA DETAILS (when, where, why). English relies heavily on this word order to show meaning — unlike some languages where word order is more flexible because word endings show the meaning instead.<br><br>Building block by block: start with WHO the sentence is about (subject), add WHAT they did (verb), add WHO/WHAT received the action (object, if there is one), then add any extra detail (time, place, reason) at the end.',
+  example: '<i>(Original example)</i><br><br>Building step by step: "My sister" (subject) + "bought" (verb) + "a new phone" (object) + "yesterday" (extra detail, time) = <b>"My sister bought a new phone yesterday."</b><br><br>Following this order consistently produces a natural, correctly-structured English sentence, even before worrying about more advanced grammar details.',
+  vocab: [['subject (recap)','the noun or pronoun a sentence is about — usually first'],['verb (recap)','the action or state, usually placed right after the subject'],['object (recap)','the noun or pronoun receiving the action, usually placed right after the verb'],['extra detail','additional information like time, place, or reason, usually added at the end'],['word order (recap)','the sequence in which sentence parts appear, which strongly affects meaning in English']],
+  mistakes: ['Placing the verb at the end of the sentence, following a different language\'s word order habit, instead of directly after the subject.', 'Placing extra details (time, place) in the middle of the sentence in a way that sounds unnatural, rather than at the end.', 'Forgetting the object entirely when the verb actually requires one, e.g. "I bought" without saying what was bought.', 'Overloading one sentence with too many extra details, making it hard to follow — splitting into two sentences is often clearer.'],
+  practice: 'Build a sentence step by step using these pieces: subject = "The students," verb = "finished," object = "their project," extra detail = "last week."',
+  practiceAnswer: '"The students finished their project last week." — following the reliable order: subject, verb, object, extra detail.',
+  quiz: [
+    {q:'What is a reliable basic word order for building an English sentence?', options:['Object, verb, subject','Subject, verb, object, extra details','Verb, subject, object','Extra details, subject, verb'], correct:1, a:'Subject, then verb, then object (if needed), then extra details is a reliable basic order for English.'},
+    {q:'Where do extra details like time and place usually go in a basic sentence?', options:['At the very beginning, always','In the middle, between the subject and verb','At the end of the sentence','They cannot be included in a simple sentence'], correct:2, a:'Extra details like time and place are usually added at the end of a basic sentence.'},
+    {q:'Why does word order matter especially in English?', options:['It does not matter at all in English','English relies heavily on word order to show meaning, more than some other languages','Only formal writing requires correct word order','Word order only matters in questions'], correct:1, a:'English relies heavily on word order to convey meaning, since it does not rely on changing word endings the way some other languages do.'},
+  ],
+          },
+          {
+id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Constantly', time: '18-20 minutes',
+  objectives: ['Learn a handful of extremely common sentence patterns used constantly in daily speech', 'Understand how to adapt each pattern to different situations', 'Practise building new sentences from these reusable patterns'],
+  concept: 'A small number of sentence patterns cover an enormous share of everyday spoken English. Learning these as reusable templates — and simply swapping in new words — is often faster and more useful early on than trying to construct every sentence completely from scratch.<br><br>Useful patterns: "I would like ___" (requests), "Can you ___?" (asking for help), "I am looking for ___" (searching), "How do I get to ___?" (directions), "Do you have ___?" (availability), "I need to ___" (necessity), "Is it possible to ___?" (polite requests).',
+  example: '<i>(Original example)</i><br><br>Same pattern, different situations: <b>"I would like a coffee." / "I would like some information." / "I would like to speak to the manager."</b><br><br>One reliable pattern ("I would like ___") handles an enormous range of everyday requests, just by changing what comes after it.',
+  vocab: [['sentence pattern (recap)','a reusable sentence structure that can be adapted to many different situations by changing a few words'],['template (in language)','a fixed frame with a gap to fill in, used repeatedly across different contexts'],['reusable phrase','a common expression that can be applied to many different specific situations'],['polite request','a phrase structured to ask for something courteously, like "Is it possible to...?"'],['adapt (a pattern)','changing the specific words within a pattern while keeping its overall structure the same']],
+  mistakes: ['Trying to build every sentence entirely from scratch, instead of reusing a reliable, already-known pattern.', 'Using an overly direct pattern ("Give me...") in situations that call for a more polite one ("Could I have...?").', 'Not practising these patterns enough for them to feel automatic in real conversation.', 'Forgetting that these patterns can be adapted just by changing the ending, without needing to rebuild the whole sentence each time.'],
+  practice: 'Using the pattern "Do you have ___?", build three different everyday sentences for three different situations (e.g. a shop, a restaurant, a hotel).',
+  practiceAnswer: 'Examples: "Do you have this in a larger size?" (shop) / "Do you have a table for two?" (restaurant) / "Do you have any rooms available tonight?" (hotel) — one reliable pattern, adapted across very different real situations.',
+  quiz: [
+    {q:'Why are common sentence patterns useful to learn as templates?', options:['They are not actually useful', 'They cover a large share of everyday speech and can be reused across many situations by changing a few words', 'They only work in written English', 'They replace the need to learn any other grammar'], correct:1, a:'A small number of patterns cover a large share of everyday spoken English and can be adapted across many situations.'},
+    {q:'What does it mean to "adapt" a sentence pattern?', options:['Translating it into another language','Changing the specific words while keeping the overall structure the same','Making it more formal only','Removing the verb entirely'], correct:1, a:'Adapting a pattern means changing the specific words to fit a new situation, while keeping its reliable overall structure.'},
+    {q:'Which pattern would suit asking for directions?', options:['"I would like..."','"How do I get to...?"','"Do you have...?"','"I need to..."'], correct:1, a:'"How do I get to...?" is the pattern specifically suited to asking for directions.'},
+  ],
           },
         ],
         'Sentence Building':[
@@ -1503,6 +1584,83 @@ id: 'gr-bb5', title: 'Relative Clauses — Adding Extra Information With Who, Wh
     {q:'What does a relative clause do?', options:['Names a new subject','Adds extra information about a noun', 'Shows the time an action happened','Replaces the main verb'], correct:1, a:'A relative clause adds extra information about a noun, introduced by a relative pronoun like who, which, or that.'},
     {q:'Which relative pronoun is used for people?', options:['Which','Who','Both are used equally for people','Neither — "that" is required for people'], correct:1, a:'"Who" is the relative pronoun typically used for people, while "which" is used for things.'},
     {q:'What is the difference between defining and non-defining relative clauses?', options:['There is no real difference','Defining clauses give essential identifying information; non-defining clauses add extra, non-essential detail set off by commas','Non-defining clauses are always longer','Defining clauses always use "which"'], correct:1, a:'Defining clauses give essential information needed to identify the noun, while non-defining clauses add extra detail and are set off by commas.'},
+  ],
+          },
+        ],
+        'Words & Idioms':[
+          {
+id: 'gr-wi1', title: 'There, Their, They\'re — and Your, You\'re', time: '16-18 minutes',
+  objectives: ['Learn to tell "there," "their," and "they\'re" apart by meaning', 'Learn to tell "your" and "you\'re" apart by meaning', 'Practise choosing the correct word in real sentences'],
+  concept: 'These sound-alike word pairs are among the most commonly confused in English, precisely because they sound identical when spoken — the confusion shows up in writing, and getting comfortable with the difference genuinely helps reading and writing confidence too.<br><br>"There" points to a place or introduces something ("The book is over there," "There is a problem"). "Their" shows possession — something belonging to them ("their house"). "They\'re" is short for "they are" ("They\'re coming later").<br><br>"Your" shows possession — something belonging to you ("your bag"). "You\'re" is short for "you are" ("You\'re welcome").',
+  example: '<i>(Original example)</i><br><br><b>"They\'re going to visit their cousins over there next week."</b><br><br>"They\'re" (they are) going, to visit "their" (belonging to them) cousins, who live "there" (a place) — all three words in one sentence, each doing a genuinely different job despite sounding the same.',
+  vocab: [['homophone','a word that sounds identical to another word but has a different meaning and spelling'],['possession (recap)','ownership — something belonging to someone'],['contraction (recap)','a shortened form of two words combined, like "they\'re" for "they are"'],['point to a place','the function of "there," indicating location or existence'],['sound-alike confusion','mixing up words that sound the same in speech but differ in writing']],
+  mistakes: ['Writing "there" when showing possession is meant, e.g. "there house" instead of "their house."', 'Writing "their" when introducing something, e.g. "their is a problem" instead of "there is a problem."', 'Writing "your" when "you are" is meant, e.g. "your welcome" instead of "you\'re welcome."', 'Confusing "they\'re" with "their" when the sentence needs a possessive word instead of a contraction.'],
+  practice: 'Choose the correct word: <b>"___ (your/you\'re) going to love ___ (there/their/they\'re) new house — it\'s right over ___ (there/their/they\'re)."</b>',
+  practiceAnswer: '"You\'re going to love their new house — it\'s right over there." — "you\'re" (you are), "their" (belonging to them), "there" (a place).',
+  quiz: [
+    {q:'Which word shows possession — something belonging to "them"?', options:['There','Their','They\'re','None of these'], correct:1, a:'"Their" shows possession, meaning something belongs to them.'},
+    {q:'What is "they\'re" short for?', options:['There is','Their own','They are','This is'], correct:2, a:'"They\'re" is a contraction of "they are."'},
+    {q:'Which sentence uses "your/you\'re" correctly?', options:['Your welcome.','You\'re bag is here.','You\'re welcome.','Your going to love this.'], correct:2, a:'"You\'re welcome" correctly uses the contraction of "you are."'},
+  ],
+          },
+          {
+id: 'gr-wi2', title: 'Commonly Confused Word Pairs — Affect/Effect, Then/Than, and More', time: '16-18 minutes',
+  objectives: ['Learn the difference between several frequently confused word pairs', 'Understand a simple trick for remembering each pair', 'Practise choosing the correct word for a given sentence'],
+  concept: 'Beyond there/their/they\'re, several other word pairs are commonly mixed up because they sound similar or share a root:<br>• AFFECT (verb — to influence) vs EFFECT (noun — a result): "The weather can affect your mood." / "The effect was immediate."<br>• THEN (time) vs THAN (comparison): "First we ate, then we left." / "She is taller than him."<br>• ACCEPT (verb — to agree to receive) vs EXCEPT (preposition — excluding): "I accept your offer." / "Everyone except him agreed."<br>• LOOSE (adjective — not tight) vs LOSE (verb — to not win/to misplace): "The shirt is loose." / "Don\'t lose your keys."',
+  example: '<i>(Original example)</i><br><br><b>"The new policy will affect everyone except the interns, and the effect will be greater than expected."</b><br><br>"Affect" (verb, to influence), "except" (excluding), "effect" (noun, result), "than" (comparison) — four commonly confused words used correctly together.',
+  vocab: [['affect (verb)','to influence or have an impact on something'],['effect (noun)','a result or outcome caused by something'],['comparison word','a word like "than" used to compare two things'],['excluding','leaving something out, the meaning of "except"'],['root confusion','when two words are mixed up partly because they look or sound related']],
+  mistakes: ['Using "effect" as a verb when "affect" (the verb form) is needed.', 'Confusing "then" (time) with "than" (comparison), especially in fast writing.', 'Using "accept" when "except" (excluding) is actually meant.', 'Confusing "loose" (not tight) with "lose" (to misplace or not win).'],
+  practice: 'Choose the correct word: <b>"Everyone ___ (accept/except) Maria finished ___ (then/than) the rest, which will ___ (affect/effect) the schedule."</b>',
+  practiceAnswer: '"Everyone except Maria finished before the rest, which will affect the schedule." — "except" (excluding Maria), and "affect" (verb, to influence) fits correctly.',
+  quiz: [
+    {q:'Which is the correct verb meaning "to influence"?', options:['Effect','Affect','Both are correct','Neither is correct'], correct:1, a:'"Affect" is the verb meaning to influence; "effect" is normally the noun for a result.'},
+    {q:'Which word is used for comparison, like "taller ___ him"?', options:['Then','Than','Both work equally','Neither is correct'], correct:1, a:'"Than" is used for comparison; "then" refers to time or sequence.'},
+    {q:'What does "except" mean?', options:['To agree to receive something','Excluding something','A result','Not tight'], correct:1, a:'"Except" means excluding — "everyone except him" means everyone but not him.'},
+  ],
+          },
+          {
+id: 'gr-wi3', title: 'Common Phrasal Verbs for Everyday Conversation', time: '18-20 minutes',
+  objectives: ['Understand what a phrasal verb is and why they matter for natural speech', 'Learn several genuinely high-frequency phrasal verbs used in daily conversation', 'Practise using phrasal verbs naturally instead of more formal single-word alternatives'],
+  concept: 'A phrasal verb combines a verb with one or more small words (like "up," "out," "on") to create a meaning often quite different from the original verb alone — "give up" (to stop trying) has little to do with "give" alone. Native and fluent speakers use phrasal verbs constantly in everyday conversation; relying only on more formal single-word equivalents ("abandon" instead of "give up") can sound stiff and less natural.<br><br>Some genuinely high-frequency ones: LOOK UP (search for information), RUN INTO (meet by chance), GET ALONG (have a good relationship), FIGURE OUT (understand/solve), PUT OFF (postpone), CARRY ON (continue), COME ACROSS (find by chance / seem a certain way), HANG OUT (spend casual time together).',
+  example: '<i>(Original example)</i><br><br>More formal: <b>"I encountered my old friend and we continued our conversation."</b><br><br>Natural, everyday: <b>"I ran into my old friend and we carried on our conversation."</b><br><br>Both are grammatically correct, but the phrasal-verb version sounds like genuine, natural everyday speech — the kind fluent speakers actually use casually.',
+  vocab: [['phrasal verb','a verb combined with one or more small words, creating a meaning distinct from the verb alone'],['high-frequency (in vocabulary)','used very often in real, everyday speech'],['formal alternative','a more single-word, often Latin-derived equivalent to a phrasal verb'],['natural speech (recap)','the way fluent speakers genuinely talk in relaxed, everyday situations'],['idiomatic meaning','a meaning not directly guessable from the individual words alone']],
+  mistakes: ['Relying only on formal single-word verbs, which can sound stiff in casual conversation.', 'Guessing a phrasal verb\'s meaning literally from its individual words, missing the idiomatic meaning.', 'Using the wrong small word with a verb, e.g. "look for up" instead of "look up."', 'Avoiding phrasal verbs entirely out of unfamiliarity, missing a big part of how fluent speech actually sounds.'],
+  practice: 'Rewrite this more naturally using a phrasal verb instead of the bold formal word: <b>"I need to postpone our meeting until next week."</b>',
+  practiceAnswer: '"I need to put off our meeting until next week." — "put off" is the natural, everyday phrasal verb equivalent of "postpone."',
+  quiz: [
+    {q:'What is a phrasal verb?', options:['A verb with no object','A verb combined with small words, creating a distinct meaning','A verb only used in formal writing','A verb with two subjects'], correct:1, a:'A phrasal verb combines a verb with small words like "up" or "out," often creating a meaning different from the verb alone.'},
+    {q:'What does "run into" mean, as a phrasal verb?', options:['To physically crash into something','To meet someone by chance','To run quickly','To avoid someone'], correct:1, a:'"Run into" means to meet someone unexpectedly, by chance.'},
+    {q:'Why do phrasal verbs matter for natural conversation?', options:['They do not actually matter','Fluent speakers use them constantly, so relying only on formal alternatives can sound stiff','They are only used in written English','They are always incorrect to use'], correct:1, a:'Phrasal verbs are used constantly in natural, everyday speech — avoiding them entirely can make speech sound overly formal or stiff.'},
+  ],
+          },
+          {
+id: 'gr-wi4', title: 'Everyday Idioms You\'ll Actually Hear', time: '18-20 minutes',
+  objectives: ['Understand what an idiom is and why literal translation does not work', 'Learn several genuinely common everyday idioms and their real meanings', 'Practise recognising an idiom\'s intended meaning in context'],
+  concept: 'An idiom is a phrase whose overall meaning cannot be worked out from its individual words — "it\'s raining cats and dogs" has nothing literally to do with animals; it simply means heavy rain. Idioms are extremely common in real spoken English, and not recognising one as an idiom (trying to understand it literally) is a common source of genuine confusion for learners.<br><br>Some genuinely common ones: BREAK THE ICE (do something to ease tension in a new social situation), PIECE OF CAKE (something very easy), UNDER THE WEATHER (feeling slightly unwell), HIT THE BOOKS (start studying seriously), ONCE IN A BLUE MOON (very rarely), COST AN ARM AND A LEG (very expensive), ON THE SAME PAGE (in agreement/understanding).',
+  example: '<i>(Original example)</i><br><br>Someone says: <b>"Don\'t worry about the exam, it\'ll be a piece of cake."</b><br><br>A learner unfamiliar with the idiom might genuinely wonder what cake has to do with an exam — recognising "piece of cake" as an idiom meaning "very easy" avoids this confusion entirely.',
+  vocab: [['idiom','a phrase whose overall meaning cannot be worked out from its individual words'],['literal meaning','the direct, word-for-word meaning of a phrase, as opposed to its idiomatic meaning'],['figurative language','language that means something beyond its literal words, like idioms and metaphors'],['common idiom','an idiom used frequently enough in everyday speech to be worth actively learning'],['context clue (recap)','surrounding information that helps figure out an unfamiliar word or phrase\'s meaning']],
+  mistakes: ['Trying to understand an idiom literally, word by word, rather than recognising it as a fixed idiomatic phrase.', 'Translating an idiom directly into another language, which usually loses or distorts the meaning entirely.', 'Using an idiom in the wrong context, where its specific meaning does not actually fit.', 'Avoiding idioms entirely out of unfamiliarity, missing a genuinely large part of how natural conversation actually sounds.'],
+  practice: 'Someone says: "I\'ve been feeling a bit under the weather today." What are they actually saying?',
+  practiceAnswer: 'They are saying they feel slightly unwell — "under the weather" is an idiom meaning mildly sick, with no literal connection to actual weather.',
+  quiz: [
+    {q:'What is an idiom?', options:['A word with multiple spellings','A phrase whose overall meaning cannot be worked out from its individual words','A formal grammar rule','A type of question'], correct:1, a:'An idiom is a fixed phrase with a meaning that cannot be understood literally, word by word.'},
+    {q:'What does "piece of cake" mean as an idiom?', options:['A dessert','Something very easy','Something expensive','A difficult task'], correct:1, a:'"Piece of cake" idiomatically means something is very easy to do.'},
+    {q:'Why is directly translating an idiom into another language usually a problem?', options:['It never causes any problem','It usually loses or distorts the intended figurative meaning','Idioms cannot be translated at all, ever','Translation always improves the meaning'], correct:1, a:'Idioms rely on figurative meaning specific to the language; direct translation usually loses or distorts that meaning.'},
+  ],
+          },
+          {
+id: 'gr-wi5', title: 'Formal vs. Informal English — Knowing When to Switch', time: '18-20 minutes',
+  objectives: ['Understand the difference between formal and informal English registers', 'Learn to recognise which situations call for which register', 'Practise converting an informal sentence into a formal one, and vice versa'],
+  concept: 'English changes noticeably depending on the situation — FORMAL English (used with strangers, in official settings, in writing to institutions) tends to use fuller forms, more careful vocabulary, and no slang. INFORMAL English (used with friends, family, casual situations) uses contractions, casual vocabulary, and phrasal verbs freely. Neither is "better" — using the wrong register for the situation is the actual problem, like using very formal language with a close friend, or very casual language in a job interview.',
+  example: '<i>(Original example)</i><br><br>Informal: <b>"Hey, can\'t make it today, something came up."</b><br><br>Formal: <b>"I am unable to attend today, as an unexpected matter has arisen."</b><br><br>Both sentences convey the same basic message, but the appropriate choice depends entirely on WHO is being addressed and in WHAT situation — a close friend gets the informal version; a workplace email to a manager likely needs the formal one.',
+  vocab: [['register (in language)','the level of formality used in a particular situation'],['formal English','language suited to official, professional, or unfamiliar situations'],['informal English','language suited to casual, familiar situations, like with friends or family'],['appropriate register','choosing the level of formality genuinely suited to the specific situation and audience'],['register mismatch','using an inappropriate level of formality for a given situation']],
+  mistakes: ['Using very informal language (heavy slang, casual contractions) in a formal setting like a job interview.', 'Using overly formal, stiff language with close friends or family, which can sound cold or unnatural.', 'Not adjusting register when moving from a casual conversation into a more official one, like emailing a professor.', 'Assuming informal English is simply "incorrect," when it is genuinely appropriate and natural in the right context.'],
+  practice: 'Convert this informal sentence into a more formal one: <b>"Hey, just checking if you got my email, let me know!"</b>',
+  practiceAnswer: 'Something like: "I am writing to confirm whether you received my email; please let me know at your earliest convenience." — same core message, adjusted to a more formal register suited to a professional context.',
+  quiz: [
+    {q:'What does "register" mean in the context of language?', options:['A type of grammar tense','The level of formality used in a particular situation','A specific accent','A type of punctuation'], correct:1, a:'Register refers to the level of formality appropriate to a given situation.'},
+    {q:'Is informal English simply "incorrect" English?', options:['Yes, it is always a mistake','No — it is genuinely appropriate and natural in casual situations','Yes, but only in writing','No, but only older generations use it correctly'], correct:1, a:'Informal English is genuinely appropriate and natural for casual situations — the issue is only using the wrong register for a given context.'},
+    {q:'What situation would most likely call for formal English?', options:['Chatting with a close friend','A text message to a sibling','A job interview or a formal email to a professor','A casual weekend conversation'], correct:2, a:'A job interview or formal email to a professor calls for a more formal register, unlike casual conversations with friends or family.'},
   ],
           },
         ],
@@ -6875,15 +7033,64 @@ async function synthesizeAndPlay(text,opts){
   }catch(e){/* network failure or non-audio error response — fall through to browser voice below */}
   speakWithBrowserVoice(text,opts);
 }
+// Script Unicode ranges used to detect which part of a mixed-language
+// reply is in the "native" language versus English/Latin script, so
+// each part can be spoken with an appropriate voice (or skipped
+// entirely, rather than mispronounced) instead of the whole mixed
+// string being read by a single English voice — which is exactly why
+// Tamil (and every other native-script language) came out garbled
+// before this fix: an English voice has no idea how to pronounce
+// Tamil script, so it was reading it phonetically-as-English, badly.
+const NATIVE_SCRIPT_RANGES={
+  ta:/[\u0B80-\u0BFF]/, te:/[\u0C00-\u0C7F]/, ml:/[\u0D00-\u0D7F]/,
+  hi:/[\u0900-\u097F]/, ur:/[\u0600-\u06FF\u0750-\u077F]/,
+  ar:/[\u0600-\u06FF\u0750-\u077F]/, bn:/[\u0980-\u09FF]/,
+};
+function splitByScript(text,nativeRegex){
+  if(!nativeRegex)return [{text,isNative:false}];
+  const isNeutral=ch=>/[\s.,!?;:'"()\-]/.test(ch);
+  const segments=[];
+  let current='', currentIsNative=null;
+  for(const ch of text){
+    if(currentIsNative===null){ currentIsNative=isNeutral(ch)?false:nativeRegex.test(ch); current=ch; continue; }
+    if(isNeutral(ch)){ current+=ch; continue; }
+    const chIsNative=nativeRegex.test(ch);
+    if(chIsNative===currentIsNative){ current+=ch; }
+    else{ segments.push({text:current,isNative:currentIsNative}); current=ch; currentIsNative=chIsNative; }
+  }
+  if(current.trim())segments.push({text:current,isNative:currentIsNative});
+  return segments.filter(s=>s.text.trim());
+}
+function findVoiceForLangCode(langCode){
+  if(!langCode)return null;
+  return spVoicesCache.find(v=>v.lang&&v.lang.toLowerCase().startsWith(langCode))||null;
+}
 function speakWithBrowserVoice(text,opts){
   opts=opts||{};
   if(!('speechSynthesis' in window)){ if(opts.onError)opts.onError(); return; }
-  const utterance=new SpeechSynthesisUtterance(text);
-  utterance.rate=opts.rate||0.97;
-  spApplyVoice(utterance);
-  utterance.onend=()=>{ if(opts.onEnd)opts.onEnd(); };
-  utterance.onerror=()=>{ if(opts.onError)opts.onError(); };
-  speechSynthesis.speak(utterance);
+  const nativeLangCode=opts.nativeLangCode||null;
+  const nativeRegex=nativeLangCode?NATIVE_SCRIPT_RANGES[nativeLangCode]:null;
+  const nativeVoice=nativeLangCode?findVoiceForLangCode(nativeLangCode):null;
+  const segments=splitByScript(text,nativeRegex);
+  // If a native-script segment exists but this device has no matching
+  // voice installed, skip speaking that segment entirely rather than
+  // mispronouncing it with an English voice — the text is always
+  // still shown in the chat bubble regardless of what gets spoken.
+  const playable=segments.filter(s=>!s.isNative||nativeVoice);
+  if(!playable.length){ if(opts.onEnd)opts.onEnd(); return; }
+  let i=0;
+  function playNext(){
+    if(i>=playable.length){ if(opts.onEnd)opts.onEnd(); return; }
+    const seg=playable[i++];
+    const utterance=new SpeechSynthesisUtterance(seg.text);
+    utterance.rate=opts.rate||0.97;
+    if(seg.isNative&&nativeVoice){ utterance.voice=nativeVoice; utterance.lang=nativeVoice.lang; }
+    else{ spApplyVoice(utterance); }
+    utterance.onend=playNext;
+    utterance.onerror=playNext;
+    speechSynthesis.speak(utterance);
+  }
+  playNext();
 }
 
 function speakLessonText(elementId,buttonEl){
@@ -7038,8 +7245,8 @@ const SP_BADGES=[
   {key:'streak_speaker', icon:'🔥', name:'Streak Speaker', test:s=>new Set(s.map(x=>x.created_at.slice(0,10))).size>=3},
   {key:'visa_ready', icon:'🛂', name:'Visa Ready', test:s=>new Set(s.filter(x=>x.mode==='visa_interview').map(x=>x.test_type)).size>=3},
   {key:'interview_pro', icon:'🎓', name:'Interview Pro', test:s=>s.filter(x=>x.mode==='university_interview').length>=5},
-  {key:'survivor', icon:'🆘', name:'Survivor', test:s=>new Set(s.filter(x=>x.mode==='survival_english').map(x=>x.scenario_id)).size>=SP_SURVIVAL_SCENARIOS.length},
-  {key:'brave_first_step', icon:'💪', name:'Brave First Step', test:s=>s.some(x=>x.mode==='survival_english')},
+  {key:'survivor', icon:'🧳', name:'Well Traveled', test:s=>new Set(s.filter(x=>x.mode==='survival_english').map(x=>x.scenario_id)).size>=SP_SURVIVAL_SCENARIOS.length},
+  {key:'brave_first_step', icon:'💪', name:'First Step', test:s=>s.some(x=>x.mode==='survival_english')},
 ];
 function computeSpBadges(sessions){
   return SP_BADGES.map(b=>({...b, earned:b.test(sessions)}));
@@ -7209,7 +7416,7 @@ function renderSpGrammarGrid(){
   `).join('');
 }
 function renderSpSurvivalGrid(){
-  const grads=['#E5484D,#FF9494','#FF6B4A,#FFB199','#8B5CF6,#C4B5FD','#5B4FE9,#8B7FFF','#00C896,#5CE8C4','#3B82F6,#93C5FD','#E5484D,#FFB199','#FF6B4A,#C4B5FD'];
+  const grads=['#F59E0B,#FCD34D','#FF6B4A,#FFB199','#8B5CF6,#C4B5FD','#5B4FE9,#8B7FFF','#00C896,#5CE8C4','#3B82F6,#93C5FD','#F59E0B,#FFB199','#FF6B4A,#C4B5FD'];
   document.getElementById('sp-survival-grid').innerHTML=SP_SURVIVAL_SCENARIOS.map((s,i)=>`
     <div class="sp-mode-card" style="--sp-grad1:${grads[i%8].split(',')[0]};--sp-grad2:${grads[i%8].split(',')[1]}" onclick="startSpeakingSession('survival_english','${s.id}')">
       <div class="sp-mode-icon">${s.icon}</div>
@@ -7250,19 +7457,19 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
   spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
   spPopulateVoiceSelect();
   spState={mode,scenario:null,scenarioTitle:null,testType:testType||null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:scenarioId||null,studentProfileText:null};
-  let title='Open Conversation', subtitle='Chat about anything — practise natural spoken English.';
-  let kickoffPrompt='Start a friendly, natural conversation — greet the student and ask an easy opening question to get things going.';
+  let title='Open Conversation', subtitle='Chatting with Spark — practise natural spoken English.';
+  let kickoffPrompt='Start a friendly, natural conversation — briefly introduce yourself as Spark, greet the student warmly, and ask an easy opening question to get things going.';
 
   if(mode==='roleplay'){
     const sc=SP_ROLEPLAY_SCENARIOS.find(s=>s.id===scenarioId);
     spState.scenario=sc.character;
     spState.scenarioTitle=sc.title;
     title=sc.title;
-    subtitle='Roleplay — the AI is staying fully in character.';
+    subtitle='Spark is roleplaying as this character — fully in character throughout.';
     kickoffPrompt='Begin the roleplay scenario naturally, in character, the way this situation would actually start.';
   } else if(mode==='test_practice'){
     title=testType+' Speaking Practice';
-    subtitle='The AI is acting as your examiner.';
+    subtitle='Spark is acting as your examiner.';
     kickoffPrompt='Give the student an appropriate opening speaking prompt for this test, in character as the examiner.';
     spState.skillPrompt='(the AI will set its own opening prompt)';
   } else if(mode==='visa_interview'){
@@ -7271,20 +7478,20 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     spState.testType=visaCountry;
     spState.studentProfileText=profileToPromptText(await loadMyProfile());
     title=c.flag+' '+c.name+' Mock Visa Interview';
-    subtitle=spState.studentProfileText?'Personalized to your profile.':'The AI is acting as a visa interviewing officer.';
+    subtitle=spState.studentProfileText?'Spark has personalized this to your profile.':'Spark is acting as a visa interviewing officer.';
     kickoffPrompt='Begin the visa interview naturally, in character as the officer, the way a real visa interview would start — a brief greeting, then your first genuine question.';
   } else if(mode==='university_interview'){
     spState.scenario='a university admissions interviewer, conducting a genuine admissions interview';
     spState.studentProfileText=profileToPromptText(await loadMyProfile());
     title='🎓 Mock University Interview';
-    subtitle=spState.studentProfileText?'Personalized to your profile.':'The AI is acting as an admissions interviewer.';
+    subtitle=spState.studentProfileText?'Spark has personalized this to your profile.':'Spark is acting as an admissions interviewer.';
     kickoffPrompt='Begin the admissions interview naturally, in character as the interviewer, the way a real university interview would start — a brief welcome, then your first genuine question about the student\'s motivation or background.';
   } else if(mode==='grammar_practice'){
     const g=SP_GRAMMAR_TOPICS.find(x=>x.id===scenarioId)||SP_GRAMMAR_TOPICS[0];
     spState.scenario=g.focus;
     spState.scenarioTitle=g.title;
     title='📘 '+g.title;
-    subtitle='A natural conversation, deliberately steered to draw this out.';
+    subtitle='Spark is steering this conversation to draw this out naturally.';
     kickoffPrompt='Start a natural, friendly conversation that will genuinely give the student real opportunities to use and practise this grammar focus area, without it feeling like a lesson — just a normal conversation that happens to be steered this way.';
     // The whole point of this mode is catching mistakes, so default the
     // correction dropdown to Strict when entering it — the student can
@@ -7294,8 +7501,8 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     const s=SP_SURVIVAL_SCENARIOS.find(x=>x.id===scenarioId)||SP_SURVIVAL_SCENARIOS[0];
     spState.scenario=s.character;
     spState.scenarioTitle=s.title;
-    title='🆘 '+s.title;
-    subtitle='Genuine beginner pace — take your time.';
+    title='🧳 '+s.title;
+    subtitle='Spark is playing this role — take your time, there\'s no rush.';
     kickoffPrompt='Begin this real-life situation naturally, in character, but keep your own dialogue genuinely simple and patient — the way a kind real person would naturally slow down for someone still building their English confidence.';
     // This mode exists specifically to remove pressure — force gentle
     // correction (Strict would directly undermine the point), and
@@ -7331,7 +7538,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     addSpMessage('assistant', data.reply);
     spSoundReceive();
     spState.history.push({role:'user',content:kickoffPrompt},{role:'assistant',content:data.reply});
-    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
+    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply,document.getElementById('sp-lang-mix-select').value||null);
   }catch(e){
     spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong starting this session. Please try again.');
@@ -7385,15 +7592,15 @@ async function sendSpeakingMessage(){
     addSpMessage('assistant', data.reply);
     spSoundReceive();
     spState.history.push({role:'user',content:text},{role:'assistant',content:data.reply});
-    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply);
+    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply,document.getElementById('sp-lang-mix-select').value||null);
   }catch(e){
     spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong sending that. Please try again.');
   }
 }
 
-function speakText(text){
-  synthesizeAndPlay(text,{});
+function speakText(text,nativeLangCode){
+  synthesizeAndPlay(text,{nativeLangCode:nativeLangCode||null});
 }
 
 // Speech-to-text via the browser's native SpeechRecognition — free, no
@@ -7450,7 +7657,7 @@ async function getSpeakingFeedback(){
     const f=data.feedback;
     panel.innerHTML=`
       <div class="tp-info-card">
-        <h4>📊 Feedback so far</h4>
+        <h4>📊 Spark's Feedback</h4>
         <p><b>Fluency:</b> ${esc(f.fluency)}</p>
         <p style="margin-top:6px"><b>Grammar:</b> ${esc(f.grammar)}</p>
         <p style="margin-top:6px"><b>Vocabulary:</b> ${esc(f.vocabulary)}</p>
@@ -7505,7 +7712,7 @@ function showSpSessionRecap(messageCount,bonusXp,newBadge){
     <div class="lvlc-card">
       ${confetti}
       <div class="lvlc-badge" style="background:linear-gradient(145deg,var(--pine),var(--pine3))"><i class="ti ti-microphone-2" style="font-size:40px;color:#fff"></i></div>
-      <div class="lvlc-title">Great practice!</div>
+      <div class="lvlc-title">Great chat with Spark!</div>
       <div class="lvlc-sub">Session complete — every real conversation adds up.</div>
       ${newBadge?`<div class="sp-badge-unlock">${newBadge.icon} New badge unlocked: ${esc(newBadge.name)}!</div>`:''}
       <div class="lvlc-stats">
