@@ -418,6 +418,7 @@
       <div class="nav-tile" onclick="openUniPrep()"><div class="icon">🎓</div><div class="label">University Interview Prep</div></div>
       <div class="nav-tile" onclick="openSopReview()"><div class="icon">📝</div><div class="label">SOP / Essay Review</div></div>
       <div class="nav-tile" onclick="openParentView()"><div class="icon">👨‍👩‍👧</div><div class="label">Parent View</div></div>
+      <div class="nav-tile" onclick="openVocabHome()"><div class="icon">📚</div><div class="label">Vocabulary Builder</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
     </div>
   </div>
@@ -785,6 +786,32 @@
     <div id="parent-view-content"><div class="empty">Loading…</div></div>
   </div>
 
+  <!-- VOCABULARY BUILDER — real spaced repetition (5-box Leitner
+       system), not just a static flashcard list. See vocab-progress
+       table / VOCAB_WORDS data below. -->
+  <div class="screen" id="screen-vocab-home">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">📚 Vocabulary Builder</h2>
+    <p style="font-size:14.5px;color:var(--ink3);margin-bottom:16px">Real spaced repetition — words you get right show up less often, words you miss come back sooner.</p>
+    <div id="vocab-stats-strip" class="sp-stats-strip" style="display:flex;gap:10px;margin-bottom:16px"></div>
+    <div id="vocab-categories"></div>
+  </div>
+
+  <div class="screen" id="screen-vocab-review">
+    <span class="back-link" onclick="exitVocabReview()">← End session</span>
+    <div id="vocab-review-progress" style="font-size:12.5px;color:var(--ink3);margin:8px 0 16px;text-align:center"></div>
+    <div id="vocab-card-container"></div>
+  </div>
+
+  <div class="screen" id="screen-vocab-complete">
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:56px;margin-bottom:12px">🎉</div>
+      <h2 style="font-size:20px;color:var(--pine);margin-bottom:8px">Session complete!</h2>
+      <div id="vocab-complete-summary" style="font-size:14.5px;color:var(--ink3);margin-bottom:24px"></div>
+      <button class="btn" onclick="showScreen('screen-vocab-home');openVocabHome()">Back to Vocabulary Builder</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -826,6 +853,16 @@ function showScreen(id){
 /* ============================================================
    AUTH FLOW
    ============================================================ */
+// Custom OTP flow — deliberately bypasses Supabase's native phone
+// auth + Auth Hooks system entirely, after that system produced an
+// unresolved "hook requires authorization token" error all night.
+// send-custom-otp and verify-custom-otp are two small Edge Functions
+// we fully control; verify-custom-otp hands back a one-time password
+// which we immediately use with Supabase's completely ordinary
+// signInWithPassword() below — a genuine, standard Supabase session,
+// just reached via a different front door.
+const CUSTOM_OTP_BASE_URL = 'https://jfrtleleblsphyztyhaf.supabase.co/functions/v1';
+
 async function sendOtp(){
   const code=document.getElementById('countryCode').value;
   const raw=document.getElementById('phoneInput').value.trim().replace(/\D/g,'');
@@ -837,11 +874,21 @@ async function sendOtp(){
   const btn=document.getElementById('sendOtpBtn');
   btn.disabled=true; btn.textContent='Sending…';
 
-  const{error}=await sb.auth.signInWithOtp({phone:pendingPhone});
+  let result;
+  try{
+    const r=await fetch(CUSTOM_OTP_BASE_URL+'/send-custom-otp',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({phone:pendingPhone})
+    });
+    result=await r.json();
+    if(!r.ok)throw new Error(result.error||'Could not send code.');
+  }catch(e){
+    btn.disabled=false; btn.textContent='Send OTP';
+    errEl.textContent=e.message; errEl.style.display='block';
+    return;
+  }
+
   btn.disabled=false; btn.textContent='Send OTP';
-
-  if(error){ errEl.textContent=error.message; errEl.style.display='block'; return; }
-
   document.getElementById('otpPhoneDisplay').textContent=pendingPhone;
   showScreen('screen-otp');
 }
@@ -855,7 +902,24 @@ async function verifyOtp(){
   const btn=document.getElementById('verifyOtpBtn');
   btn.disabled=true; btn.textContent='Verifying…';
 
-  const{data,error}=await sb.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
+  let verifyResult;
+  try{
+    const r=await fetch(CUSTOM_OTP_BASE_URL+'/verify-custom-otp',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({phone:pendingPhone,otp:token})
+    });
+    verifyResult=await r.json();
+    if(!r.ok)throw new Error(verifyResult.error||'Verification failed.');
+  }catch(e){
+    btn.disabled=false; btn.textContent='Verify & Continue';
+    errEl.textContent=e.message; errEl.style.display='block';
+    return;
+  }
+
+  // The actual login — completely ordinary Supabase password sign-in,
+  // just with a server-generated one-time password the student never
+  // sees or types themselves.
+  const{data,error}=await sb.auth.signInWithPassword({phone:pendingPhone,password:verifyResult.tempPassword});
   btn.disabled=false; btn.textContent='Verify & Continue';
 
   if(error){ errEl.textContent=error.message; errEl.style.display='block'; return; }
@@ -1018,6 +1082,242 @@ async function openParentView(){
     </div>
   `;
 }
+
+const VOCAB_WORDS = [
+  // ── Everyday Conversation ──────────────────────────────────
+  {id:'v-ec1', category:'Everyday Conversation', word:'errand', phonetic:'ER-and', definition:'A short trip to do a specific small task, like buying something or dropping something off.', example:'I need to run a few errands before the shops close — pick up groceries and post a letter.'},
+  {id:'v-ec2', category:'Everyday Conversation', word:'reckon', phonetic:'REK-un', definition:'To think or believe something (informal, very common in spoken British/Australian English).', example:'I reckon it\'s going to rain later, so bring an umbrella.'},
+  {id:'v-ec3', category:'Everyday Conversation', word:'sort out', phonetic:'sort owt', definition:'To organize, resolve, or fix a problem or a set of things.', example:'I need to sort out my bank account before I can pay rent.'},
+  {id:'v-ec4', category:'Everyday Conversation', word:'commute', phonetic:'kuh-MYOOT', definition:'The regular journey between home and work or school.', example:'My commute takes about 40 minutes each way on the bus.'},
+  {id:'v-ec5', category:'Everyday Conversation', word:'chores', phonetic:'chorz', definition:'Small routine household tasks, like cleaning or laundry.', example:'I usually do my chores on Sunday mornings before going out.'},
+  {id:'v-ec6', category:'Everyday Conversation', word:'awkward', phonetic:'AW-kwerd', definition:'Uncomfortable, embarrassing, or difficult in a social situation.', example:'There was an awkward silence after he forgot her name.'},
+  {id:'v-ec7', category:'Everyday Conversation', word:'reschedule', phonetic:'ree-SHED-yool', definition:'To change a planned time for something to a different time.', example:'Could we reschedule our meeting to next Tuesday instead?'},
+  {id:'v-ec8', category:'Everyday Conversation', word:'roommate', phonetic:'ROOM-mate', definition:'A person you share a room or a shared living space with.', example:'My roommate and I split the rent and utility bills equally.'},
+  {id:'v-ec9', category:'Everyday Conversation', word:'landlord', phonetic:'LAND-lord', definition:'A person who owns a property and rents it out to tenants.', example:'I need to contact my landlord about the broken heater.'},
+  {id:'v-ec10', category:'Everyday Conversation', word:'utilities', phonetic:'yoo-TIL-ih-teez', definition:'Basic services like electricity, water, and gas that a home needs.', example:'Rent here doesn\'t include utilities, so you pay those separately.'},
+  {id:'v-ec11', category:'Everyday Conversation', word:'groceries', phonetic:'GROH-sur-eez', definition:'Food and household items you buy regularly, usually from a supermarket.', example:'I do my grocery shopping once a week, usually on Saturdays.'},
+  {id:'v-ec12', category:'Everyday Conversation', word:'small talk', phonetic:'smawl tawk', definition:'Light, casual conversation about unimportant topics, often with someone you don\'t know well.', example:'We made small talk about the weather while waiting for the bus.'},
+];
+
+const VOCAB_WORDS_2 = [
+  // ── Academic & IELTS ──────────────────────────────────
+  {id:'v-ac1', category:'Academic & IELTS', word:'substantial', phonetic:'sub-STAN-shul', definition:'Large in amount, size, or importance — genuinely significant, not minor.', example:'The report presents substantial evidence supporting the new policy.'},
+  {id:'v-ac2', category:'Academic & IELTS', word:'ambiguous', phonetic:'am-BIG-yoo-us', definition:'Open to more than one interpretation; not clearly defined.', example:'The instructions were ambiguous, so students weren\'t sure what to submit.'},
+  {id:'v-ac3', category:'Academic & IELTS', word:'coherent', phonetic:'koh-HEER-ent', definition:'Logical and consistent; ideas that fit together clearly and make sense.', example:'Her essay presented a coherent argument from start to finish.'},
+  {id:'v-ac4', category:'Academic & IELTS', word:'consequently', phonetic:'KON-suh-kwent-lee', definition:'As a result; therefore — showing a cause-and-effect relationship.', example:'The factory closed down; consequently, hundreds of workers lost their jobs.'},
+  {id:'v-ac5', category:'Academic & IELTS', word:'contemporary', phonetic:'kun-TEM-puh-rer-ee', definition:'Belonging to the present time; modern and current.', example:'The course covers contemporary issues in international education.'},
+  {id:'v-ac6', category:'Academic & IELTS', word:'hypothesis', phonetic:'hy-POTH-uh-sis', definition:'A proposed explanation for something, made as a starting point for further investigation.', example:'Researchers tested their hypothesis through a series of controlled experiments.'},
+  {id:'v-ac7', category:'Academic & IELTS', word:'significant', phonetic:'sig-NIF-ih-kant', definition:'Important enough to be worth noting or having a real effect.', example:'There has been a significant increase in international student applications.'},
+  {id:'v-ac8', category:'Academic & IELTS', word:'controversial', phonetic:'kon-truh-VUR-shul', definition:'Causing disagreement or strong differing opinions.', example:'The new immigration policy has proven highly controversial.'},
+  {id:'v-ac9', category:'Academic & IELTS', word:'elaborate', phonetic:'ih-LAB-uh-rate (verb)', definition:'To explain or describe something in more detail.', example:'Could you elaborate on why you chose this particular research topic?'},
+  {id:'v-ac10', category:'Academic & IELTS', word:'inevitable', phonetic:'in-EV-ih-tuh-bul', definition:'Certain to happen; impossible to avoid.', example:'Given current trends, further changes to the visa system seem inevitable.'},
+  {id:'v-ac11', category:'Academic & IELTS', word:'perspective', phonetic:'per-SPEK-tiv', definition:'A particular point of view or way of considering something.', example:'The lecture offered a genuinely fresh perspective on the topic.'},
+  {id:'v-ac12', category:'Academic & IELTS', word:'thorough', phonetic:'THUR-oh', definition:'Complete and careful, covering every detail.', example:'She did a thorough review of every source before submitting her essay.'},
+];
+
+const VOCAB_WORDS_3 = [
+  // ── Idioms & Phrasal Verbs ──────────────────────────────────
+  {id:'v-id1', category:'Idioms & Phrasal Verbs', word:'break the ice', phonetic:'brayk thee ice', definition:'To do or say something that eases tension in a new or awkward social situation.', example:'He told a joke to break the ice at the start of the meeting.'},
+  {id:'v-id2', category:'Idioms & Phrasal Verbs', word:'figure out', phonetic:'FIG-yer owt', definition:'To understand or solve something after thinking about it.', example:'It took me a while to figure out how the public transport system worked.'},
+  {id:'v-id3', category:'Idioms & Phrasal Verbs', word:'get along', phonetic:'get uh-LONG', definition:'To have a friendly, positive relationship with someone.', example:'My new flatmates and I get along really well.'},
+  {id:'v-id4', category:'Idioms & Phrasal Verbs', word:'under the weather', phonetic:'UN-der thuh WEH-ther', definition:'Feeling slightly unwell or ill.', example:'I\'m feeling a bit under the weather today, so I might stay home.'},
+  {id:'v-id5', category:'Idioms & Phrasal Verbs', word:'run into', phonetic:'run IN-too', definition:'To meet someone unexpectedly, by chance.', example:'I ran into my old classmate at the supermarket yesterday.'},
+  {id:'v-id6', category:'Idioms & Phrasal Verbs', word:'piece of cake', phonetic:'peess uv kayk', definition:'Something very easy to do.', example:'Don\'t worry about the test, it\'ll be a piece of cake.'},
+  {id:'v-id7', category:'Idioms & Phrasal Verbs', word:'put off', phonetic:'put awf', definition:'To postpone or delay something to a later time.', example:'I keep putting off calling the bank about my account.'},
+  {id:'v-id8', category:'Idioms & Phrasal Verbs', word:'once in a blue moon', phonetic:'wuns in uh bloo moon', definition:'Very rarely; almost never.', example:'I only eat fast food once in a blue moon.'},
+  {id:'v-id9', category:'Idioms & Phrasal Verbs', word:'hit the books', phonetic:'hit thuh books', definition:'To start studying seriously.', example:'Exams are next week, so I really need to hit the books tonight.'},
+  {id:'v-id10', category:'Idioms & Phrasal Verbs', word:'come across', phonetic:'kum uh-KRAWSS', definition:'To find something by chance, or to give a certain impression to others.', example:'I came across an old photo while unpacking my suitcase.'},
+  {id:'v-id11', category:'Idioms & Phrasal Verbs', word:'on the same page', phonetic:'on thuh saym payj', definition:'In agreement; understanding something the same way as someone else.', example:'Let\'s quickly check we\'re on the same page before the presentation.'},
+  {id:'v-id12', category:'Idioms & Phrasal Verbs', word:'cost an arm and a leg', phonetic:'kost an arm and uh leg', definition:'To be very expensive.', example:'Renting near the city centre costs an arm and a leg.'},
+];
+
+const VOCAB_WORDS_4 = [
+  // ── Study Abroad Essentials ──────────────────────────────────
+  {id:'v-sa1', category:'Study Abroad Essentials', word:'tuition fees', phonetic:'too-ISH-un feez', definition:'The money charged by a university or college for teaching and instruction.', example:'International students often pay higher tuition fees than domestic students.'},
+  {id:'v-sa2', category:'Study Abroad Essentials', word:'scholarship', phonetic:'SKOL-er-ship', definition:'Financial award given to a student, usually based on merit or need, that doesn\'t need to be repaid.', example:'She received a partial scholarship covering half her tuition.'},
+  {id:'v-sa3', category:'Study Abroad Essentials', word:'accommodation', phonetic:'uh-kom-uh-DAY-shun', definition:'A place to live or stay, especially arranged for students.', example:'The university offers on-campus accommodation for first-year students.'},
+  {id:'v-sa4', category:'Study Abroad Essentials', word:'orientation', phonetic:'or-ee-en-TAY-shun', definition:'An introductory program helping new students get familiar with a university before classes start.', example:'Orientation week includes campus tours and meeting your academic advisor.'},
+  {id:'v-sa5', category:'Study Abroad Essentials', word:'transcript', phonetic:'TRAN-skript', definition:'An official document listing a student\'s courses and grades.', example:'You\'ll need to submit your academic transcript with your application.'},
+  {id:'v-sa6', category:'Study Abroad Essentials', word:'proof of funds', phonetic:'proof uv funds', definition:'Documentation showing you have enough money to support yourself during your studies, often required for a visa.', example:'The visa application requires proof of funds covering your first year.'},
+  {id:'v-sa7', category:'Study Abroad Essentials', word:'sponsor', phonetic:'SPON-sor', definition:'A person (often a parent or relative) who financially supports a student\'s studies abroad.', example:'My father is the financial sponsor listed on my visa application.'},
+  {id:'v-sa8', category:'Study Abroad Essentials', word:'overdraft', phonetic:'OH-ver-draft', definition:'A facility allowing you to withdraw more money from a bank account than it actually contains, up to a limit.', example:'Student accounts often come with an interest-free overdraft.'},
+  {id:'v-sa9', category:'Study Abroad Essentials', word:'part-time', phonetic:'part-time', definition:'Working or studying for less than the standard full number of hours.', example:'Many student visas allow part-time work of up to 20 hours a week.'},
+  {id:'v-sa10', category:'Study Abroad Essentials', word:'credit hours', phonetic:'KRED-it owerz', definition:'A unit measuring the amount of coursework a class represents, used to track progress toward a degree.', example:'You need to complete 120 credit hours to graduate from this program.'},
+  {id:'v-sa11', category:'Study Abroad Essentials', word:'lease', phonetic:'leess', definition:'A legal agreement for renting a property for a fixed period of time.', example:'Make sure you read the lease carefully before signing it.'},
+  {id:'v-sa12', category:'Study Abroad Essentials', word:'GPA', phonetic:'jee-pee-ay', definition:'Grade Point Average — a number representing a student\'s average academic performance.', example:'A strong GPA can improve your chances of receiving a scholarship.'},
+];
+
+/* ============================================================
+   VOCABULARY BUILDER — real spaced repetition, a 5-box Leitner
+   system. Correct answer promotes a word to the next box (longer
+   interval before it's due again); wrong answer resets it straight
+   back to Box 1. This is the same mechanism a physical Leitner flash
+   card box uses — genuinely adaptive, not just a static word list on
+   a loop.
+   ============================================================ */
+const VOCAB_BOX_INTERVALS_DAYS={1:1,2:2,3:4,4:7,5:14};
+let vocabAllWords=[...VOCAB_WORDS,...VOCAB_WORDS_2,...VOCAB_WORDS_3,...VOCAB_WORDS_4];
+let vocabProgressCache={}; // word_id -> progress row
+let vocabSessionQueue=[];
+let vocabSessionIdx=0;
+let vocabSessionCorrect=0;
+let vocabCurrentCategory=null;
+
+async function loadVocabProgress(){
+  if(!currentSession)return {};
+  const{data,error}=await sb.from('vocab_progress').select('*').eq('student_id',currentSession.user.id);
+  if(error||!data)return {};
+  const map={};
+  data.forEach(row=>{ map[row.word_id]=row; });
+  return map;
+}
+
+function vocabWordsDueCount(category){
+  const today=new Date().toISOString().slice(0,10);
+  const words=category?vocabAllWords.filter(w=>w.category===category):vocabAllWords;
+  return words.filter(w=>{
+    const p=vocabProgressCache[w.id];
+    if(!p)return true; // never seen = counts as "ready to learn"
+    return p.next_review_date<=today;
+  }).length;
+}
+
+async function openVocabHome(){
+  if(!requireRealLogin())return;
+  showScreen('screen-vocab-home');
+  document.getElementById('vocab-stats-strip').innerHTML='<div class="empty">Loading…</div>';
+  document.getElementById('vocab-categories').innerHTML='';
+  vocabProgressCache=await loadVocabProgress();
+
+  const totalWords=vocabAllWords.length;
+  const mastered=Object.values(vocabProgressCache).filter(p=>p.box>=5).length;
+  const totalDue=vocabWordsDueCount(null);
+
+  document.getElementById('vocab-stats-strip').innerHTML=`
+    <div class="sp-stat-chip"><b>${mastered}</b><span>Mastered</span></div>
+    <div class="sp-stat-chip"><b>${totalDue}</b><span>Due now</span></div>
+    <div class="sp-stat-chip"><b>${totalWords}</b><span>Total words</span></div>
+  `;
+
+  const categories=[...new Set(vocabAllWords.map(w=>w.category))];
+  const catIcons={'Everyday Conversation':'💬','Academic & IELTS':'🎓','Idioms & Phrasal Verbs':'🗣️','Study Abroad Essentials':'✈️'};
+  document.getElementById('vocab-categories').innerHTML=categories.map(cat=>{
+    const due=vocabWordsDueCount(cat);
+    const total=vocabAllWords.filter(w=>w.category===cat).length;
+    return `<div class="tp-info-card" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="startVocabReview('${esc(cat)}')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px">${catIcons[cat]||'📖'}</div>
+        <div><h4 style="margin:0">${esc(cat)}</h4><p style="font-size:12.5px;color:var(--ink3);margin-top:2px">${total} words${due>0?` · <b style="color:var(--pine)">${due} due now</b>`:' · all caught up'}</p></div>
+      </div>
+      <i class="ti ti-chevron-right"></i>
+    </div>`;
+  }).join('');
+}
+
+function startVocabReview(category){
+  vocabCurrentCategory=category;
+  const today=new Date().toISOString().slice(0,10);
+  const categoryWords=vocabAllWords.filter(w=>w.category===category);
+
+  const due=categoryWords.filter(w=>vocabProgressCache[w.id]&&vocabProgressCache[w.id].next_review_date<=today);
+  const neverSeen=categoryWords.filter(w=>!vocabProgressCache[w.id]);
+  // Due reviews always come first; new words are capped per session so a
+  // student isn't overwhelmed with an entire category at once — the same
+  // "a little at a time, consistently" principle real spaced-repetition
+  // apps use, rather than dumping everything in one sitting.
+  const newWordsThisSession=neverSeen.slice(0,8);
+  vocabSessionQueue=shuffleArray([...due,...newWordsThisSession]);
+
+  if(vocabSessionQueue.length===0){
+    alert('No words due for review in this category right now — check back later, or try another category.');
+    return;
+  }
+
+  vocabSessionIdx=0;
+  vocabSessionCorrect=0;
+  showScreen('screen-vocab-review');
+  renderVocabCard();
+}
+
+function shuffleArray(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function renderVocabCard(){
+  const word=vocabSessionQueue[vocabSessionIdx];
+  document.getElementById('vocab-review-progress').textContent=`${vocabSessionIdx+1} of ${vocabSessionQueue.length}`;
+  document.getElementById('vocab-card-container').innerHTML=`
+    <div class="tp-info-card" style="text-align:center;padding:32px 20px">
+      <h2 style="font-size:26px;color:var(--pine);margin-bottom:4px">${esc(word.word)}</h2>
+      <p style="font-size:13px;color:var(--ink3);font-style:italic;margin-bottom:20px">/${esc(word.phonetic)}/</p>
+      <div><button class="tp-reveal-btn" id="vocab-reveal-btn" onclick="revealVocabAnswer()"><i class="ti ti-eye"></i> Show meaning</button></div>
+      <div id="vocab-answer-box" style="display:none;margin-top:18px;text-align:left;background:var(--cream);border-radius:var(--r);padding:16px">
+        <p style="font-size:14.5px;color:var(--ink);margin-bottom:10px"><b>Meaning:</b> ${esc(word.definition)}</p>
+        <p style="font-size:13.5px;color:var(--ink3);font-style:italic">"${esc(word.example)}"</p>
+      </div>
+    </div>
+    <div id="vocab-rating-buttons" style="display:none;gap:10px;margin-top:16px">
+      <button class="btn-outline btn" style="flex:1;border-color:var(--rose);color:var(--rose)" onclick="rateVocabCard(false)"><i class="ti ti-x"></i> Didn't know it</button>
+      <button class="btn" style="flex:1" onclick="rateVocabCard(true)"><i class="ti ti-check"></i> Knew it</button>
+    </div>
+  `;
+}
+
+function revealVocabAnswer(){
+  document.getElementById('vocab-answer-box').style.display='block';
+  document.getElementById('vocab-reveal-btn').style.display='none';
+  document.getElementById('vocab-rating-buttons').style.display='flex';
+}
+
+async function rateVocabCard(gotItRight){
+  const word=vocabSessionQueue[vocabSessionIdx];
+  const existing=vocabProgressCache[word.id];
+  const currentBox=existing?existing.box:1;
+  const newBox=gotItRight?Math.min(currentBox+1,5):1;
+  const intervalDays=VOCAB_BOX_INTERVALS_DAYS[newBox];
+  const nextDate=new Date();
+  nextDate.setDate(nextDate.getDate()+intervalDays);
+
+  const row={
+    student_id:currentSession.user.id, word_id:word.id, box:newBox,
+    next_review_date:nextDate.toISOString().slice(0,10),
+    times_correct:(existing?.times_correct||0)+(gotItRight?1:0),
+    times_wrong:(existing?.times_wrong||0)+(gotItRight?0:1),
+    last_reviewed_at:new Date().toISOString(),
+  };
+  try{
+    await sb.from('vocab_progress').upsert(row,{onConflict:'student_id,word_id'});
+    vocabProgressCache[word.id]=row;
+  }catch(e){/* best-effort — move on regardless, don't block the review flow on a save hiccup */}
+
+  if(gotItRight)vocabSessionCorrect++;
+  vocabSessionIdx++;
+  if(vocabSessionIdx>=vocabSessionQueue.length){
+    finishVocabSession();
+  } else {
+    renderVocabCard();
+  }
+}
+
+async function finishVocabSession(){
+  const total=vocabSessionQueue.length;
+  const bonusXp=Math.min(total*2,30);
+  try{ await awardXpAndStreak(bonusXp); }catch(e){}
+  document.getElementById('vocab-complete-summary').innerHTML=
+    `You reviewed <b>${total}</b> words, got <b>${vocabSessionCorrect}</b> right — +${bonusXp} XP`;
+  showScreen('screen-vocab-complete');
+}
+
+function exitVocabReview(){
+  if(vocabSessionIdx>0&&vocabSessionIdx<vocabSessionQueue.length){
+    if(!confirm('End this session early? Progress on words already reviewed is saved, but the session won\'t count toward XP.')) return;
+  }
+  showScreen('screen-vocab-home');
+  openVocabHome();
+}
+
 
 /* ============================================================
    DOCUMENTS
