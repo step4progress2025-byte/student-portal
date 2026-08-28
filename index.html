@@ -2036,6 +2036,14 @@ id: 'gr-wi1', title: 'There, Their, They\'re — and Your, You\'re', time: '16-1
     {q:'What is "they\'re" short for?', options:['There is','Their own','They are','This is'], correct:2, a:'"They\'re" is a contraction of "they are."'},
     {q:'Which sentence uses "your/you\'re" correctly?', options:['Your welcome.','You\'re bag is here.','You\'re welcome.','Your going to love this.'], correct:2, a:'"You\'re welcome" correctly uses the contraction of "you are."'},
   ],
+  matchInstruction: 'Tap a word on the left, then tap its correct meaning on the right.',
+  match: [
+    ['There','Points to a place, or introduces something'],
+    ['Their','Shows possession — belonging to them'],
+    ["They're",'Short for "they are"'],
+    ['Your','Shows possession — belonging to you'],
+    ["You're",'Short for "you are"'],
+  ],
           },
           {
 id: 'gr-wi2', title: 'Commonly Confused Word Pairs — Affect/Effect, Then/Than, and More', time: '16-18 minutes',
@@ -2050,6 +2058,15 @@ id: 'gr-wi2', title: 'Commonly Confused Word Pairs — Affect/Effect, Then/Than,
     {q:'Which is the correct verb meaning "to influence"?', options:['Effect','Affect','Both are correct','Neither is correct'], correct:1, a:'"Affect" is the verb meaning to influence; "effect" is normally the noun for a result.'},
     {q:'Which word is used for comparison, like "taller ___ him"?', options:['Then','Than','Both work equally','Neither is correct'], correct:1, a:'"Than" is used for comparison; "then" refers to time or sequence.'},
     {q:'What does "except" mean?', options:['To agree to receive something','Excluding something','A result','Not tight'], correct:1, a:'"Except" means excluding — "everyone except him" means everyone but not him.'},
+  ],
+  matchInstruction: 'Tap a word on the left, then tap its correct meaning on the right.',
+  match: [
+    ['Affect','Verb — to influence or have an impact on'],
+    ['Effect','Noun — a result or outcome'],
+    ['Then','Refers to time or sequence'],
+    ['Than','Used for comparison between two things'],
+    ['Except','Excluding something'],
+    ['Loose','Not tight'],
   ],
           },
           {
@@ -7163,6 +7180,12 @@ function buildLstepSteps(lesson,skillContext){
   if(lesson.vocab&&lesson.vocab.length)steps.push({kind:'vocab'});
   if(lesson.mistakes&&lesson.mistakes.length)steps.push({kind:'mistakes'});
   steps.push({kind:'practice'});
+  // Genuinely new interaction type — tap-to-match pairs. Only added
+  // for lessons that actually define a `match` array; every other
+  // lesson's step sequence is completely unaffected, so this is safe
+  // to roll out to a handful of pilot lessons without touching the
+  // hundreds of lessons that don't have this data yet.
+  if(lesson.match&&lesson.match.length)steps.push({kind:'match',pairs:lesson.match,instruction:lesson.matchInstruction});
   (lesson.quiz||[]).forEach((q,i)=>steps.push({kind:'quiz',q,i}));
   steps.push({kind:'complete'});
   return steps;
@@ -7241,11 +7264,35 @@ function renderLstepStep(direction){
         <p id="lesson-practice-text">${lesson.practice}</p>
         ${s.skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin:10px 0 0" onclick="speakLessonText('lesson-practice-text',this)"><i class="ti ti-volume"></i> Listen to this exercise</button>`:''}
         ${s.skillContext&&s.skillContext.startsWith('Speaking')?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
-        <div><button class="tp-reveal-btn" onclick="toggleAnswerReveal('practice-answer',this)"><i class="ti ti-eye"></i> Show answer</button></div>
+        <textarea id="practice-write-input" placeholder="Type your own answer here first — then compare it with the model answer below." style="width:100%;min-height:80px;margin-top:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--font-b);resize:vertical"></textarea>
+        <div><button class="tp-reveal-btn" onclick="toggleAnswerReveal('practice-answer',this)"><i class="ti ti-eye"></i> Compare with model answer</button></div>
         <div class="tp-answer-box" id="practice-answer">${esc(lesson.practiceAnswer)}</div>
       </div>`;
     nextBtn.textContent='Continue';
     if(s.skillContext&&s.skillContext.startsWith('Speaking')){setTimeout(()=>initRecorderWidget('lesson-'+lesson.id),0);}
+  } else if(step.kind==='match'){
+    // Tap-to-match — genuinely new interaction, not just read+quiz. Tap
+    // one item from the left column, then its pair from the right; a
+    // correct tap-pair locks in green, a wrong one flashes red and
+    // resets so the student tries again rather than being told the
+    // right answer immediately.
+    s.matchSelectedLeft=null;
+    s.matchSolved=new Set();
+    const pairs=step.pairs;
+    const rightShuffled=step.rightOrder||(step.rightOrder=[...pairs.keys()].sort(()=>Math.random()-0.5));
+    html=`<div class="lstep-badge quiz"><i class="ti ti-arrows-left-right"></i> Match the pairs</div>
+      <div style="font-size:13.5px;color:var(--ink3);margin-bottom:14px">${esc(step.instruction||'Tap an item on the left, then tap its match on the right.')}</div>
+      <div style="display:flex;gap:16px">
+        <div id="match-left-col" style="flex:1;display:flex;flex-direction:column;gap:8px">
+          ${pairs.map((p,i)=>`<div class="lstep-quiz-opt match-item" data-side="left" data-idx="${i}" onclick="selectMatchItem('left',${i})" style="font-size:13.5px;padding:10px 12px">${esc(p[0])}</div>`).join('')}
+        </div>
+        <div id="match-right-col" style="flex:1;display:flex;flex-direction:column;gap:8px">
+          ${rightShuffled.map((origIdx,i)=>`<div class="lstep-quiz-opt match-item" data-side="right" data-idx="${origIdx}" onclick="selectMatchItem('right',${origIdx})" style="font-size:13.5px;padding:10px 12px">${esc(pairs[origIdx][1])}</div>`).join('')}
+        </div>
+      </div>
+      <div id="match-feedback" style="margin-top:10px;font-size:13px;color:var(--ink3)"></div>`;
+    nextBtn.textContent='Continue';
+    nextBtn.disabled=true;
   } else if(step.kind==='quiz'){
     s.quizAnswered=false;
     s.quizSelected=null;
@@ -7305,6 +7352,52 @@ function markQuizStep(gotItRight){
   const fb=document.getElementById('lstep-quiz-feedback');
   fb.innerHTML=`<div class="lstep-feedback ${gotItRight?'correct':'incorrect'}">${gotItRight?'Nice — marked correct.':'No problem — it\'s noted for review. Reading the answer again now is exactly how this sticks.'}</div>`;
   document.getElementById('lstep-next-btn').disabled=false;
+}
+function selectMatchItem(side,idx){
+  const s=lstepState, step=s.steps[s.idx];
+  const pairs=step.pairs;
+  if(s.matchSolved.has(idx))return; // already correctly matched — ignore further taps
+
+  if(side==='left'){
+    s.matchSelectedLeft=idx;
+    document.querySelectorAll('#match-left-col .match-item').forEach(el=>{
+      el.classList.toggle('selected',parseInt(el.dataset.idx)===idx);
+    });
+    return;
+  }
+
+  // side==='right' — idx here is the ORIGINAL pair index (right column
+  // items carry their true pair index in data-idx even though the
+  // column itself is visually shuffled), so a direct leftIdx===idx
+  // comparison is exactly a correctness check.
+  if(s.matchSelectedLeft===null||s.matchSelectedLeft===undefined)return;
+  const leftIdx=s.matchSelectedLeft;
+  const fb=document.getElementById('match-feedback');
+  const leftEl=document.querySelector(`#match-left-col .match-item[data-idx="${leftIdx}"]`);
+  const rightEl=document.querySelector(`#match-right-col .match-item[data-idx="${idx}"]`);
+
+  if(leftIdx===idx){
+    s.matchSolved.add(idx);
+    leftEl.classList.add('correct-answer');
+    rightEl.classList.add('correct-answer');
+    leftEl.onclick=null; rightEl.onclick=null;
+    s.matchSelectedLeft=null;
+    document.querySelectorAll('#match-left-col .match-item').forEach(el=>el.classList.remove('selected'));
+    fb.innerHTML=`<span style="color:var(--pine)">Correct match!</span>`;
+    if(s.matchSolved.size===pairs.length){
+      fb.innerHTML=`<span style="color:var(--pine);font-weight:600">All matched — nice work.</span>`;
+      document.getElementById('lstep-next-btn').disabled=false;
+    }
+  } else {
+    leftEl.classList.add('wrong-answer');
+    rightEl.classList.add('wrong-answer');
+    fb.innerHTML=`<span style="color:#E24B4A">Not a match — try again.</span>`;
+    setTimeout(()=>{
+      leftEl.classList.remove('wrong-answer','selected');
+      rightEl.classList.remove('wrong-answer');
+    },600);
+    s.matchSelectedLeft=null;
+  }
 }
 function selectQuizOption(oi){
   if(lstepState.quizAnswered)return;
