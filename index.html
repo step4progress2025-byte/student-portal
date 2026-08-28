@@ -400,6 +400,26 @@
   </div>
 
   <!-- DASHBOARD -->
+  <!-- Subscription paywall — shown INSTEAD of the dashboard when a
+       student's subscription_status is 'expired' or their
+       subscription_expires_at has passed. Deliberately separate from
+       login/session state: a student can still be fully, validly
+       logged in (their OTP-verified session never expires) and still
+       land here every time until they renew. No payment gateway
+       wired up yet — this screen just explains the situation and
+       points them to a real human for now. -->
+  <div class="screen" id="screen-subscription-required">
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🔒</div>
+      <div class="greet" style="margin-bottom:10px">Your subscription has ended</div>
+      <p style="color:var(--ink3);font-size:14.5px;line-height:1.6;max-width:340px;margin:0 auto 24px">Renew to keep access to Test Prep, Vocabulary Builder, Spark, and everything else in your portal.</p>
+      <div class="card" style="max-width:360px;margin:0 auto;text-align:left">
+        <p style="font-size:13.5px;color:var(--ink);line-height:1.6">To renew right now, contact your Step4Progress counsellor directly — online payment is coming soon.</p>
+      </div>
+      <span class="back-link" style="display:inline-block;margin-top:24px;cursor:pointer" onclick="signOut()">Sign out</span>
+    </div>
+  </div>
+
   <div class="screen" id="screen-dashboard">
     <div class="greet" id="dashGreeting">Welcome back</div>
     <div class="greet-sub">What would you like to do?</div>
@@ -936,6 +956,20 @@ async function verifyOtp(){
 async function afterLogin(){
   document.getElementById('signOutBtn').style.display='inline';
   const{data:student}=await sb.from('students').select('*').eq('id',currentSession.user.id).single();
+
+  // Subscription gate — separate from login/session validity entirely.
+  // A student can be genuinely, correctly logged in (their session
+  // never expires, confirmed and intended) and still land here every
+  // single time until they renew. Checked BEFORE anything else in
+  // afterLogin — a blocked student sees nothing else in the app at
+  // all, not even their name-entry screen.
+  const expired=student?.subscription_status==='expired'
+    ||(student?.subscription_expires_at&&new Date(student.subscription_expires_at)<new Date());
+  if(expired){
+    showScreen('screen-subscription-required');
+    return;
+  }
+
   if(!student?.full_name){
     showScreen('screen-name');
   } else {
