@@ -407,6 +407,11 @@
       <div class="dash-stat-pill streak"><span class="dash-stat-icon">🔥</span><div><b id="dashStreakVal">0</b><span>day streak</span></div></div>
       <div class="dash-stat-pill xp"><span class="dash-stat-icon">⭐</span><div><b id="dashXpVal">0</b><span>XP earned</span></div></div>
     </div>
+    <div id="today-card" style="display:none;background:linear-gradient(135deg,var(--pine,#1E5F4E),var(--pine3,#2C7A63));border-radius:14px;padding:18px 20px;margin-bottom:18px;color:#fff;cursor:pointer" onclick="handleTodayCardClick()">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;opacity:.75;margin-bottom:4px">Today for you</div>
+      <div id="today-card-message" style="font-size:15px;font-weight:600;line-height:1.4"></div>
+      <div id="today-card-cta" style="font-size:12.5px;opacity:.85;margin-top:6px">Tap to continue →</div>
+    </div>
     <div id="dash-preview-celebration-link" style="display:none;text-align:center;margin-bottom:14px"><span onclick="showCelebration(6,5)" style="color:var(--pine);cursor:pointer;font-weight:600;font-size:13.5px;text-decoration:underline">Preview the celebration moment →</span></div>
     <div class="nav-grid">
       <div class="nav-tile" onclick="openStatus()"><div class="icon">📍</div><div class="label">My Status</div></div>
@@ -938,6 +943,7 @@ async function afterLogin(){
     showScreen('screen-dashboard');
   }
   renderDashStats(student);
+  renderTodayCard(student);
 }
 function renderDashStats(student){
   if(!student)return;
@@ -945,6 +951,57 @@ function renderDashStats(student){
   row.style.display='flex';
   document.getElementById('dashStreakVal').textContent=student.current_streak||0;
   document.getElementById('dashXpVal').textContent=student.total_xp||0;
+}
+
+// "Today for you" — a single, prioritized suggestion instead of just a
+// grid of tiles to choose between. Vocabulary due-for-review always
+// wins (it's genuinely time-sensitive, per the Leitner scheduling
+// already built), otherwise a rotating daily prompt across the other
+// practice areas so it isn't the same suggestion every single day.
+// Every state has a REAL destination — never just a decorative message
+// with nothing behind the "tap to continue."
+let todayCardAction=null;
+async function renderTodayCard(student){
+  const card=document.getElementById('today-card');
+  const msgEl=document.getElementById('today-card-message');
+  const ctaEl=document.getElementById('today-card-cta');
+  if(!card)return;
+
+  // Vocab progress may not be loaded yet this session if the student
+  // hasn't opened Vocabulary Builder — load it here so the due-count
+  // is accurate regardless of where they land first.
+  if(!vocabProgressCache||!Object.keys(vocabProgressCache).length){
+    try{ vocabProgressCache=await loadVocabProgress(); }catch(e){ vocabProgressCache=vocabProgressCache||{}; }
+  }
+  const dueCount=vocabWordsDueCount(null);
+  const streak=student?.current_streak||0;
+
+  card.style.display='block';
+
+  if(dueCount>0){
+    todayCardAction='vocab';
+    msgEl.textContent=`📚 ${dueCount} vocabulary word${dueCount!==1?'s':''} ready for review`;
+    ctaEl.textContent=streak>0?`Keep your ${streak}-day streak going →`:'Tap to review →';
+    return;
+  }
+
+  const prompts=[
+    ['⚡','Practice a real conversation with Spark, your speaking partner.','speaking'],
+    ['📝','Get your SOP or essay reviewed before you submit it.','sop'],
+    ['🎓','Warm up for your next test prep session.','testprep'],
+    ['🛂','Check what to expect in your visa interview.','visaprep'],
+  ];
+  const pick=prompts[new Date().getDate()%prompts.length];
+  todayCardAction=pick[2];
+  msgEl.textContent=streak>0?`🔥 ${streak}-day streak! ${pick[1]}`:pick[1];
+  ctaEl.textContent='Tap to get started →';
+}
+function handleTodayCardClick(){
+  if(todayCardAction==='vocab')openVocabHome();
+  else if(todayCardAction==='speaking')openSpeakingPartner();
+  else if(todayCardAction==='sop')openSopReview();
+  else if(todayCardAction==='testprep')openTestPrep();
+  else if(todayCardAction==='visaprep')openVisaPrep();
 }
 
 async function saveName(){
@@ -956,6 +1013,7 @@ async function saveName(){
   document.getElementById('dashGreeting').textContent='Welcome, '+name.split(' ')[0];
   showScreen('screen-dashboard');
   renderDashStats({current_streak:0, total_xp:0});
+  renderTodayCard({current_streak:0, total_xp:0});
 }
 
 async function signOut(){
