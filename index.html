@@ -394,6 +394,10 @@
         <label>Full Name</label>
         <input type="text" id="nameInput" placeholder="Your full name">
       </div>
+      <div class="ff">
+        <label>Referral Code (optional)</label>
+        <input type="text" id="referralCodeInput" placeholder="e.g. ASCEND-AB12" style="text-transform:uppercase">
+      </div>
       <button class="btn" onclick="saveName()">Continue</button>
       <div class="err" id="nameErr" style="display:none"></div>
     </div>
@@ -462,6 +466,7 @@
       <div class="nav-tile" onclick="openParentView()"><div class="icon">👨‍👩‍👧</div><div class="label">Parent View</div></div>
       <div class="nav-tile" onclick="openVocabHome()"><div class="icon">📚</div><div class="label">Vocabulary Builder</div></div>
       <div class="nav-tile" onclick="openMyRecordings()"><div class="icon">🎙️</div><div class="label">My Recordings</div></div>
+      <div class="nav-tile" onclick="openReferFriend()"><div class="icon">🎁</div><div class="label">Refer a Friend</div></div>
     </div>
   </div>
 
@@ -869,6 +874,25 @@
     </div>
   </div>
 
+  <!-- Refer a Friend — a real growth mechanic, not just retention. Each
+       student has one stable code; sharing it is a plain, copyable
+       string rather than needing anything fancier like deep links,
+       since this needs to work when pasted into WhatsApp or SMS. -->
+  <div class="screen" id="screen-refer-friend">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <div style="text-align:center;padding:20px 10px">
+      <div style="font-size:48px;margin-bottom:10px">🎁</div>
+      <div class="greet" style="margin-bottom:6px">Refer a Friend</div>
+      <p style="color:var(--ink3);font-size:14px;margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto">Share your code. When a friend signs up with it, you both get 50 bonus XP.</p>
+      <div class="card" style="max-width:340px;margin:0 auto">
+        <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Your referral code</div>
+        <div id="referral-code-display" style="font-size:26px;font-weight:800;color:var(--pine);letter-spacing:.03em;margin-bottom:14px">…</div>
+        <button class="btn" onclick="copyReferralCode()" id="copy-referral-btn"><i class="ti ti-copy"></i> Copy Code</button>
+      </div>
+      <div id="referral-count-display" style="margin-top:20px;font-size:13.5px;color:var(--ink3)"></div>
+    </div>
+  </div>
+
   <div class="screen" id="screen-vocab-complete">
     <div style="text-align:center;padding:40px 20px">
       <div style="font-size:56px;margin-bottom:12px">🎉</div>
@@ -1228,18 +1252,87 @@ function handleTodayCardClick(){
   else if(todayCardAction==='visaprep')openVisaPrep();
 }
 
+function generateReferralCode(){
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I/l)
+  let code='';
+  for(let i=0;i<4;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+  return 'ASCEND-'+code;
+}
 async function saveName(){
   const name=document.getElementById('nameInput').value.trim();
+  const referralInput=document.getElementById('referralCodeInput').value.trim().toUpperCase();
   const errEl=document.getElementById('nameErr');
   if(!name){ errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
-  const{error}=await sb.from('students').update({full_name:name}).eq('id',currentSession.user.id);
+
+  let referredByStudentId=null;
+  if(referralInput){
+    const{data:referrer}=await sb.from('students').select('id').eq('referral_code',referralInput).maybeSingle();
+    if(!referrer){
+      errEl.textContent='That referral code wasn\'t found — check it and try again, or leave it blank.';
+      errEl.style.display='block';
+      return;
+    }
+    if(referrer.id===currentSession.user.id){
+      errEl.textContent='You can\'t refer yourself!';
+      errEl.style.display='block';
+      return;
+    }
+    referredByStudentId=referrer.id;
+  }
+
+  // Upsert rather than a plain update — defensively handles a student
+  // row not yet existing for a brand-new signup, rather than assuming
+  // one was already created elsewhere and silently updating zero rows
+  // if that assumption turns out to be wrong.
+  const{error}=await sb.from('students').upsert({
+    id:currentSession.user.id,
+    full_name:name,
+    referral_code:generateReferralCode(),
+    referred_by:referredByStudentId,
+  });
   if(error){ errEl.textContent=error.message; errEl.style.display='block'; return; }
+
+  // Reward both sides of a successful referral — bonus XP now, since
+  // that's buildable today; a real subscription-based reward (like a
+  // free week) can layer on once payment is actually automated.
+  if(referredByStudentId){
+    await sb.rpc('award_referral_bonus',{p_referrer_id:referredByStudentId,p_bonus_xp:50});
+    await awardXpAndStreak(50);
+  }
+
   document.getElementById('dashGreeting').textContent='Welcome, '+name.split(' ')[0];
   showScreen('screen-dashboard');
   renderDashStats({current_streak:0, total_xp:0});
   renderTodayCard({current_streak:0, total_xp:0});
 }
 
+async function openReferFriend(){
+  if(!requireRealLogin())return;
+  showScreen('screen-refer-friend');
+  const{data:student}=await sb.from('students').select('referral_code').eq('id',currentSession.user.id).maybeSingle();
+
+  let code=student?.referral_code;
+  if(!code){
+    // Existing students from before this feature shipped won't have a
+    // code yet — generate one lazily, the first time they open this
+    // screen, rather than needing a one-off backfill migration.
+    code=generateReferralCode();
+    await sb.from('students').update({referral_code:code}).eq('id',currentSession.user.id);
+  }
+  document.getElementById('referral-code-display').textContent=code;
+
+  const{count}=await sb.from('students').select('id',{count:'exact',head:true}).eq('referred_by',currentSession.user.id);
+  document.getElementById('referral-count-display').textContent=count?`🎉 ${count} friend${count!==1?'s':''} joined using your code so far.`:'No referrals yet — share your code to start earning bonus XP.';
+}
+function copyReferralCode(){
+  const code=document.getElementById('referral-code-display').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copy-referral-btn');
+    const original=btn.innerHTML;
+    btn.innerHTML='<i class="ti ti-check"></i> Copied!';
+    setTimeout(()=>{btn.innerHTML=original;},1800);
+  });
+}
 async function signOut(){
   if(!isPreviewMode) await sb.auth.signOut();
   currentSession=null;
@@ -1396,6 +1489,18 @@ const VOCAB_WORDS = [
   {id:'v-ec10', category:'Everyday Conversation', word:'utilities', phonetic:'yoo-TIL-ih-teez', definition:'Basic services like electricity, water, and gas that a home needs.', example:'Rent here doesn\'t include utilities, so you pay those separately.'},
   {id:'v-ec11', category:'Everyday Conversation', word:'groceries', phonetic:'GROH-sur-eez', definition:'Food and household items you buy regularly, usually from a supermarket.', example:'I do my grocery shopping once a week, usually on Saturdays.'},
   {id:'v-ec12', category:'Everyday Conversation', word:'small talk', phonetic:'smawl tawk', definition:'Light, casual conversation about unimportant topics, often with someone you don\'t know well.', example:'We made small talk about the weather while waiting for the bus.'},
+  {id:'v-ec13', category:'Everyday Conversation', word:'catch up', phonetic:'kach up', definition:'To meet or talk with someone to share news since you last saw them.', example:'Let\'s catch up over coffee this weekend, it\'s been ages.'},
+  {id:'v-ec14', category:'Everyday Conversation', word:'hang out', phonetic:'hang owt', definition:'To spend time relaxing with someone in a casual way.', example:'We usually hang out at the park after class on Fridays.'},
+  {id:'v-ec15', category:'Everyday Conversation', word:'wrap up', phonetic:'rap up', definition:'To finish or bring something to a conclusion.', example:'Let\'s wrap up this conversation, I have somewhere to be.'},
+  {id:'v-ec16', category:'Everyday Conversation', word:'drop by', phonetic:'drop by', definition:'To visit somewhere briefly and often without much advance notice.', example:'Feel free to drop by anytime, I\'m usually home in the evenings.'},
+  {id:'v-ec17', category:'Everyday Conversation', word:'stuck in traffic', phonetic:'stuk in TRAF-ik', definition:'Unable to move because of heavy traffic congestion.', example:'Sorry I\'m late, I was stuck in traffic for almost an hour.'},
+  {id:'v-ec18', category:'Everyday Conversation', word:'settle in', phonetic:'SET-ul in', definition:'To become comfortable in a new place, job, or situation.', example:'It took me about a month to settle in after moving to a new city.'},
+  {id:'v-ec19', category:'Everyday Conversation', word:'run late', phonetic:'run layt', definition:'To be behind schedule; not on time.', example:'I\'m running late, can we push the meeting back fifteen minutes?'},
+  {id:'v-ec20', category:'Everyday Conversation', word:'give someone a hand', phonetic:'giv SUM-wun uh hand', definition:'To help someone with a task.', example:'Could you give me a hand carrying these boxes upstairs?'},
+  {id:'v-ec21', category:'Everyday Conversation', word:'keep in touch', phonetic:'keep in tuch', definition:'To continue communicating with someone regularly, especially after not seeing them often.', example:'We promised to keep in touch after graduation, and we still message weekly.'},
+  {id:'v-ec22', category:'Everyday Conversation', word:'take it easy', phonetic:'tayk it EE-zee', definition:'To relax and not work too hard, or to stay calm.', example:'You should take it easy this weekend, you\'ve been so stressed lately.'},
+  {id:'v-ec23', category:'Everyday Conversation', word:'get by', phonetic:'get by', definition:'To manage to survive or cope with a difficult situation, often with limited resources.', example:'It\'s tight, but I manage to get by on my part-time job income.'},
+  {id:'v-ec24', category:'Everyday Conversation', word:'out of the blue', phonetic:'owt uv thuh bloo', definition:'Happening suddenly and unexpectedly, without warning.', example:'She called me out of the blue after not speaking for two years.'},
 ];
 
 const VOCAB_WORDS_2 = [
@@ -1412,6 +1517,18 @@ const VOCAB_WORDS_2 = [
   {id:'v-ac10', category:'Academic & IELTS', word:'inevitable', phonetic:'in-EV-ih-tuh-bul', definition:'Certain to happen; impossible to avoid.', example:'Given current trends, further changes to the visa system seem inevitable.'},
   {id:'v-ac11', category:'Academic & IELTS', word:'perspective', phonetic:'per-SPEK-tiv', definition:'A particular point of view or way of considering something.', example:'The lecture offered a genuinely fresh perspective on the topic.'},
   {id:'v-ac12', category:'Academic & IELTS', word:'thorough', phonetic:'THUR-oh', definition:'Complete and careful, covering every detail.', example:'She did a thorough review of every source before submitting her essay.'},
+  {id:'v-ac13', category:'Academic & IELTS', word:'plausible', phonetic:'PLAW-zih-bul', definition:'Seeming reasonable or probable; believable.', example:'The researcher offered a plausible explanation for the unexpected results.'},
+  {id:'v-ac14', category:'Academic & IELTS', word:'facilitate', phonetic:'fuh-SIL-ih-tayt', definition:'To make a process or action easier.', example:'Small group discussions facilitate deeper understanding of the material.'},
+  {id:'v-ac15', category:'Academic & IELTS', word:'derive', phonetic:'dih-RYVE', definition:'To obtain or get something from a particular source.', example:'Much of our understanding of the topic is derived from earlier studies.'},
+  {id:'v-ac16', category:'Academic & IELTS', word:'notwithstanding', phonetic:'not-with-STAND-ing', definition:'In spite of; despite — a formal way of showing an unexpected contrast.', example:'Notwithstanding the difficulties, the project was completed on schedule.'},
+  {id:'v-ac17', category:'Academic & IELTS', word:'empirical', phonetic:'em-PEER-ih-kul', definition:'Based on observation or experiment, rather than theory alone.', example:'The claim needs empirical evidence before it can be widely accepted.'},
+  {id:'v-ac18', category:'Academic & IELTS', word:'inherent', phonetic:'in-HEER-ent', definition:'Existing as a natural or basic part of something.', example:'There are inherent risks in relying on a single source of income.'},
+  {id:'v-ac19', category:'Academic & IELTS', word:'prevalent', phonetic:'PREV-uh-lent', definition:'Widespread or common at a particular time or in a particular place.', example:'Remote learning became far more prevalent after 2020.'},
+  {id:'v-ac20', category:'Academic & IELTS', word:'undermine', phonetic:'un-der-MYNE', definition:'To weaken or damage something gradually, often a plan, argument, or authority.', example:'Missing several deadlines undermined her credibility with the committee.'},
+  {id:'v-ac21', category:'Academic & IELTS', word:'comprehensive', phonetic:'kom-prih-HEN-siv', definition:'Complete and including everything that is necessary.', example:'The course offers a comprehensive introduction to academic writing.'},
+  {id:'v-ac22', category:'Academic & IELTS', word:'discrepancy', phonetic:'dis-KREP-un-see', definition:'A difference between two things that should be the same.', example:'There\'s a discrepancy between the reported figures and the actual data.'},
+  {id:'v-ac23', category:'Academic & IELTS', word:'stringent', phonetic:'STRIN-junt', definition:'Strict and demanding — rules or standards that must be closely followed.', example:'The university applies stringent criteria for scholarship eligibility.'},
+  {id:'v-ac24', category:'Academic & IELTS', word:'viable', phonetic:'VY-uh-bul', definition:'Capable of working successfully; practical and realistic.', example:'Studying part-time is a viable option for students who also work.'},
 ];
 
 const VOCAB_WORDS_3 = [
@@ -1428,6 +1545,18 @@ const VOCAB_WORDS_3 = [
   {id:'v-id10', category:'Idioms & Phrasal Verbs', word:'come across', phonetic:'kum uh-KRAWSS', definition:'To find something by chance, or to give a certain impression to others.', example:'I came across an old photo while unpacking my suitcase.'},
   {id:'v-id11', category:'Idioms & Phrasal Verbs', word:'on the same page', phonetic:'on thuh saym payj', definition:'In agreement; understanding something the same way as someone else.', example:'Let\'s quickly check we\'re on the same page before the presentation.'},
   {id:'v-id12', category:'Idioms & Phrasal Verbs', word:'cost an arm and a leg', phonetic:'kost an arm and uh leg', definition:'To be very expensive.', example:'Renting near the city centre costs an arm and a leg.'},
+  {id:'v-id13', category:'Idioms & Phrasal Verbs', word:'bite the bullet', phonetic:'byte thuh BUL-it', definition:'To force yourself to do something difficult or unpleasant that you\'ve been avoiding.', example:'I finally bit the bullet and called my landlord about the rent increase.'},
+  {id:'v-id14', category:'Idioms & Phrasal Verbs', word:'call it a day', phonetic:'kawl it uh day', definition:'To decide to stop doing something, usually because enough has been done for now.', example:'We\'ve been studying for six hours, let\'s call it a day.'},
+  {id:'v-id15', category:'Idioms & Phrasal Verbs', word:'get the hang of', phonetic:'get thuh hang uv', definition:'To learn how to do something after practicing it.', example:'It took a while, but I finally got the hang of the new software.'},
+  {id:'v-id16', category:'Idioms & Phrasal Verbs', word:'in the long run', phonetic:'in thuh long run', definition:'Over a long period of time in the future, considering eventual results rather than immediate ones.', example:'It costs more now, but a good laptop pays off in the long run.'},
+  {id:'v-id17', category:'Idioms & Phrasal Verbs', word:'look forward to', phonetic:'look FOR-wurd too', definition:'To feel happy and excited about something that is going to happen.', example:'I\'m really looking forward to my first semester abroad.'},
+  {id:'v-id18', category:'Idioms & Phrasal Verbs', word:'make up for', phonetic:'mayk up for', definition:'To compensate for something lost or missing, or to correct a past mistake.', example:'She studied all weekend to make up for missing a week of classes.'},
+  {id:'v-id19', category:'Idioms & Phrasal Verbs', word:'take after', phonetic:'tayk AF-ter', definition:'To resemble a parent or older relative in appearance or character.', example:'Everyone says I take after my mother when it comes to patience.'},
+  {id:'v-id20', category:'Idioms & Phrasal Verbs', word:'weigh up', phonetic:'way up', definition:'To carefully consider the advantages and disadvantages of something before deciding.', example:'I need to weigh up my options before choosing a university.'},
+  {id:'v-id21', category:'Idioms & Phrasal Verbs', word:'back to square one', phonetic:'bak too skwair wun', definition:'Back to the very beginning, with no progress made.', example:'My visa application was rejected, so it\'s back to square one.'},
+  {id:'v-id22', category:'Idioms & Phrasal Verbs', word:'hit a snag', phonetic:'hit uh snag', definition:'To encounter an unexpected small problem or obstacle.', example:'The application process hit a snag when a document went missing.'},
+  {id:'v-id23', category:'Idioms & Phrasal Verbs', word:'go the extra mile', phonetic:'goh thee EK-struh myle', definition:'To make a special additional effort to achieve or help with something.', example:'Her tutor really went the extra mile to help her prepare for the exam.'},
+  {id:'v-id24', category:'Idioms & Phrasal Verbs', word:'read between the lines', phonetic:'reed bih-TWEEN thuh lynz', definition:'To understand a hidden or implied meaning, not just what is directly stated.', example:'You have to read between the lines to understand what he really meant.'},
 ];
 
 const VOCAB_WORDS_4 = [
@@ -1444,6 +1573,39 @@ const VOCAB_WORDS_4 = [
   {id:'v-sa10', category:'Study Abroad Essentials', word:'credit hours', phonetic:'KRED-it owerz', definition:'A unit measuring the amount of coursework a class represents, used to track progress toward a degree.', example:'You need to complete 120 credit hours to graduate from this program.'},
   {id:'v-sa11', category:'Study Abroad Essentials', word:'lease', phonetic:'leess', definition:'A legal agreement for renting a property for a fixed period of time.', example:'Make sure you read the lease carefully before signing it.'},
   {id:'v-sa12', category:'Study Abroad Essentials', word:'GPA', phonetic:'jee-pee-ay', definition:'Grade Point Average — a number representing a student\'s average academic performance.', example:'A strong GPA can improve your chances of receiving a scholarship.'},
+  {id:'v-sa13', category:'Study Abroad Essentials', word:'conditional offer', phonetic:'kun-DISH-un-ul OF-er', definition:'A university acceptance that depends on meeting certain requirements first, like a language test score.', example:'I received a conditional offer requiring an IELTS score of at least 6.5.'},
+  {id:'v-sa14', category:'Study Abroad Essentials', word:'CAS letter', phonetic:'kas LET-er', definition:'Confirmation of Acceptance for Studies — an official UK document needed to apply for a student visa.', example:'You cannot apply for your UK visa until you receive your CAS letter.'},
+  {id:'v-sa15', category:'Study Abroad Essentials', word:'biometric', phonetic:'by-oh-MET-rik', definition:'Relating to measurements of physical features like fingerprints, used to confirm identity for visas.', example:'You\'ll need to submit biometric data as part of your visa application.'},
+  {id:'v-sa16', category:'Study Abroad Essentials', word:'dependent visa', phonetic:'dih-PEN-dent VEE-zuh', definition:'A visa allowing a family member (like a spouse or child) to accompany a student abroad.', example:'His wife applied for a dependent visa so she could join him while he studied.'},
+  {id:'v-sa17', category:'Study Abroad Essentials', word:'health surcharge', phonetic:'helth SUR-charj', definition:'An extra fee paid as part of some visa applications, granting access to public healthcare in that country.', example:'The UK visa application includes a mandatory health surcharge.'},
+  {id:'v-sa18', category:'Study Abroad Essentials', word:'academic transcript evaluation', phonetic:'ak-uh-DEM-ik TRAN-skript ih-val-yoo-AY-shun', definition:'A formal comparison of grades from one country\'s education system against another\'s standards.', example:'Some universities require a transcript evaluation for applicants from different grading systems.'},
+  {id:'v-sa19', category:'Study Abroad Essentials', word:'induction', phonetic:'in-DUK-shun', definition:'An introductory session or program, often for new students or employees, similar to orientation.', example:'Attendance at the department induction is compulsory for all new students.'},
+  {id:'v-sa20', category:'Study Abroad Essentials', word:'bursary', phonetic:'BUR-suh-ree', definition:'A grant or scholarship given to a student, usually based on financial need rather than academic merit.', example:'She applied for a bursary to help cover her living costs.'},
+  {id:'v-sa21', category:'Study Abroad Essentials', word:'semester', phonetic:'suh-MES-ter', definition:'One of the two main teaching periods an academic year is usually divided into.', example:'The first semester runs from September through to January.'},
+  {id:'v-sa22', category:'Study Abroad Essentials', word:'plagiarism', phonetic:'PLAY-juh-riz-um', definition:'Using someone else\'s work or ideas without giving them credit, treated as serious academic misconduct.', example:'Universities take plagiarism extremely seriously and check every submission.'},
+  {id:'v-sa23', category:'Study Abroad Essentials', word:'internship', phonetic:'IN-turn-ship', definition:'A period of supervised, practical work experience, often related to a student\'s field of study.', example:'She completed a summer internship at a marketing firm during her degree.'},
+  {id:'v-sa24', category:'Study Abroad Essentials', word:'alumni', phonetic:'uh-LUM-nye', definition:'Former students of a school, college, or university.', example:'The university has a large alumni network that helps graduates find jobs.'},
+];
+
+const VOCAB_WORDS_5 = [
+  // ── Formal Writing & Linking Words ────────────────────────────
+  // Deliberately distinct from "Academic & IELTS" — that category is
+  // general academic vocabulary, this one is specifically the
+  // connecting/hedging language that makes IELTS/TOEFL Writing Task 2
+  // essays and formal emails actually flow, rather than reading as a
+  // list of disconnected sentences.
+  {id:'v-fw1', category:'Formal Writing & Linking Words', word:'furthermore', phonetic:'FUR-thur-mor', definition:'A formal way to add an additional point, similar to "also" or "in addition."', example:'The policy is costly to implement. Furthermore, it may not achieve its intended goal.'},
+  {id:'v-fw2', category:'Formal Writing & Linking Words', word:'nevertheless', phonetic:'nev-er-thuh-LESS', definition:'Despite what has just been said; however — used to introduce a contrasting point formally.', example:'The results were disappointing. Nevertheless, the study revealed a useful pattern.'},
+  {id:'v-fw3', category:'Formal Writing & Linking Words', word:'arguably', phonetic:'AR-gyoo-uh-blee', definition:'Used to state an opinion as if it were reasonably defensible, without claiming it as absolute fact.', example:'This is arguably the most significant challenge facing international students today.'},
+  {id:'v-fw4', category:'Formal Writing & Linking Words', word:'to a certain extent', phonetic:'too uh SUR-tun ik-STENT', definition:'A hedging phrase meaning partly true, but not entirely or unconditionally.', example:'To a certain extent, cost does influence a student\'s choice of university.'},
+  {id:'v-fw5', category:'Formal Writing & Linking Words', word:'it could be argued that', phonetic:'it kud bee AR-gyood that', definition:'A formal, cautious way to introduce a claim or opinion without stating it too directly.', example:'It could be argued that online learning offers more flexibility than traditional classrooms.'},
+  {id:'v-fw6', category:'Formal Writing & Linking Words', word:'whereas', phonetic:'wair-AZ', definition:'Used to compare or contrast two different facts or situations.', example:'Undergraduate courses typically last three years, whereas postgraduate courses often last one.'},
+  {id:'v-fw7', category:'Formal Writing & Linking Words', word:'in light of', phonetic:'in lyte uv', definition:'Considering or taking into account a particular fact.', example:'In light of recent changes, the visa requirements have become more stringent.'},
+  {id:'v-fw8', category:'Formal Writing & Linking Words', word:'a case in point', phonetic:'uh kayss in poynt', definition:'A specific example that clearly illustrates a general statement just made.', example:'Rising tuition fees are a growing concern — the UK is a case in point.'},
+  {id:'v-fw9', category:'Formal Writing & Linking Words', word:'on the whole', phonetic:'on thuh hohl', definition:'Considering everything; generally speaking, taking all factors into account.', example:'On the whole, students reported a positive experience studying abroad.'},
+  {id:'v-fw10', category:'Formal Writing & Linking Words', word:'to sum up', phonetic:'too sum up', definition:'A formal way to introduce a final, concluding summary of the main points.', example:'To sum up, the benefits of studying abroad outweigh the initial costs.'},
+  {id:'v-fw11', category:'Formal Writing & Linking Words', word:'with regard to', phonetic:'with rih-GARD too', definition:'A formal phrase meaning "concerning" or "about" a particular subject.', example:'With regard to funding, most scholarships require a strong academic record.'},
+  {id:'v-fw12', category:'Formal Writing & Linking Words', word:'albeit', phonetic:'awl-BEE-it', definition:'Although; even though — introducing a minor point that slightly limits what was just said.', example:'The course is demanding, albeit rewarding for those who complete it.'},
 ];
 
 /* ============================================================
@@ -1455,7 +1617,7 @@ const VOCAB_WORDS_4 = [
    a loop.
    ============================================================ */
 const VOCAB_BOX_INTERVALS_DAYS={1:1,2:2,3:4,4:7,5:14};
-let vocabAllWords=[...VOCAB_WORDS,...VOCAB_WORDS_2,...VOCAB_WORDS_3,...VOCAB_WORDS_4];
+let vocabAllWords=[...VOCAB_WORDS,...VOCAB_WORDS_2,...VOCAB_WORDS_3,...VOCAB_WORDS_4,...VOCAB_WORDS_5];
 let vocabProgressCache={}; // word_id -> progress row
 let vocabSessionQueue=[];
 let vocabSessionIdx=0;
@@ -1499,7 +1661,7 @@ async function openVocabHome(){
   `;
 
   const categories=[...new Set(vocabAllWords.map(w=>w.category))];
-  const catIcons={'Everyday Conversation':'💬','Academic & IELTS':'🎓','Idioms & Phrasal Verbs':'🗣️','Study Abroad Essentials':'✈️'};
+  const catIcons={'Everyday Conversation':'💬','Academic & IELTS':'🎓','Idioms & Phrasal Verbs':'🗣️','Study Abroad Essentials':'✈️','Formal Writing & Linking Words':'✍️'};
   document.getElementById('vocab-categories').innerHTML=categories.map(cat=>{
     const due=vocabWordsDueCount(cat);
     const total=vocabAllWords.filter(w=>w.category===cat).length;
@@ -1779,6 +1941,14 @@ const TEST_DATA = {
               {q:'Which of these is a proper noun?', options:['city','Mumbai','book','happiness'], correct:1, a:'"Mumbai" names one specific city, so it is a proper noun and is always capitalised.'},
               {q:'Why does singular vs. plural matter for later lessons?', options:['It does not matter at all','It affects which form of a verb should be used with it','It only matters for proper nouns','It only affects punctuation'], correct:1, a:'Singular and plural nouns affect subject-verb agreement, covered in a later lesson.'},
             ],
+            matchInstruction: 'Tap a noun on the left, then tap whether it is common or proper on the right.',
+            match: [
+              ['Coimbatore','Proper noun'],
+              ['teacher','Common noun'],
+              ['Samsung','Proper noun'],
+              ['happiness','Common noun'],
+              ['Ravi','Proper noun'],
+            ],
           },
           {
             id: 'gr-pos2', title: 'Pronouns — Standing In for Nouns', time: '12-15 minutes',
@@ -1853,6 +2023,14 @@ const TEST_DATA = {
               {q:'What does a preposition typically show?', options:['An action being performed','The relationship between a noun/pronoun and another word, often time/place','A description of a noun','A question being asked'], correct:1, a:'A preposition shows relationships — commonly involving time, place, or direction.'},
               {q:'Which preposition typically goes with an exact time like "5pm"?', options:['in','on','at','to'], correct:2, a:'"At" is typically used for exact times or points, like "at 5pm."'},
               {q:'Why are prepositions considered especially difficult for many English learners?', options:['They are always spelled incorrectly','Correct usage often cannot be worked out logically and must be learned through exposure','They never appear in real sentences','They are identical in every language'], correct:1, a:'Preposition choice often cannot be reasoned out logically and simply requires learning through exposure and practice.'},
+            ],
+            matchInstruction: 'Tap a time expression on the left, then tap the preposition it correctly pairs with on the right.',
+            match: [
+              ['5pm','at'],
+              ['Monday','on'],
+              ['2026','in'],
+              ['night','at'],
+              ['the morning','in'],
             ],
           },
           {
@@ -1930,6 +2108,10 @@ id: 'gr-sb-basics3', title: 'Do, Does, Did — The Helper Verbs Behind Questions
     {q:'Which helper verb is used with "he," "she," or "it" in the present?', options:['Do','Does','Did','None — no helper verb is needed'], correct:1, a:'"Does" is used with third-person singular subjects (he, she, it) in the present.'},
     {q:'What happens to the main verb once "did" is added to a sentence?', options:['It stays in the past tense form','It returns to its plain base form','It changes to the "-ing" form','It disappears entirely'], correct:1, a:'Once "did" carries the past tense, the main verb returns to its base form, e.g. "did go," not "did went."'},
     {q:'Which is correct?', options:['Does she works here?','Does she work here?','Do she work here?','Did she works here?'], correct:1, a:'"Does" correctly matches "she," and the main verb "work" stays in its base form.'},
+  ],
+  reorder: [
+    {instruction:'Build a correct present-tense question.', words:['Does','she','like','coffee','?']},
+    {instruction:'Build a correct past-tense question.', words:['Did','they','visit','Chennai','?']},
   ],
           },
           {
@@ -2277,6 +2459,14 @@ id: 'gr-wi3', title: 'Common Phrasal Verbs for Everyday Conversation', time: '18
     {q:'What does "run into" mean, as a phrasal verb?', options:['To physically crash into something','To meet someone by chance','To run quickly','To avoid someone'], correct:1, a:'"Run into" means to meet someone unexpectedly, by chance.'},
     {q:'Why do phrasal verbs matter for natural conversation?', options:['They do not actually matter','Fluent speakers use them constantly, so relying only on formal alternatives can sound stiff','They are only used in written English','They are always incorrect to use'], correct:1, a:'Phrasal verbs are used constantly in natural, everyday speech — avoiding them entirely can make speech sound overly formal or stiff.'},
   ],
+  matchInstruction: 'Tap a phrasal verb on the left, then tap its meaning on the right.',
+  match: [
+    ['look up','Search for information'],
+    ['run into','Meet by chance'],
+    ['figure out','Understand or solve'],
+    ['put off','Postpone'],
+    ['carry on','Continue'],
+  ],
           },
           {
 id: 'gr-wi4', title: 'Everyday Idioms You\'ll Actually Hear', time: '18-20 minutes',
@@ -2306,6 +2496,14 @@ id: 'gr-wi5', title: 'Formal vs. Informal English — Knowing When to Switch', t
     {q:'What does "register" mean in the context of language?', options:['A type of grammar tense','The level of formality used in a particular situation','A specific accent','A type of punctuation'], correct:1, a:'Register refers to the level of formality appropriate to a given situation.'},
     {q:'Is informal English simply "incorrect" English?', options:['Yes, it is always a mistake','No — it is genuinely appropriate and natural in casual situations','Yes, but only in writing','No, but only older generations use it correctly'], correct:1, a:'Informal English is genuinely appropriate and natural for casual situations — the issue is only using the wrong register for a given context.'},
     {q:'What situation would most likely call for formal English?', options:['Chatting with a close friend','A text message to a sibling','A job interview or a formal email to a professor','A casual weekend conversation'], correct:2, a:'A job interview or formal email to a professor calls for a more formal register, unlike casual conversations with friends or family.'},
+  ],
+  matchInstruction: 'Tap an informal phrase on the left, then tap its formal equivalent on the right.',
+  match: [
+    ['can\'t make it','unable to attend'],
+    ['something came up','an unexpected matter has arisen'],
+    ['let me know','please advise'],
+    ['hey','Dear Sir/Madam'],
+    ['I\'ll get back to you','I will respond in due course'],
   ],
           },
         ],
@@ -2522,6 +2720,12 @@ id: 'gr-wi5', title: 'Formal vs. Informal English — Knowing When to Switch', t
             {q:'What does False actually mean in this question type?', a:'The passage states the OPPOSITE of the claim — not just that the claim is unproven.', options:['The passage disagrees with a different, unrelated claim','The passage states the opposite of the claim, not just that it\'s unproven','The claim is only partially supported by the passage','The claim is simply not mentioned anywhere in the passage'], correct:1},
             {q:'What does Not Given mean?', a:'The passage does not mention this information at all, either way.', options:['The passage directly contradicts the statement','The passage does not mention this information at all, either way','The information appears in a different paragraph than expected','The passage only partly agrees with the statement'], correct:1},
             {q:'Should outside/general knowledge ever be used to answer?', a:'No — only what the passage actually states matters.', options:['No — only what the passage actually states matters','Yes, if the general knowledge is widely accepted as true','Yes, but only for True/False questions, not Not Given','Only when the passage is ambiguous or unclear'], correct:0},
+          ],
+          matchInstruction: 'Passage sentence: "The library extended its opening hours in 2019." Tap a statement, then tap its correct classification.',
+          match: [
+            ['The library extended its hours in 2019.','True'],
+            ['The library reduced its hours in 2019.','False'],
+            ['The library extended its hours due to student demand.','Not Given'],
           ],
         },
         {
@@ -3868,6 +4072,9 @@ id: 'pf-sw2', title: 'Repeat Sentence — Capturing and Reproducing Exact Wordin
     {q:'What technique helps with holding a sentence in memory accurately?', a:'Breaking it into small, meaningful chunks rather than trying to remember it as one long block.'},
     {q:'Is paraphrasing an acceptable strategy for this task?', a:'No — the exact wording matters here, unlike tasks where paraphrasing is fine.'},
   ],
+  reorder: [
+    {instruction:'Rebuild this sentence exactly, in the correct order — practicing exact reproduction, not paraphrasing.', words:['The','council','approved','the','new','budget','after','a','lengthy','debate']},
+  ],
         },
         {
 id: 'pf-sw3', title: 'Answer Short Question — Fast, One-Word Responses', time: '15-20 minutes',
@@ -4837,6 +5044,14 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
             {q:'What do transition words help a listener do?', a:'Predict what kind of information is coming next, before it is fully said.'},
             {q:'Give an example of a contrast transition word.', a:'"However" or "but."'},
             {q:'What does "as a result" typically signal?', a:'A cause-effect relationship — an outcome resulting from something just mentioned.'},
+          ],
+          matchInstruction: 'Tap a transition word on the left, then tap what it signals on the right.',
+          match: [
+            ['also','Addition — a similar, additional point'],
+            ['however','Contrast — an opposing idea'],
+            ['because','Cause-effect — one thing leading to another'],
+            ['in addition','Addition — a similar, additional point'],
+            ['as a result','Cause-effect — one thing leading to another'],
           ],
         },
       ],Writing:[
