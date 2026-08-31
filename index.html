@@ -2102,6 +2102,10 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
               {q:'What does "She going to market" need to be corrected to?', options:['"She is going to the market" — adding the required auxiliary "is"','"Market going she to" — reordering only','"Going she market to" — moving all the words'], correct:0, a:'The auxiliary "is" is required before the continuous verb "going" in standard English.'},
               {q:'Why is it helpful to know this pattern has a name (SOV vs. SVO)?', options:['It makes no practical difference to know this','Recognising the pattern makes the mistake easier to notice and consciously fix, rather than feeling like a random error','It is only useful for passing grammar exams','It replaces the need for any further practice'], correct:1, a:'Naming the underlying pattern makes it easier to consciously notice and correct, rather than each instance feeling like an unrelated, random mistake.'},
             ],
+            reorder: [
+              {instruction:'Build the correct English sentence, in SVO order.', words:['I','am','reading','a','book']},
+              {instruction:'Build the correct English sentence, remembering the auxiliary verb.', words:['She','is','going','to','the','market']},
+            ],
           },
           {
             id: 'gr-pf2', title: 'Basic Punctuation — Capital Letters, Full Stops, Commas, and Question Marks', time: '14-16 minutes',
@@ -7376,6 +7380,7 @@ function buildLstepSteps(lesson,skillContext){
   // to roll out to a handful of pilot lessons without touching the
   // hundreds of lessons that don't have this data yet.
   if(lesson.match&&lesson.match.length)steps.push({kind:'match',pairs:lesson.match,instruction:lesson.matchInstruction});
+  if(lesson.reorder&&lesson.reorder.length)lesson.reorder.forEach(r=>steps.push({kind:'reorder',words:r.words,instruction:r.instruction}));
   (lesson.quiz||[]).forEach((q,i)=>steps.push({kind:'quiz',q,i}));
   steps.push({kind:'complete'});
   return steps;
@@ -7483,6 +7488,26 @@ function renderLstepStep(direction){
       <div id="match-feedback" style="margin-top:10px;font-size:13px;color:var(--ink3)"></div>`;
     nextBtn.textContent='Continue';
     nextBtn.disabled=true;
+  } else if(step.kind==='reorder'){
+    // Tap-to-build sentence ordering — a third distinct interaction
+    // type (alongside match-tap and type-your-answer). Tap-based
+    // rather than true drag-and-drop deliberately: far more reliable
+    // across mobile and desktop without needing a drag library, and
+    // consistent with how the match exercise already works. Tapping a
+    // word already placed removes it back to the bank, so a mistake
+    // can be corrected without losing all progress.
+    s.reorderPlaced=[];
+    const words=step.words;
+    const shuffledIndices=step.shuffledOrder||(step.shuffledOrder=[...words.keys()].sort(()=>Math.random()-0.5));
+    html=`<div class="lstep-badge quiz"><i class="ti ti-arrows-sort"></i> Put it in order</div>
+      <div style="font-size:13.5px;color:var(--ink3);margin-bottom:14px">${esc(step.instruction||'Tap the words in the correct order to build the sentence.')}</div>
+      <div id="reorder-sentence-area" style="min-height:52px;border:2px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center"></div>
+      <div id="reorder-bank" style="display:flex;flex-wrap:wrap;gap:8px">
+        ${shuffledIndices.map(origIdx=>`<div class="reorder-chip" data-orig="${origIdx}" onclick="tapReorderWord(${origIdx})" style="padding:9px 14px;background:var(--paper);border:1.5px solid var(--line);border-radius:8px;cursor:pointer;font-size:14px">${esc(words[origIdx])}</div>`).join('')}
+      </div>
+      <div id="reorder-feedback" style="margin-top:12px;font-size:13px"></div>`;
+    nextBtn.textContent='Continue';
+    nextBtn.disabled=true;
   } else if(step.kind==='quiz'){
     s.quizAnswered=false;
     s.quizSelected=null;
@@ -7587,6 +7612,52 @@ function selectMatchItem(side,idx){
       rightEl.classList.remove('wrong-answer');
     },600);
     s.matchSelectedLeft=null;
+  }
+}
+function tapReorderWord(origIdx){
+  const s=lstepState;
+  if(s.reorderPlaced.includes(origIdx))return;
+  s.reorderPlaced.push(origIdx);
+  renderReorderState();
+  if(s.reorderPlaced.length===s.steps[s.idx].words.length){
+    setTimeout(checkReorderAnswer,300);
+  }
+}
+function tapPlacedReorderWord(origIdx){
+  const s=lstepState;
+  s.reorderPlaced=s.reorderPlaced.filter(i=>i!==origIdx);
+  document.getElementById('reorder-feedback').innerHTML='';
+  renderReorderState();
+}
+function renderReorderState(){
+  const s=lstepState, step=s.steps[s.idx], words=step.words;
+  const sentenceArea=document.getElementById('reorder-sentence-area');
+  sentenceArea.innerHTML=s.reorderPlaced.map(origIdx=>
+    `<div class="reorder-chip" onclick="tapPlacedReorderWord(${origIdx})" style="padding:9px 14px;background:var(--cream);border:1.5px solid var(--pine3);border-radius:8px;cursor:pointer;font-size:14px">${esc(words[origIdx])}</div>`
+  ).join('');
+  document.querySelectorAll('#reorder-bank .reorder-chip').forEach(el=>{
+    const origIdx=parseInt(el.dataset.orig);
+    el.style.visibility=s.reorderPlaced.includes(origIdx)?'hidden':'visible';
+  });
+}
+function checkReorderAnswer(){
+  const s=lstepState;
+  const isCorrect=s.reorderPlaced.every((idx,pos)=>idx===pos);
+  const fb=document.getElementById('reorder-feedback');
+  if(isCorrect){
+    fb.innerHTML='<span style="color:var(--pine);font-weight:600">Correct — well done!</span>';
+    document.getElementById('lstep-next-btn').disabled=false;
+    document.querySelectorAll('#reorder-sentence-area .reorder-chip').forEach(el=>{
+      el.style.background='var(--sage-l)';el.style.borderColor='var(--sage)';el.onclick=null;
+    });
+  } else {
+    fb.innerHTML='<span style="color:#E24B4A">Not quite the right order — try again.</span>';
+    document.querySelectorAll('#reorder-sentence-area .reorder-chip').forEach(el=>el.style.borderColor='#E24B4A');
+    setTimeout(()=>{
+      s.reorderPlaced=[];
+      renderReorderState();
+      fb.innerHTML='';
+    },1300);
   }
 }
 function selectQuizOption(oi){
