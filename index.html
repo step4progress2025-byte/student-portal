@@ -3188,6 +3188,12 @@ id: 'gr-wi5', title: 'Formal vs. Informal English — Knowing When to Switch', t
             {q:'Where should you look first to identify a paragraph\'s main idea quickly?', a:'The first and last sentences, where main ideas are usually stated.', options:['The middle sentence only','The first and last sentences, where main ideas are usually stated','Any sentence containing a number','The shortest sentence in the paragraph'], correct:1},
             {q:'Can the same heading be used for two different paragraphs?', a:'No — each heading is normally used only once.', options:['Yes, headings can be reused freely','No — each heading is normally used only once','Only for the first two paragraphs','Yes, but only if the paragraphs are adjacent'], correct:1},
           ],
+          matchInstruction: 'Tap a paragraph summary on the left, then tap its correct heading on the right.',
+          match: [
+            ['Discusses redesigning a city\'s buses and trains, mentioning a drop in accidents in passing.','Redesigning a City\'s Public Transport'],
+            ['Focuses on rooftop hives and community programmes, briefly noting lower honey yields.','The Rise of Urban Beekeeping'],
+            ['Explains a company\'s move to remote work, mentioning reduced office costs as one effect.','A Shift to Remote Work'],
+          ],
         },
         {
           id: 'd-r2', title: 'Matching Sentence Endings — Completing the Logic Correctly', time: '15-20 minutes',
@@ -3583,6 +3589,14 @@ id: 'gr-wi5', title: 'Formal vs. Informal English — Knowing When to Switch', t
             {q:'Why is repeating "increased" and "decreased" throughout a Task 1 response a problem at Band 6+?', a:'It signals a narrow range of vocabulary, which limits the Lexical Resource score even if the data description is accurate.'},
             {q:'What do adverbs of degree like "sharply" or "gradually" add to a trend description?', a:'Precision about how the change happened, not just the fact that it happened.'},
             {q:'What verb tense usually fits a chart showing completed historical data?', a:'Past tense, since the data describes events that have already happened.'},
+          ],
+          matchInstruction: 'Tap a trend word on the left, then tap its correct direction on the right.',
+          match: [
+            ['surge','Sharp increase'],
+            ['plummet','Sharp decrease'],
+            ['plateau','No change'],
+            ['climb','Gradual increase'],
+            ['dip','Small decrease'],
           ],
         },
         {
@@ -4476,6 +4490,9 @@ id: 'pd-r2', title: 'Avoiding the Logical-Connector Trap in Re-order Paragraphs'
     {q:'What must a paragraph starting with "however" genuinely do?', a:'Contrast with the content of the paragraph immediately preceding it, not just any earlier paragraph.'},
     {q:'What does "therefore" specifically signal?', a:'A result relationship — the paragraph before it must present a genuine cause.'},
   ],
+  reorder: [
+    {instruction:'Reorder these 3 sentences into a logically correct sequence, using the connector words as your clues.', words:['A new marketing campaign launched in early spring.','As a result, sales increased significantly over the following months.','However, this growth slowed once the campaign budget was reduced.']},
+  ],
         },
         {
 id: 'pd-r3', title: 'Identifying the Opening Sentence in Re-order Paragraphs', time: '15-20 minutes',
@@ -5171,6 +5188,13 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
             {q:'Where is the main topic usually identifiable?', a:'Early in the talk, usually within the first few sentences.'},
             {q:'What do most comprehension questions primarily test?', a:'Whether the main topic was understood, with details serving as supporting evidence.'},
           ],
+          matchInstruction: 'Tap a statement on the left, then tap whether it\'s the main topic or a supporting detail on the right.',
+          match: [
+            ['The university launched a new mentorship programme.','Main Topic'],
+            ['The programme has 200 participants.','Supporting Detail'],
+            ['A company introduced a recycling programme.','Main Topic'],
+            ['The programme reduced waste by 15%.','Supporting Detail'],
+          ],
         },
         {
           id: 'tf-l3', title: 'Basic Note-Taking While Listening', time: '15-20 minutes',
@@ -5408,6 +5432,13 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
             {q:'What does a "speaker function" question test, beyond literal content?', a:'What the speaker is actually trying to accomplish by saying something.'},
             {q:'Give an example of a statement that might function as an indirect complaint.', a:'A factual statement like "I\'ve emailed twice and haven\'t heard back," which functions as a polite complaint or prompt for action.'},
             {q:'What helps determine a statement\'s actual function?', a:'Context and tone, not just the literal words used.'},
+          ],
+          matchInstruction: 'Tap a statement on the left, then tap its real function on the right.',
+          match: [
+            ['"I have emailed twice and have not heard back."','Implicit complaint'],
+            ['"I noticed the deadline is not listed anywhere."','Request for clarification'],
+            ['"Could you go over that last point again?"','Direct clarification request'],
+            ['"The lab was pretty crowded today."','Neutral observation'],
           ],
         },
         {
@@ -6488,6 +6519,13 @@ id: 'ta-s4', title: 'Delivering a Polished, Well-Paced Response With Minimal Hes
             {q:'Why is recognising spelling patterns useful under time pressure?', options:['It is not useful at all under time pressure', 'It allows a known word to help correctly complete a related, less familiar one', 'It only works for very short words', 'It replaces the need to read the passage at all'], correct:1, a:'Recognising patterns lets a known word\'s spelling help correctly complete a related word, saving time compared to uncertain guessing.'},
             {q:'What is a risk of NOT recognising word families?', options:['Nothing changes either way', 'Treating every word as a separate, unrelated spelling challenge, wasting time', 'Automatically getting every answer wrong', 'It only affects listening tasks'], correct:1, a:'Without recognising patterns, every word must be treated as a separate challenge, which is slower and less reliable under time pressure.'},
           ],
+          matchInstruction: 'Tap a word on the left, then tap the pattern it shares on the right.',
+          match: [
+            ['possible','-ible family'],
+            ['relieve','"i before e" pattern'],
+            ['comfortable','-able family'],
+            ['receive','"i before e" (after c)'],
+          ],
         },
       ],Comprehension:[
         {
@@ -6643,6 +6681,9 @@ id: 'ta-s4', title: 'Delivering a Polished, Well-Paced Response With Minimal Hes
             {q:'What commonly happens when a response is spoken with no mental structure first?', options:['It is always automatically clearer', 'It often wanders, repeats itself, or misses the main point', 'It has no real disadvantage', 'It becomes shorter than a structured response'], correct:1, a:'An unstructured response often wanders or repeats itself, even when the underlying understanding is genuinely correct.'},
             {q:'What is a simple structure that can help before speaking?', options:['No structure is ever necessary', 'Main point first, then one supporting detail', 'Speaking as many separate points as possible with no order', 'Repeating the audio\'s exact wording only'], correct:1, a:'Stating the main point first, then adding one supporting detail, is a simple, effective structure for a spoken response.'},
             {q:'What is the risk of planning for too long before speaking?', options:['There is no such risk', 'Too little time may remain to actually deliver the response', 'The response automatically becomes incorrect', 'Planning too long has no real downside'], correct:1, a:'Spending excessive time planning can leave too little time to actually produce the spoken response.'},
+          ],
+          reorder: [
+            {instruction:'Reorder these fragments into "main point first, then supporting detail" structure.', words:['The council introduced a new bike-sharing scheme,','which was well-received by residents.']},
           ],
         },
       ],Conversation:[
