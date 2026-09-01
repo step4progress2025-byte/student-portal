@@ -1320,6 +1320,7 @@ async function saveName(){
   // if that assumption turns out to be wrong.
   const{error}=await sb.from('students').upsert({
     id:currentSession.user.id,
+    phone:currentSession.user.phone,
     full_name:name,
     referral_code:generateReferralCode(),
     referred_by:referredByStudentId,
