@@ -562,6 +562,10 @@
         <input type="text" id="nameInput" placeholder="Your full name" autocomplete="name">
       </div>
       <div class="ff">
+        <label for="emailInput">Email (for your results)</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="ff">
         <label for="referralCodeInput">Referral code (optional)</label>
         <input type="text" id="referralCodeInput" placeholder="e.g. ASCEND-AB12" style="text-transform:uppercase">
       </div>
@@ -1369,13 +1373,8 @@ async function afterLogin(){
   // single time until they renew. Checked BEFORE anything else in
   // afterLogin — a blocked student sees nothing else in the app at
   // all, not even their name-entry screen.
-  const expired=student?.subscription_status==='expired'
-    ||(student?.subscription_expires_at&&new Date(student.subscription_expires_at)<new Date());
-  if(expired){
-    showScreen('screen-subscription-required');
-    return;
-  }
-
+  // Open access: anyone can sign in and use the portal. Mock access is
+  // decided by credits (my_mock_access), not by a subscription gate here.
   if(!student?.full_name){
     showScreen('screen-name');
   } else {
@@ -1605,6 +1604,8 @@ async function saveName(){
   const referralInput=document.getElementById('referralCodeInput').value.trim().toUpperCase();
   const errEl=document.getElementById('nameErr');
   if(!name){ errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
+  const emailVal=(document.getElementById('emailInput').value||'').trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)){ errEl.textContent='Please enter a valid email so we can send your results.'; errEl.style.display='block'; return; }
 
   let referredByStudentId=null;
   if(referralInput){
@@ -1630,6 +1631,7 @@ async function saveName(){
     id:currentSession.user.id,
     phone:currentSession.user.phone,
     full_name:name,
+    email:emailVal,
     referral_code:generateReferralCode(),
     referred_by:referredByStudentId,
   });
@@ -1784,14 +1786,7 @@ function requireRealLogin(){
 // worth gating precisely, not just relying on the one check done when
 // the app first loaded.
 async function requireActiveSubscription(){
-  if(isPreviewMode)return true; // preview mode has no real account to gate
-  const{data:student}=await sb.from('students').select('subscription_status,subscription_expires_at').eq('id',currentSession.user.id).single();
-  const expired=student?.subscription_status==='expired'
-    ||(student?.subscription_expires_at&&new Date(student.subscription_expires_at)<new Date());
-  if(expired){
-    showScreen('screen-subscription-required');
-    return false;
-  }
+  // No login-level payment gate any more. Paid features check credits on the server.
   return true;
 }
 
@@ -7631,6 +7626,426 @@ L('dl-pr10','Editing Your Own Writing: Concision, Repetition and Error Hunting',
     Object.keys(extra).forEach(sk=>{ lv.skills[sk]=(lv.skills[sk]||[]).concat(extra[sk]); });
   });
 })();
+(function(){
+const L=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz)=>({
+  id,title,time:'15-20 minutes',objectives:obj,concept,
+  example:'<i>(Original scenario — not from a real IELTS test)</i><br><br>'+example,
+  vocab,mistakes,practice,practiceAnswer,
+  quiz:quiz.map(([q,options,correct,a])=>({q,options,correct,a}))
+});
+window.IE_EXTRA={
+foundation:{
+Listening:[
+L('f-l6','Spelling, Numbers and Plurals: Getting the Answer Written Correctly',
+['Write names, numbers and dates in the form the question expects','Spell common words correctly under time pressure','Remember that a correct word with wrong spelling earns no mark'],
+'In Listening you may hear the right answer and still lose the mark by writing it wrongly. Names are often spelled out letter by letter, so learn the English letter names (especially A/E/I, G/J, B/P/V, M/N). Numbers must be written correctly: phone numbers digit by digit, prices with the currency symbol only if the question has one, dates in a clear form. Check singular and plural against the question: if the sentence says "two ____", the answer is usually plural. Always follow the word limit exactly, and use one consistent spelling style (British or American) throughout.',
+'Heard: "The name is Whitmore. That\'s W-H-I-T-M-O-R-E. And the course starts on the 14th of September, costing two hundred and fifty pounds."<br><br>Correct answers: <b>Whitmore</b>, <b>14 September</b> (or 14th September), <b>£250</b> or <b>250</b> depending on the format shown. If the form says "Fee: £____", write only 250.',
+[['letter-by-letter spelling','when a speaker says each letter of a name aloud'],['word limit','the maximum number of words allowed in an answer'],['plural','a noun form meaning more than one, usually ending in -s'],['consistent','always the same, with no changes']],
+['Mixing up letters that sound alike, such as B and V or G and J.','Writing "fifteen" when the speaker said "fifty".','Adding a currency symbol that is already printed in the question.','Using more words than the limit allows.'],
+'You hear: "My postcode is S-W-one-nine, two-D-F." Write it down.',
+'SW19 2DF (Letters and digits written exactly as heard, with the usual postcode space.)',
+[['Why can a correct answer still lose the mark?',['It was spelled wrongly or broke the word limit','The audio was too quiet','It was a number','It was a name'],0,'Marks are given for correct spelling and format as well as correct content.'],
+ ['What should you check before writing a plural?',['The sentence before the gap','The page number','The audio speed','The speaker\'s accent'],0,'The grammar around the gap shows whether singular or plural is needed.'],
+ ['If the question already prints "£", you should:',['Write the symbol again','Write only the number','Write the word "pounds"','Leave it blank'],1,'Do not repeat information already printed in the question.']]),
+L('f-l7','Predicting Answers Before the Audio Starts',
+['Use the time before each section to read the questions closely','Predict the type of word that fits each gap','Spot key words to listen for'],
+'Before each Listening section you get a short time to read the questions. Use it. Look at each gap and ask: is it a name, a number, a place, a noun or an adjective? Underline the words around it, because these key words (or their paraphrases) will be spoken just before the answer. Notice the order of the questions: they follow the order of the recording. If you predict the type of answer, your ears are ready for it, and you are less likely to be surprised by a distractor.',
+'Question: "The library opens at ____ on weekdays."<br>Prediction: a <b>time</b> (number). Key words: "library", "opens", "weekdays". The speaker might say "We\'re open from nine o\'clock Monday to Friday," so listen for "open", "Monday to Friday" and a time.',
+[['predict','to guess what is coming next using clues'],['key word','an important word that points to the answer'],['distractor','information designed to mislead you'],['paraphrase','the same meaning in different words']],
+['Reading questions only after the audio starts.','Listening for exact words instead of meaning.','Losing the place and missing two answers in a row.','Writing a long guess instead of a short, exact answer.'],
+'Predict the answer type: "The conference is held in ____ Hall."',
+'A name or a noun (for example a person\'s name or a place word), probably one word starting with a capital letter.',
+[['What should you do in the reading time?',['Rest','Predict the type of answer for each gap','Read the transcript','Skip to the next section'],1,'Prediction prepares your listening.'],
+ ['In what order are the answers heard?',['Random','The same order as the questions','Backwards','Alphabetical'],1,'The questions follow the recording.'],
+ ['Key words usually appear:',['After the answer only','Near the answer, often in different words','Never','Only in the title']  ,1,'They signal that the answer is close, often paraphrased.']])
+],
+Reading:[
+L('f-r6','Skimming and Scanning: Two Different Ways to Read Fast',
+['Tell skimming from scanning and know when to use each','Find the structure of a passage in about two minutes','Locate names, dates and numbers quickly'],
+'You cannot read every word of three long passages in an hour and still answer carefully. Skim first: read the title, the first sentence of each paragraph and the last sentence of the passage to understand the overall structure. Then scan: move your eyes quickly over the text to find specific words, names, numbers or capital letters that match a question. Only when you find the right area should you read slowly. This saves time and lets you spend careful reading where it counts.',
+'Question: "In which year did the company open its first factory?"<br>Scan for <b>numbers that look like years</b> (1990, 2004) near the word "factory" or "opened". When you find "In 1998, the first factory opened in Leeds," stop and read the sentence carefully to confirm.',
+[['skim','to read quickly to get the general idea'],['scan','to look quickly for specific information'],['structure','how a text is organised'],['topic sentence','a sentence that states the main idea of a paragraph']],
+['Reading the whole passage slowly before looking at questions.','Scanning for an exact word and missing the paraphrase.','Stopping at the first mention of a keyword without checking the meaning.','Spending too long on one hard question.'],
+'Which technique would you use to find "the name of the architect" in a passage?',
+'Scanning: look for capital-letter names near words like "designed" or "architect".',
+[['What is skimming for?',['Finding exact numbers','Getting the general structure','Checking spelling','Reading aloud'],1,'Skimming shows how the passage is organised.'],
+ ['What do you scan for with a "year" question?',['Long words','Number patterns that look like years','Adjectives','Titles'],1,'Years are easy to spot by their pattern.'],
+ ['After scanning finds the area, you should:',['Move on immediately','Read that part carefully','Guess','Skip']  ,1,'Careful reading is saved for the right area.']]),
+L('f-r7','Keywords and Paraphrase: Why the Passage Never Uses the Same Words',
+['Recognise that questions rewrite the passage in different words','Find synonyms and related phrases for keywords','Avoid choosing answers just because a word matches'],
+'IELTS deliberately rewrites the passage in the questions. If the passage says "The number of tourists rose sharply," the question may say "Visitor numbers increased dramatically." If you look only for exact words you will miss the answer, and a word that matches exactly may be a trap. Underline the keywords in each question, think of synonyms ("rose" = "increased"), and scan for those too. Then check that the meaning matches fully, not just one word.',
+'Question statement: "Most employees prefer working from home." Passage: "A survey found that a majority of staff choose to work remotely."<br><br>Matches: "most" = <b>a majority</b>, "employees" = <b>staff</b>, "prefer working from home" = <b>choose to work remotely</b>. No exact word is repeated, yet the meaning matches, so the statement is True.',
+[['synonym','a word with the same or nearly the same meaning'],['paraphrase','rewording something while keeping its meaning'],['trap','a detail that seems right but is not'],['majority','more than half']],
+['Searching only for the exact words in the question.','Choosing a sentence because it shares one word.','Ignoring words that change meaning, like "only" or "not".','Not thinking of synonyms before scanning.'],
+'Give a paraphrase of "The cost of housing has risen steeply."',
+'"Property prices have increased sharply." (or similar)',
+[['Why are questions reworded?',['By accident','To test understanding, not word matching','To make them shorter','To hide numbers'],1,'The test measures meaning, not word spotting.'],
+ ['"A majority of staff" is closest to:',['A few employees','Most employees','No employees','Some managers'],1,'"A majority" means most.'],
+ ['An exact word match can be:',['Always correct','A trap','Always wrong','Impossible'],1,'It may appear in a sentence that says something different.']])
+],
+Writing:[
+L('f-w6','Task 2 Essay Structure: Four Clear Paragraphs',
+['Know the four-paragraph structure for a standard Task 2 essay','State your position clearly in the introduction','Give each body paragraph one main idea'],
+'A reliable structure for Task 2 is four paragraphs. Introduction: paraphrase the question and state your position or what you will discuss. Body paragraph 1: one main idea, explained and supported with an example. Body paragraph 2: a second main idea in the same way. Conclusion: restate your position without adding new ideas. This gives the examiner a clear, organised answer and helps you control time (about 40 minutes for 250 words or more). Planning for 3-4 minutes before writing prevents wandering.',
+'Question: "Some people think children should start school at an early age. Do the advantages outweigh the disadvantages?"<br><br>Plan: Intro: paraphrase + "the advantages outweigh the disadvantages". Body 1: early social skills (example: group play). Body 2: a strong academic base (example: reading habits). Conclusion: restate position.',
+[['paraphrase','to say something in different words'],['position','your clear answer to the question'],['body paragraph','a paragraph that develops one main idea'],['conclusion','the final paragraph restating your position']],
+['Starting to write with no plan.','Putting two different ideas in one paragraph.','Introducing a new idea in the conclusion.','Copying the question word for word.'],
+'Write a one-sentence position for: "Is it better to live in a city or in the countryside?"',
+'Example: "In my opinion, living in a city is better because of its job opportunities and facilities."',
+[['How many paragraphs in the basic structure?',['One','Two','Four','Seven'],2,'Intro, two body paragraphs and a conclusion.'],
+ ['What belongs in the conclusion?',['A new main idea','A restatement of your position','A long example','Nothing'],1,'The conclusion restates the position.'],
+ ['What should one body paragraph have?',['One main idea with support','Five ideas','No example','A question only'],0,'Focus makes the paragraph clear.']]),
+L('f-w7','Task 1 Overview: The Sentence That Many Candidates Forget',
+['Understand what an overview sentence is and why it matters','Identify the most important overall trend or feature','Place the overview clearly in your report'],
+'In Academic Task 1 you must report the main features of a chart, graph, table or process. A key part is the overview: one or two sentences that summarise the biggest trends or differences without detailed numbers. Without an overview, a response cannot score well for Task Achievement. Look for the highest, lowest, biggest change or overall direction. Write the overview after the introduction (or at the start of the second paragraph), then support it with specific data in the body.',
+'Chart: Internet use in three countries from 2000 to 2020.<br><br>Overview: <b>"Overall, internet use rose significantly in all three countries, with Country A remaining the highest throughout the period."</b><br>This sentence gives the main trend and the key comparison, with no detailed figures.',
+[['overview','a short summary of the main features'],['trend','the general direction of change'],['feature','a notable point in the data'],['throughout','during the whole period']],
+['Leaving out the overview.','Listing every number instead of summarising.','Giving opinions or reasons not shown in the data.','Placing the overview in the conclusion only.'],
+'Write an overview for a bar chart in which sales of tea fell while sales of coffee rose over five years.',
+'"Overall, coffee sales increased while tea sales declined over the five years."',
+[['What does an overview contain?',['Every number','The main trends or differences','Your opinion','The causes'],1,'It summarises the biggest features.'],
+ ['Why is it important?',['It is optional','It is needed for a good Task Achievement score','It adds word count only','It is only for Task 2'],1,'A clear overview is a key requirement.'],
+ ['Which word often starts an overview?',['Overall','Because','Perhaps','However']  ,0,'"Overall" signals the summary.']])
+],
+Speaking:[
+L('f-s6','Part 2 Basics: Using the One Minute of Preparation',
+['Use the preparation minute to plan, not to write full sentences','Cover every bullet point on the cue card','Keep speaking for the full time'],
+'In Part 2 you receive a cue card and have one minute to prepare, then you speak for one to two minutes. Use a pencil to write only keywords, one or two for each bullet point on the card. Then speak in order through the bullets, adding details, feelings and an example. Speak in full sentences and keep going until the examiner stops you. If you finish early, add why the topic matters to you. Do not try to memorise a script; your notes are only a map.',
+'Cue card: "Describe a place you like to visit. You should say where it is, how often you go there, what you do there, and explain why you like it."<br><br>Notes: <b>park near home / weekends / walk, read / calm.</b> Then speak: "I\'d like to talk about a small park near my home. I go there almost every weekend..."',
+[['cue card','a card with a topic and prompts for Part 2'],['preparation time','the minute before you speak'],['keywords','single words that remind you of ideas'],['bullet point','a prompt listed on the card']],
+['Writing full sentences during the minute.','Skipping a bullet point.','Stopping after thirty seconds.','Memorising an answer that does not fit.'],
+'Which notes would you make for "Describe a person who helped you"?',
+'Example: who (teacher) / when (school) / how helped (extra lessons) / why important (confidence).',
+[['How long do you prepare for Part 2?',['Ten seconds','One minute','Five minutes','None'],1,'You get one minute to prepare.'],
+ ['What should your notes be?',['Full sentences','Keywords','A paragraph','Nothing'],1,'Keywords are fast and flexible.'],
+ ['If you finish early you can:',['Stop','Add why it matters to you','Repeat the card','Ask a question'],1,'Adding reasons extends the answer naturally.']]),
+L('f-s7','Pronunciation Basics: Word Stress and Clear Word Endings',
+['Place stress on the correct syllable in common words','Pronounce word endings such as -ed and -s','Speak at a pace that is easy to follow'],
+'Clear pronunciation means being easy to understand, not sounding like a native speaker. Two basics make a large difference. First, word stress: in "photograph" stress the first syllable, in "photographer" the second, and in "photographic" the third. Saying the wrong syllable can make a word hard to recognise. Second, word endings: pronounce the final sounds in "worked" (/t/), "played" (/d/), "books" (/s/) and "pages" (/ɪz/). Speak steadily; fast speech with unclear endings loses meaning.',
+'Say: "I **de-CIDED** to **VIS-it** my **GRAND-par-ents** and we **WALKED** to the **MARK-et**."<br><br>Notice the stress on the capitalised syllables and the clear endings on "decided" (-id), "walked" (-t) and "market" (-t).',
+[['word stress','the syllable said with more force in a word'],['syllable','a beat in a word, such as "ta-ble"'],['ending','the final sound or letters of a word'],['intelligible','easy to understand']],
+['Dropping final consonants.','Stressing the wrong syllable.','Speaking so fast that words merge.','Worrying about accent instead of clarity.'],
+'Where is the stress in "important" and "photographer"?',
+'imPORtant (second syllable); phoTOgrapher (second syllable).',
+[['What matters most in pronunciation?',['Having a British accent','Being easy to understand','Speaking very fast','Whispering'],1,'Clarity is the goal.'],
+ ['What does word stress change?',['Spelling','How easily a word is recognised','Meaning only in writing','Nothing'],1,'Wrong stress can hide a word.'],
+ ['How do you say the -ed in "worked"?',['/t/','/id/ always','Silent','/z/'],0,'After /k/ the ending sounds like /t/.']])
+]
+},
+developing:{
+Listening:[
+L('d-l6','Self-Corrections and Distractors: When the Speaker Changes the Answer',
+['Notice when a speaker corrects themselves','Listen for the final information, not the first','Avoid writing an answer too early'],
+'Speakers in Listening often say one thing and then correct it: "The meeting is on Tuesday... no, sorry, Wednesday." The first answer is the distractor, and the correction is the answer. Signals include "actually", "sorry", "I mean", "no wait", "on second thoughts", and "rather than". Do not write immediately when you hear a number or name; wait until the speaker finishes the idea. If you have written a draft answer, be ready to change it. Listen to the whole sentence and the next one.',
+'Heard: "I\'ll pick you up at 4:30. Oh, actually, the train is delayed, so make it 5:15."<br><br>Distractor: <b>4:30</b>. Final answer: <b>5:15</b>.',
+[['self-correction','changing something you just said'],['distractor','a detail meant to mislead you'],['signal phrase','words that show a change, like "actually"'],['final information','the last, corrected detail']],
+['Writing the first answer and moving on.','Missing short signals such as "sorry".','Ignoring the next sentence after a number.','Panicking after missing an answer.'],
+'Heard: "The deposit is fifty pounds... no wait, sixty." What do you write?',
+'60 (or £60 depending on the form).',
+[['Which word often signals a correction?',['Actually','And','The','Maybe'],0,'"Actually" often introduces the true information.'],
+ ['What is the distractor?',['The first detail that is later corrected','The last detail','The title','The question'],0,'The corrected detail is the distractor.'],
+ ['When should you write?',['At the first number','After the speaker finishes the idea','Never','Before listening']  ,1,'Waiting avoids writing the wrong detail.']]),
+L('d-l7','Academic Vocabulary in Sections 3 and 4',
+['Recognise common academic words used in university discussions','Understand how lecturers organise a talk','Handle unfamiliar subject words calmly'],
+'Sections 3 and 4 move into academic situations: students discussing an assignment, or a lecture on a subject. The language includes words like "hypothesis", "methodology", "sample", "findings", "argue", "evidence", "reference". You do not need subject knowledge, but you need these general academic words. Lecturers signal structure with phrases such as "There are three main factors", "let\'s turn to", "in summary". When you meet an unfamiliar subject word, the question usually tells you what kind of word to write, so keep calm and listen for it.',
+'Heard: "Our methodology involved a sample of two hundred students, and the findings suggest that regular sleep improves exam results."<br><br>Academic vocabulary: <b>methodology</b> (the method used), <b>sample</b> (the group studied), <b>findings</b> (results).',
+[['methodology','the methods used in a study'],['sample','a small group chosen to represent a larger one'],['findings','the results of research'],['hypothesis','an idea that is tested']],
+['Panicking at one unknown word.','Not recognising structure phrases.','Expecting everyday vocabulary only.','Spending time on a missed answer instead of the next one.'],
+'What does "the findings suggest" tell you?',
+'That the results of the study point to a conclusion, not that it is certain.',
+[['What is a "sample"?',['A gift','A small group studied','A full report','A title'],1,'A sample is a smaller group used in research.'],
+ ['"Let\'s turn to" signals:',['A new topic','A conclusion','A mistake','A question'],0,'It introduces the next part.'],
+ ['If you hear an unknown subject word you should:',['Stop listening','Stay calm and listen for the answer type','Leave the section','Write anything']  ,1,'Questions guide you even without subject knowledge.']])
+],
+Reading:[
+L('d-r6','Locating the Answer: Keywords, Order and Paraphrase Together',
+['Use keywords to find the area of the answer','Use the order of questions to narrow the search','Confirm the match by meaning'],
+'Most question types (except Matching Headings and some Matching Information) follow the order of the passage. If question 3 is answered in paragraph B, question 4 is usually later in B or in C. Use this: after finding one answer, start the next search from there. For each question, underline the keyword, think of paraphrases, scan the right area, and read around the match to confirm the meaning. Do not just match words: a sentence can share every keyword and still say the opposite.',
+'Question 5: "The writer says that cycling is most popular among ____." Question 4 was answered in paragraph C.<br><br>So start scanning for question 5 from the end of paragraph C. Look for "cycling", "popular", "most" or synonyms such as "widespread" and "favourite", then read around it.',
+[['sequence','the order in which things come'],['locate','to find the position of something'],['confirm','to check that something is correct'],['area of the passage','the part where an answer probably is']],
+['Starting every search from the beginning.','Forgetting that order helps.','Matching words without checking meaning.','Giving up after one failed search.'],
+'You found question 6 in paragraph D. Where do you begin for question 7?',
+'At the end of the sentence in paragraph D (or the start of the next paragraph), since the order usually continues.',
+[['What does question order help with?',['Spelling','Narrowing the search area','Grammar','Titles'],1,'It tells you roughly where to look.'],
+ ['Which question types may not follow order?',['Sentence completion','Matching headings','Short answer','Notes'],1,'Matching headings are done by paragraph, not in order.'],
+ ['After finding a match you should:',['Stop reading','Read around it to confirm meaning','Change the question','Skip']  ,1,'Context confirms the match.']]),
+L('d-r7','Time Management Across Three Passages',
+['Plan roughly twenty minutes per passage','Decide when to move on from a hard question','Leave a minute at the end to fill blanks'],
+'The Reading test is 60 minutes with three passages of increasing difficulty and 40 questions. A simple plan is 20 minutes each, with the first passage a little faster so you can invest more time in the third. If a question takes more than about a minute and a half, mark it, guess if needed and move on; you can return later. Never leave an answer blank, since there is no penalty for wrong answers. Practise under timed conditions so that the pace feels natural before test day.',
+'Timeline: Passage 1: 0-17 minutes. Passage 2: 17-38. Passage 3: 38-58. Final two minutes: check blanks and spelling.<br><br>Question 9 in Passage 2 is difficult? Write your best guess, put a star next to it, and move on.',
+[['time management','using available time wisely'],['pace','the speed at which you work'],['guess','to give an answer when unsure'],['timed conditions','practising with a real time limit']],
+['Spending ten minutes on one question.','Leaving answers blank.','Rushing Passage 1 and making careless errors.','Never practising with a timer.'],
+'How could you split 60 minutes across three passages?',
+'About 17-18, 20 and 20-22 minutes, with a short margin for checking.',
+[['Is there a penalty for wrong answers?',['Yes','No','Only in Passage 3','Only for names'],1,'You lose nothing by guessing.'],
+ ['What should you do with a very hard question?',['Stay until solved','Mark it, guess and move on','Skip all questions','Rewrite the passage'],1,'Move on and return if time allows.'],
+ ['Why practise with a timer?',['To feel comfortable with the pace','To make it harder','No reason','To read slower']  ,0,'Timed practice builds a natural pace.']])
+],
+Writing:[
+L('d-w6','Task 2 Introductions: Paraphrase Plus a Clear Position',
+['Paraphrase the question without copying it','State your position clearly in the introduction','Keep the introduction short and focused'],
+'A strong introduction has two parts: a paraphrase of the question and a thesis statement that answers it. Paraphrase by changing key words (synonyms) and structure, but keep the meaning. Then state your view or what the essay will cover. Two sentences are enough; long background statements waste time and add nothing. The thesis must match the question type: if the question asks "To what extent do you agree?", say your level of agreement.',
+'Question: "Many people believe that governments should spend more on public transport than on roads."<br><br>Introduction: <b>"It is often argued that public transport deserves a larger share of government funding than road building. I strongly agree with this view because it is cleaner, cheaper and fairer."</b>',
+[['paraphrase','restate in different words'],['thesis statement','a sentence stating your main position'],['background','general information before the main point'],['to what extent','how far you agree']],
+['Copying the question word for word.','Giving a long general introduction.','Missing the position.','Answering a different question type.'],
+'Paraphrase: "Technology has made life easier for everyone."',
+'"Modern innovations have simplified daily life for people everywhere." (or similar)',
+[['What are the two parts of an introduction?',['Quote and joke','Paraphrase and position','Example and conclusion','Title and date'],1,'Paraphrase plus a thesis statement.'],
+ ['How long should it be?',['Two clear sentences','Two pages','One word','Ten sentences'],0,'A short focused introduction is enough.'],
+ ['A thesis statement shows:',['Your position','A random fact','A date','A title']  ,0,'It tells the examiner your view.']]),
+L('d-w7','Task 1 Key Features: Selecting and Grouping Data',
+['Choose the most important data to report','Group similar data together','Compare rather than list'],
+'Task 1 asks you to select and report the main features, not every number. Look for the highest and lowest, the biggest changes, and similarities between groups. Group data that behave alike ("Both cars and buses declined, whereas cycling rose"), then support each group with two or three figures. Use comparison language (higher than, twice as, in contrast). A response that lists every figure without grouping reads like a table and scores poorly for coherence.',
+'Table: Student numbers in five subjects over two years.<br><br>Group 1: Subjects that rose (Computing 120 to 180, Business 90 to 140). Group 2: Subjects that fell (Law 80 to 60). Report each group with a comparison: <b>"Computing and Business both grew, with Computing remaining the most popular."</b>',
+[['key feature','a main point in the data'],['group','to put similar things together'],['comparison','showing similarity or difference'],['in contrast','used to show a difference']],
+['Describing every figure.','No comparisons.','Mixing unrelated data in one sentence.','Reporting reasons not in the data.'],
+'Group the data: Tea 20 to 15, Coffee 30 to 40, Juice 25 to 25.',
+'Group 1: Coffee rose. Group 2: Tea fell. Group 3: Juice stayed the same.',
+[['What do you report in Task 1?',['Every figure','Main features','Your opinion','The causes'],1,'Select the main features.'],
+ ['Why group data?',['To lengthen the text','To show patterns clearly','To hide numbers','No reason'],1,'Grouping creates clear coherence.'],
+ ['A comparison phrase is:',['In contrast','In my opinion','Once upon a time','Maybe']  ,0,'"In contrast" shows a difference.']])
+],
+Speaking:[
+L('d-s6','Part 1: Extending Answers with a Reason and an Example',
+['Give answers longer than one sentence','Add a reason using because','Add a short example to make answers real'],
+'Part 1 questions are simple, but short answers score badly. Aim for two to three sentences: answer directly, add a reason, and finish with a short example or detail. A useful pattern is answer, because, for example. Do not give a speech: each answer should last about 15-25 seconds. Keep it natural by using your real experience. If you have nothing to say, mention what you used to do or what you plan to do.',
+'Question: "Do you like cooking?"<br>Weak: "Yes."<br>Better: <b>"Yes, I do, because it helps me relax after work. For example, last weekend I made a big pot of biryani for my family."</b>',
+[['reason','the cause or explanation'],['example','a specific case'],['extend','to make longer and fuller'],['direct answer','a clear first response to the question']],
+['Answering with one word.','Giving a very long speech.','Memorising answers.','Not giving any reasons.'],
+'Extend: "Do you like reading?"',
+'"Yes, I do, because it helps me learn new things. For example, I\'m reading a book about space at the moment."',
+[['What is a good Part 1 length?',['One word','Two or three sentences','Five minutes','Silence'],1,'Two or three sentences feel natural.'],
+ ['Which pattern works well?',['Answer, because, example','Question, question','Greeting only','Apology'],0,'It gives a complete answer.'],
+ ['If you have nothing to say you can:',['Stop','Mention the past or future','Change topic','Ask the examiner']  ,1,'Past habits or plans add content.']]),
+L('d-s7','Part 3 Basics: Giving Opinions with Reasons',
+['Understand how Part 3 differs from Part 1','Express an opinion clearly','Support it with reasons and general examples'],
+'Part 3 moves from personal topics to general, more abstract questions linked to Part 2, such as "Why do people travel?" You are expected to give opinions, explain reasons and talk about society, not just yourself. Use phrases such as "I think", "In my opinion", "One reason is that", "For instance". Answer in four or five sentences: opinion, reason, example, and a short extension. It is fine to say "That is an interesting question" for a moment of thought.',
+'Question: "Why do some people prefer to travel alone?"<br><br>"I think some people prefer to travel alone because they want freedom. They can decide where to go and when. For instance, a friend of mine likes to explore small villages without following a schedule. It also helps them to meet new people."',
+[['abstract','general rather than personal'],['opinion','what you think about something'],['extension','extra information that adds to an answer'],['society','people living together in a community']],
+['Answering only about yourself.','One-sentence answers.','Using no linking words.','Panicking at a difficult question.'],
+'Question: "Why is education important?" Give a two-sentence answer.',
+'"Education is important because it gives people the skills to find good jobs. It also helps them understand the world and make better decisions."',
+[['Part 3 questions are mostly:',['General and abstract','Only personal','Only about food','Yes/no'],0,'They link to general ideas.'],
+ ['A phrase for giving an opinion:',['In my opinion','Goodbye','Maybe not','Hello'],0,'It introduces a view.'],
+ ['How long is a good answer?',['One word','Four or five sentences','A paragraph of ten sentences','None']  ,1,'Enough to develop an idea.']])
+]
+}
+};
+})();
+(function(){
+const L=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz)=>({
+  id,title,time:'15-20 minutes',objectives:obj,concept,
+  example:'<i>(Original scenario — not from a real IELTS test)</i><br><br>'+example,
+  vocab,mistakes,practice,practiceAnswer,
+  quiz:quiz.map(([q,options,correct,a])=>({q,options,correct,a}))
+});
+IE_EXTRA.intermediate={
+Listening:[
+L('i-l6','Map and Plan Changes: Following Where Things Move',
+['Track changes to a layout described in speech','Use direction language to place features correctly','Check your answers against the order in the audio'],
+'Some Section 2 maps involve changes: "the old entrance is now an exit", "the car park has moved behind the library". The question shows the new layout, and you must match what you hear to labelled places. Before the audio, study the map: note compass directions, roads, fixed landmarks and the labelled letters. While listening, anchor each description to a landmark ("opposite the fountain", "next to the main gate") and then to the letter. Directions are given in order along a route, so follow the route with your pen.',
+'Heard: "Once you come through the main entrance, the cafe is on your left, and beyond that, opposite the pond, you\'ll find the new reading room."<br><br>Use landmarks: main entrance → cafe on left → pond → reading room opposite the pond. Mark the letter that is opposite the pond.',
+[['landmark','a clear, fixed feature used to find a place'],['opposite','on the other side, facing'],['adjacent','next to'],['route','a path from one place to another']],
+['Losing the starting point.','Mixing left and right.','Ignoring landmarks.','Answering before the speaker finishes describing.'],
+'You hear: "Walk past the fountain and the lecture hall is directly behind it." How do you find it on the map?',
+'Locate the fountain, then mark the building immediately behind it from your direction of travel.',
+[['What should you do before the audio?',['Study the map and landmarks','Nothing','Read the transcript','Guess'],0,'Preparation makes tracking easier.'],
+ ['"Adjacent to" means:',['Far from','Next to','Inside','Above'],1,'Adjacent means next to.'],
+ ['Directions in the recording follow:',['A route in order','Random order','Alphabetical order','Size']  ,0,'Speakers usually describe a route in sequence.']]),
+L('i-l7','Checking Answers: Grammar, Spelling and Format in the Final Minutes',
+['Check that each answer fits the sentence grammatically','Fix common spelling and plural errors','Make sure every gap has an answer'],
+'You usually have a short time at the end of the test to check. Use a quick checklist: does the answer fit the gap grammatically (noun, verb, plural)? Is the spelling correct (accommodation, environment, necessary)? Is the word limit respected? Is a number written as numerals if needed? Are capital letters used for names and places? Then make sure that no gap is blank; a sensible guess based on the prediction is better than nothing, since wrong answers do not lose marks.',
+'Sentence: "Visitors must book ____ in advance."<br>Answer written: <b>ticket</b>. Check: "must book tickets" needs a plural, so change to <b>tickets</b>. Another check: "accomodation" → <b>accommodation</b>.',
+[['checklist','a list of things to check'],['plural','more than one'],['accommodation','a place to live or stay'],['format','the required way of writing an answer']],
+['Leaving blanks.','Misspelling common words.','Missing plural forms.','Changing correct answers without a reason.'],
+'Fix: "The museum opens at ten o\'clock and has a free **exibition**."',
+'"exhibition". Correct the spelling.',
+[['What should you check first?',['Grammar fit of each answer','The title','Page count','Pen colour'],0,'The answer must fit the sentence.'],
+ ['Wrong answers lose marks?',['Yes','No','Only names','Only numbers'],1,'There is no negative marking.'],
+ ['Which spelling is correct?',['acommodation','accomodation','accommodation','acomodation'],2,'Two c\'s and two m\'s.']])
+],
+Reading:[
+L('i-r6','Reading Longer Passages: Structure Before Detail',
+['Predict the content of each paragraph from its first sentence','Build a mental map of an argument','Know when to skip dense detail'],
+'Longer, denser passages (especially Passage 3) can feel overwhelming. Build a map first. Read the title and introduction, then the first and last sentences of every paragraph. Note how paragraphs relate: problem, causes, solutions; view and counter-view; history and present. With this map you can jump straight to the right paragraph for most questions. When you find dense detail (lists, statistics), read it only if a question requires it. Spend your reading time on arguments and writer opinions.',
+'Passage 3 outline built in two minutes: A: introduces the idea of memory research. B: earlier theory. C: challenge to the theory. D: new evidence. E: writer\'s conclusion.<br><br>A question asks about the "new evidence" → go directly to D.',
+[['mental map','a quick picture of how the text is organised'],['counter-view','an opposing opinion'],['dense','containing a lot of information in a small space'],['argument','a series of connected points supporting a view']],
+['Reading line by line from the start.','Getting lost in difficult vocabulary.','Ignoring paragraph relationships.','Not noting the writer\'s opinion.'],
+'A paragraph begins "Despite this progress, several problems remain." What probably follows?',
+'A list or discussion of problems.',
+[['What should you read first?',['Every word','Title and paragraph openings','The last question','Nothing'],1,'These give you the structure.'],
+ ['What can you do with dense detail?',['Read it all carefully always','Read only if a question needs it','Memorise it','Ignore the questions'],1,'Save time for what matters.'],
+ ['"Despite this" signals:',['Contrast','Agreement','Addition','Example'],0,'It introduces a contrast.']]),
+L('i-r7','Guessing Unknown Words from Context',
+['Use surrounding words to infer unknown vocabulary','Recognise word parts (prefixes, suffixes, roots)','Decide when an unknown word really matters'],
+'You will meet words you do not know. Often you can work out the meaning. First look at the part of speech (is it a noun, verb or adjective?). Then use context: nearby words, contrast signals ("however", "unlike") and examples. Word parts help too: "un-" often means not, "-less" means without, "pre-" means before. Finally decide whether the word matters. Many unknown words are not needed to answer the question, so do not waste time on them.',
+'Sentence: "The scientists were baffled by the results, as nothing they had predicted occurred."<br><br>Clues: "nothing they had predicted occurred" → the results were unexpected → "baffled" means <b>confused</b>.',
+[['context','surrounding words that help meaning'],['prefix','letters added before a word'],['suffix','letters added after a word'],['infer','to work out from evidence']],
+['Stopping to translate every unknown word.','Ignoring grammar clues.','Guessing without checking the sentence.','Panicking over words that are not needed.'],
+'What might "unprecedented" mean in "an unprecedented rise in prices"?',
+'Never seen before / without earlier example ("un-" = not, "precedent" = earlier example).',
+[['What do you check first with an unknown word?',['Its part of speech','Its length','Its colour','Its spelling'],0,'Grammar narrows the meaning.'],
+ ['"-less" usually means:',['With','Without','Again','Before'],1,'"-less" means without.'],
+ ['Do you always need to know every word?',['Yes','No','Only nouns','Only verbs'],1,'Many words are not needed for the answer.']])
+],
+Writing:[
+L('i-w6','Task 2 Body Paragraphs: Point, Explain, Example',
+['Use a clear structure inside each body paragraph','Develop ideas rather than listing them','Use relevant, specific examples'],
+'A common weakness at Band 6 is undeveloped ideas. Use a simple pattern in each body paragraph: Point (topic sentence), Explain (why or how), Example (a specific case), and Link (relate back to the question). For example, "Public transport reduces congestion. This is because one bus can replace dozens of cars. In London, the congestion charge and strong bus network have cut traffic in the centre. Therefore, investment in transport benefits the whole city." Keep to one main idea per paragraph; two or three sentences of explanation are better than a long list of points.',
+'<b>Point:</b> Online learning offers flexibility. <b>Explain:</b> Students can study when and where they choose, which helps people with jobs. <b>Example:</b> A nurse working night shifts can follow lectures in the afternoon. <b>Link:</b> This flexibility makes education accessible to more people.',
+[['topic sentence','the main point of a paragraph'],['develop','to explain and support an idea in detail'],['specific example','a precise case, not a vague statement'],['link','to connect back to the question']],
+['Listing many points without explaining.','Vague examples ("some people say").','Several ideas in one paragraph.','No link to the question.'],
+'Add an explanation: "Exercise is important for students."',
+'"Regular exercise improves concentration and reduces stress, so students who stay active often study more effectively."',
+[['What does PEEL stand for here?',['Point, Explain, Example, Link','Plan, Edit, End, Leave','Pause, Echo, Enter, Leave','Pick, Eat, Enjoy, Lose'],0,'It is a paragraph pattern.'],
+ ['Which is a specific example?',['Some people think so','A hospital in Chennai reduced waiting time by half','It is common','Many do this'],1,'Specific cases are stronger.'],
+ ['One paragraph should have:',['One main idea','Five ideas','No idea','Only a question']  ,0,'Keep one clear idea.']]),
+L('i-w7','Task Response and Conclusions: Answering Every Part of the Question',
+['Identify every part of the question before writing','Keep a clear position from start to finish','Write a conclusion that matches the introduction'],
+'Task Response means you must answer all parts of the question. If a question asks for causes and solutions, both are required. If it asks "Do the advantages outweigh the disadvantages?", you need to say which side is stronger. Underline the instruction words and check them again at the end. Keep your position consistent: do not agree in the introduction and disagree in the conclusion. Finish with a short conclusion that restates the position and summarises the main reasons, with no new ideas.',
+'Question: "What are the causes of obesity, and what can be done to reduce it?"<br><br>Two parts: <b>causes</b> and <b>solutions</b>. Plan: Body 1 causes (diet, lifestyle), Body 2 solutions (education, taxes). Conclusion: "In conclusion, poor diet and inactivity are the main causes, and education and policy can reduce the problem."',
+[['task response','how fully your essay answers the question'],['instruction word','a word telling you what to do, like "discuss"'],['consistent','not changing or contradicting'],['restate','to say again in other words']],
+['Answering only one part of a two-part question.','Changing your position midway.','New ideas in the conclusion.','Ignoring words such as "both" or "to what extent".'],
+'Underline the parts: "Discuss both views and give your own opinion."',
+'Parts: (1) discuss view A, (2) discuss view B, (3) give your own opinion.',
+[['If a question has two parts you should:',['Answer one','Answer both','Answer none','Guess'],1,'Missing a part lowers your score.'],
+ ['A conclusion should:',['Introduce new ideas','Restate your position','Be very long','Be blank'],1,'Restating gives closure.'],
+ ['Consistency means:',['Same position throughout','Changing often','Short sentences','No examples']  ,0,'A clear position throughout.']])
+],
+Speaking:[
+L('i-s6','Part 2: Rounding Off and Handling the Follow-up Question',
+['End the long turn smoothly','Answer the examiner\'s follow-up briefly','Avoid stopping abruptly or rambling'],
+'After your one to two minutes in Part 2, the examiner may ask one or two short follow-up questions ("Would you go there again?"). Answer in one or two sentences. To round off your talk, use a closing sentence such as "So, to sum up, that was a place that means a lot to me." If you are stopped mid-sentence, this is normal. Do not apologise. Practise finishing within two minutes so you do not rush the end of your story.',
+'Follow-up: "Do you think you will visit there again?"<br><br>"Yes, definitely. I\'d like to go back next year, perhaps with my family, because I think they\'d love it."',
+[['round off','to finish in a neat way'],['follow-up question','a short question after your talk'],['sum up','to give a short final summary'],['ramble','to talk on without a clear point']],
+['Stopping suddenly.','Apologising when stopped.','Long answers to short follow-ups.','Starting a new story at the end.'],
+'Write a closing sentence for a talk about your favourite teacher.',
+'"So, overall, she was the teacher who taught me to believe in myself."',
+[['Follow-up answers should be:',['Very long','One or two sentences','Silent','Off-topic'],1,'They are short.'],
+ ['If the examiner stops you:',['Argue','Stop calmly','Apologise repeatedly','Walk out'],1,'Being stopped is normal.'],
+ ['A good closing sentence:',['Summarises the talk','Starts a new topic','Asks a question','Repeats the first line only']  ,0,'It rounds off the talk.']]),
+L('i-s7','Pronunciation for Band 7: Stress, Rhythm and Intonation',
+['Use sentence stress to show important words','Use rising and falling tone naturally','Avoid a flat, monotone delivery'],
+'At Band 7 pronunciation features are used well, so your meaning is easy to follow. Sentence stress highlights the key words. Intonation (the tune of your voice) shows interest and helps listeners: a fall at the end of statements, a rise for questions or lists. A flat voice makes even good ideas sound dull. Practise by exaggerating at first, recording yourself and listening for variety. Link words smoothly and pause at the end of ideas rather than in the middle of phrases.',
+'Say: "I REALLY enjoyed the TRIP, but the WEATHER was TERRIBLE."<br>Stress: <b>really, trip, weather, terrible</b>. Voice rises slightly on "trip" before "but" and falls at the end of the sentence.',
+[['intonation','the rise and fall of the voice'],['sentence stress','extra emphasis on key words'],['monotone','speaking on one flat note'],['pause','a short stop in speech']],
+['Speaking in a flat tone.','Stressing every word.','Pausing in the middle of phrases.','Never listening to your own recordings.'],
+'Which words would you stress in "She decided to study medicine in London"?',
+'decided, study, medicine, London.',
+[['What does intonation do?',['Shows meaning and interest','Changes spelling','Adds words','Reduces speed only'],0,'Varied tone shows meaning and engagement.'],
+ ['A monotone voice is:',['Flat','Fast','Loud','Quiet'],0,'Monotone means no variation.'],
+ ['Good pausing happens:',['At the end of ideas','In the middle of words','Never','After every word']  ,0,'Pause at natural boundaries.']])
+]
+};
+IE_EXTRA.advanced={
+Listening:[
+L('a-l6','Fast and Accented Speech in Real Recordings',
+['Cope with different English accents','Follow reduced and linked speech','Use context to recover missed words'],
+'IELTS recordings use a range of accents (British, Australian, New Zealand, Canadian, American). The vowels and rhythm vary but the structure of the information does not. Reductions and linking are common: "going to" as "gonna", "kind of" as "kinda". Train by listening to different speakers, such as podcasts and documentaries, and by shadowing (repeating after the speaker). When you miss a word, keep following the idea; the questions follow the order of the audio, so catching the next signal is more important than recovering the missed one.',
+'Heard (fast): "Wha\'ve we got on Thursday? A lab session, then a tutorial at half two."<br><br>Full: <b>What have we got on Thursday? A lab session, then a tutorial at half past two.</b> "Half two" = 2:30 in British English.',
+[['accent','the way a group pronounces a language'],['shadowing','repeating what a speaker says as they speak'],['linking','joining words in speech'],['half two','2:30 (British usage)']],
+['Training with one accent only.','Stopping after one missed word.','Expecting dictionary pronunciation.','Misreading "half two" as 2:00.'],
+'What time is "quarter to six"?',
+'5:45 (a quarter of an hour before six).',
+[['Why practise with varied accents?',['Tests use varied accents','To make it harder','No reason','Only for fun'],0,'IELTS uses different accents.'],
+ ['What is shadowing?',['Repeating after a speaker','Writing a summary','Reading silently','Taking notes only'],0,'It trains your ear and speech.'],
+ ['If you miss a word:',['Keep following the idea','Stop','Leave the test','Write anything']  ,0,'Keep up with the order of the audio.']]),
+L('a-l7','Section 4 Mastery: Following a Full Academic Lecture',
+['Predict the structure of a lecture from the title and questions','Take efficient notes in note form','Handle dense vocabulary without losing the thread'],
+'Section 4 is a single speaker with no pause between questions, so your focus must be steady. Before it starts, study the questions: their headings show the lecture structure. During the lecture, listen for transitions ("moving on", "another factor"). Do not try to write full sentences; write only the missing word, keeping to the word limit. If you miss one answer, move to the next immediately, as the questions come in order and more will follow. Practise with real lectures (public university talks) and check which transitions you missed.',
+'Questions headed: "Origins", "Methods", "Results". The lecturer says: "Let\'s start with origins... Moving on to the methods used..." Each transition shows a new section of questions.',
+[['transition','a phrase showing a change of topic'],['lecture','an educational talk'],['heading','a title above a group of questions'],['thread','the line of an argument']],
+['Losing focus in the middle.','Writing more than the word limit.','Trying to recover a missed answer.','Ignoring headings.'],
+'Which phrases signal a new section of a lecture?',
+'"Moving on to", "turning now to", "another factor is", "finally".',
+[['Section 4 has:',['Several speakers','One speaker','Two speakers','No speaker'],1,'It is a single speaker.'],
+ ['Headings in the questions show:',['Structure of the lecture','The speaker\'s age','The answer length','Nothing'],0,'They match the order of the talk.'],
+ ['After missing one answer you should:',['Move on immediately','Stop and wait','Give up','Start again']  ,0,'More answers are coming.']])
+],
+Reading:[
+L('a-r6','Passage 3 Strategy: Difficult Vocabulary and Long Arguments',
+['Allocate extra time to the hardest passage','Focus on the argument rather than every difficult word','Handle Yes/No/Not Given and multiple choice efficiently'],
+'Passage 3 is usually the hardest: abstract topics, complex sentences and an argument. Preserve time for it. Skim the structure, identify the writer\'s main claim, and note where the writer agrees or disagrees with others. Many questions test opinions, so look for attitude words (arguably, clearly, unfortunately). For multiple choice, eliminate options that are too extreme or only partly supported. Do not let one hard word stop you; the sentence usually states the idea in other ways.',
+'Statement: "The writer believes the new method is entirely reliable."<br>Passage: "The method appears promising, though further trials are needed."<br>"Entirely" is too strong; the writer is cautious. Answer: <b>No</b> (the writer does not believe it is entirely reliable).',
+[['argument','a line of reasoning supporting a view'],['attitude','a feeling or opinion shown in language'],['extreme','very strong, with no room for exceptions'],['promising','showing signs of future success']],
+['Spending too long on word meanings.','Choosing extreme options.','Treating a reported view as the writer\'s.','Starting Passage 3 with too little time.'],
+'"The writer says the theory is partly correct." Which option is a likely wrong answer?',
+'An option saying the theory is completely correct or completely wrong (too extreme).',
+[['Passage 3 usually requires:',['More careful time planning','No planning','Only skimming','Guessing all'],0,'It is the hardest passage.'],
+ ['What do attitude words show?',['The writer\'s opinion','The date','The title','The author\'s name'],0,'They reveal opinion.'],
+ ['Extreme options are usually:',['Wrong','Right','Neutral','Blank']  ,0,'Words like "entirely" are often traps.']]),
+L('a-r7','Yes/No/Not Given at Band 7+: The Hardest Calls',
+['Separate Not Given from No with confidence','Spot qualifiers (some, most, always, never)','Check that the writer\'s view, not a reported view, is tested'],
+'Yes/No/Not Given tests the writer\'s views or claims. Yes: the passage supports it. No: the passage contradicts it. Not Given: there is no information. The hardest cases involve qualifiers. If the statement says "all", and the passage says "most", the answer is No (it contradicts "all"). If the statement adds a reason that the passage does not mention, it is Not Given. Always use only the passage, not your own knowledge. Check who holds the view: a claim attributed to critics is not the writer\'s view unless the writer agrees.',
+'Passage: "Most experts agree that sleep affects memory, although some remain unconvinced."<br>Statement 1: "All experts agree that sleep affects memory." → <b>No</b> (contradicted by "most" and "some remain unconvinced").<br>Statement 2: "Sleep affects memory because of changes in the brain." → <b>Not Given</b> (no reason stated).',
+[['qualifier','a word that limits a claim, such as "some" or "most"'],['contradict','to say the opposite'],['attributed','credited to a person or group'],['claim','a statement that something is true']],
+['Using outside knowledge.','Ignoring qualifiers.','Choosing Not Given when the passage clearly disagrees.','Confusing the writer\'s view with a reported view.'],
+'Passage: "Few students walk to campus." Statement: "Most students walk to campus." Answer?',
+'No. "Few" contradicts "most".',
+[['"All" vs "most" in the passage gives:',['Yes','No','Not Given','Blank'],1,'The statement overstates the passage.'],
+ ['Not Given means:',['The passage says the opposite','No information in the passage','The statement is wrong in real life','The statement is obvious'],1,'No relevant information.'],
+ ['Whose view is tested?',['The writer\'s','Anyone\'s','Your own','The examiner\'s']  ,0,'Yes/No/Not Given tests the writer\'s views.']])
+],
+Writing:[
+L('a-w6','Band 8 Introductions and Conclusions',
+['Write introductions that paraphrase and show a nuanced position','Write conclusions that synthesise rather than repeat','Avoid memorised, generic phrases'],
+'At the top bands, introductions and conclusions are precise and fitted to the question. The introduction paraphrases accurately, defines the scope and gives a clear stance ("While X has clear benefits, I would argue that Y is the stronger concern"). The conclusion does more than repeat: it synthesises, showing how your reasons lead to your position and, where appropriate, acknowledging a limit. Avoid memorised templates, which examiners recognise and which often fail to match the question.',
+'Question: "Governments should spend more on arts than on sport. Do you agree?"<br><br>Intro: <b>"Public funding is limited, and the question of whether the arts should receive priority over sport is therefore a real one. Although both enrich society, I believe the arts deserve greater investment because they sustain cultural identity."</b><br>Conclusion: <b>"In short, since cultural heritage cannot be easily replaced, arts funding should take precedence, although sport still merits support."</b>',
+[['synthesise','to combine ideas into a unified conclusion'],['stance','your position on an issue'],['scope','the range of what you will discuss'],['take precedence','to be treated as more important']],
+['Memorised, generic phrases.','Repeating the introduction word for word.','Adding new ideas in the conclusion.','A stance that does not answer the question.'],
+'Write a nuanced stance: "Should cars be banned in city centres?"',
+'"Although banning cars would reduce pollution, I believe a restriction during peak hours is more realistic."',
+[['A synthesising conclusion:',['Shows how reasons lead to your position','Adds new topics','Repeats exactly','Is blank'],0,'It pulls ideas together.'],
+ ['Memorised templates:',['Often fail to fit the question','Always score highly','Are required','Are banned by law'],0,'Examiners recognise them.'],
+ ['A nuanced stance:',['Acknowledges complexity while taking a position','Avoids a position','Is absolute','Is blank']  ,0,'It shows balance and clarity.']]),
+L('a-w7','Self-Editing with the Four Criteria',
+['Understand the four writing criteria','Check a draft against each criterion in turn','Fix the most costly errors first'],
+'The four criteria are Task Achievement or Response, Coherence and Cohesion, Lexical Resource and Grammatical Range and Accuracy. After writing, use a two- or three-minute check. Task: did I answer every part and keep a clear position? Coherence: do paragraphs have one main idea and are links natural? Lexis: have I repeated words, used wrong collocations or informal words? Grammar: are there errors in tense, agreement, articles or punctuation? Fix the errors that damage meaning first; do not rewrite whole sentences at the last minute.',
+'Draft sentence: "The goverment should to invest more in school because it is very very important thing."<br>Edit: <b>"The government should invest more in schools because education is extremely important."</b> Fixed: spelling, infinitive error, plural, repetition and vague wording.',
+[['coherence','logical flow of ideas'],['cohesion','the linking of sentences and ideas'],['lexical resource','the range and accuracy of vocabulary'],['collocation','natural word combinations']],
+['Leaving no time for checking.','Rewriting rather than correcting.','Focusing only on spelling.','Ignoring the question while editing.'],
+'List the four IELTS Writing criteria.',
+'Task Achievement/Response; Coherence and Cohesion; Lexical Resource; Grammatical Range and Accuracy.',
+[['How many Writing criteria are there?',['Two','Three','Four','Six'],2,'There are four.'],
+ ['What should you fix first?',['Errors that damage meaning','Punctuation only','Handwriting','Nothing'],0,'Meaning errors cost most.'],
+ ['Last-minute editing should:',['Correct small errors','Rewrite everything','Add new paragraphs','Delete the introduction']  ,0,'Small targeted fixes are safest.']])
+],
+Speaking:[
+L('a-s6','Part 3: Evaluating, Predicting and Suggesting Solutions',
+['Recognise question types that ask you to evaluate, predict or propose','Use suitable language for each function','Support ideas with reasons and consequences'],
+'Higher-band Part 3 questions ask you to do more than describe. "What will happen to jobs in the future?" asks you to predict. "How could cities reduce traffic?" asks for solutions. "Which is more effective?" asks you to evaluate. Use functional language: predicting ("is likely to", "may well"), suggesting ("one approach would be to"), evaluating ("this would be more effective because"). Follow each idea with a reason or likely consequence to avoid short, superficial answers.',
+'Question: "How could governments encourage people to use public transport?"<br><br>"One approach would be to make it cheaper and more reliable. If tickets cost less than petrol, more people would be tempted to switch, and that would reduce congestion in the long run."',
+[['evaluate','to judge how good or effective something is'],['predict','to say what will happen'],['consequence','a result of an action'],['superficial','shallow, without depth']],
+['Describing instead of evaluating.','No consequences or reasons.','Repeating the question.','Answers of only one sentence.'],
+'Question: "How might technology change education in the future?" Start a prediction.',
+'"I think technology is likely to make learning more personalised, as software can adapt to each student\'s pace."',
+[['"Is likely to" is used for:',['Predicting','Apologising','Greeting','Counting'],0,'It expresses a prediction.'],
+ ['What should follow an idea?',['A reason or consequence','Silence','A new topic','A joke'],0,'This gives depth.'],
+ ['Evaluating means:',['Judging effectiveness','Naming objects','Reading aloud','Counting']  ,0,'You weigh how good something is.']]),
+L('a-s7','Part 2 at Band 8: Storytelling, Reflection and Natural Closure',
+['Tell a story with a clear shape','Add reflection on why events mattered','Close with a natural final thought'],
+'The best Part 2 answers feel like real stories. Give a short setting, build to the main event, and reflect on what it meant to you. Past tenses must be accurate (past simple for events, past continuous for background, past perfect for earlier events). Use reflection language: "Looking back", "What I realised was", "It taught me". Add sensory or emotional detail to make it vivid. Close with a brief thought tying back to the topic. Practise timing so the story fits in about two minutes.',
+'Cue: "Describe a time you helped someone."<br><br>"It was a rainy evening and I was waiting for a bus when I noticed an elderly man struggling with heavy bags. I offered to help, and as we walked, he told me about his grandson. Looking back, what struck me was how small the effort was for me, yet how much it meant to him."',
+[['storytelling','telling events in an engaging order'],['reflection','thinking about what something meant'],['sensory detail','details of sight, sound, smell or touch'],['closure','a satisfying ending']],
+['Rushing the middle and finishing early.','Wrong past tense forms.','No reflection.','Ending abruptly.'],
+'Write a reflective closing sentence for a story about learning to swim.',
+'"Looking back, that first lesson taught me that fear shrinks when you keep trying."',
+[['Which tense gives background?',['Past continuous','Future simple','Present perfect','Imperative'],0,'It shows what was in progress.'],
+ ['Reflection language includes:',['Looking back','Goodbye','Number one','Next'],0,'It shows thinking about meaning.'],
+ ['A good story needs:',['Setting, event, reflection','Only dates','Only names','Only adjectives']  ,0,'It has shape and meaning.']])
+]
+};
+})();
+
+// Extra IELTS lessons (appended; unique ids, existing lessons untouched)
+(function(){
+  const D=TEST_DATA.IELTS; if(!D||!window.IE_EXTRA)return;
+  D.levels.forEach(lv=>{
+    const extra=IE_EXTRA[lv.key]||{};
+    Object.keys(extra).forEach(sk=>{ lv.skills[sk]=(lv.skills[sk]||[]).concat(extra[sk]); });
+  });
+})();
+
 
 
 /* ============================================================
@@ -8220,7 +8635,8 @@ async function renderMocksTab(){
   el.innerHTML='<div class="empty">Loading…</div>';
   mockAttemptsCache=await loadMockAttempts(currentTpTest);
 
-  let html=renderFullMockCard(currentTpTest);
+  await loadMockAccess();
+  let html=renderMockAccessCard(currentTpTest);
   html+=`<h4 style="font-size:14px;color:var(--pine);margin:16px 0 8px">📝 Quick Practice Mocks</h4>`;
   html+=templates.map(([key,tpl])=>`
     <div class="tp-info-card">
@@ -8229,7 +8645,7 @@ async function renderMocksTab(){
       <button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="startMockTest('${currentTpTest}','${key}','practice',null)">Start Practice Mock</button>
     </div>
   `).join('');
-  html+=`<div class="tp-info-card" style="opacity:.75;margin-bottom:6px"><p style="font-size:12.5px">Practice mocks are unlimited and always unique.</p></div>`;
+  html+=`<div class="tp-info-card" style="opacity:.75;margin-bottom:6px"><p style="font-size:12.5px">Quick practice mocks are always unique. You can take up to 5 a day.</p></div>`;
 
   if(t.levels&&t.levels.length){
     html+=`<h4 style="font-size:14px;color:var(--pine);margin:18px 0 4px">🏆 Level Final Mocks</h4>
@@ -8311,7 +8727,7 @@ async function startMockTest(testKey,templateKey,tier,levelKey){
     const res=await fetch(GENERATE_MOCK_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},
-      body:JSON.stringify({template,testName:TEST_DATA[testKey].name}),
+      body:JSON.stringify({template,testName:TEST_DATA[testKey].name,kind:'quick'}),
     });
     const data=await res.json();
     if(!res.ok||!data.questions){
@@ -8450,6 +8866,113 @@ function markMockSelf(i,gotItRight){
   if(fb)fb.innerHTML=`<div class="tp-answer-box shown" style="background:${gotItRight?'var(--sage-l)':'#FCEBEB'}">${gotItRight?'Nice — marked as a strong answer.':'Noted — compare your answer against the model response above and try a similar question again soon.'}</div>`;
 }
 
+// ── Plans, credits and open access ──────────────────────────────────
+// Anyone can sign up free. Mock access is decided by the DATABASE
+// (my_mock_access / begin_mock / unlock_free_take); this page only displays it.
+const PAYMENT_MODE='manual'; // becomes 'gateway' once online payment is connected
+const PLAN_FALLBACK=[
+  {code:'continue',name:'Unlock your free mock',price_inr:99,mocks:1,spark:false,valid_days:100,description:'Finish your free mock: Reading, Writing and Speaking, with your overall band.'},
+  {code:'starter',name:'3 Mocks',price_inr:200,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks. Each can be taken once. Valid for 100 days.'},
+  {code:'plus',name:'5 Mocks + Spark',price_inr:500,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks plus the Speaking Assistant (Spark). Valid for 100 days.'},
+  {code:'pro',name:'10 Mocks + Spark',price_inr:1000,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks plus the Speaking Assistant (Spark). Valid for 1 month.'}
+];
+let MOCK_ACCESS=null, MOCK_PLANS=null;
+async function loadMockAccess(force){
+  if(isPreviewMode||!currentSession){MOCK_ACCESS=null;return null;}
+  try{
+    const [a,p]=await Promise.all([
+      sb.rpc('my_mock_access'),
+      (MOCK_PLANS&&!force)?Promise.resolve({data:MOCK_PLANS}):sb.from('mock_plans').select('*').order('sort')
+    ]);
+    MOCK_ACCESS=a.error?null:a.data;
+    if(!p.error&&p.data&&p.data.length)MOCK_PLANS=p.data;
+  }catch(e){MOCK_ACCESS=null;}
+  return MOCK_ACCESS;
+}
+function fmtDay(d){return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function planCardsHtml(highlight){
+  const plans=MOCK_PLANS||PLAN_FALLBACK;
+  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>Your first mock is free: take the Listening section and see your band. ${highlight==='unlock'?'':''}</p></div>`;
+  return free+plans.map(p=>{
+    const note=p.code==='continue'?'<p style="font-size:12px;color:var(--ink3);margin-top:4px">Applies to your free mock only.</p>':'';
+    return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.spark)?'border:2px solid var(--pine3,#2D5A94)':''}">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
+      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">₹${p.price_inr}</div>
+      <button class="btn" style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
+  }).join('');
+}
+function openPlansDialog(reason){
+  closePlansDialog();
+  const msg={mock:'You have no mocks left. Pick a plan to continue.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'The Speaking Assistant (Spark) is included in the 5-mock and 10-mock plans.'}[reason]||'Choose the plan that suits you.';
+  const o=document.createElement('div');o.id='plans-overlay';
+  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0';
+  o.innerHTML=`<div style="background:var(--cream,#fff);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 22px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3 style="font-size:18px;color:var(--pine);margin:0">Choose your plan</h3><button class="tp-reveal-btn" onclick="closePlansDialog()">Close</button></div>
+    <p style="color:var(--ink3);font-size:13.5px;margin-bottom:12px">${esc(msg)}</p><div id="plans-body">${planCardsHtml(reason)}</div></div>`;
+  o.addEventListener('click',e=>{if(e.target===o)closePlansDialog();});
+  document.body.appendChild(o);
+}
+function closePlansDialog(){const o=document.getElementById('plans-overlay');if(o)o.remove();}
+async function choosePlan(code){
+  if(!requireRealLogin())return;
+  const plan=(MOCK_PLANS||PLAN_FALLBACK).find(p=>p.code===code);
+  const body=document.getElementById('plans-body');
+  const done=(t)=>{ if(body)body.innerHTML=t; else alert(t.replace(/<[^>]+>/g,' ')); };
+  try{
+    const{error}=await sb.rpc('request_plan',{p_plan:code,p_note:null});
+    if(error)throw error;
+    done(`<div class="tp-info-card"><h4>✅ Request received</h4><p>You chose <b>${esc(plan?plan.name:code)}</b> (₹${plan?plan.price_inr:''}). Our team will contact you on your registered phone number to complete the payment, and your plan is activated as soon as it is confirmed.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="closePlansDialog()">Done</button></div>`);
+  }catch(e){
+    done(`<div class="tp-info-card"><h4>Couldn't send your request</h4><p>Please try again in a moment, or contact your Step4Progress counsellor.</p></div>`);
+  }
+}
+// If a student without a Spark plan opens the Speaking Assistant, the server refuses (403 NO_SPARK);
+// this shows the plans instead of leaving them on an error message.
+(function(){
+  const f=window.fetch.bind(window);
+  window.fetch=async function(...a){
+    const r=await f(...a);
+    try{
+      const u=typeof a[0]==='string'?a[0]:(a[0]&&a[0].url);
+      if(r.status===403&&u&&u.indexOf('/functions/v1/ai-speaking-partner')>-1){
+        r.clone().json().then(d=>{if(d&&d.code==='NO_SPARK')openPlansDialog('spark');}).catch(()=>{});
+      }
+    }catch(e){}
+    return r;
+  };
+})();
+function renderMockAccessCard(testKey){
+  const def=FULL_MOCKS[testKey]; if(!def)return '';
+  const a=MOCK_ACCESS;
+  let status='', btn='';
+  if(!a){
+    status='Take a full-length exam-style mock, built fresh for you.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start Full Mock</button>`;
+  } else if(a.take&&a.take.status==='open'){
+    status=a.take.unlocked_all?'You have a mock in progress.':'Your free mock is in progress.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Resume mock</button>`;
+  } else if(a.take&&a.take.status==='locked'){
+    status='Your free Listening is done. Unlock Reading, Writing and Speaking to get your overall band.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmUnlockFree('${testKey}')">${(a.unlock_credits>0||a.credits>0)?'Unlock the rest now':'Unlock the rest · ₹99'}</button>`;
+  } else if(!a.free_used){
+    status='🎁 Your first mock is free: start with the Listening section.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start free mock</button>`;
+  } else if(a.credits>0){
+    status=`You have <b>${a.credits}</b> mock${a.credits===1?'':'s'} left${a.next_expiry?' · valid till '+fmtDay(a.next_expiry):''}.`;
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start a full mock</button>`;
+  } else {
+    status='You have no mocks left. Pick a plan to take your next full mock.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="openPlansDialog('mock')">Choose a plan</button>`;
+  }
+  const spark=a&&a.spark?'<span style="background:var(--sage-l);padding:3px 10px;border-radius:20px;font-size:12px;margin-left:6px">⚡ Spark active</span>':'';
+  return `<div class="tp-info-card" style="border:2px solid var(--pine3,#2D5A94)">
+    <h4>🏁 ${esc(def.title)}${spark}</h4>
+    <p>All four sections in exam order: Listening is read aloud, Reading uses full-length passages, and Writing and Speaking get an estimated band with specific feedback. Each mock can be taken once.</p>
+    <p style="margin-top:8px">${status}</p>${btn}
+    <div style="margin-top:10px"><a href="javascript:openPlansDialog()" style="font-size:13px;color:var(--pine3)">See plans and prices</a></div>
+  </div>`;
+}
+
 // ── Full-length mocks (IELTS first) ─────────────────────────────────
 // A full mock = four sections, each built from several "parts" that are
 // generated in parallel by generate-mock-test (v2, long outputs). Listening
@@ -8534,33 +9057,43 @@ function fmBandFromRaw(kind,correct,total){
 function fmRoundBand(x){ const f=Math.floor(x), d=x-f; return d<0.25?f:d<0.75?f+0.5:f+1; }
 function fmBandStr(b){ return (b%1===0)?b.toFixed(1):String(b); }
 
-function renderFullMockCard(testKey){
-  const def=FULL_MOCKS[testKey]; if(!def)return '';
-  return `<div class="tp-info-card" style="border:2px solid var(--pine3,#2D5A94)">
-    <h4>🏁 ${esc(def.title)}</h4>
-    <p>All four sections in exam order, built fresh for you: Listening is read aloud, Reading uses full-length passages, and Writing and Speaking get an estimated band with specific feedback. You finish with an overall band estimate.</p>
-    <p style="font-size:12.5px;color:var(--ink3);margin-top:6px">Allow about 2 hours for everything, or take one section at a time. Each section is generated when you start it.</p>
-    <button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}','full')">Start Full Mock</button>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
-      ${def.sections.map(s=>`<button class="tp-reveal-btn" onclick="fmStart('${testKey}','single','${s.skill}')">${s.icon} ${s.skill} only</button>`).join('')}
-    </div>
-  </div>`;
-}
-
-async function fmStart(testKey,mode,skill){
+function fmSave(){ try{ localStorage.setItem('fm_res_'+FM.take.id,JSON.stringify(FM.results)); }catch(e){} }
+function fmLoadSaved(id){ try{ return JSON.parse(localStorage.getItem('fm_res_'+id)||'{}')||{}; }catch(e){ return {}; } }
+async function fmStart(testKey){
   if(!requireRealLogin())return;
-  if(!(await requireActiveSubscription()))return;
   const def=FULL_MOCKS[testKey];
-  FM={testKey,def,mode,order:mode==='full'?def.sections.map(s=>s.skill):[skill],pos:0,results:{},cur:null};
+  const{data:take,error}=await sb.rpc('begin_mock');
+  if(error){
+    if(/NO_CREDIT/.test(error.message)){ await loadMockAccess(true); openPlansDialog('mock'); }
+    else alert('Could not start the mock. Please try again in a moment.');
+    return;
+  }
+  const order=take.unlocked_all?def.sections.map(s=>s.skill):['Listening'];
+  const saved=fmLoadSaved(take.id);
+  FM={testKey,def,mode:'full',take,order,pos:0,results:saved,cur:null,curBySkill:{}};
+  while(FM.pos<order.length&&FM.results[order[FM.pos]])FM.pos++;
   fmShowShell();
-  fmRunSection();
+  if(FM.pos>=order.length){ fmSummary(); } else { fmRunSection(); }
 }
-async function fmFetchPart(tpl,testName){
+async function fmUnlockFree(testKey){
+  const takeId=(FM&&FM.take&&FM.take.id)||(MOCK_ACCESS&&MOCK_ACCESS.take&&MOCK_ACCESS.take.id);
+  if(!requireRealLogin()||!takeId)return;
+  const{error}=await sb.rpc('unlock_free_take',{p_take:takeId});
+  if(error){
+    if(/NO_CREDIT/.test(error.message)){ openPlansDialog('unlock'); }
+    else alert('Could not unlock. Please try again in a moment.');
+    return;
+  }
+  await loadMockAccess(true);
+  fmStart(testKey||(FM&&FM.testKey)||currentTpTest);
+}
+async function fmFetchPart(tpl,testName,pi){
   for(let attempt=0;attempt<2;attempt++){
     try{
-      const res=await fetch(GENERATE_MOCK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({template:tpl,testName})});
+      const res=await fetch(GENERATE_MOCK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({template:tpl,testName,kind:'section',takeId:FM.take.id,skill:FM.sec.skill,part:pi})});
       const data=await res.json();
       if(res.ok&&data.questions&&data.questions.length)return data;
+      if(res.status===403)return{err:data.error||'Not allowed.',code:data.code||''};
     }catch(e){}
   }
   return null;
@@ -8573,7 +9106,12 @@ async function fmRunSection(){
   const draw=()=>{ fmEl().innerHTML=`<div style="text-align:center;padding:40px 20px"><div style="font-size:34px;margin-bottom:10px">${sec.icon}</div><h3 style="font-size:17px;color:var(--pine);margin-bottom:6px">Preparing your ${esc(sec.skill)} test</h3><p style="color:var(--ink3);font-size:13.5px">Writing fresh questions for you: ${ready} of ${total} parts ready. This can take up to a minute.</p></div>`; };
   draw();
   const testName=TEST_DATA[FM.testKey].name;
-  const results=await Promise.all(sec.parts.map(async tpl=>{ const r=await fmFetchPart(tpl,testName); ready++; draw(); return r; }));
+  const results=await Promise.all(sec.parts.map(async (tpl,pi)=>{ const r=await fmFetchPart(tpl,testName,pi); ready++; draw(); return r; }));
+  const denied=results.find(r=>r&&r.err);
+  if(denied){
+    fmEl().innerHTML=`<div class="tp-info-card"><h4>This part isn't available</h4><p>${esc(denied.err)}</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="fmExit()">Back</button> ${denied.code==='LOCKED'?'<button class="tp-reveal-btn" style="margin-left:8px" onclick="fmUnlockFree()">Unlock</button>':''}</div>`;
+    return;
+  }
   if(results.some(r=>!r)){
     fmEl().innerHTML=`<div class="tp-info-card"><h4>Couldn't prepare this section</h4><p>One part of the test didn't generate. Nothing has been lost. Please try again.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="fmRunSection()">Try again</button> <button class="tp-reveal-btn" style="margin-left:8px" onclick="fmExit()">Back</button></div>`;
     return;
@@ -8701,11 +9239,11 @@ function fmStopMedia(){
   try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}
   try{if(fmRec){fmRec.stop();fmRec=null;}}catch(e){}
 }
-function fmExit(){ fmStopMedia(); FM=null; closeLessonView(); }
+function fmExit(){ fmStopMedia(); FM=null; closeLessonView(); loadMockAccess(true).then(()=>{ const el=document.getElementById('tp-subtab-content'); if(el&&/Quick Practice Mocks/.test(el.innerText||''))renderMocksTab(); }); }
 
 async function fmGrade(kind,prompt,answer){
   try{
-    const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer,testName:TEST_DATA[FM.testKey].name})});
+    const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer,testName:TEST_DATA[FM.testKey].name,takeId:FM.take.id,skill:FM.sec.skill})});
     const d=await res.json();
     if(res.ok&&typeof d.band==='number')return d;
   }catch(e){}
@@ -8737,11 +9275,17 @@ async function fmFinishSection(timeUp){
   }
   FM.results[skill]=res;
   (FM.curBySkill=FM.curBySkill||{})[skill]=c;
+  fmSave();
   FM.pos++;
-  if(FM.mode==='full'&&FM.pos<FM.order.length){ fmBetween(skill,res); }
-  else { fmSummary(); }
+  if(FM.pos<FM.order.length){ fmBetween(skill,res); }
+  else {
+    try{ await sb.rpc('finish_take',{p_take:FM.take.id,p_all_done:true}); }catch(e){}
+    await loadMockAccess(true);
+    fmSummary();
+  }
 }
 function fmBetween(skill,res){
+  if(!FM.take.unlocked_all){ fmSummary(); return; }
   const next=FM.order[FM.pos];
   const nxt=FM.def.sections.find(s=>s.skill===next);
   fmEl().innerHTML=`<div style="text-align:center;padding:30px 16px">
@@ -8784,18 +9328,23 @@ function fmSummary(){
   fmStopMedia();
   const order=FM.def.sections.map(s=>s.skill).filter(s=>FM.results[s]);
   const bands=order.map(s=>FM.results[s].band).filter(b=>b!=null);
-  const full=FM.mode==='full'&&order.length===FM.def.sections.length&&bands.length===order.length;
+  const full=FM.take.unlocked_all&&order.length===FM.def.sections.length&&bands.length===order.length;
   const overall=full?fmRoundBand(bands.reduce((a,b)=>a+b,0)/bands.length):null;
   let html=`<div style="text-align:center;margin-bottom:18px">
     <div style="font-size:40px">${overall&&overall>=6.5?'🎉':'💪'}</div>
     ${overall!=null?`<div style="font-family:var(--font-h);font-size:30px;font-weight:800;color:var(--pine)">Overall Band ${fmBandStr(overall)}</div><div style="color:var(--ink3);font-size:13px">Estimate based on this practice mock, not an official score</div>`:`<div style="font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--pine)">Your results</div>`}</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px">
+      ${FM.def.sections.filter(x=>!FM.results[x.skill]&&!FM.take.unlocked_all).map(x=>`<div class="tp-info-card" style="text-align:center;margin:0;opacity:.55"><div style="font-size:22px">🔒</div><div style="font-size:13px;color:var(--ink3)">${x.skill}</div><div style="font-size:12px;color:var(--ink3)">Locked</div></div>`).join('')}
       ${order.map(s=>{const r=FM.results[s];const sec=FM.def.sections.find(x=>x.skill===s);return `<div class="tp-info-card" style="text-align:center;margin:0"><div style="font-size:22px">${sec.icon}</div><div style="font-size:13px;color:var(--ink3)">${s}</div><div style="font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--pine)">${r.band!=null?fmBandStr(r.band):'–'}</div>${r.total?`<div style="font-size:12px;color:var(--ink3)">${r.correct}/${r.total} correct</div>`:''}</div>`;}).join('')}
     </div>`;
   const wk=order.slice().sort((a,b)=>(FM.results[a].band??99)-(FM.results[b].band??99))[0];
   if(order.length>1&&FM.results[wk]&&FM.results[wk].band!=null) html+=`<div class="tp-info-card"><h4>Where to focus next</h4><p>Your lowest section was <b>${wk}</b> (Band ${fmBandStr(FM.results[wk].band)}). Work through the ${wk} lessons for your level, then retake this section.</p></div>`;
+  if(!FM.take.unlocked_all){
+    html+=`<div class="tp-info-card" style="border:2px solid var(--pine3,#2D5A94)"><h4>🔓 Unlock the rest of this mock</h4><p>Finish Reading, Writing and Speaking to get your overall band estimate and detailed feedback on your writing and speaking.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="fmUnlockFree('${FM.testKey}')">Unlock now</button> <button class="tp-reveal-btn" style="margin-left:8px" onclick="openPlansDialog('unlock')">See plans</button></div>`;
+  }
   order.forEach(s=>{
     const r=FM.results[s];
+    if(!(FM.curBySkill&&FM.curBySkill[s])){ html+=`<div style="font-size:16px;font-weight:700;color:var(--pine);margin:20px 0 6px">${s}</div><p style="color:var(--ink3);font-size:13px">Band ${r.band!=null?fmBandStr(r.band):'–'} (full review was shown when you finished this section).</p>`; return; }
     html+=`<div style="font-size:16px;font-weight:700;color:var(--pine);margin:20px 0 6px">${s} review</div>`;
     if(s==='Listening'||s==='Reading'){
       html+=`<details><summary style="cursor:pointer;font-size:14px;color:var(--pine3);margin-bottom:6px">Show every question and answer</summary>${fmReviewObjective(FM.curBySkill?FM.curBySkill[s]:null,r)}</details>`;
