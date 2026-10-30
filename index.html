@@ -8948,6 +8948,10 @@ function renderMockAccessCard(testKey){
   if(!a){
     status='Take a full-length exam-style mock, built fresh for you.';
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start Full Mock</button>`;
+  } else if(a.admin){
+    const inprog=a.take&&a.take.status==='open';
+    status=inprog?'Administrator: mock in progress.':'Administrator account: unlimited mocks, Spark and marking, no payment needed.';
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">${inprog?'Resume mock':'Start a full mock'}</button>`;
   } else if(a.take&&a.take.status==='open'){
     status=a.take.unlocked_all?'You have a mock in progress.':'Your free mock is in progress.';
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Resume mock</button>`;
