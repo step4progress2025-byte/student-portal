@@ -771,6 +771,7 @@
         <h2 style="font-size:19px;color:var(--pine);margin:0">Spark</h2>
       </div>
       <p style="font-size:14.5px;color:var(--ink3);margin-bottom:14px">Your AI English speaking partner — talk or type, your choice, and Spark adjusts to whatever you need.</p>
+      <div id="sp-limits-line" style="font-size:12px;color:var(--ink3);margin-bottom:8px"></div>
       <div id="sp-stats-strip" class="sp-stats-strip"></div>
       <div id="sp-badges-row" class="sp-badges-row"></div>
       <div id="sp-focus-areas"></div>
@@ -856,6 +857,9 @@
             <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
               <input type="checkbox" id="sp-voice-toggle" checked> AI speaks
             </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer" title="Spark speaks, then listens and sends your answer when you pause">
+              <input type="checkbox" id="sp-handsfree-toggle" onchange="spOnHandsFreeChange()"> 🎙 Hands-free
+            </label>
             <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
               <input type="checkbox" id="sp-sound-toggle" checked> 🔊 SFX
             </label>
@@ -864,7 +868,7 @@
             <span style="color:var(--ink3)">Voice:</span>
             <select id="sp-voice-select" onchange="spOnVoiceChange()" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream);max-width:150px"></select>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+          <div id="sp-row-mix" style="display:flex;align-items:center;gap:6px;font-size:12.5px">
             <span style="color:var(--ink3)">Mix in:</span>
             <select id="sp-lang-mix-select" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream)">
               <option value="">English only</option>
@@ -877,12 +881,21 @@
               <option value="bn">Bengali</option>
             </select>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+          <div id="sp-row-corr" style="display:flex;align-items:center;gap:6px;font-size:12.5px">
             <span style="color:var(--ink3)">Correction:</span>
             <select id="sp-correction-mode" style="font-size:12.5px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--line);background:var(--cream)">
               <option value="gentle" selected>Gentle (natural flow)</option>
               <option value="strict">Strict (explain every mistake)</option>
             </select>
+          </div>
+        </div>
+      </div>
+      <div id="sp-exam-bar" style="display:none;margin-bottom:8px;padding:10px 12px;border-radius:var(--r);background:#FFF7E6;border:1.5px solid #F2D49B;font-size:13px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div><b id="sp-exam-part"></b><div id="sp-exam-hint" style="color:var(--ink3);font-size:12px;margin-top:2px"></div></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="sp-exam-timer" style="font-family:var(--font-h);font-weight:700;font-size:18px;color:var(--pine)"></span>
+            <button class="btn btn-p" id="sp-exam-btn" style="display:none;width:auto;padding:7px 14px;font-size:13px" onclick="examBarAction()"></button>
           </div>
         </div>
       </div>
@@ -900,7 +913,7 @@
       </div>
       <div id="sp-mic-status" style="font-size:12px;color:var(--ink3);margin-top:4px"></div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="getSpeakingFeedback()"><i class="ti ti-report-analytics"></i> Get Feedback</button>
+        <button id="sp-feedback-btn" class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="getSpeakingFeedback()"><i class="ti ti-report-analytics"></i> Get Feedback</button>
         <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px" onclick="endSpeakingSession()"><i class="ti ti-x"></i> End Session</button>
       </div>
       <div id="sp-feedback-panel" style="display:none;margin-top:12px"></div>
@@ -8871,10 +8884,10 @@ function markMockSelf(i,gotItRight){
 // (my_mock_access / begin_mock / unlock_free_take); this page only displays it.
 const PAYMENT_MODE='manual'; // becomes 'gateway' once online payment is connected
 const PLAN_FALLBACK=[
-  {code:'continue',name:'Unlock your free mock',price_inr:99,mocks:1,spark:false,valid_days:100,description:'Finish your free mock: Reading, Writing and Speaking, with your overall band.'},
-  {code:'starter',name:'3 Mocks',price_inr:200,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks. Each can be taken once. Valid for 100 days.'},
-  {code:'plus',name:'5 Mocks + Spark',price_inr:500,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks plus the Speaking Assistant (Spark). Valid for 100 days.'},
-  {code:'pro',name:'10 Mocks + Spark',price_inr:1000,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks plus the Speaking Assistant (Spark). Valid for 1 month.'}
+  {code:'continue',name:'Unlock your free mock',price_inr:99,mocks:1,spark:false,valid_days:100,description:'Finish your free mock: Reading, Writing and Speaking, with your overall band. Spark: 25 messages a day.'},
+  {code:'starter',name:'3 Mocks',price_inr:200,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 40 messages a day and 1 IELTS speaking exam a day.'},
+  {code:'plus',name:'5 Mocks + Spark',price_inr:500,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 100 messages a day and 2 IELTS speaking exams a day.'},
+  {code:'pro',name:'10 Mocks + Spark',price_inr:1000,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 200 messages a day and 3 IELTS speaking exams a day.'}
 ];
 let MOCK_ACCESS=null, MOCK_PLANS=null;
 async function loadMockAccess(force){
@@ -8892,10 +8905,10 @@ async function loadMockAccess(force){
 function fmtDay(d){return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
 function planCardsHtml(highlight){
   const plans=MOCK_PLANS||PLAN_FALLBACK;
-  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>Your first mock is free: take the Listening section and see your band. ${highlight==='unlock'?'':''}</p></div>`;
+  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>All lessons, your first mock (Listening section) and Spark: 15 messages a day. ${highlight==='unlock'?'':''}</p></div>`;
   return free+plans.map(p=>{
     const note=p.code==='continue'?'<p style="font-size:12px;color:var(--ink3);margin-top:4px">Applies to your free mock only.</p>':'';
-    return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.spark)?'border:2px solid var(--pine3,#2D5A94)':''}">
+    return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter')?'border:2px solid var(--pine3,#2D5A94)':''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
       <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">₹${p.price_inr}</div>
       <button class="btn" style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
@@ -8903,7 +8916,7 @@ function planCardsHtml(highlight){
 }
 function openPlansDialog(reason){
   closePlansDialog();
-  const msg={mock:'You have no mocks left. Pick a plan to continue.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'The Speaking Assistant (Spark) is included in the 5-mock and 10-mock plans.'}[reason]||'Choose the plan that suits you.';
+  const msg={mock:'You have no mocks left. Pick a plan to continue.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'Plans give you more Spark messages every day, plus the full IELTS speaking exam.'}[reason]||'Choose the plan that suits you.';
   const o=document.createElement('div');o.id='plans-overlay';
   o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0';
   o.innerHTML=`<div style="background:var(--cream,#fff);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 22px">
@@ -8951,7 +8964,7 @@ function renderMockAccessCard(testKey){
   } else if(a.admin){
     const inprog=a.take&&a.take.status==='open';
     status=inprog?'Administrator: mock in progress.':'Administrator account: unlimited mocks, Spark and marking, no payment needed.';
-    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">${inprog?'Resume mock':'Start a full mock'}</button>`;
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">${inprog?'Resume mock':'Start a full mock'}</button> <button class="btn-outline btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="openBankAdmin('${testKey}')">🏦 Mock bank</button>`;
   } else if(a.take&&a.take.status==='open'){
     status=a.take.unlocked_all?'You have a mock in progress.':'Your free mock is in progress.';
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Resume mock</button>`;
@@ -9063,12 +9076,13 @@ function fmBandStr(b){ return (b%1===0)?b.toFixed(1):String(b); }
 
 function fmSave(){ try{ localStorage.setItem('fm_res_'+FM.take.id,JSON.stringify(FM.results)); }catch(e){} }
 function fmLoadSaved(id){ try{ return JSON.parse(localStorage.getItem('fm_res_'+id)||'{}')||{}; }catch(e){ return {}; } }
-async function fmStart(testKey){
+async function fmStart(testKey,setId){
   if(!requireRealLogin())return;
   const def=FULL_MOCKS[testKey];
-  const{data:take,error}=await sb.rpc('begin_mock');
+  const{data:take,error}=await sb.rpc('begin_mock',setId?{p_set:setId}:{});
   if(error){
     if(/NO_CREDIT/.test(error.message)){ await loadMockAccess(true); openPlansDialog('mock'); }
+    else if(/NO_SET/.test(error.message)){ alert('Your next mock is being prepared. Your credit has not been used. Please try again soon.'); }
     else alert('Could not start the mock. Please try again in a moment.');
     return;
   }
@@ -9079,6 +9093,84 @@ async function fmStart(testKey){
   fmShowShell();
   if(FM.pos>=order.length){ fmSummary(); } else { fmRunSection(); }
 }
+
+// ── Mock bank (platform admins only): generate sets at half price in batches, preview, approve ──
+const MOCK_BANK_URL = SUPABASE_URL + "/functions/v1/mock-bank-admin";
+let BANK_KEY='IELTS';
+async function bankCall(body){
+  const r=await fetch(MOCK_BANK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify(body)});
+  let d={}; try{d=await r.json();}catch(e){}
+  if(!r.ok||d.error)throw new Error(d.error||'Failed');
+  return d;
+}
+function closeBankAdmin(){const o=document.getElementById('bank-overlay');if(o)o.remove();}
+async function openBankAdmin(testKey){
+  BANK_KEY=testKey||'IELTS';
+  closeBankAdmin();
+  const o=document.createElement('div');o.id='bank-overlay';
+  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  o.innerHTML='<div style="background:var(--cream,#fff);width:100%;max-width:620px;max-height:90vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 22px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="font-size:18px;color:var(--pine);margin:0">🏦 Mock bank</h3><button class="tp-reveal-btn" onclick="closeBankAdmin()">Close</button></div><div id="bank-body">Loading…</div></div>';
+  o.addEventListener('click',e=>{if(e.target===o)closeBankAdmin();});
+  document.body.appendChild(o);
+  renderBankAdmin();
+}
+async function renderBankAdmin(msg){
+  const el=document.getElementById('bank-body'); if(!el)return;
+  const{data,error}=await sb.rpc('admin_list_mock_sets');
+  if(error||!data){ el.innerHTML='<p>Could not load the bank. Run 0024_mock_bank.sql first.</p>'; return; }
+  const sets=data.sets||[];
+  const cnt=st=>sets.filter(s=>s.status===st).length;
+  const badge={approved:'#357A2D',pending:'#B45309',building:'#6B7280',retired:'#9CA3AF'};
+  el.innerHTML=`
+    ${msg?`<p style="background:#EEF6EE;padding:8px 10px;border-radius:8px;font-size:13px">${esc(msg)}</p>`:''}
+    <p style="font-size:13.5px;margin:4px 0 10px"><b>${cnt('approved')}</b> approved · <b>${cnt('pending')}</b> waiting for your review · <b>${cnt('building')}</b> building · students using live generation (7 days): <b>${data.live_fallbacks_7d}</b></p>
+    <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-bottom:12px;cursor:pointer"><input type="checkbox" ${data.bank_only?'checked':''} onchange="bankToggleOnly(this.checked)"> <span><b>Bank only.</b> Students only get approved sets and never trigger paid live generation. Turn on once you have 8 or more approved sets. If a student has seen every set, they are told the next mock is being prepared and their credit is not used.</span></label>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+      <span style="font-size:13px">Generate</span><input id="bank-count" type="number" min="1" max="10" value="4" style="width:60px;padding:6px;border:1.5px solid var(--line);border-radius:8px">
+      <span style="font-size:13px">new mock sets at half price</span>
+      <button class="btn" style="width:auto;padding:8px 14px;font-size:13px" onclick="bankSubmit()">Start batch</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Results usually arrive within an hour or two (up to 24 hours). Then tap “Check batches”.</p>
+    <div style="margin-bottom:12px"><button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:13px" onclick="bankCollect()">Check batches</button>
+      ${(data.batches||[]).map(b=>`<div style="font-size:12px;color:var(--ink3);margin-top:6px">${esc(b.phase)} · ${b.sets} set(s) · ${esc(b.note||'')}</div>`).join('')}</div>
+    ${sets.map(s=>`<div class="tp-info-card" style="margin:0 0 8px;padding:10px 12px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+      <div><b>${esc(s.label||s.id)}</b> <span style="font-size:11.5px;color:#fff;background:${badge[s.status]||'#6B7280'};padding:2px 7px;border-radius:10px">${esc(s.status)}</span><div style="font-size:12px;color:var(--ink3)">${s.parts}/12 parts · taken by ${s.students} student(s)</div></div>
+      <div style="display:flex;gap:6px">
+        ${s.parts>=12?`<button class="btn-outline btn" style="width:auto;padding:5px 10px;font-size:12px" onclick="bankPreview('${esc(s.id)}')">Preview</button>`:''}
+        ${s.status==='pending'?`<button class="btn" style="width:auto;padding:5px 10px;font-size:12px" onclick="bankSetStatus('${esc(s.id)}','approved')">Approve</button>`:''}
+        ${s.status!=='retired'?`<button class="btn-outline btn" style="width:auto;padding:5px 10px;font-size:12px" onclick="bankSetStatus('${esc(s.id)}','retired')">Retire</button>`:''}
+      </div></div></div>`).join('')||'<p style="font-size:13px;color:var(--ink3)">No sets yet. Start a batch above.</p>'}`;
+}
+async function bankSubmit(){
+  const n=Math.max(1,Math.min(10,parseInt(document.getElementById('bank-count').value,10)||1));
+  const def=FULL_MOCKS[BANK_KEY]; if(!def)return;
+  const parts=[]; def.sections.forEach(sec=>sec.parts.forEach((tpl,pi)=>parts.push({skill:sec.skill,part:pi,template:tpl})));
+  try{
+    await bankCall({action:'submit',count:n,testKey:BANK_KEY,testName:TEST_DATA[BANK_KEY].name,parts});
+    renderBankAdmin(`Batch started for ${n} set(s). Check back in an hour or two.`);
+  }catch(e){ renderBankAdmin('Could not start the batch: '+e.message); }
+}
+async function bankCollect(){
+  try{
+    const d=await bankCall({action:'collect'});
+    const r=d.report||[];
+    const m=!r.length?'No batches are running.':r.map(x=>x.waiting?'Still processing…':(x.phase==='done'?`${x.ready} set(s) ready for review${x.incomplete?`, ${x.incomplete} incomplete`:''}.`:x.phase==='validate'?'Generated. Quality check started, check again later.':'Failed.')).join(' ');
+    renderBankAdmin(m);
+  }catch(e){ renderBankAdmin('Could not check: '+e.message); }
+}
+async function bankSetStatus(id,st){
+  const{error}=await sb.rpc('admin_set_mock_status',{p_id:id,p_status:st});
+  renderBankAdmin(error?('Could not update: '+error.message):(st==='approved'?'Approved. Students can now receive this mock.':'Retired.'));
+}
+async function bankToggleOnly(on){
+  const{error}=await sb.rpc('admin_set_bank_only',{p_on:on});
+  renderBankAdmin(error?('Could not update: '+error.message):(on?'Bank only is ON.':'Bank only is OFF (live generation fills any gap).'));
+}
+async function bankPreview(id){
+  closeBankAdmin();
+  await fmStart(BANK_KEY,id);
+}
+
 async function fmUnlockFree(testKey){
   const takeId=(FM&&FM.take&&FM.take.id)||(MOCK_ACCESS&&MOCK_ACCESS.take&&MOCK_ACCESS.take.id);
   if(!requireRealLogin()||!takeId)return;
@@ -9092,6 +9184,18 @@ async function fmUnlockFree(testKey){
   fmStart(testKey||(FM&&FM.testKey)||currentTpTest);
 }
 async function fmFetchPart(tpl,testName,pi){
+  if(FM.take&&FM.take.mock_id){
+    // reviewed mock from the bank: no AI call, instant
+    for(let attempt=0;attempt<2;attempt++){
+      try{
+        const{data,error}=await sb.rpc('get_bank_part',{p_take:FM.take.id,p_skill:FM.sec.skill,p_part:pi});
+        if(!error&&data&&data.questions&&data.questions.length)return data;
+        if(error&&/LOCKED/.test(error.message))return{err:'This section is part of the full mock. Unlock it to continue.',code:'LOCKED'};
+        if(error&&/NO_ACTIVE_MOCK/.test(error.message))return{err:'Start a mock first.',code:'NO_ACTIVE_MOCK'};
+      }catch(e){}
+    }
+    return null;
+  }
   for(let attempt=0;attempt<2;attempt++){
     try{
       const res=await fetch(GENERATE_MOCK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({template:tpl,testName,kind:'section',takeId:FM.take.id,skill:FM.sec.skill,part:pi})});
@@ -9969,10 +10073,11 @@ function isSpeaking(){
   const audio=getTtsAudioEl();
   return (audio&&!audio.paused&&!audio.ended) || (('speechSynthesis' in window)&&speechSynthesis.speaking);
 }
+const TTS_REMOTE=false; // set true once a hosted voice (e.g. ElevenLabs) is added to the edge function
 async function synthesizeAndPlay(text,opts){
   opts=opts||{};
   stopSpeaking();
-  try{
+  if(TTS_REMOTE) try{
     const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({action:'speak',text})});
     if(r.ok&&(r.headers.get('content-type')||'').includes('audio')){
       const blob=await r.blob();
@@ -10245,6 +10350,7 @@ async function openSpeakingPartner(){
   document.getElementById('sp-stats-strip').innerHTML='';
   document.getElementById('sp-badges-row').innerHTML='';
   document.getElementById('sp-focus-areas').innerHTML='';
+  loadSparkStatus();
   spSessionsCache=await loadSpSessions();
   renderSpStatsAndBadges(spSessionsCache);
   renderSpFocusAreas(spSessionsCache);
@@ -10335,6 +10441,7 @@ function viewSpHistoryDetail(i){
   `;
 }
 function closeSpeakingPartner(){
+  examCleanup();
   stopSpeechInput();
   stopSpeaking();
   showScreen('screen-dashboard');
@@ -10352,7 +10459,16 @@ function renderSpRoleplayGrid(){
 function renderSpTestprepGrid(){
   const tests=['IELTS','PTE','TOEFL','Duolingo'];
   const grads=['#1C3F6E,#4F7DB8','#E08429,#F2C28C','#357A2D,#7DB87A','#3B82F6,#93C5FD'];
-  document.getElementById('sp-testprep-grid').innerHTML=tests.map((t,i)=>`
+  const ex=sparkStatusCache&&sparkStatusCache.exam;
+  const examLocked=!!(ex&&ex.limit===0&&!sparkStatusCache.admin);
+  const examLeft=examLocked?' · included with paid plans':(ex?` · ${Math.max(0,ex.limit-ex.used)} of ${ex.limit} left today`:'');
+  const examCard=`
+    <div class="sp-mode-card" style="--sp-grad1:#B45309;--sp-grad2:#F59E0B" onclick="${examLocked?`openPlansDialog('spark')`:`startIeltsExam()`}">
+      <div class="sp-mode-icon">🎤</div>
+      <div><h4>IELTS Speaking — Full exam</h4><p>Parts 1, 2 and 3 with a real cue card and timers, then your estimated band${examLeft}.</p></div>
+      <div class="sp-mode-arrow">›</div>
+    </div>`;
+  document.getElementById('sp-testprep-grid').innerHTML=examCard+tests.map((t,i)=>`
     <div class="sp-mode-card" style="--sp-grad1:${grads[i%4].split(',')[0]};--sp-grad2:${grads[i%4].split(',')[1]}" onclick="startSpeakingSession('test_practice',null,'${t}')">
       <div class="sp-mode-icon">${TEST_ICONS[t]||'🎓'}</div>
       <div><h4>${esc(t)}</h4><p>Practise ${esc(t)}-style speaking prompts with an AI examiner, plus feedback on request.</p></div>
@@ -10468,6 +10584,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     if(!document.getElementById('sp-lang-mix-select').value) document.getElementById('sp-lang-mix-select').value='ta';
   }
 
+  spSetExamUi(false);
   showScreen('screen-speaking-partner');
   document.getElementById('sp-mode-select').style.display='none';
   document.getElementById('sp-survival-select').style.display='none';
@@ -10493,7 +10610,7 @@ async function startSpeakingSession(mode,scenarioId,testType,visaCountry){
     addSpMessage('assistant', data.reply);
     spSoundReceive();
     spState.history.push({role:'user',content:kickoffPrompt},{role:'assistant',content:data.reply});
-    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply,document.getElementById('sp-lang-mix-select').value||null);
+    spAfterAssistant(data.reply);
   }catch(e){
     spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong starting this session. Please try again.');
@@ -10528,6 +10645,8 @@ async function sendSpeakingMessage(){
   const input=document.getElementById('sp-text-input');
   const text=input.value.trim();
   if(!text)return;
+  if(spState.mode==='ielts_exam')return examOnSend(text);
+  spState.manualStop=true; stopSpeechInput();
   const wasVoice=spState.lastInputWasVoice;
   spState.lastInputWasVoice=false;
   input.value='';
@@ -10547,50 +10666,322 @@ async function sendSpeakingMessage(){
     addSpMessage('assistant', data.reply);
     spSoundReceive();
     spState.history.push({role:'user',content:text},{role:'assistant',content:data.reply});
-    if(document.getElementById('sp-voice-toggle').checked) speakText(data.reply,document.getElementById('sp-lang-mix-select').value||null);
+    spAfterAssistant(data.reply);
   }catch(e){
     spSetThinking(false);
     addSpMessage('assistant', 'Sorry, something went wrong sending that. Please try again.');
   }
 }
 
-function speakText(text,nativeLangCode){
-  synthesizeAndPlay(text,{nativeLangCode:nativeLangCode||null});
+function speakText(text,nativeLangCode,onEnd){
+  // keep the correction chip ("📝 ...") out of the spoken audio
+  const spoken=String(text).split('\n').filter(l=>!l.trim().startsWith('📝')).join(' ');
+  if(!('speechSynthesis' in window)&&!TTS_REMOTE){ if(onEnd)onEnd(); return; }
+  synthesizeAndPlay(spoken,{nativeLangCode:nativeLangCode||null,onEnd:onEnd||null,onError:onEnd||null});
+}
+// After Spark's reply: speak it (if "AI speaks" is on), then, in hands-free, start listening.
+function spAfterAssistant(text){
+  const speakOn=document.getElementById('sp-voice-toggle').checked;
+  const lang=document.getElementById('sp-lang-mix-select').value||null;
+  if(speakOn) speakText(text,lang,()=>spMaybeListen());
+  else spMaybeListen();
 }
 
 // Speech-to-text via the browser's native SpeechRecognition — free, no
 // external service, but genuinely only well-supported in Chrome/Edge
 // (Safari/Firefox support is poor or absent). Text input always
 // remains available as a fallback regardless of browser support.
-let spRecognition=null;
+let spRecognition=null, spSilenceTimer=null, spNoSpeechTimer=null;
+function spSRSupported(){ return !!(window.SpeechRecognition||window.webkitSpeechRecognition); }
+// opts.auto: started by hands-free / exam (auto-sends on a pause).
+// opts.continuous: keep listening through pauses (IELTS Part 2 long turn).
 function toggleSpeechInput(){
-  if(spState.recognizing){ stopSpeechInput(); return; }
+  if(spState.recognizing){ spState.manualStop=true; stopSpeechInput(); return; }
+  stopSpeaking();
+  startListening({auto:false});
+}
+function startListening(opts){
+  opts=opts||{};
   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const statusEl=document.getElementById('sp-mic-status');
   if(!Recognition){
-    document.getElementById('sp-mic-status').textContent='Speech recognition isn\'t supported in this browser — try Chrome, or just type your reply instead.';
-    return;
+    statusEl.textContent='Speech recognition isn\'t supported in this browser — try Chrome, or just type your reply instead.';
+    return false;
   }
+  if(spState.recognizing)return true;
+  spState.manualStop=false;
+  spState.micAuto=!!opts.auto;
+  spState.micContinuous=!!opts.continuous;
   spRecognition=new Recognition();
   spRecognition.lang='en-US';
   spRecognition.interimResults=true;
-  spRecognition.continuous=false;
+  // hands-free listens through short thinking pauses and sends after ~2s of quiet
+  spRecognition.continuous=!!(opts.continuous||opts.auto);
   const input=document.getElementById('sp-text-input');
-  const statusEl=document.getElementById('sp-mic-status');
   const micBtn=document.getElementById('sp-mic-btn');
   const waveform=document.getElementById('sp-waveform');
-  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i> Stop'; statusEl.textContent='Listening…'; waveform.style.display='flex'; spSoundMicStart(); };
+  const base=opts.keepText?(input.value.trim()?input.value.trim()+' ':''):'';
+  if(!opts.keepText&&opts.auto)input.value='';
+  spState.gotSpeech=false;
+  spRecognition.onstart=()=>{ spState.recognizing=true; micBtn.innerHTML='<i class="ti ti-player-stop"></i> Stop'; statusEl.textContent=opts.auto?'Listening… just talk, I\'ll send when you pause.':'Listening…'; waveform.style.display='flex'; spSoundMicStart();
+    if(opts.auto&&!opts.continuous){ clearTimeout(spNoSpeechTimer); spNoSpeechTimer=setTimeout(()=>{ if(!spState.gotSpeech&&spState.recognizing){ spState.noSpeech=true; stopSpeechInput(); } },9000); } };
   spRecognition.onresult=(e)=>{
     let transcript='';
     for(let i=0;i<e.results.length;i++) transcript+=e.results[i][0].transcript;
-    input.value=transcript;
-    spState.lastInputWasVoice=true;
+    input.value=base+transcript;
+    spState.lastInputWasVoice=true; spState.gotSpeech=true;
+    clearTimeout(spNoSpeechTimer);
+    if(opts.auto&&!opts.continuous){ clearTimeout(spSilenceTimer); spSilenceTimer=setTimeout(()=>{ if(spState.recognizing)stopSpeechInput(); },2000); }
   };
-  spRecognition.onerror=(e)=>{ statusEl.textContent='Mic error: '+e.error+' — you can type instead.'; };
-  spRecognition.onend=()=>{ spState.recognizing=false; micBtn.innerHTML='<i class="ti ti-microphone"></i> Speak'; statusEl.textContent=''; waveform.style.display='none'; spSoundMicStop(); };
-  spRecognition.start();
+  spRecognition.onerror=(e)=>{ if(e.error==='no-speech'||e.error==='aborted')return; statusEl.textContent='Mic error: '+e.error+' — you can type instead.'; if(e.error==='not-allowed'||e.error==='service-not-allowed'){ spState.micBlocked=true; const hf=document.getElementById('sp-handsfree-toggle'); if(hf){hf.checked=false;} } };
+  spRecognition.onend=()=>{ spState.recognizing=false; clearTimeout(spSilenceTimer); clearTimeout(spNoSpeechTimer); micBtn.innerHTML='<i class="ti ti-microphone"></i> Speak'; statusEl.textContent=''; waveform.style.display='none'; spSoundMicStop(); spOnMicEnd(opts); };
+  try{ spRecognition.start(); return true; }catch(e){ return false; }
 }
 function stopSpeechInput(){
+  clearTimeout(spSilenceTimer); clearTimeout(spNoSpeechTimer);
   if(spRecognition&&spState.recognizing) spRecognition.stop();
+}
+// Called whenever listening stops.
+function spOnMicEnd(opts){
+  if(!spState||!document.getElementById('sp-chat-view')||document.getElementById('sp-chat-view').style.display==='none')return;
+  const input=document.getElementById('sp-text-input');
+  // IELTS Part 2 long turn: keep going until the timer ends
+  if(spState.mode==='ielts_exam'&&spState.exam&&spState.exam.stage==='p2talk'){
+    if(!spState.micBlocked&&spState.exam.tleft>0&&!spState.manualStop) setTimeout(()=>startListening({auto:true,continuous:true,keepText:true}),150);
+    return;
+  }
+  if(!opts.auto||spState.manualStop||spState.micBlocked)return;
+  const text=input.value.trim();
+  if(text){ spState.silentTries=0; sendSpeakingMessage(); return; }
+  spState.silentTries=(spState.silentTries||0)+1;
+  if(spState.silentTries<2&&document.getElementById('sp-handsfree-toggle').checked){ setTimeout(()=>spMaybeListen(),250); }
+  else{ document.getElementById('sp-mic-status').textContent='Paused — tap Speak when you are ready.'; }
+}
+function spMaybeListen(){
+  if(!spState||!spState.mode)return;
+  const cv=document.getElementById('sp-chat-view');
+  if(!cv||cv.style.display==='none')return;
+  const exam=spState.mode==='ielts_exam';
+  if(exam&&spState.exam&&(spState.exam.stage==='p2prep'||spState.exam.stage==='done'||spState.exam.stage==='p2talk'))return;
+  const hf=document.getElementById('sp-handsfree-toggle');
+  if(!hf||!hf.checked||spState.micBlocked||spState.recognizing)return;
+  startListening({auto:true});
+}
+function spOnHandsFreeChange(){
+  const on=document.getElementById('sp-handsfree-toggle').checked;
+  if(on&&!spSRSupported()){ document.getElementById('sp-handsfree-toggle').checked=false; document.getElementById('sp-mic-status').textContent='Hands-free needs speech recognition — please use Chrome or Edge. You can still type.'; return; }
+  spState.silentTries=0; spState.micBlocked=false;
+  if(on)spMaybeListen(); else { spState.manualStop=true; stopSpeechInput(); }
+}
+
+
+// ── Spark daily limits (server-enforced; this only displays them) ──
+let sparkStatusCache=null;
+async function loadSparkStatus(){
+  const el=document.getElementById('sp-limits-line');
+  try{
+    const {data,error}=await sb.rpc('spark_status');
+    if(error||!data){ if(el)el.textContent=''; return; }
+    sparkStatusCache=data;
+    const names={free:'Free',continue:'Free + unlocked',starter:'3 Mocks',plus:'5 Mocks',pro:'10 Mocks'};
+    if(data.admin){ el.textContent='Platform admin — no daily limits.'; }
+    else if(data.turn){
+      const left=Math.max(0,data.turn.limit-data.turn.used);
+      el.style.color=left<=5?'#B45309':'';
+      el.innerHTML=esc(`Your plan: ${names[data.tier]||'Free'} · Today: ${data.turn.used} of ${data.turn.limit} Spark messages used · resets at midnight`)+(data.tier==='pro'?'':` · <a href="javascript:openPlansDialog('spark')" style="color:var(--pine3)">More with a plan</a>`);
+    }
+    renderSpTestprepGrid();
+  }catch(e){ if(el)el.textContent=''; }
+}
+
+// ── IELTS Speaking exam mode: Part 1 (5 questions) → Part 2 (cue card, 1 min prep, up to 2 min talk) → Part 3 (4 questions) → estimated band ──
+const EX_P1=5, EX_P3=4, EX_PREP=60, EX_TALK=120;
+function spSetExamUi(on){
+  document.getElementById('sp-exam-bar').style.display=on?'block':'none';
+  document.getElementById('sp-row-mix').style.display=on?'none':'flex';
+  document.getElementById('sp-row-corr').style.display=on?'none':'flex';
+  document.getElementById('sp-feedback-btn').style.display=on?'none':'';
+}
+function examCleanup(){
+  if(spState&&spState.exam&&spState.exam.timer){ clearInterval(spState.exam.timer); spState.exam.timer=null; }
+}
+function examSetBar(part,hint,timer,btn){
+  document.getElementById('sp-exam-part').textContent=part;
+  document.getElementById('sp-exam-hint').textContent=hint||'';
+  document.getElementById('sp-exam-timer').textContent=timer||'';
+  const b=document.getElementById('sp-exam-btn');
+  if(btn){ b.style.display=''; b.textContent=btn; } else b.style.display='none';
+}
+function fmtClock(sec){ sec=Math.max(0,sec); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
+async function examCall(stage,n){
+  const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'exam_next',stage,n,conversationHistory:spState.history})});
+  let data={}; try{data=await r.json();}catch(e){}
+  if(!r.ok||data.error) return {error:data.error||'Please try again.',code:data.code,status:r.status};
+  return data;
+}
+function examFail(msg){
+  spSetThinking(false);
+  addSpMessage('assistant',msg);
+  examSetBar('Exam stopped',msg,'',null);
+  if(spState.exam)spState.exam.stage='done';
+}
+async function startIeltsExam(){
+  if(!requireRealLogin())return;
+  spVoicesCache=('speechSynthesis' in window)?speechSynthesis.getVoices():[];
+  spPopulateVoiceSelect();
+  spState={mode:'ielts_exam',scenario:null,scenarioTitle:null,testType:'IELTS',skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,scenarioId:'ielts_exam',studentProfileText:null,
+    exam:{stage:'p1',n:0,tleft:0,timer:null}};
+  document.getElementById('sp-lang-mix-select').value='';
+  document.getElementById('sp-correction-mode').value='gentle';
+  showScreen('screen-speaking-partner');
+  ['sp-mode-select','sp-survival-select','sp-roleplay-select','sp-testprep-select','sp-grammar-select'].forEach(i=>document.getElementById(i).style.display='none');
+  document.getElementById('sp-chat-view').style.display='block';
+  document.getElementById('sp-chat-title').textContent='IELTS Speaking — Full exam';
+  document.getElementById('sp-chat-subtitle').textContent='Spark is your examiner. About 11–14 minutes. No corrections during the test.';
+  document.getElementById('sp-messages').innerHTML='';
+  document.getElementById('sp-feedback-panel').style.display='none';
+  document.getElementById('sp-text-input').value='';
+  spSetExamUi(true);
+  const hf=document.getElementById('sp-handsfree-toggle');
+  if(spSRSupported())hf.checked=true;
+  examSetBar('Part 1 · Introduction and interview','Answer naturally in 2–4 sentences. '+(spSRSupported()?'Hands-free is on: talk, then pause and I\'ll send it.':'Type your answers.'),'',null);
+  await examAsk('p1',0);
+}
+async function examAsk(stage,n){
+  spSetThinking(true);
+  let d;
+  try{ d=await examCall(stage,n); }catch(e){ return examFail('Something went wrong. Please check your connection and try again.'); }
+  if(d.error)return examFail(d.error);
+  spSetThinking(false);
+  addSpMessage('assistant',d.reply);
+  spSoundReceive();
+  spState.history.push({role:'assistant',content:d.reply});
+  spAfterAssistant(d.reply);
+}
+function examOnSend(text){
+  const input=document.getElementById('sp-text-input');
+  const ex=spState.exam;
+  if(!ex||ex.stage==='done')return;
+  if(ex.stage==='p2prep'){ document.getElementById('sp-mic-status').textContent='Use this minute to plan your talk. Tap “I’m ready” when you want to start.'; return; }
+  if(ex.stage==='p2talk'){ return examFinishTalk(); }
+  spState.manualStop=true; stopSpeechInput(); stopSpeaking();
+  input.value='';
+  addSpMessage('user',text);
+  spSoundSend();
+  spState.history.push({role:'user',content:text});
+  spState.messageCount++;
+  spState.lastInputWasVoice=false;
+  if(ex.stage==='p1'){
+    ex.n++;
+    if(ex.n<EX_P1){ examSetBar('Part 1 · Introduction and interview','Question '+(ex.n+1)+' of '+EX_P1,'',null); return examAsk('p1',ex.n); }
+    return examStartPart2();
+  }
+  if(ex.stage==='p2follow'){
+    ex.stage='p3'; ex.n=0;
+    examSetBar('Part 3 · Discussion','Question 1 of '+EX_P3+'. Give reasons and examples.','',null);
+    return examAsk('p3',0);
+  }
+  if(ex.stage==='p3'){
+    ex.n++;
+    if(ex.n<EX_P3){ examSetBar('Part 3 · Discussion','Question '+(ex.n+1)+' of '+EX_P3,'',null); return examAsk('p3',ex.n); }
+    return examFinish();
+  }
+}
+async function examStartPart2(){
+  const ex=spState.exam; ex.stage='p2prep';
+  spSetThinking(true);
+  let d;
+  try{ d=await examCall('p2_cue',0); }catch(e){ return examFail('Something went wrong preparing Part 2. Please try again.'); }
+  if(d.error)return examFail(d.error);
+  spSetThinking(false);
+  const card=d.card;
+  const intro='Now I\'m going to give you a topic and I\'d like you to talk about it for one to two minutes. Before you talk, you have one minute to think about what you\'re going to say. Here is your topic.';
+  spState.history.push({role:'assistant',content:intro+' Cue card: '+card.topic+' '+card.points.join(' ')});
+  addSpMessage('assistant',intro);
+  const wrap=document.getElementById('sp-messages');
+  const el=document.createElement('div');
+  el.style.cssText='margin:6px 0 12px;padding:14px 16px;border:2px solid #F59E0B;border-radius:12px;background:#fff;font-size:14px;line-height:1.55';
+  el.innerHTML='<div style="font-weight:700;color:var(--pine);margin-bottom:6px">'+esc(card.topic)+'</div>'+card.points.map((p,i)=>'<div style="'+(i===0?'color:var(--ink3);':'padding-left:12px;')+'">'+(i===0?'':'• ')+esc(p)+'</div>').join('');
+  wrap.appendChild(el); wrap.scrollTop=wrap.scrollHeight;
+  document.getElementById('sp-text-input').value='';
+  const begin=()=>{
+    ex.tleft=EX_PREP;
+    examSetBar('Part 2 · Preparing','You have 1 minute. Think about each point. (In the real test you may make notes on paper.)',fmtClock(ex.tleft),'I\'m ready');
+    clearInterval(ex.timer);
+    ex.timer=setInterval(()=>{
+      ex.tleft--;
+      document.getElementById('sp-exam-timer').textContent=fmtClock(ex.tleft);
+      if(ex.tleft<=0)examStartTalk();
+    },1000);
+  };
+  if(document.getElementById('sp-voice-toggle').checked) speakText(intro,null,begin); else begin();
+}
+function examStartTalk(){
+  const ex=spState.exam; if(!ex||ex.stage!=='p2prep')return;
+  clearInterval(ex.timer);
+  ex.stage='p2talk'; ex.tleft=EX_TALK;
+  stopSpeaking();
+  document.getElementById('sp-text-input').value='';
+  examSetBar('Part 2 · Your talk','Speak for 1–2 minutes. Tap “Finish” when you are done.',fmtClock(ex.tleft),'Finish');
+  ex.timer=setInterval(()=>{
+    ex.tleft--;
+    document.getElementById('sp-exam-timer').textContent=fmtClock(ex.tleft);
+    if(ex.tleft<=0)examFinishTalk();
+  },1000);
+  spState.manualStop=false; spState.micBlocked=false;
+  if(spSRSupported())startListening({auto:true,continuous:true});
+}
+function examBarAction(){
+  const ex=spState.exam; if(!ex)return;
+  if(ex.stage==='p2prep')examStartTalk();
+  else if(ex.stage==='p2talk')examFinishTalk();
+}
+function examFinishTalk(){
+  const ex=spState.exam; if(!ex||ex.stage!=='p2talk')return;
+  clearInterval(ex.timer); ex.timer=null;
+  ex.stage='p2follow';
+  spState.manualStop=true; stopSpeechInput();
+  const input=document.getElementById('sp-text-input');
+  const text=input.value.trim();
+  input.value='';
+  const said=text||'(no answer given)';
+  addSpMessage('user',said);
+  spState.history.push({role:'user',content:said});
+  spState.messageCount++;
+  examSetBar('Part 2 · Follow-up','One short question.','',null);
+  examAsk('p2_follow',0);
+}
+async function examFinish(){
+  const ex=spState.exam; ex.stage='done';
+  stopSpeechInput(); stopSpeaking();
+  document.getElementById('sp-handsfree-toggle').checked=false;
+  examSetBar('Test complete','Marking your test…','',null);
+  const panel=document.getElementById('sp-feedback-panel');
+  panel.style.display='block';
+  panel.innerHTML='<div class="tp-info-card"><p>Thank you, that is the end of the speaking test. Marking your answers…</p></div>';
+  addSpMessage('assistant','Thank you. That is the end of the speaking test.');
+  try{
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'exam_grade',conversationHistory:spState.history})});
+    const data=await r.json();
+    if(!r.ok||data.error){ panel.innerHTML=`<div class="tp-info-card"><p>Couldn't mark the test — ${esc(data.error||'please try again.')}</p></div>`; return; }
+    spState.gotFeedback=true;
+    const g=data.grade;
+    const crit=[['Fluency & Coherence',g.fluency],['Lexical Resource',g.lexical],['Grammatical Range & Accuracy',g.grammar],['Pronunciation (estimate)',g.pronunciation]];
+    panel.innerHTML=`
+      <div class="tp-info-card">
+        <h4>🎤 Your estimated IELTS Speaking band</h4>
+        <div style="font-family:var(--font-h);font-size:44px;font-weight:800;color:var(--pine);line-height:1.1;margin:6px 0">${esc(String(g.overall))}</div>
+        ${crit.map(([n,c])=>`<p style="margin-top:8px"><b>${n}: ${esc(String(c&&c.band))}</b><br>${esc(c&&c.note||'')}</p>`).join('')}
+        ${(g.strengths||[]).length?`<p style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><b>What worked</b></p>${g.strengths.map(x=>`<p>• ${esc(x)}</p>`).join('')}`:''}
+        ${(g.fix_first||[]).length?`<p style="margin-top:10px"><b>Fix these first</b></p>${g.fix_first.map(x=>`<p>• ${esc(x)}</p>`).join('')}`:''}
+        ${g.example&&g.example.said?`<p style="margin-top:10px"><b>Upgrade one line</b><br>You said: “${esc(g.example.said)}”<br>Stronger: “${esc(g.example.better)}”</p>`:''}
+        <p style="margin-top:12px;font-size:12px;color:var(--ink3)">This is an AI estimate from the text of your answers, not an official IELTS result. Pronunciation cannot be judged from text, so treat that line as a rough guide.</p>
+      </div>`;
+    examSetBar('Test complete','Your estimated band is below.','',null);
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    panel.innerHTML='<div class="tp-info-card"><p>Something went wrong marking the test. Please try again.</p></div>';
+  }
 }
 
 async function getSpeakingFeedback(){
@@ -10629,6 +11020,8 @@ async function getSpeakingFeedback(){
 // Sessions with zero real exchanges (opened, then immediately left)
 // are not logged or rewarded, to keep XP tied to genuine practice.
 async function endSpeakingSession(){
+  examCleanup();
+  spSetExamUi(false);
   stopSpeechInput();
   stopSpeaking();
   const mc=spState.messageCount, mode=spState.mode, gotFeedback=spState.gotFeedback;
@@ -10653,6 +11046,7 @@ async function endSpeakingSession(){
     showSpSessionRecap(mc,bonusXp,newBadges[0]||null);
   }
   spState={mode:null,scenario:null,scenarioTitle:null,testType:null,skillPrompt:null,history:[],recognizing:false,lastInputWasVoice:false,messageCount:0,gotFeedback:false,studentProfileText:null};
+  loadSparkStatus();
 }
 function showSpSessionRecap(messageCount,bonusXp,newBadge){
   const colors=['var(--gold)','var(--pine)','var(--sage)','var(--sky)','var(--rose)'];
