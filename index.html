@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Step4Progress Ascend — Your Learning Journey</title>
 <link rel="manifest" href="/student-portal/manifest.json">
 <link rel="apple-touch-icon" href="/student-portal/icons/apple-touch-icon.png">
@@ -451,6 +451,14 @@
     .site-foot{margin:30px 0 0;padding:28px 16px 22px}.site-foot-in{grid-template-columns:1fr}
     .nav-grid{grid-template-columns:1fr}
   }
+</style>
+<style id="native-css">
+html.native-android body{padding-top:var(--safe-area-inset-top,0px);padding-bottom:var(--safe-area-inset-bottom,0px);padding-left:var(--safe-area-inset-left,0px);padding-right:var(--safe-area-inset-right,0px)}
+html.native-android #plans-overlay>div,html.native-android #del-overlay>div{padding-bottom:calc(22px + var(--safe-area-inset-bottom,0px))}
+html.native{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html.native body{-webkit-user-select:none;user-select:none}
+html.native input,html.native textarea,html.native [contenteditable]{-webkit-user-select:text;user-select:text}
+html.native #install-banner,html.native .install-banner{display:none!important}
 </style>
 </head>
 <body class="on-login">
@@ -997,6 +1005,10 @@
     <textarea id="profile-achievements" rows="3" placeholder="e.g. Led university coding club, published a research paper" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-family:var(--font-b);font-size:14px;margin-bottom:16px;resize:vertical"></textarea>
     <button class="btn" onclick="saveMyProfile()">Save Profile</button>
     <div id="profile-save-status" style="font-size:13px;color:var(--sage);margin-top:8px"></div>
+    <div style="margin-top:26px;padding-top:14px;border-top:1px solid var(--line)">
+      <p style="font-size:12.5px;color:var(--ink3);margin:0 0 8px">Want to leave? You can permanently delete your account and everything saved in it.</p>
+      <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;color:#B42318;border-color:#B42318" onclick="deleteMyAccount()">Delete my account</button>
+    </div>
   </div>
 
   <!-- SOP / Essay Review — honest, structured AI feedback on a pasted
@@ -1158,6 +1170,80 @@
   </footer>
 
 
+<script id="native-shell">
+/* Native app shell (Android / iOS via Capacitor). On the normal website none of this does anything. */
+const IS_NATIVE = !!(window.Capacitor && typeof Capacitor.isNativePlatform==='function' && Capacitor.isNativePlatform());
+const NATIVE_PLATFORM = IS_NATIVE ? Capacitor.getPlatform() : 'web';
+(function(){
+  if(!IS_NATIVE) return;
+  document.documentElement.classList.add('native','native-'+NATIVE_PLATFORM);
+  const P = (n)=> (window.Capacitor && Capacitor.Plugins) ? Capacitor.Plugins[n] : null;
+  window.__nativePlugin = P;
+
+  // 1. Speech recognition: the phone web views have no built-in SpeechRecognition, so provide the same
+  //    interface on top of the native plugin. The rest of the page does not know the difference.
+  const SR = P('SpeechRecognition');
+  if(SR){ // always replace: the phone web views either lack the browser version or expose one that does not work
+    function NativeRecognition(){
+      this.lang='en-US'; this.continuous=false; this.interimResults=true;
+      this.onstart=this.onresult=this.onerror=this.onend=null;
+      this._on=false; this._handles=[]; this._ended=false;
+    }
+    NativeRecognition.prototype._emitEnd=function(){
+      if(this._ended) return; this._ended=true; this._on=false;
+      this._handles.forEach(h=>{ try{h.remove();}catch(e){} }); this._handles=[];
+      if(this.onend) try{this.onend({});}catch(e){}
+    };
+    NativeRecognition.prototype.start=function(){
+      const self=this; if(self._on) throw new Error('already started');
+      self._on=true; self._ended=false;
+      (async function(){
+        try{
+          let perm=await SR.checkPermissions();
+          if(perm.speechRecognition!=='granted') perm=await SR.requestPermissions();
+          if(perm.speechRecognition!=='granted'){
+            if(self.onerror) self.onerror({error:'not-allowed'});
+            self._emitEnd(); return;
+          }
+          const av=await SR.available();
+          if(!av.available){ if(self.onerror) self.onerror({error:'service-not-allowed'}); self._emitEnd(); return; }
+          self._handles.push(await SR.addListener('partialResults',function(d){
+            const t=(d&&d.matches&&d.matches[0])||''; if(!t) return;
+            if(self.onresult) self.onresult({resultIndex:0,results:[[{transcript:t,confidence:1}]]});
+          }));
+          self._handles.push(await SR.addListener('listeningState',function(d){
+            if(d&&d.status==='stopped') self._emitEnd();
+          }));
+          if(self.onstart) self.onstart({});
+          const r=await SR.start({language:self.lang||'en-US',maxResults:1,partialResults:true,popup:false});
+          if(r&&r.matches&&r.matches[0]&&self.onresult) self.onresult({resultIndex:0,results:[[{transcript:r.matches[0],confidence:1}]]});
+          // Some devices return the final text from start() once the person stops talking.
+          if(!self.continuous) self._emitEnd();
+        }catch(e){
+          if(self.onerror) self.onerror({error:'network'});
+          self._emitEnd();
+        }
+      })();
+    };
+    NativeRecognition.prototype.stop=function(){ try{ SR.stop(); }catch(e){} const s=this; setTimeout(function(){ s._emitEnd(); },400); };
+    NativeRecognition.prototype.abort=NativeRecognition.prototype.stop;
+    try{ Object.defineProperty(window,'SpeechRecognition',{value:NativeRecognition,configurable:true,writable:true}); Object.defineProperty(window,'webkitSpeechRecognition',{value:NativeRecognition,configurable:true,writable:true}); }catch(e){ window.SpeechRecognition=NativeRecognition; window.webkitSpeechRecognition=NativeRecognition; }
+  }
+
+  // 2. Android back button.
+  const App=P('App');
+  if(App && App.addListener){
+    App.addListener('backButton',function(){
+      const ov=document.getElementById('plans-overlay')||document.getElementById('bank-overlay')||document.getElementById('del-overlay');
+      if(ov){ ov.remove(); return; }
+      const act=document.querySelector('.screen.active'); const id=act?act.id:'';
+      if(id==='screen-speaking-partner' && typeof closeSpeakingPartner==='function'){ closeSpeakingPartner(); return; }
+      if(id && id!=='screen-dashboard' && id!=='screen-phone' && id!=='screen-otp' && typeof showScreen==='function' && typeof currentSession!=='undefined' && currentSession){ showScreen('screen-dashboard'); return; }
+      if(App.minimizeApp) App.minimizeApp(); else if(App.exitApp) App.exitApp();
+    });
+  }
+})();
+</script>
 <script>
 
 /* ============================================================
@@ -1166,8 +1252,8 @@
 const SUPABASE_URL = "https://jfrtleleblsphyztyhaf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcnRsZWxlYmxzcGh5enR5aGFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2MTYzMzgsImV4cCI6MjEwMjE5MjMzOH0.4BEBUPOGdGIBcc3MLgKVg3ClYjRD9rZ_QNUd6oE0IRQ";
 // Fill these in when the privacy policy / terms pages exist; the links appear in the footer automatically.
-const PRIVACY_URL = '';
-const TERMS_URL = '';
+const PRIVACY_URL = 'https://step4progress2025-byte.github.io/student-portal/privacy.html';
+const TERMS_URL = 'https://step4progress2025-byte.github.io/student-portal/terms.html';
 const GET_STATUS_URL = SUPABASE_URL + "/functions/v1/get-my-status";
 const SYNC_DOC_URL = SUPABASE_URL + "/functions/v1/sync-my-document";
 
@@ -1189,6 +1275,7 @@ let isPreviewMode=false; // true when browsing without a real login — read-onl
       let h='';
       if(PRIVACY_URL)h+='<a href="'+PRIVACY_URL+'" target="_blank" rel="noopener"><i class="ti ti-shield-lock"></i> Privacy policy</a>';
       if(TERMS_URL)h+='<a href="'+TERMS_URL+'" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Terms of use</a>';
+      h+='<a href="javascript:deleteMyAccount()"><i class="ti ti-x"></i> Delete my account</a>';
       lg.innerHTML=h;
     }
   }catch(e){}
@@ -8910,7 +8997,7 @@ function planCardsHtml(highlight){
     const note=p.code==='continue'?'<p style="font-size:12px;color:var(--ink3);margin-top:4px">Applies to your free mock only.</p>':'';
     return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter')?'border:2px solid var(--pine3,#2D5A94)':''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
-      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">₹${p.price_inr}</div>
+      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">${esc(STORE_PRICES[p.code]||('₹'+p.price_inr))}</div>
       <button class="btn" style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
   }).join('');
 }
@@ -8924,10 +9011,103 @@ function openPlansDialog(reason){
     <p style="color:var(--ink3);font-size:13.5px;margin-bottom:12px">${esc(msg)}</p><div id="plans-body">${planCardsHtml(reason)}</div></div>`;
   o.addEventListener('click',e=>{if(e.target===o)closePlansDialog();});
   document.body.appendChild(o);
+  if(IS_NATIVE&&!Object.keys(STORE_PRICES).length){ ensureBilling().then(()=>{const b=document.getElementById('plans-body'); if(b&&Object.keys(STORE_PRICES).length)b.innerHTML=planCardsHtml(reason);}); }
 }
 function closePlansDialog(){const o=document.getElementById('plans-overlay');if(o)o.remove();}
+
+// ── In-app purchases (Android / iOS) through RevenueCat ─────────────
+// The stores take the payment; RevenueCat tells our server (store-webhook), which adds the credits.
+// Fill in the two public SDK keys from RevenueCat > Project settings > API keys.
+const RC_KEYS={ios:'appl_REPLACE_ME',android:'goog_REPLACE_ME'};
+const STORE_PRODUCTS={continue:'s4p_continue',starter:'s4p_starter',plus:'s4p_plus',pro:'s4p_pro'};
+let STORE_PRICES={}, STORE_PROD_OBJ={}, billingReady=false, billingUser=null, billingErr='';
+function nativeBillingConfigured(){const k=RC_KEYS[NATIVE_PLATFORM];return !!(k&&k.indexOf('REPLACE_ME')<0);}
+async function ensureBilling(){
+  if(!IS_NATIVE) return false;
+  const RC=window.__nativePlugin&&window.__nativePlugin('Purchases');
+  if(!RC||!nativeBillingConfigured()){billingErr='Purchases are not switched on in this build yet.';return false;}
+  if(!currentSession||!currentSession.user){billingErr='Please sign in first.';return false;}
+  try{
+    if(!billingReady){ await RC.configure({apiKey:RC_KEYS[NATIVE_PLATFORM]}); billingReady=true; }
+    if(billingUser!==currentSession.user.id){ await RC.logIn({appUserID:currentSession.user.id}); billingUser=currentSession.user.id; }
+    if(!Object.keys(STORE_PROD_OBJ).length){
+      const r=await RC.getProducts({productIdentifiers:Object.values(STORE_PRODUCTS),type:'NON_SUBSCRIPTION'});
+      (r.products||[]).forEach(p=>{
+        const code=Object.keys(STORE_PRODUCTS).find(k=>STORE_PRODUCTS[k]===p.identifier||p.identifier.split(':')[0]===STORE_PRODUCTS[k]);
+        if(code){STORE_PROD_OBJ[code]=p;STORE_PRICES[code]=p.priceString;}
+      });
+    }
+    billingErr='';
+    return true;
+  }catch(e){billingErr='Could not reach the store. Please check your connection and try again.';return false;}
+}
+async function nativeBuy(code){
+  const body=document.getElementById('plans-body');
+  const say=(h)=>{ if(body)body.innerHTML=h; else alert(h.replace(/<[^>]+>/g,' ')); };
+  say('<div class="tp-info-card"><p>Opening the store…</p></div>');
+  const ok=await ensureBilling();
+  if(!ok||!STORE_PROD_OBJ[code]){
+    say(`<div class="tp-info-card"><h4>Purchases are not available right now</h4><p>${esc(billingErr||'This plan is not available in the store yet.')}</p></div>`+(ok?'':'')); return;
+  }
+  const before=await loadMockAccess(true);
+  const snap=JSON.stringify([before&&before.credits,before&&before.unlock_credits,before&&before.spark]);
+  try{
+    await window.__nativePlugin('Purchases').purchaseStoreProduct({product:STORE_PROD_OBJ[code]});
+  }catch(e){
+    if(e&&(e.userCancelled||(e.code&&String(e.code)==='1')||/cancel/i.test(String(e.message||'')))){ if(body)body.innerHTML=planCardsHtml(); return; }
+    say(`<div class="tp-info-card"><h4>Payment did not go through</h4><p>You have not been charged. Please try again, or contact your Step4Progress counsellor.</p></div>`); return;
+  }
+  say('<div class="tp-info-card"><h4>⏳ Payment received</h4><p>Adding your plan…</p></div>');
+  for(let i=0;i<20;i++){
+    await new Promise(r=>setTimeout(r,1500));
+    const a=await loadMockAccess(true);
+    if(JSON.stringify([a&&a.credits,a&&a.unlock_credits,a&&a.spark])!==snap){
+      say('<div class="tp-info-card"><h4>✅ Your plan is active</h4><p>Thank you! Your credits are ready to use.</p><button class="btn" style="width:auto;padding:8px 18px;margin-top:8px" onclick="closePlansDialog();try{loadSparkStatus()}catch(e){}">Done</button></div>');
+      try{ if(typeof renderSpTestprepGrid==='function')renderSpTestprepGrid(); }catch(e){}
+      return;
+    }
+  }
+  say('<div class="tp-info-card"><h4>✅ Payment received</h4><p>Your plan is being added and will show up in a minute. If it does not, close and reopen the app, or contact your counsellor with this time of purchase.</p></div>');
+}
+
+// ── Delete my account (required by Apple and Google) ──
+function deleteMyAccount(){
+  if(!currentSession||isPreviewMode){alert('Please sign in first.');return;}
+  const old=document.getElementById('del-overlay');if(old)old.remove();
+  const o=document.createElement('div');o.id='del-overlay';
+  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:10000;display:flex;align-items:flex-end;justify-content:center';
+  o.innerHTML=`<div style="background:var(--cream,#fff);width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:20px 18px 24px">
+    <h3 style="font-size:18px;color:#B42318;margin:0 0 6px">Delete your account?</h3>
+    <p style="font-size:13.5px;color:var(--ink3);margin:0 0 10px">This permanently deletes your account, progress, profile and saved work. Unused mock credits are lost and cannot be refunded here. This cannot be undone.</p>
+    <p style="font-size:13px;margin:0 0 6px">Type <b>DELETE</b> to confirm:</p>
+    <input id="del-confirm" type="text" autocapitalize="characters" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r);font-size:15px;margin-bottom:10px">
+    <div id="del-status" style="font-size:13px;color:#B42318;min-height:18px;margin-bottom:6px"></div>
+    <div style="display:flex;gap:10px"><button class="btn-outline btn" style="flex:1" onclick="document.getElementById('del-overlay').remove()">Cancel</button>
+    <button class="btn" id="del-go" style="flex:1;background:#B42318" onclick="doDeleteAccount()">Delete everything</button></div></div>`;
+  document.body.appendChild(o);
+}
+async function doDeleteAccount(){
+  const v=(document.getElementById('del-confirm').value||'').trim();
+  const st=document.getElementById('del-status'), go=document.getElementById('del-go');
+  if(v!=='DELETE'){st.textContent='Please type DELETE exactly.';return;}
+  go.disabled=true;st.textContent='Deleting…';
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    const r=await fetch(SUPABASE_URL+'/functions/v1/delete-my-account',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?session.access_token:''),'apikey':SUPABASE_ANON_KEY},body:JSON.stringify({confirm:'DELETE'})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.success){st.textContent=d.error||'Could not delete the account. Please try again.';go.disabled=false;return;}
+    try{ if(IS_NATIVE&&billingReady) await window.__nativePlugin('Purchases').logOut(); }catch(e){}
+    try{ await sb.auth.signOut(); }catch(e){}
+    document.getElementById('del-overlay').remove();
+    currentSession=null;isPreviewMode=false;billingUser=null;
+    document.getElementById('signOutBtn').style.display='none';
+    showScreen('screen-phone');
+    alert('Your account has been deleted.');
+  }catch(e){st.textContent='Could not reach the server. Please try again.';go.disabled=false;}
+}
 async function choosePlan(code){
   if(!requireRealLogin())return;
+  if(IS_NATIVE){return nativeBuy(code);}
   const plan=(MOCK_PLANS||PLAN_FALLBACK).find(p=>p.code===code);
   const body=document.getElementById('plans-body');
   const done=(t)=>{ if(body)body.innerHTML=t; else alert(t.replace(/<[^>]+>/g,' ')); };
@@ -8939,6 +9119,37 @@ async function choosePlan(code){
     done(`<div class="tp-info-card"><h4>Couldn't send your request</h4><p>Please try again in a moment, or contact your Step4Progress counsellor.</p></div>`);
   }
 }
+// Keep the sign-in token fresh for every server-function call. The page stores the token at login; if the
+// tab stays open for over an hour the stored one expires and the server answers 401. This swaps in a
+// fresh token before each call and retries once on 401.
+(function(){
+  const f=window.fetch.bind(window);
+  async function freshToken(force){
+    try{
+      if(force){ const r=await sb.auth.refreshSession(); if(r&&r.data&&r.data.session){ currentSession=r.data.session; return r.data.session.access_token; } }
+      const r=await sb.auth.getSession(); const s=r&&r.data&&r.data.session;
+      if(s){ currentSession=s; return s.access_token; }
+    }catch(e){}
+    return null;
+  }
+  function setAuth(init,tok){
+    const h=new Headers((init&&init.headers)||{}); h.set('Authorization','Bearer '+tok);
+    return Object.assign({},init,{headers:h});
+  }
+  window.fetch=async function(input,init){
+    const u=typeof input==='string'?input:(input&&input.url)||'';
+    if(u.indexOf(SUPABASE_URL+'/functions/v1/')!==0||!init||!init.headers||isPreviewMode||!currentSession) return f(input,init);
+    const cur=new Headers(init.headers).get('Authorization')||'';
+    if(!/^Bearer\s+\S+/.test(cur)||cur.indexOf(SUPABASE_ANON_KEY)>-1) return f(input,init);
+    const tok=await freshToken(false);
+    let r=await f(input,tok?setAuth(init,tok):init);
+    if(r.status===401){
+      const t2=await freshToken(true);
+      if(t2) r=await f(input,setAuth(init,t2));
+    }
+    return r;
+  };
+})();
 // If a student without a Spark plan opens the Speaking Assistant, the server refuses (403 NO_SPARK);
 // this shows the plans instead of leaving them on an error message.
 (function(){
@@ -11356,7 +11567,7 @@ function escMockText(s){
 })();
 </script>
 <script>
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/student-portal/service-worker.js', { scope: '/student-portal/' })
       .then((reg) => {
