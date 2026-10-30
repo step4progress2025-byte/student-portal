@@ -2263,6 +2263,8 @@ function startVocabReview(category){
 
   vocabSessionIdx=0;
   vocabSessionCorrect=0;
+  vocabSessionTotal=vocabSessionQueue.length;
+  vocabRetried=new Set();
   showScreen('screen-vocab-review');
   renderVocabCard();
 }
@@ -2273,64 +2275,134 @@ function shuffleArray(arr){
   return a;
 }
 
+let vocabSessionTotal=0, vocabRetried=new Set(), vocabCurQ=null, vocabAnswered=false;
+function vocabEscRe(t){return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function vocabBlankedExample(word){
+  // the example sentence with the word hidden, so the student must supply it
+  const re=new RegExp('\\b'+vocabEscRe(word.word)+'\\w*','i');
+  if(!word.example||!re.test(word.example))return null;
+  return word.example.replace(re,'_____');
+}
+function vocabLev(a,b){ // edit distance, to forgive a one-letter typo
+  const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  let prev=[...Array(n+1).keys()];
+  for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}
+  return prev[n];
+}
+function vocabPickOthers(word,n){
+  const same=vocabAllWords.filter(w=>w.id!==word.id&&w.category===word.category);
+  const rest=vocabAllWords.filter(w=>w.id!==word.id&&w.category!==word.category);
+  const pool=[...shuffleArray(same),...shuffleArray(rest)];
+  const out=[],seen=new Set([word.word.toLowerCase(),(word.definition||'').toLowerCase()]);
+  for(const w of pool){ if(out.length>=n)break; const k=w.word.toLowerCase(), d=(w.definition||'').toLowerCase(); if(seen.has(k)||seen.has(d))continue; seen.add(k);seen.add(d);out.push(w); }
+  return out;
+}
+function vocabBuildQuestion(word){
+  const prog=vocabProgressCache[word.id], box=prog?prog.box:0;
+  const blank=vocabBlankedExample(word);
+  let type=box>=4?'type':(box>=2?'cloze':'meaning');
+  if(vocabRetried.has(word.id))type='meaning'; // second chance in the same session: the easiest form
+  if((type==='cloze'||type==='type')&&!blank&&type==='cloze')type='meaning';
+  const others=vocabPickOthers(word,3);
+  if(type==='meaning'){
+    const opts=shuffleArray([{t:word.definition,ok:true},...others.map(o=>({t:o.definition,ok:false}))]);
+    return {type,prompt:`What does <b>${esc(word.word)}</b> mean?`,sub:`/${esc(word.phonetic||'')}/`,opts};
+  }
+  if(type==='cloze'){
+    const opts=shuffleArray([{t:word.word,ok:true},...others.map(o=>({t:o.word,ok:false}))]);
+    return {type,prompt:'Which word fits the gap?',sub:'',sentence:blank,hint:word.definition,opts};
+  }
+  return {type:'type',prompt:'Type the word that matches this meaning:',sub:'',sentence:blank,hint:word.definition};
+}
 function renderVocabCard(){
   const word=vocabSessionQueue[vocabSessionIdx];
-  document.getElementById('vocab-review-progress').textContent=`${vocabSessionIdx+1} of ${vocabSessionQueue.length}`;
-  document.getElementById('vocab-card-container').innerHTML=`
-    <div class="tp-info-card" style="text-align:center;padding:32px 20px">
-      <h2 style="font-size:26px;color:var(--pine);margin-bottom:4px">${esc(word.word)}</h2>
-      <p style="font-size:13px;color:var(--ink3);font-style:italic;margin-bottom:20px">/${esc(word.phonetic)}/</p>
-      <div><button class="tp-reveal-btn" id="vocab-reveal-btn" onclick="revealVocabAnswer()"><i class="ti ti-eye"></i> Show meaning</button></div>
-      <div id="vocab-answer-box" style="display:none;margin-top:18px;text-align:left;background:var(--cream);border-radius:var(--r);padding:16px">
-        <p style="font-size:14.5px;color:var(--ink);margin-bottom:10px"><b>Meaning:</b> ${esc(word.definition)}</p>
-        <p style="font-size:13.5px;color:var(--ink3);font-style:italic">"${esc(word.example)}"</p>
-      </div>
-    </div>
-    <div id="vocab-rating-buttons" style="display:none;gap:10px;margin-top:16px">
-      <button class="btn-outline btn" style="flex:1;border-color:var(--rose);color:var(--rose)" onclick="rateVocabCard(false)"><i class="ti ti-x"></i> Didn't know it</button>
-      <button class="btn" style="flex:1" onclick="rateVocabCard(true)"><i class="ti ti-check"></i> Knew it</button>
-    </div>
-  `;
+  vocabAnswered=false;
+  const q=vocabCurQ=vocabBuildQuestion(word);
+  document.getElementById('vocab-review-progress').textContent=`${Math.min(vocabSessionIdx+1,vocabSessionQueue.length)} of ${vocabSessionQueue.length}`;
+  let body=`<h2 style="font-size:22px;color:var(--pine);margin:0 0 6px">${q.prompt}</h2>`;
+  if(q.sub)body+=`<p style="font-size:13px;color:var(--ink3);font-style:italic;margin:0 0 14px">${q.sub}</p>`;
+  if(q.sentence)body+=`<p style="font-size:15px;color:var(--ink);background:var(--cream);border-radius:var(--r);padding:12px 14px;margin:10px 0">"${esc(q.sentence)}"</p>`;
+  if(q.type==='cloze')body+=`<p style="font-size:12.5px;color:var(--ink3);margin:0 0 12px">Meaning: ${esc(q.hint)}</p>`;
+  if(q.type==='type')body+=`<p style="font-size:14.5px;margin:10px 0 12px"><b>Meaning:</b> ${esc(q.hint)}</p>
+      <input id="vocab-type-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Type the word" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r);font-size:16px;margin-bottom:10px" onkeydown="if(event.key==='Enter')vocabAnswerTyped()">
+      <button class="btn" onclick="vocabAnswerTyped()">Check</button>`;
+  else body+=`<div id="vocab-opts">${q.opts.map((o,i)=>`<div class="lstep-quiz-opt" data-i="${i}" onclick="vocabAnswerOpt(${i})" style="text-align:left;margin-bottom:8px;font-size:14px">${esc(o.t)}</div>`).join('')}</div>`;
+  body+=`<div style="text-align:center;margin-top:10px" id="vocab-skip-row"><a href="javascript:vocabDontKnow()" style="font-size:13px;color:var(--ink3)">I don't know this one</a></div>
+    <div id="vocab-feedback"></div>`;
+  document.getElementById('vocab-card-container').innerHTML=`<div class="tp-info-card" style="padding:22px 18px">${body}</div>`;
+  const inp=document.getElementById('vocab-type-input'); if(inp)setTimeout(()=>{try{inp.focus()}catch(e){}},100);
 }
-
-function revealVocabAnswer(){
-  document.getElementById('vocab-answer-box').style.display='block';
-  document.getElementById('vocab-reveal-btn').style.display='none';
-  document.getElementById('vocab-rating-buttons').style.display='flex';
-}
-
-async function rateVocabCard(gotItRight){
+function vocabShowResult(ok,extraMsg){
+  vocabAnswered=true;
   const word=vocabSessionQueue[vocabSessionIdx];
+  const skip=document.getElementById('vocab-skip-row'); if(skip)skip.style.display='none';
+  const last=vocabSessionIdx>=vocabSessionQueue.length-1;
+  document.getElementById('vocab-feedback').innerHTML=`
+    <div class="lstep-feedback ${ok?'correct':'incorrect'}" style="margin-top:14px">
+      <div style="font-weight:700;margin-bottom:6px">${ok?'Correct!':'Not quite.'}${extraMsg?' '+esc(extraMsg):''}</div>
+      <div><b>${esc(word.word)}</b> <span style="font-style:italic;color:inherit;opacity:.8">/${esc(word.phonetic||'')}/</span></div>
+      <div style="margin-top:4px">${esc(word.definition)}</div>
+      <div style="margin-top:6px;font-style:italic;opacity:.85">"${esc(word.example)}"</div>
+      ${ok?'':'<div style="margin-top:8px;font-size:12.5px">You will see this word again at the end of this session.</div>'}
+    </div>
+    <button class="btn" style="margin-top:14px" onclick="vocabNext()">${last&&(ok||vocabRetried.has(word.id))?'Finish':'Next'} <i class="ti ti-chevron-right"></i></button>`;
+  vocabRecord(word,ok);
+}
+function vocabAnswerOpt(i){
+  if(vocabAnswered)return;
+  const q=vocabCurQ, ok=!!q.opts[i].ok;
+  document.querySelectorAll('#vocab-opts .lstep-quiz-opt').forEach((el,k)=>{
+    el.onclick=null;
+    if(q.opts[k].ok)el.classList.add('correct-answer');
+    else if(k===i)el.classList.add('wrong-answer');
+    else el.classList.add('dimmed');
+  });
+  vocabShowResult(ok);
+}
+function vocabAnswerTyped(){
+  if(vocabAnswered)return;
+  const word=vocabSessionQueue[vocabSessionIdx];
+  const inp=document.getElementById('vocab-type-input'); const v=(inp.value||'').trim().toLowerCase();
+  if(!v){inp.focus();return;}
+  const target=word.word.toLowerCase();
+  const exact=v===target, near=!exact&&target.length>=6&&vocabLev(v,target)===1;
+  inp.disabled=true; inp.style.borderColor=(exact||near)?'var(--sage)':'#E24B4A';
+  vocabShowResult(exact||near,near?`(spelling: ${word.word})`:'');
+}
+function vocabDontKnow(){
+  if(vocabAnswered)return;
+  const q=vocabCurQ;
+  if(q.opts)document.querySelectorAll('#vocab-opts .lstep-quiz-opt').forEach((el,k)=>{el.onclick=null;if(q.opts[k].ok)el.classList.add('correct-answer');else el.classList.add('dimmed');});
+  const inp=document.getElementById('vocab-type-input'); if(inp)inp.disabled=true;
+  vocabShowResult(false);
+}
+async function vocabRecord(word,ok){
+  // only the first try of each word in a session changes its schedule
+  if(vocabRetried.has(word.id))return;
   const existing=vocabProgressCache[word.id];
   const currentBox=existing?existing.box:1;
-  const newBox=gotItRight?Math.min(currentBox+1,5):1;
-  const intervalDays=VOCAB_BOX_INTERVALS_DAYS[newBox];
-  const nextDate=new Date();
-  nextDate.setDate(nextDate.getDate()+intervalDays);
-
+  const newBox=ok?Math.min(currentBox+1,5):1;
+  const nextDate=new Date(); nextDate.setDate(nextDate.getDate()+VOCAB_BOX_INTERVALS_DAYS[newBox]);
   const row={
     student_id:currentSession.user.id, word_id:word.id, box:newBox,
     next_review_date:nextDate.toISOString().slice(0,10),
-    times_correct:(existing?.times_correct||0)+(gotItRight?1:0),
-    times_wrong:(existing?.times_wrong||0)+(gotItRight?0:1),
+    times_correct:(existing?.times_correct||0)+(ok?1:0),
+    times_wrong:(existing?.times_wrong||0)+(ok?0:1),
     last_reviewed_at:new Date().toISOString(),
   };
-  try{
-    await sb.from('vocab_progress').upsert(row,{onConflict:'student_id,word_id'});
-    vocabProgressCache[word.id]=row;
-  }catch(e){/* best-effort — move on regardless, don't block the review flow on a save hiccup */}
-
-  if(gotItRight)vocabSessionCorrect++;
+  vocabProgressCache[word.id]=row;
+  if(ok)vocabSessionCorrect++;
+  else{ vocabRetried.add(word.id); vocabSessionQueue.push(word); }
+  try{ await sb.from('vocab_progress').upsert(row,{onConflict:'student_id,word_id'}); }catch(e){/* best-effort */}
+}
+function vocabNext(){
+  if(!vocabAnswered)return;
   vocabSessionIdx++;
-  if(vocabSessionIdx>=vocabSessionQueue.length){
-    finishVocabSession();
-  } else {
-    renderVocabCard();
-  }
+  if(vocabSessionIdx>=vocabSessionQueue.length) finishVocabSession(); else renderVocabCard();
 }
 
 async function finishVocabSession(){
-  const total=vocabSessionQueue.length;
+  const total=vocabSessionTotal||vocabSessionQueue.length;
   const bonusXp=Math.min(total*2,30);
   try{ await awardXpAndStreak(bonusXp); }catch(e){}
   document.getElementById('vocab-complete-summary').innerHTML=
@@ -9767,9 +9839,24 @@ let lstepState={lesson:null,source:null,arg1:null,arg2:null,skillContext:null,st
 // of corrupting whatever is now actually on screen.
 let lstepGeneration=0;
 
+function lessonVocabChecks(lesson){
+  // Turn the lesson's own word list into quick questions, so the list is practised, not just read.
+  const v=(lesson.vocab||[]).filter(x=>x&&x[0]&&x[1]);
+  if(!v.length)return [];
+  const pickN=shuffleArray(v).slice(0,4);
+  const globalDefs=(typeof vocabAllWords!=='undefined'?vocabAllWords:[]).map(w=>w.definition).filter(Boolean);
+  return pickN.map((item,i)=>{
+    const wrong=shuffleArray(v.filter(x=>x!==item).map(x=>x[1]));
+    const seen=new Set([String(item[1]).toLowerCase()]); const dis=[];
+    for(const d of [...wrong,...shuffleArray(globalDefs)]){ if(dis.length>=3)break; const k=String(d).toLowerCase(); if(seen.has(k))continue; seen.add(k); dis.push(d); }
+    const opts=shuffleArray([{t:item[1],ok:true},...dis.map(d=>({t:d,ok:false}))]);
+    return {kind:'quiz',extra:true,i,n:pickN.length,q:{q:`What does "${item[0]}" mean?`,options:opts.map(o=>o.t),correct:opts.findIndex(o=>o.ok),a:`"${item[0]}" means: ${item[1]}`}};
+  });
+}
 function buildLstepSteps(lesson,skillContext){
   const steps=[{kind:'intro'},{kind:'concept'},{kind:'example'}];
   if(lesson.vocab&&lesson.vocab.length)steps.push({kind:'vocab'});
+  lessonVocabChecks(lesson).forEach(q=>steps.push(q));
   if(lesson.mistakes&&lesson.mistakes.length)steps.push({kind:'mistakes'});
   steps.push({kind:'practice'});
   // Genuinely new interaction type — tap-to-match pairs. Only added
@@ -9857,11 +9944,12 @@ function renderLstepStep(direction){
         <p id="lesson-practice-text">${lesson.practice}</p>
         ${s.skillContext==='Listening'?`<button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;margin:10px 0 0" onclick="speakLessonText('lesson-practice-text',this)"><i class="ti ti-volume"></i> Listen to this exercise</button>`:''}
         ${s.skillContext&&s.skillContext.startsWith('Speaking')?renderRecorderWidget('lesson-'+lesson.id,lesson.id,esc(lesson.title)):''}
-        <textarea id="practice-write-input" placeholder="Type your own answer here first — then compare it with the model answer below." style="width:100%;min-height:80px;margin-top:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--font-b);resize:vertical"></textarea>
-        <div><button class="tp-reveal-btn" onclick="toggleAnswerReveal('practice-answer',this)"><i class="ti ti-eye"></i> Compare with model answer</button></div>
+        <textarea id="practice-write-input" oninput="practiceTyped(this)" placeholder="Type your own answer here first — the model answer unlocks after you try." style="width:100%;min-height:80px;margin-top:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--font-b);resize:vertical"></textarea>
+        <div><button class="tp-reveal-btn" id="practice-reveal-btn" ${(s.skillContext&&s.skillContext.startsWith('Speaking'))?'':'disabled style="opacity:.5"'} onclick="practiceReveal(this)"><i class="ti ti-eye"></i> ${(s.skillContext&&s.skillContext.startsWith('Speaking'))?'Compare with model answer':'Write your answer first'}</button></div>
         <div class="tp-answer-box" id="practice-answer">${esc(lesson.practiceAnswer)}</div>
       </div>`;
     nextBtn.textContent='Continue';
+    nextBtn.disabled=!(s.skillContext&&s.skillContext.startsWith('Speaking'));
     if(s.skillContext&&s.skillContext.startsWith('Speaking')){setTimeout(()=>initRecorderWidget('lesson-'+lesson.id),0);}
   } else if(step.kind==='match'){
     // Tap-to-match — genuinely new interaction, not just read+quiz. Tap
@@ -9910,7 +9998,7 @@ function renderLstepStep(direction){
     s.quizAnswered=false;
     s.quizSelected=null;
     if(step.q.options&&step.q.options.length){
-      html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> Knowledge check ${step.i+1} / ${s.quizTotal}</div>
+      html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> ${step.extra?('Word check '+(step.i+1)+' / '+step.n):('Knowledge check '+(step.i+1)+' / '+s.quizTotal)}</div>
         <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(step.q.q)}</div>
         <div id="lstep-quiz-opts">${step.q.options.map((opt,oi)=>
           `<div class="lstep-quiz-opt" data-oi="${oi}" onclick="selectQuizOption(${oi})">${esc(opt)}</div>`
@@ -9921,8 +10009,9 @@ function renderLstepStep(direction){
     } else {
       html=`<div class="lstep-badge quiz"><i class="ti ti-brain"></i> Knowledge check ${step.i+1} / ${s.quizTotal}</div>
         <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(step.q.q)}</div>
+        <textarea id="quiz-attempt" oninput="quizAttemptTyped(this)" placeholder="Type your answer first" style="width:100%;min-height:70px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:var(--font-b);resize:vertical;margin-bottom:10px"></textarea>
         <div style="display:flex;gap:10px;margin-bottom:4px">
-          <button class="lstep-quiz-opt" style="flex:1;text-align:center" onclick="revealQuizStep()"><i class="ti ti-eye"></i> Think it through, then reveal the answer</button>
+          <button class="lstep-quiz-opt" id="quiz-reveal-btn" disabled style="flex:1;text-align:center;opacity:.5" onclick="revealQuizStep()"><i class="ti ti-eye"></i> Write your answer first</button>
         </div>
         <div id="lstep-quiz-answer" style="display:none">
           <div class="tp-info-card" style="margin-top:10px"><p style="margin:0">${esc(step.q.a)}</p></div>
@@ -9955,8 +10044,15 @@ function renderLstepStep(direction){
   content.innerHTML=`<div class="lstep-panel${direction==='back'?' back-anim':''}">${html}</div>`;
 }
 
+function quizAttemptTyped(ta){
+  const b=document.getElementById('quiz-reveal-btn'); if(!b||b.dataset.done)return;
+  const ok=ta.value.trim().length>=3; b.disabled=!ok; b.style.opacity=ok?'1':'.5';
+  b.innerHTML=ok?'<i class="ti ti-eye"></i> Check against the answer':'<i class="ti ti-eye"></i> Write your answer first';
+}
 function revealQuizStep(){
   document.getElementById('lstep-quiz-answer').style.display='block';
+  const b=document.getElementById('quiz-reveal-btn'); if(b){b.dataset.done='1';b.disabled=true;}
+  const t=document.getElementById('quiz-attempt'); if(t)t.disabled=true;
 }
 function markQuizStep(gotItRight){
   if(lstepState.quizAnswered)return;
@@ -10072,7 +10168,7 @@ function checkQuizOption(){
   s.quizAnswered=true;
   const correctIdx=step.q.correct;
   const gotItRight=s.quizSelected===correctIdx;
-  if(gotItRight)s.quizScore++;
+  if(gotItRight&&!step.extra)s.quizScore++;
   document.querySelectorAll('#lstep-quiz-opts .lstep-quiz-opt').forEach(el=>{
     const oi=parseInt(el.dataset.oi);
     el.onclick=null;
@@ -10167,6 +10263,17 @@ async function completeLstepLesson(){
   if(justFinishedLevel) setTimeout(()=>showLevelCompleteCelebration(justFinishedLevel.name,justFinishedLevel.count,25),450);
 }
 
+function practiceTyped(ta){
+  const b=document.getElementById('practice-reveal-btn'); if(!b||b.dataset.done)return;
+  const ok=ta.value.trim().length>=8;
+  b.disabled=!ok; b.style.opacity=ok?'1':'.5';
+  b.innerHTML=ok?'<i class="ti ti-eye"></i> Compare with model answer':'Write your answer first';
+}
+function practiceReveal(btn){
+  document.getElementById('practice-answer').classList.add('shown');
+  btn.dataset.done='1'; btn.disabled=true; btn.style.opacity='.6'; btn.innerHTML='<i class="ti ti-check"></i> Compare your answer with the model above';
+  const n=document.getElementById('lstep-next-btn'); if(n)n.disabled=false;
+}
 function toggleAnswerReveal(id,btnEl){
   const box=document.getElementById(id);
   if(!box)return;
