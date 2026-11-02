@@ -1485,6 +1485,7 @@ async function afterLogin(){
   renderTodayCard(student);
   renderWeeklyChallengeCard();
   renderCounsellorCard();
+  try{ renderAcademyCard(); }catch(e){}
 }
 function renderDashStats(student){
   if(!student)return;
@@ -8770,6 +8771,677 @@ try{
 }catch(e){}
 })();
 (function(){
+// ---- listen helper (browser / Android text-to-speech) ----
+window.s4pSay=function(t){
+  try{
+    const u=new SpeechSynthesisUtterance(String(t));
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(x=>/en[-_]IN/i.test(x.lang))||vs.find(x=>/en[-_]GB/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));
+    if(v)u.voice=v; u.lang=(v&&v.lang)||'en-GB'; u.rate=.8;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+};
+try{
+  const st=document.createElement('style');
+  st.textContent='.pr-say{display:inline-block;background:#E6F1FB;color:#0C447C;border-radius:99px;padding:2px 10px;margin:2px 3px;font-weight:600;cursor:pointer;font-size:.95em;white-space:nowrap}.pr-say:active{background:#B5D4F4}';
+  document.head.appendChild(st);
+}catch(e){}
+const S=(w,label)=>`<span class="pr-say" onclick="s4pSay('${w.replace(/'/g,"\\'")}')">🔊 ${label||w}</span>`;
+const G=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz,extra)=>Object.assign({
+  id,title,time:'10-15 minutes',objectives:obj,concept,
+  example:'<i>(Original example. Tap 🔊 to hear a word, then say it aloud.)</i><br><br>'+example,
+  vocab,mistakes,practice,practiceAnswer,
+  quiz:quiz.map(([q,options,correct,a])=>({q,options,correct,a}))
+},extra||{});
+
+const M1='Letter Sounds & Phonics', M2='Vowel Sounds', M3='Consonant Sounds', M4='Syllables',
+      M5='Word Stress', M6='Sentence Stress', M7='Intonation', M8='Common Difficulties';
+
+const sk={};
+sk[M1]=[
+G('pr-ph1','Letter Names vs Letter Sounds',
+[`Know the difference between a letter's name and its sound`,`Say consonant sounds short and clean`,`See that some letters have more than one sound`],
+`Every letter has a <b>name</b> (the alphabet song: "bee", "see", "em") and usually a <b>sound</b> (the small noise it makes inside a word). To <b>read</b> a word we use sounds, not names. The word <b>mat</b> is not "em-ay-tee": it is the sounds /m/ + /æ/ + /t/.<br><br>Say consonant sounds <b>short</b>: /b/ is a tiny pop of the lips, not "buh-uh". If you add a long vowel, blending becomes slow ("buh-a-tuh" instead of "bat").<br><br>Some letters have more than one sound. <b>C</b> says /k/ in <i>cat</i> but /s/ in <i>city</i>. <b>G</b> says /g/ in <i>go</i> but /dʒ/ (like j) in <i>gym</i>. English spelling is not as regular as Tamil, so we learn the common patterns.`,
+`${S('cat')} c = /k/ &nbsp; ${S('city')} c = /s/<br>${S('go')} g = /g/ &nbsp; ${S('gym')} g = /dʒ/<br>${S('mat')} m-a-t = /m/ /æ/ /t/<br>Say the sounds quickly together: m-a-t becomes <b>mat</b>.`,
+[[`letter name`,`what we call the letter in the alphabet (bee, see, dee)`],[`letter sound`,`the sound a letter usually makes inside a word`],[`phonics`,`teaching reading through letter sounds`],[`blend`,`to join separate sounds into one word`]],
+[`Saying letter names to read a word ("em-ay-tee" for mat).`,`Adding a long "uh" after consonants ("buh", "tuh").`,`Assuming one letter always has one sound.`,`Reading English spelling with Tamil letter sounds.`],
+`Say the sound (not the name) of each letter, then blend: <b>s-u-n</b>, <b>p-i-n</b>, <b>b-a-t</b>. Which letter in <b>city</b> and <b>cat</b> changes its sound?`,
+`sun, pin, bat. The letter <b>c</b> changes: /s/ in city, /k/ in cat.`,
+[[`To read the word "mat" we use:`,[`the letter names`,`the letter sounds`,`the Tamil letters`,`guessing`],1,`Reading uses sounds blended together.`],
+ [`In "cat" the letter c sounds like:`,[`/k/`,`/s/`,`/ch/`,`/z/`],0,`Before a, o, u the letter c usually says /k/.`],
+ [`In "city" the letter c sounds like:`,[`/k/`,`/s/`,`/ch/`,`/g/`],1,`Before i, e, y the letter c usually says /s/.`]],
+{match:[[`cat`,`c says /k/`],[`city`,`c says /s/`],[`go`,`g says /g/`],[`gym`,`g says /dʒ/ (like j)`]],matchInstruction:`Match each word to the sound of its first letter.`,
+ reorder:[{words:[`We`,`read`,`with`,`letter`,`sounds,`,`not`,`letter`,`names.`],instruction:`Build the sentence.`}]}),
+
+G('pr-ph2','Blending Sounds and Letter Pairs (sh, ch, th, ng)',
+[`Blend three sounds into a word`,`Know that two letters can make one sound`,`Count sounds, not letters`],
+`In a short word like <b>cat</b>, each letter gives one sound: /k/ /æ/ /t/. Blend them smoothly: <b>cat</b>.<br><br>Sometimes <b>two letters make one sound</b>. These are called <b>digraphs</b>: <b>sh</b> /ʃ/ (ship), <b>ch</b> /tʃ/ (chin), <b>th</b> /θ/ or /ð/ (thin, this), <b>ng</b> /ŋ/ (sing), <b>ph</b> /f/ (phone), <b>ck</b> /k/ (back).<br><br>So <b>fish</b> has four letters but only <b>three sounds</b>: /f/ /ɪ/ /ʃ/. Count sounds by listening, not by looking at letters.`,
+`${S('ship')} sh+i+p = 3 sounds<br>${S('chin')} ch+i+n = 3 sounds<br>${S('sing')} s+i+ng = 3 sounds (ng is one sound, no hard g)<br>${S('phone')} ph+o+n+e = /f/ /əʊ/ /n/ (the final e is silent)<br>${S('back')} b+a+ck = 3 sounds`,
+[[`digraph`,`two letters that make one sound (sh, ch, th, ng)`],[`blending`,`joining sounds smoothly to say a word`],[`silent e`,`an e at the end that is not pronounced`],[`sound count`,`the number of separate sounds in a word`]],
+[`Saying sh as /s/ + /h/ ("s-hip").`,`Saying ng with a hard g ("sing-g").`,`Counting letters instead of sounds.`,`Reading ph as /p/ + /h/.`],
+`How many sounds are in: <b>fish</b>, <b>chip</b>, <b>sing</b>, <b>thick</b>? Say each one aloud.`,
+`All four have 3 sounds: f-i-sh, ch-i-p, s-i-ng, th-i-ck.`,
+[[`How many sounds are in "ship"?`,[`2`,`3`,`4`,`5`],1,`sh + i + p = 3 sounds.`],
+ [`The letters "ph" in "phone" sound like:`,[`/p/`,`/h/`,`/f/`,`/b/`],2,`ph is a digraph that says /f/.`],
+ [`The letters "ng" in "sing" make:`,[`n + g separately`,`one sound /ŋ/`,`/j/`,`/ch/`],1,`ng is one sound, with no hard g.`]],
+{match:[[`sh`,`ship`],[`ch`,`chair`],[`ph`,`phone`],[`ng`,`sing`]],matchInstruction:`Match each letter pair to a word that uses its sound.`,
+ reorder:[{words:[`Two`,`letters`,`can`,`make`,`one`,`sound.`],instruction:`Build the sentence.`}]})
+];
+sk[M2]=[
+G('pr-vw1','Short Vowel Sounds',
+[`Say the five short vowel sounds clearly`,`Hear the difference between pairs like pan / pen`,`Read short words correctly`],
+`English has five vowel <i>letters</i> (a, e, i, o, u) but about twenty vowel <i>sounds</i>. Start with the five <b>short</b> ones:<br><b>a</b> /æ/ cat &nbsp; <b>e</b> /e/ pen &nbsp; <b>i</b> /ɪ/ sit &nbsp; <b>o</b> /ɒ/ dog &nbsp; <b>u</b> /ʌ/ cup.<br><br>The short <b>a</b> in <i>cat</i> needs a wide-open mouth with lips slightly spread, not the Tamil-style "a" of <i>amma</i>. The short <b>e</b> in <i>pen</i> is smaller. If you mix them, <i>pan</i> and <i>pen</i>, <i>bat</i> and <i>bet</i> sound the same to a listener.<br><br>Short <b>i</b> is relaxed and quick: <i>sit</i>. Do not stretch it into <i>seat</i>. Short <b>u</b> /ʌ/ is a relaxed middle sound: <i>cup</i>, <i>bus</i>.`,
+`${S('cat')} ${S('pen')} ${S('sit')} ${S('dog')} ${S('cup')}<br><br>Minimal pairs (only the vowel changes):<br>${S('pan')} / ${S('pen')} &nbsp; ${S('bat')} / ${S('bet')} &nbsp; ${S('sit')} / ${S('set')} &nbsp; ${S('cut')} / ${S('cot')}`,
+[[`short vowel`,`a quick vowel sound, as in cat, pen, sit, dog, cup`],[`minimal pair`,`two words that differ by only one sound`],[`vowel sound`,`the sound made with an open mouth and no blocking`],[`relaxed`,`not tense or stretched`]],
+[`Saying "pen" and "pan" the same.`,`Saying the short a in "cat" like the Tamil அ.`,`Making the short i long ("sit" as "seat").`,`Saying the u in "cup" like oo.`],
+`Read these pairs aloud and record yourself: <b>bad / bed</b>, <b>pan / pen</b>, <b>bit / bet</b>, <b>cap / cup</b>. Can you hear the difference?`,
+`You should hear a wider mouth for a-words, a smaller mouth for e-words, and a relaxed middle sound for cup.`,
+[[`Which word has the short /ɪ/ vowel?`,[`seat`,`sit`,`site`,`set`],1,`sit /sɪt/ has the short i.`],
+ [`Which pair differs only in the vowel sound?`,[`pen / pan`,`cat / dog`,`sit / run`,`cup / bag`],0,`pen and pan change only the vowel.`],
+ [`Which word has the /ʌ/ vowel?`,[`cap`,`cop`,`cup`,`cape`],2,`cup /kʌp/.`]],
+{match:[[`cat`,`/æ/`],[`pen`,`/e/`],[`sit`,`/ɪ/`],[`cup`,`/ʌ/`]],matchInstruction:`Match each word to its vowel sound.`,
+ reorder:[{words:[`Put`,`the`,`pen`,`on`,`the`,`mat.`],instruction:`Build the sentence, then say it aloud.`}]}),
+
+G('pr-vw2','Long Vowels and the Magic E',
+[`Hear the long vowel sounds`,`Use the silent e rule to predict a vowel sound`,`Remember common exceptions`],
+`A silent <b>e</b> at the end of a short word often makes the vowel before it <b>say its name</b>:<br>cap → <b>cape</b> &nbsp; bit → <b>bite</b> &nbsp; hop → <b>hope</b> &nbsp; cut → <b>cute</b>.<br><br>The long vowels: <b>a_e</b> /eɪ/ (cake), <b>i_e</b> /aɪ/ (bike), <b>o_e</b> /əʊ/ (home), <b>u_e</b> /juː/ (cute), <b>e_e</b> /iː/ (these).<br><br>Exceptions you must learn as whole words: <b>have, give, live (verb), love, come, some, done, gone</b>. They look like magic-e words but have short vowels.`,
+`${S('tap')} → ${S('tape')}<br>${S('kit')} → ${S('kite')}<br>${S('not')} → ${S('note')}<br>${S('cub')} → ${S('cube')}<br><br>Exceptions: ${S('love')} ${S('give')} ${S('come')} ${S('have')}`,
+[[`long vowel`,`a vowel that says its name (cake, bike, home)`],[`magic e`,`silent e that changes the vowel before it`],[`exception`,`a word that does not follow the rule`],[`silent`,`written but not pronounced`]],
+[`Reading "hope" as "hop".`,`Pronouncing the final e ("tap-eh").`,`Using the magic e rule on "love" and "give".`,`Saying "bite" and "bit" with the same vowel.`],
+`Add a magic e and say both words: <b>pin</b>, <b>cod</b>, <b>mat</b>, <b>rob</b>. Which word below is an exception: <b>time</b>, <b>cake</b>, <b>love</b>?`,
+`pine, code, mate, robe. The exception is <b>love</b> (short /ʌ/).`,
+[[`Adding silent e to "hop" gives:`,[`hop (same)`,`hope`,`hup`,`hoop`],1,`hop + e = hope /həʊp/ with a long o.`],
+ [`Which word is an exception to the magic e rule?`,[`cake`,`time`,`love`,`hope`],2,`love has a short /ʌ/ vowel.`],
+ [`The vowel in "bike" is:`,[`/ɪ/`,`/aɪ/`,`/iː/`,`/æ/`],1,`i_e says /aɪ/.`]],
+{match:[[`cap → cape`,`a becomes /eɪ/`],[`bit → bite`,`i becomes /aɪ/`],[`hop → hope`,`o becomes /əʊ/`],[`cut → cute`,`u becomes /juː/`]],matchInstruction:`Match the word change to the new vowel sound.`,
+ reorder:[{words:[`The`,`silent`,`e`,`changes`,`the`,`vowel.`],instruction:`Build the sentence.`}]}),
+
+G('pr-vw3','Short vs Long: ship / sheep, full / fool',
+[`Hear and say /ɪ/ vs /iː/`,`Hear and say /ʊ/ vs /uː/`,`Avoid mix-ups that change the meaning`],
+`Many learners say one vowel where English has two. The long vowel is <b>longer</b> and the lips are <b>more spread</b> (ee) or <b>more rounded</b> (oo).<br><br><b>/ɪ/ vs /iː/:</b> ship / sheep, sit / seat, live / leave, bin / been.<br><b>/ʊ/ vs /uː/:</b> full / fool, pull / pool, look / Luke.<br><br>Mix-ups can change the message: "I will <b>leave</b> now" is not "I will <b>live</b> now", and <b>beach</b> must not sound like a rude word. Hold the long vowel and keep the short one quick.`,
+`${S('ship')} / ${S('sheep')} &nbsp; ${S('sit')} / ${S('seat')}<br>${S('live')} / ${S('leave')} &nbsp; ${S('full')} / ${S('fool')}<br>${S('pull')} / ${S('pool')}<br><i>Long sounds: hold for about twice as long.</i>`,
+[[`/iː/`,`long ee sound, as in sheep`],[`/ɪ/`,`short i sound, as in ship`],[`/uː/`,`long oo sound, as in pool`],[`/ʊ/`,`short oo sound, as in full`]],
+[`Saying "sheep" and "ship" the same.`,`Saying "beach" with a short vowel.`,`Making "full" long like "fool".`,`Speaking all vowels at the same length.`],
+`Say each pair and record it: <b>sheep / ship</b>, <b>seat / sit</b>, <b>pool / pull</b>. Ask a friend: can they tell which you said?`,
+`The ee and oo words should be clearly longer than the short ones.`,
+[[`Which word has the LONG ee sound?`,[`ship`,`seat`,`sit`,`big`],1,`seat /siːt/.`],
+ [`"Please ___ the room." (go out of it)`,[`live`,`leave`,`lief`,`lieve`],1,`leave /liːv/.`],
+ [`Which word has the short /ʊ/?`,[`pool`,`fool`,`full`,`food`],2,`full /fʊl/.`]],
+{match:[[`ship`,`short /ɪ/`],[`sheep`,`long /iː/`],[`full`,`short /ʊ/`],[`fool`,`long /uː/`]],matchInstruction:`Match each word to its vowel length.`,
+ reorder:[{words:[`I`,`saw`,`a`,`sheep`,`on`,`the`,`ship.`],instruction:`Build the sentence and read it slowly.`}]})
+];
+sk[M3]=[
+G('pr-cs1','Voiced and Voiceless Consonants',
+[`Feel the difference between voiced and voiceless sounds`,`Say p/b, t/d, k/g, f/v, s/z pairs clearly`,`Avoid mixing up words like pen / Ben`],
+`Put two fingers on your throat. Say /z/ and you feel a <b>buzz</b>: it is <b>voiced</b>. Say /s/ and there is no buzz: it is <b>voiceless</b>.<br><br>Pairs (same mouth position, different voice):<br>/p/ - /b/ &nbsp; /t/ - /d/ &nbsp; /k/ - /g/ &nbsp; /f/ - /v/ &nbsp; /s/ - /z/.<br><br>In Tamil, one letter often covers both sounds, so English pairs such as <i>pen / Ben</i>, <i>time / dime</i>, <i>cold / gold</i> can blur. Also, voiceless /p t k/ at the start of a word get a small <b>puff of air</b>: hold a paper in front of your mouth when you say <i>pen</i>; it should move.`,
+`${S('pen')} / ${S('Ben')} &nbsp; ${S('time')} / ${S('dime')}<br>${S('cold')} / ${S('gold')} &nbsp; ${S('fan')} / ${S('van')}<br>${S('sip')} / ${S('zip')}`,
+[[`voiced`,`made with the vocal cords buzzing (b, d, g, v, z)`],[`voiceless`,`made without buzzing (p, t, k, f, s)`],[`puff of air`,`the small breath after p, t, k at the start of a word`],[`pair`,`two sounds with the same mouth position`]],
+[`Saying p and b the same.`,`Saying t and d the same.`,`Forgetting the puff of air on "pen", "time", "cat".`,`Saying v like w or b.`],
+`With a finger on your throat, say: <b>s</b> then <b>z</b>, <b>f</b> then <b>v</b>, <b>p</b> then <b>b</b>. Which ones buzz?`,
+`z, v and b buzz (voiced). s, f and p do not.`,
+[[`Which sound is VOICED?`,[`/p/`,`/t/`,`/b/`,`/s/`],2,`/b/ makes the vocal cords buzz.`],
+ [`The voiced partner of /s/ is:`,[`/z/`,`/f/`,`/k/`,`/t/`],0,`/s/ and /z/ are a pair.`],
+ [`"cap" and "cab" end with sounds that differ in:`,[`voice`,`length of word`,`vowel`,`nothing`],0,`/p/ is voiceless, /b/ is voiced.`]],
+{match:[[`/p/`,`/b/`],[`/t/`,`/d/`],[`/k/`,`/g/`],[`/f/`,`/v/`]],matchInstruction:`Match each voiceless sound to its voiced partner.`,
+ reorder:[{words:[`Ben`,`put`,`the`,`pen`,`in`,`the`,`bag.`],instruction:`Build the sentence and read it with clear p and b sounds.`}]}),
+
+G('pr-cs2','Word Endings: -s and -ed',
+[`Choose /s/, /z/ or /ɪz/ for -s endings`,`Choose /t/, /d/ or /ɪd/ for -ed endings`,`Count syllables correctly in past tense words`],
+`The same spelling can have three sounds.<br><b>-s / -es</b>: /s/ after voiceless sounds (cats, books), /z/ after voiced sounds (dogs, beds, pens), /ɪz/ after s, z, sh, ch, j (buses, watches).<br><b>-ed</b>: /t/ after voiceless sounds (walked, helped, washed), /d/ after voiced sounds (played, cleaned), /ɪd/ after t or d (wanted, needed).<br><br>Only /ɪz/ and /ɪd/ add a syllable. <i>Walked</i> is one syllable, <i>wanted</i> is two.`,
+`${S('cats')} /s/ &nbsp; ${S('dogs')} /z/ &nbsp; ${S('buses')} /ɪz/<br>${S('walked')} /t/ &nbsp; ${S('played')} /d/ &nbsp; ${S('wanted')} /ɪd/`,
+[[`ending`,`the last part of a word`],[`past tense`,`the form that shows something already happened`],[`plural`,`more than one`],[`extra syllable`,`a new beat added to the word`]],
+[`Saying "walked" as "walk-ed" (two syllables).`,`Saying "dogs" with a hard /s/.`,`Leaving the -ed off in speech.`,`Not adding the extra syllable in "wanted".`],
+`Say these and decide the ending sound: <b>looked</b>, <b>opened</b>, <b>needed</b>, <b>books</b>, <b>pens</b>.`,
+`looked /t/, opened /d/, needed /ɪd/, books /s/, pens /z/.`,
+[[`"worked" ends with:`,[`/t/`,`/d/`,`/ɪd/`,`/s/`],0,`work ends in a voiceless /k/, so -ed is /t/.`],
+ [`"dogs" ends with:`,[`/s/`,`/z/`,`/ɪz/`,`/t/`],1,`dog ends in voiced /g/, so -s is /z/.`],
+ [`Which word has TWO syllables?`,[`walked`,`played`,`wanted`,`helped`],2,`wanted /ˈwɒntɪd/ adds the /ɪd/ syllable.`]],
+{match:[[`cats`,`/s/`],[`dogs`,`/z/`],[`walked`,`/t/`],[`wanted`,`/ɪd/`]],matchInstruction:`Match each word to the sound of its ending.`,
+ reorder:[{words:[`She`,`walked`,`and`,`he`,`played.`],instruction:`Build the sentence and say the endings clearly.`}]}),
+
+G('pr-cs3','Silent Letters',
+[`Spot common silent letters`,`Stop saying letters that are not pronounced`,`Learn the most useful silent-letter words`],
+`Some letters are written but not said. Common ones:<br><b>k</b> before n: knife, know, knee<br><b>w</b> before r: write, wrong, wrap<br><b>b</b> after m: climb, comb, thumb<br><b>l</b> in: talk, walk, half<br><b>t</b> in: listen, castle<br><b>h</b> at the start of: hour, honest<br>The good news: you can ignore these letters when you speak.`,
+`${S('knife')} ${S('know')} ${S('write')} ${S('wrong')}<br>${S('climb')} ${S('comb')} ${S('talk')} ${S('hour')}<br>${S('listen')} ${S('honest')}`,
+[[`silent letter`,`a letter you write but do not say`],[`honest`,`telling the truth (the h is silent)`],[`hour`,`60 minutes (the h is silent)`],[`unpronounced`,`not said aloud`]],
+[`Saying the k in "know".`,`Saying "talk" as "tal-k".`,`Saying the h in "hour".`,`Saying "listen" with a clear t.`],
+`Cross out the silent letter and say the word: <b>knee</b>, <b>write</b>, <b>climb</b>, <b>walk</b>, <b>hour</b>.`,
+`<b>k</b>nee, <b>w</b>rite, clim<b>b</b>, wa<b>l</b>k, <b>h</b>our.`,
+[[`Which letter is silent in "knee"?`,[`k`,`n`,`e`,`none`],0,`kn- is said as /n/.`],
+ [`Which word has NO silent letter?`,[`write`,`talk`,`mother`,`climb`],2,`mother has all letters pronounced.`],
+ [`"hour" starts with the sound:`,[`/h/`,`a vowel sound`,`/w/`,`/f/`],1,`The h is silent, so it starts with /aʊ/.`]],
+{match:[[`knife`,`k is silent`],[`write`,`w is silent`],[`climb`,`b is silent`],[`hour`,`h is silent`]],matchInstruction:`Match each word to its silent letter.`,
+ reorder:[{words:[`I`,`know`,`it's`,`an`,`honest`,`hour.`],instruction:`Build the sentence (three silent letters!).`}]})
+];
+sk[M4]=[
+G('pr-sy1','Counting Syllables',
+[`Say what a syllable is`,`Count syllables by listening for vowel sounds`,`Break long words into beats`],
+`A <b>syllable</b> is one beat in a word. Each syllable has one <b>vowel sound</b>. Count <b>sounds</b>, not letters: <i>name</i> has two vowel letters but only one beat.<br><br>A quick method: put your hand under your chin and say the word. Your jaw drops once for each syllable.<br>cat (1) &nbsp; ta-ble (2) &nbsp; ba-na-na (3) &nbsp; ed-u-ca-tion (4) &nbsp; u-ni-ver-si-ty (5).<br><br>Why it matters: if you skip a beat or add one, listeners may not recognise the word.`,
+`${S('name')} = 1 &nbsp; ${S('student')} = 2 (stu-dent)<br>${S('banana')} = 3 &nbsp; ${S('education')} = 4<br>${S('university')} = 5 &nbsp; ${S('Wednesday')} = 2 (Wenz-day)`,
+[[`syllable`,`one beat in a word, built around a vowel sound`],[`beat`,`one pulse of sound`],[`jaw drop`,`the opening of your jaw on a vowel`],[`break a word`,`to split it into syllables`]],
+[`Counting letters instead of beats.`,`Saying "Wednesday" with three beats.`,`Dropping a beat in long words ("edu-cation" in 3).`,`Adding a beat in short words ("school" as "i-school").`],
+`Hand under chin: count the syllables in <b>teacher</b>, <b>important</b>, <b>hospital</b>, <b>strength</b>.`,
+`teacher 2, important 3, hospital 3, strength 1.`,
+[[`How many syllables in "name"?`,[`1`,`2`,`3`,`4`],0,`One vowel sound, so one beat.`],
+ [`How many syllables in "education"?`,[`2`,`3`,`4`,`5`],2,`ed-u-ca-tion = 4.`],
+ [`How many syllables in "student"?`,[`1`,`2`,`3`,`4`],1,`stu-dent = 2.`]],
+{match:[[`name`,`1`],[`student`,`2`],[`banana`,`3`],[`education`,`4`]],matchInstruction:`Match each word to its number of syllables.`,
+ reorder:[{words:[`Every`,`syllable`,`has`,`a`,`vowel`,`sound.`],instruction:`Build the sentence.`}]}),
+
+G('pr-sy2','Clusters: School, Street, Strong',
+[`Say s + consonant clusters without an extra vowel`,`Say end clusters (film, desk, texts) fully`,`Keep the syllable count right`],
+`English starts many words with <b>two or three consonants together</b>: <b>sch</b>ool, <b>st</b>ation, <b>sp</b>eak, <b>str</b>eet, <b>spr</b>ing. A very common habit is to add a small vowel before them ("i-school", "i-station") or inside them ("fi-lum").<br><br>Fix: begin with a long, smooth /s/ and glide into the next sound: <b>sss-kool</b>. For end clusters (film, desk, world, texts) say every consonant lightly, with no extra vowel.<br><br>Remember the syllable count: <i>school</i> is <b>1</b> beat, not 2.`,
+`${S('school')} = 1 &nbsp; ${S('station')} = 2 &nbsp; ${S('speak')} = 1<br>${S('street')} = 1 &nbsp; ${S('spring')} = 1<br>${S('film')} (not "fi-lum") &nbsp; ${S('desk')} &nbsp; ${S('world')}`,
+[[`cluster`,`two or more consonant sounds together`],[`glide`,`to move smoothly from one sound to the next`],[`extra vowel`,`a vowel that is added by mistake`],[`end cluster`,`consonants together at the end of a word`]],
+[`Saying "school" as "i-school".`,`Saying "film" as "fi-lum".`,`Dropping the last consonant of a cluster ("des" for desk).`,`Counting a cluster as two syllables.`],
+`Say slowly then faster: <b>sss-kool</b> to <b>school</b>, <b>sss-teen</b> to <b>stain</b>, <b>sss-pring</b> to <b>spring</b>. Then say <b>film</b>, <b>desk</b> and <b>world</b> with no extra vowel.`,
+`The words should be one smooth beat. If you hear "i" before school or "u" in film, repeat.`,
+[[`How many syllables does "street" have?`,[`1`,`2`,`3`,`4`],0,`str is a cluster; the only vowel is ee.`],
+ [`The correct way to say "film" is:`,[`fi-lum`,`film (one beat)`,`fil-em`,`fi-lm-a`],1,`Say /fɪlm/ with no extra vowel.`],
+ [`To say "school" correctly you should:`,[`add "i" before it`,`start with a smooth /s/ and glide to /k/`,`say sh-cool`,`drop the s`],1,`Glide from /s/ into /kuːl/.`]],
+{match:[[`school`,`1 syllable`],[`station`,`2 syllables`],[`spring`,`1 syllable`],[`strength`,`1 syllable`]],matchInstruction:`Match each cluster word to its syllable count.`,
+ reorder:[{words:[`The`,`students`,`speak`,`at`,`school.`],instruction:`Build the sentence and say it with smooth clusters.`}]})
+];
+sk[M5]=[
+G('pr-ws1','Which Syllable is Strong?',
+[`Find the stressed syllable in a word`,`Use simple rules to predict stress`,`Say stressed syllables louder, longer and higher`],
+`In any word with two or more syllables, <b>one syllable is stressed</b>: it is louder, longer and a little higher. The others are weak and quick.<br><b>TEA</b>-cher, <b>STU</b>-dent, ho-<b>TEL</b>, a-<b>BOUT</b>, com-<b>PU</b>-ter, ba-<b>NA</b>-na.<br><br>Rules of thumb:<br>1) Most 2-syllable <b>nouns and adjectives</b> are stressed on the <b>first</b> syllable (TAble, HAppy).<br>2) Most 2-syllable <b>verbs</b> are stressed on the <b>second</b> (beGIN, reLAX, deCIDE).<br>3) Words ending in <b>-tion / -sion / -ic</b> are stressed on the syllable <b>before</b> the ending (eduCAtion, deCIsion, eCOnomic).<br>Wrong stress can make a word hard to recognise, even if every sound is right.`,
+`${S('teacher','TEAcher')} &nbsp; ${S('hotel','hoTEL')} &nbsp; ${S('banana','baNAna')}<br>${S('education','eduCAtion')} &nbsp; ${S('decision','deCIsion')}<br>${S('begin','beGIN')} &nbsp; ${S('relax','reLAX')}`,
+[[`stress`,`extra force on one syllable`],[`stressed syllable`,`the louder, longer, higher syllable`],[`weak syllable`,`a quick, quiet syllable`],[`rule of thumb`,`a helpful guide that is not always exact`]],
+[`Giving every syllable the same force.`,`Stressing "hotel" on the first syllable.`,`Stressing the ending in "-tion" words.`,`Treating a rule of thumb as a law with no exceptions.`],
+`Mark the stress and say: <b>doctor</b>, <b>about</b>, <b>computer</b>, <b>information</b>, <b>agree</b>.`,
+`DOCtor, aBOUT, comPUter, inforMAtion, aGREE.`,
+[[`Which word is stressed on the SECOND syllable?`,[`teacher`,`table`,`hotel`,`happy`],2,`hoTEL.`],
+ [`In "education" the stress is on:`,[`ED`,`DU`,`CA`,`TION`],2,`eduCAtion: the syllable before -tion.`],
+ [`Most 2-syllable verbs are stressed on the:`,[`first syllable`,`second syllable`,`last letter`,`neither`],1,`beGIN, reLAX, deCIDE.`]],
+{match:[[`teacher`,`1st syllable`],[`hotel`,`2nd syllable`],[`banana`,`2nd syllable`],[`education`,`3rd syllable`]],matchInstruction:`Match each word to its stressed syllable.`,
+ reorder:[{words:[`The`,`strong`,`syllable`,`is`,`louder`,`and`,`longer.`],instruction:`Build the sentence.`}]}),
+
+G('pr-ws2','Same Word, Different Stress: REcord or reCORD?',
+[`Know that stress can change a word's job`,`Use first-syllable stress for nouns and second for verbs`,`Say common noun/verb pairs correctly`],
+`Some two-syllable words are both a noun and a verb. The spelling is the same, but the <b>stress moves</b>:<br><b>REcord</b> (noun: a record) / <b>reCORD</b> (verb: to record)<br><b>PREsent</b> (a gift) / <b>preSENT</b> (to show)<br><b>PROject</b> / <b>proJECT</b> &nbsp; <b>IMport</b> / <b>imPORT</b> &nbsp; <b>INcrease</b> / <b>inCREASE</b>.<br><br>Pattern: noun = first syllable, verb = second. In exams, this is useful in both listening and speaking.`,
+`I need a ${S('record','REcord')} of the class. (noun)<br>Please ${S('record','reCORD')} the lecture. (verb)<br>This is a ${S('present','PREsent')} for you. (noun)<br>I will ${S('present','preSENT')} my project. (verb)`,
+[[`noun`,`a naming word`],[`verb`,`an action word`],[`stress shift`,`when stress moves to change a word's job`],[`present (v)`,`to show or give to an audience`]],
+[`Stressing both forms the same.`,`Saying "preSENT" for a gift.`,`Saying "REcord" for the verb "to record".`,`Thinking the pattern works for every word (it does not).`],
+`Choose the stress and say each sentence: <b>My project is ready. I will project the slides on the screen. There was an increase in sales. Prices increase every year.</b>`,
+`PROject (noun), proJECT (verb), INcrease (noun), inCREASE (verb).`,
+[[`"Please ___ the lecture." (verb)`,[`REcord`,`reCORD`,`recOrd`,`record-ED`],1,`The verb is stressed on the second syllable.`],
+ [`"This is a ___ for you." (gift)`,[`PREsent`,`preSENT`,`prEsent`,`present-ED`],0,`The noun is stressed on the first syllable.`],
+ [`In these pairs, the NOUN usually has stress on the:`,[`first syllable`,`second syllable`,`last syllable`,`no syllable`],0,`REcord, PROject, IMport.`]],
+{match:[[`REcord`,`noun`],[`reCORD`,`verb`],[`IMport`,`noun`],[`imPORT`,`verb`]],matchInstruction:`Match each pronunciation to its job.`,
+ reorder:[{words:[`I`,`will`,`record`,`a`,`record.`],instruction:`Build the sentence (verb first, noun last).`}]})
+];
+sk[M6]=[
+G('pr-ss1','Sentence Stress: Content Words and Function Words',
+[`Tell content words from function words`,`Stress the important words in a sentence`,`Keep a natural rhythm`],
+`In English we do not give every word the same force. We stress the words that carry <b>meaning</b>: nouns, main verbs, adjectives, adverbs, negatives and question words. These are <b>content words</b>.<br>We say the small grammar words quickly and quietly: a, the, of, to, is, and, can, for. These are <b>function words</b>.<br><br>"I <b>WANT</b> to <b>GO</b> to the <b>SHOP</b>." The beats come at roughly the same time, so extra little words squeeze together. This gives English its rhythm. Equal stress on every word sounds robotic and is harder to follow.`,
+`${S('She bought a new phone','She BOUGHT a NEW PHONE.')}<br>${S('I do not like coffee','I do NOT LIKE COFFee.')}<br>${S('Where is the station','WHERE is the STAtion?')}`,
+[[`content word`,`a word with main meaning (noun, verb, adjective, adverb)`],[`function word`,`a small grammar word (a, the, of, to, is)`],[`rhythm`,`the regular pattern of strong and weak beats`],[`squeeze`,`to say quickly and lightly`]],
+[`Stressing every word equally.`,`Stressing "the", "a", "to".`,`Speaking too slowly on small words.`,`Not stressing "not" in a negative sentence.`],
+`Underline the words you would stress: <b>My brother is studying medicine in London.</b> Then say it with the rhythm.`,
+`My BROther is STUdying MEdicine in LONdon. The content words (brother, studying, medicine, London) get the stress.`,
+[[`Which words are usually stressed?`,[`a, the, of`,`nouns and main verbs`,`to, is, and`,`all words equally`],1,`Content words carry the meaning.`],
+ [`In "She bought a new phone" the most stressed words are:`,[`She, a`,`bought, new, phone`,`a, new`,`She, bought`],1,`These are the content words.`],
+ [`"The" in a sentence is usually:`,[`very loud`,`short and weak`,`high pitch`,`always stressed`],1,`It is a function word.`]],
+{match:[[`bought`,`content word`],[`the`,`function word`],[`phone`,`content word`],[`of`,`function word`]],matchInstruction:`Match each word to its type.`,
+ reorder:[{words:[`We`,`stress`,`the`,`words`,`that`,`carry`,`meaning.`],instruction:`Build the sentence.`}]}),
+
+G('pr-ss2','Weak Forms and the Schwa /ə/',
+[`Know the schwa, the most common English sound`,`Use weak forms of small words`,`Understand why fast speech sounds "swallowed"`],
+`The most common vowel in English is the <b>schwa /ə/</b>: a short, lazy "uh". It appears in unstressed syllables: <b>a</b>bout, bana<b>n</b>a (first and last), teach<b>er</b>, <b>the</b> (before consonants).<br><br>Small words have <b>weak forms</b>:<br>to /tə/, of /əv/, and /ən/, can /kən/, for /fə/, was /wəz/.<br>"A cup <b>of</b> tea" is /ə kʌp əv tiː/. But when a word is stressed or at the end of a sentence, the full form returns: "Yes, I <b>CAN</b>." /kæn/.<br><br>Note: <b>can</b> is weak /kən/ ("I can swim"), but <b>can't</b> keeps a full vowel /kɑːnt/, so the listener can hear the difference.`,
+`${S('about')} ${S('banana')} ${S('teacher')}<br>${S('a cup of tea')} &nbsp; ${S('I can swim')} &nbsp; ${S("I can't swim")}`,
+[[`schwa`,`the weak, relaxed vowel /ə/`],[`weak form`,`the short, quiet pronunciation of a function word`],[`full form`,`the clear pronunciation used when a word is stressed`],[`unstressed`,`not stressed, weak`]],
+[`Giving every vowel its full sound ("a-BOUT" with a long first a).`,`Pronouncing "of" as "off" in "cup of tea".`,`Making can and can't sound the same.`,`Saying "to" as "too" in the middle of a sentence.`],
+`Say the phrases with the weak words: <b>a cup of tea</b>, <b>I want to go</b>, <b>bread and butter</b>. Which vowel sound is in the first syllable of <b>about</b>?`,
+`In all of these, the small words are weak with schwa. The first sound in about is the schwa /ə/.`,
+[[`The first sound in "about" is:`,[`/æ/`,`/ə/`,`/eɪ/`,`/ɑː/`],1,`The schwa /ə/.`],
+ [`In "a cup of tea", "of" is usually said as:`,[`/ɒf/`,`/əv/`,`/oʊ/`,`/ɔːf/`],1,`The weak form /əv/.`],
+ [`"I can swim": can is normally:`,[`/kən/`,`/kæn/ loud`,`/keɪn/`,`silent`],0,`Weak form in a statement.`]],
+{match:[[`to`,`/tə/`],[`of`,`/əv/`],[`and`,`/ən/`],[`can`,`/kən/`]],matchInstruction:`Match each word to its weak form.`,
+ reorder:[{words:[`The`,`schwa`,`is`,`the`,`most`,`common`,`sound.`],instruction:`Build the sentence.`}]})
+];
+sk[M7]=[
+G('pr-in1','Intonation: Falling and Rising Tones',
+[`Use a falling tone for statements and wh-questions`,`Use a rising tone for yes/no questions`,`Use the right pattern in lists`],
+`<b>Intonation</b> is the music of speech: the voice goes up and down. The most important movement happens on the last stressed word.<br><br><b>Falling ↘</b>: statements, wh-questions, commands. "I live in Chennai.↘" &nbsp; "Where do you live?↘" &nbsp; "Close the door.↘"<br><b>Rising ↗</b>: yes/no questions. "Do you live here?↗" &nbsp; "Are you ready?↗"<br><b>Lists</b>: rise on each item and fall on the last. "I bought rice↗, milk↗, eggs↗ and bread↘."<br><br>A flat voice sounds bored or unsure and loses marks in speaking exams.`,
+`${S('Do you live here?')} ↗<br>${S('Where do you live?')} ↘<br>${S('I bought rice, milk, eggs and bread')} ↗ ↗ ↗ ↘`,
+[[`intonation`,`the rise and fall of the voice`],[`falling tone`,`the voice goes down at the end`],[`rising tone`,`the voice goes up at the end`],[`flat`,`staying at one pitch`]],
+[`Speaking in a flat voice.`,`Using a rising tone for every question.`,`Falling at every comma in a list.`,`Rising at the end of every statement (it sounds unsure).`],
+`Say with the right tone: <b>"Is it far?"</b>, <b>"Where is the bus stop?"</b>, <b>"I have a pen, a book and a bag."</b>`,
+`Is it far? ↗  Where is the bus stop? ↘  pen ↗, book ↗, bag ↘.`,
+[[`A yes/no question usually ends with a:`,[`falling tone`,`rising tone`,`flat tone`,`whisper`],1,`Do you like tea? ↗`],
+ [`"What is your name?" usually ends with a:`,[`rising tone`,`falling tone`,`laugh`,`flat tone`],1,`Wh-questions usually fall.`],
+ [`In a list, the last item usually has a:`,[`rise`,`fall`,`stop with no tone`,`shout`],1,`The voice falls on the last item.`]],
+{match:[[`Are you ready?`,`rising ↗`],[`Where do you live?`,`falling ↘`],[`I live in Madurai.`,`falling ↘`],[`Tea, coffee, milk...`,`rising on each item`]],matchInstruction:`Match each sentence to its usual tone.`,
+ reorder:[{words:[`Wh-questions`,`usually`,`end`,`with`,`a`,`falling`,`tone.`],instruction:`Build the sentence.`}]}),
+
+G('pr-in2','Intonation Shows Feeling and Attitude',
+[`Hear how tone changes meaning`,`Sound polite and interested`,`Avoid sounding bored or rude by accident`],
+`Words can be neutral, but the tone shows attitude. A <b>wide pitch range</b> (high and low) sounds interested, warm and polite. A <b>narrow, flat</b> range sounds bored or unfriendly.<br><br>"Thanks." (flat) = bored. "Thanks!" (starts high, falls) = grateful.<br>"Really?" rising = surprised. "Really." falling = not convinced.<br>"You are a student, aren't you?" with a rising tone = you are not sure; with a falling tone = you are almost sure and want agreement.<br><br>For polite requests ("Could you help me?"), start a little high and end with a gentle rise. In IELTS and PTE speaking, a lively voice supports your fluency and pronunciation score.`,
+`${S('Thank you so much')} (high, then fall)<br>${S('Could you help me please')} (gentle rise)<br>${S('Really')} ↗ surprised / ${S('Really')} ↘ doubtful`,
+[[`pitch`,`how high or low the voice is`],[`range`,`the distance between high and low pitch`],[`attitude`,`what the speaker feels about something`],[`monotone`,`speaking on one pitch`]],
+[`Using a flat voice in an interview.`,`Using a high, sharp tone for polite requests (it can sound angry).`,`Not changing pitch for new information.`,`Copying a single pattern for every sentence.`],
+`Say "Thank you" three ways: bored, happy, very grateful. Record and listen back. Which one would you use with a teacher?`,
+`The happy or grateful one, with a wide pitch range and a falling end.`,
+[[`A flat, narrow pitch usually sounds:`,[`warm`,`bored`,`polite`,`excited`],1,`A narrow range sounds bored or uninterested.`],
+ [`"Really?" with a rising tone shows:`,[`surprise`,`anger`,`boredom`,`disagreement`],0,`The voice rises with surprise.`],
+ [`For a polite request, the best tone is:`,[`flat`,`sharp and falling`,`a little high with a gentle rise`,`whispered`],2,`This sounds friendly.`]],
+{match:[[`flat voice`,`sounds bored`],[`wide pitch range`,`sounds interested`],[`rising "Really?"`,`surprise`],[`gentle rise on a request`,`polite`]],matchInstruction:`Match each voice pattern to its effect.`,
+ reorder:[{words:[`A`,`lively`,`voice`,`shows`,`interest.`],instruction:`Build the sentence.`}]})
+];
+sk[M8]=[
+G('pr-cd1','V and W',
+[`Make /v/ with teeth on the lip`,`Make /w/ with rounded lips only`,`Tell vine / wine and vest / west apart`],
+`In Tamil one sound is often used for both, so many learners say something in between. English has two clear sounds:<br><b>/v/</b>: upper teeth touch the lower lip, and the voice buzzes. <i>very, voice, visit</i>.<br><b>/w/</b>: lips are rounded like a small circle, <b>no teeth contact</b>. <i>west, water, why</i>.<br><br>Practice: say a long "vvvv" while feeling your lip tickle, then say "ooo" and open into "wwwest". Look in a mirror for the teeth.`,
+`${S('vine')} / ${S('wine')} &nbsp; ${S('vest')} / ${S('west')}<br>${S('very')} ${S('visit')} ${S('water')} ${S('why')}<br>${S('We visited Vellore in November','We visited Vellore in November.')}`,
+[[`/v/`,`teeth on lower lip, voiced`],[`/w/`,`rounded lips, no teeth`],[`rounded`,`shaped like a small circle`],[`tickle`,`the light buzzing feeling on the lip`]],
+[`Using one in-between sound for v and w.`,`Saying "very" like "wery".`,`Saying "wine" like "vine".`,`Letting the teeth touch the lip for w.`],
+`Read aloud and record: <b>very well</b>, <b>vest / west</b>, <b>We have visited seven villages.</b> Check each v for teeth on the lip and each w for round lips.`,
+`v = teeth + lip; w = rounded lips only.`,
+[[`For /v/ the teeth touch:`,[`the tongue`,`the lower lip`,`the roof of the mouth`,`nothing`],1,`Upper teeth on lower lip.`],
+ [`Which word starts with /w/?`,[`very`,`visit`,`west`,`vine`],2,`west /west/.`],
+ [`vest and west differ in:`,[`the first sound`,`the last sound`,`the vowel`,`nothing`],0,`/v/ vs /w/.`]],
+{match:[[`very`,`/v/ teeth on lip`],[`water`,`/w/ rounded lips`],[`visit`,`/v/ teeth on lip`],[`why`,`/w/ rounded lips`]],matchInstruction:`Match each word to its first-sound position.`,
+ reorder:[{words:[`We`,`visited`,`seven`,`villages`,`in`,`November.`],instruction:`Build the sentence and check each v.`}]}),
+
+G('pr-cd2','The TH Sounds',
+[`Make /θ/ (think) and /ð/ (this)`,`Know which words use which sound`,`Stop replacing th with t or d`],
+`There are two th sounds. Both are made with the <b>tip of the tongue lightly between or touching the teeth</b>.<br><b>/θ/ voiceless</b>: <i>think, thank, three, thin, month</i>.<br><b>/ð/ voiced</b>: <i>this, that, the, they, them, mother, with</i>.<br><br>Learners often replace them with /t/ or /d/ (<i>tree</i> for three, <i>dis</i> for this). Fix: keep the tongue forward and let air flow, do not press and stop. For /ð/ add a buzz.<br>Useful pairs: <i>three / tree</i>, <i>thank / tank</i>, <i>then / den</i>, <i>they / day</i>.`,
+`${S('think')} ${S('thank')} ${S('three')} ${S('month')}<br>${S('this')} ${S('that')} ${S('they')} ${S('mother')}<br>${S('three')} / ${S('tree')} &nbsp; ${S('then')} / ${S('den')}`,
+[[`/θ/`,`voiceless th, as in think`],[`/ð/`,`voiced th, as in this`],[`tongue tip`,`the front point of the tongue`],[`air flow`,`air moving through, not stopped`]],
+[`Saying "think" as "tink" or "sink".`,`Saying "this" as "dis".`,`Pressing the tongue so the air stops.`,`Using the voiceless th in "the" and "they".`],
+`Say these with the tongue lightly forward: <b>Thank you, Thursday, this, that, the mother, the three brothers</b>. Which words are voiced?`,
+`Voiced /ð/: this, that, the, mother, brothers. Voiceless /θ/: thank, Thursday, three.`,
+[[`The "th" in "think" is:`,[`voiced /ð/`,`voiceless /θ/`,`/t/`,`/s/`],1,`think = /θɪŋk/.`],
+ [`The "th" in "mother" is:`,[`/θ/`,`/ð/`,`/t/`,`/d/`],1,`mother = /ˈmʌðə/.`],
+ [`To make the th sound, the tongue tip is:`,[`behind the lips`,`lightly between or touching the teeth`,`at the back of the mouth`,`curled up`],1,`Tongue tip forward.`]],
+{match:[[`think`,`/θ/ voiceless`],[`this`,`/ð/ voiced`],[`three`,`/θ/ voiceless`],[`they`,`/ð/ voiced`]],matchInstruction:`Match each word to its th sound.`,
+ reorder:[{words:[`Thank`,`you,`,`that's`,`the`,`third`,`thing.`],instruction:`Build the sentence and check each th.`}]}),
+
+G('pr-cd3','Z, SH / CH, and the Puff of Air',
+[`Say /z/ as a buzz, not /j/`,`Tell /ʃ/ (ship) from /tʃ/ (chip)`,`Add the puff of air to p, t, k`],
+`<b>Z:</b> say a long buzzing "zzz" (like a bee). Words like <i>zoo, zero, easy, busy</i> use /z/ and not /j/ ("joo").<br><b>SH vs CH:</b> /ʃ/ is a continuous hush (<i>ship, share, wash</i>); /tʃ/ starts with a stop and then releases (<i>chip, chair, watch</i>). Pairs: ship/chip, share/chair, wash/watch.<br><b>The puff of air:</b> at the start of a stressed syllable, /p/, /t/, /k/ are followed by a small breath: <i>pen, time, cat</i>. Hold a thin paper in front of your mouth; it should move.`,
+`${S('zoo')} ${S('zero')} ${S('easy')} ${S('busy')}<br>${S('ship')} / ${S('chip')} &nbsp; ${S('share')} / ${S('chair')} &nbsp; ${S('wash')} / ${S('watch')}<br>${S('pen')} ${S('time')} ${S('cat')}`,
+[[`/z/`,`a buzzing s, as in zoo`],[`/ʃ/`,`the hush sound sh, as in ship`],[`/tʃ/`,`the ch sound, as in chip`],[`aspiration`,`the small puff of air after p, t, k`]],
+[`Saying "zoo" as "joo".`,`Saying "chip" and "ship" the same.`,`No puff of air on pen, time, cat.`,`Saying "watch" as "wash".`],
+`Say each pair clearly: <b>ship / chip</b>, <b>wash / watch</b>, and <b>pen, time, cat</b> with a paper in front of your mouth.`,
+`Ship has a continuous hush, chip starts with a stop; the paper should move on pen, time and cat.`,
+[[`Which word starts with a buzzing /z/?`,[`ship`,`zoo`,`chair`,`pen`],1,`zoo /zuː/.`],
+ [`"watch" ends with:`,[`/ʃ/`,`/tʃ/`,`/s/`,`/z/`],1,`watch /wɒtʃ/.`],
+ [`The puff of air happens after:`,[`m, n`,`p, t, k`,`l, r`,`s, z`],1,`p, t, k at the start of a stressed syllable.`]],
+{match:[[`ship`,`/ʃ/`],[`chip`,`/tʃ/`],[`zoo`,`/z/`],[`pen`,`/p/ with puff of air`]],matchInstruction:`Match each word to its sound.`,
+ reorder:[{words:[`She`,`watched`,`the`,`ship`,`at`,`the`,`zoo.`],instruction:`Build the sentence and check each sound.`}]}),
+
+G('pr-cd4','Your Pronunciation Check-up (Record Yourself)',
+[`Record yourself and check your own pronunciation`,`Use a checklist to find your three weakest areas`,`Make a short weekly practice plan`],
+`The fastest way to improve is to <b>record, listen, fix, repeat</b>. Record yourself reading this text for 30 seconds:<br><i>"My name is ____. I live in ____. I am a student. I think this is a very good week. We visited a zoo, and we watched the ships. I want to speak English clearly."</i><br><br>Then tick your checklist:<br>1) Short and long vowels (ship / sheep)<br>2) v / w &nbsp; 3) th &nbsp; 4) word endings (-s, -ed)<br>5) syllable count (school, film) &nbsp; 6) word stress (hoTEL)<br>7) sentence stress and weak words &nbsp; 8) falling and rising tones<br>Choose the <b>3 worst</b>. Practise 10 minutes a day on these only, and re-record on Sunday. You can also practise with Spark, the speaking partner.`,
+`Weekly plan:<br>Mon-Wed: 10 minutes on weak area 1.<br>Thu-Fri: weak area 2 and 3.<br>Sat: read the text aloud again.<br>Sun: record and compare with last week.`,
+[[`checklist`,`a list used to check things one by one`],[`record`,`to save your voice to listen later`],[`weak area`,`a skill you need to improve most`],[`compare`,`to look at two things and find differences`]],
+[`Practising everything at once.`,`Only listening to your own voice once.`,`Practising without recording.`,`Giving up after one week.`],
+`Do it now: record the text above, tick the checklist, and write down your three weakest areas. Share the recording with your teacher or with Spark.`,
+`Any three honest areas. The goal is to choose, not to be perfect.`,
+[[`The best way to improve pronunciation is to:`,[`read silently`,`record, listen, fix, repeat`,`only study rules`,`avoid speaking`],1,`Feedback comes from listening to yourself.`],
+ [`How many weak areas should you focus on at first?`,[`1 only`,`about 3`,`all 20`,`none`],1,`Three is manageable.`],
+ [`How often should you re-record?`,[`never`,`weekly`,`once a year`,`only before exams`],1,`A weekly comparison shows progress.`]],
+{match:[[`record`,`save your voice`],[`checklist`,`list to tick off`],[`weak area`,`skill to improve`],[`compare`,`find differences`]],matchInstruction:`Match each word to its meaning.`,
+ reorder:[{words:[`Record,`,`listen,`,`fix`,`and`,`repeat.`],instruction:`Build the sentence.`}]})
+];
+
+const modules=[M1,M2,M3,M4,M5,M6,M7,M8];
+let n=0; modules.forEach(m=>n+=sk[m].length);
+const sec=(m,d)=>[m,sk[m].length+' lessons',d];
+const P={
+  name:'Pronunciation Programme', ready:true,
+  stats:[[String(n),'Lessons'],[String(modules.length),'Topic areas'],['Free','Runs alongside Grammar']],
+  info:{
+    why:[
+      ['🔊','Say It So People Understand','Good grammar is lost if listeners cannot recognise your words. These lessons train the sounds, stress and tune that decide whether you are understood.'],
+      ['🎯','Built for Tamil and Indian English Speakers','Each topic names the mix-ups we hear most: p/b, v/w, th, extra vowels in school and film, wrong word stress, and flat intonation.'],
+      ['🎤','Listen, Say, Record','Every lesson has 🔊 buttons to hear the words, a speaking task, and a try-first quiz. Recording yourself and practising with Spark turns the lessons into habits.'],
+    ],
+    sections:[
+      sec(M1,'Letter names vs letter sounds, blending and letter pairs such as sh, ch, th and ng.'),
+      sec(M2,'Short vowels, long vowels with the magic e, and short vs long pairs like ship / sheep.'),
+      sec(M3,'Voiced and voiceless pairs, the endings of -s and -ed words, and silent letters.'),
+      sec(M4,'Counting syllables and saying consonant clusters (school, street, film) without extra vowels.'),
+      sec(M5,'Finding the strong syllable and how stress changes noun and verb pairs.'),
+      sec(M6,'Content and function words, rhythm, the schwa and weak forms.'),
+      sec(M7,'Falling and rising tones, and how pitch shows feeling.'),
+      sec(M8,'v/w, th, z, sh/ch, the puff of air, and a self-recording check-up.'),
+    ],
+    mistakes:[
+      ['1','Studying rules without speaking','Pronunciation is a physical skill. Say every example aloud, and record yourself weekly.'],
+      ['2','Practising only sounds, never stress and tune','Wrong stress and a flat voice reduce understanding more than a slightly different vowel. Do Word Stress, Sentence Stress and Intonation early.'],
+      ['3','Trying to copy a perfect accent','The goal is clear, easy-to-understand English, not a foreign accent. Aim for clarity.'],
+    ],
+  },
+  coaching:[
+    ['🎤','Practise with Spark','After each lesson, tell Spark about your day for two minutes, using the new sounds.'],
+    ['🗣️','Ask Your Counsellor','If one sound is still hard after a lesson, your counsellor can listen to a recording and guide you directly.'],
+  ],
+  modules, gettingStarted:[],
+  levels:[{key:'core',name:'Pronunciation Foundations',band:'Start with Letter Sounds. No prior knowledge needed.',skills:sk}]
+};
+const TD=window.TEST_DATA||(typeof TEST_DATA!=='undefined'?TEST_DATA:null);
+if(!TD)return;
+TD.Pronunciation=P;
+// put Pronunciation right after Grammar in the track list
+try{
+  const keys=Object.keys(TD), gi=keys.indexOf('Grammar');
+  if(gi>=0){
+    const after=keys.slice(gi+1).filter(k=>k!=='Pronunciation');
+    after.forEach(k=>{const v=TD[k];delete TD[k];TD[k]=v;});
+    // Pronunciation was added last; move it before the others
+    const v=TD.Pronunciation; delete TD.Pronunciation;
+    const rest={}; after.forEach(k=>{rest[k]=TD[k];delete TD[k];});
+    TD.Pronunciation=v; after.forEach(k=>{TD[k]=rest[k];});
+  }
+}catch(e){}
+try{ if(typeof TEST_ICONS!=='undefined')TEST_ICONS.Pronunciation='🔊'; }catch(e){}
+})();
+
+(function(){
+/* ============================================================
+   English Academy: placement test + student progress dashboard
+   Placement result and quiz scores are kept in this browser
+   (localStorage) per signed-in student. No database change needed.
+   ============================================================ */
+const LS=(k,v)=>{ try{ if(v===undefined){const r=localStorage.getItem(k);return r?JSON.parse(r):null;} localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } };
+const uid=()=>{ try{ return (typeof currentSession!=='undefined'&&currentSession&&currentSession.user&&currentSession.user.id)||'guest'; }catch(e){ return 'guest'; } };
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- levels ----------
+const LEVELS=[
+ {n:0,name:'Level 0',title:'Foundations',cefr:'Pre-A1',desc:'Start from the alphabet, letter sounds and your first words.',gram:'Parts of Speech',pron:'Letter Sounds & Phonics'},
+ {n:1,name:'Level 1',title:'Beginner English',cefr:'A1',desc:'You know some words. Build simple sentences with nouns, verbs, is/am/are and questions.',gram:'Parts of Speech',pron:'Vowel Sounds'},
+ {n:2,name:'Level 2',title:'Elementary English',cefr:'A2',desc:'You can make simple sentences. Next: tenses, comparisons and everyday accuracy.',gram:'Tenses & Agreement',pron:'Word Stress'},
+ {n:3,name:'Level 3',title:'Intermediate English',cefr:'B1',desc:'You handle everyday English. Next: conditionals, passive, modal verbs and longer sentences.',gram:'Beyond the Basics',pron:'Sentence Stress'},
+ {n:4,name:'Level 4',title:'Upper-Intermediate English',cefr:'B2',desc:'Strong base. Focus on idioms, collocations, style and exam skills (IELTS, TOEFL, PTE).',gram:'Words & Idioms',pron:'Intonation'}
+];
+const levelFor=score=> score<=5?0 : score<=10?1 : score<=14?2 : score<=18?3 : 4;
+
+// ---------- 20 diagnostic questions ----------
+// band: 0 = foundations, 1 = A1, 2 = A2, 3 = B1. "I don't know" counts as wrong (it stops lucky guessing).
+const Q=(band,q,o,c,a)=>({band,q,o,c,a});
+const PQ=[
+ Q(0,`Which of these letters is a vowel?`,[`B`,`E`,`T`,`M`],1,`A, E, I, O, U are the five vowel letters.`),
+ Q(0,`Which word is a naming word (a noun)?`,[`run`,`book`,`quickly`,`happy`],1,`A noun names a person, place or thing: book.`),
+ Q(0,`I have ___ apple.`,[`a`,`an`,`two`,`many`],1,`Use "an" before a vowel sound: an apple.`),
+ Q(0,`Which word rhymes with "cat"?`,[`cut`,`hat`,`kit`,`cot`],1,`cat and hat share the same ending sound /æt/.`),
+ Q(0,`Choose the correct sentence.`,[`Rice eat I.`,`I eat rice.`,`Eat rice I.`,`Rice I eat.`],1,`English order is Subject + Verb + Object.`),
+ Q(1,`She ___ a teacher.`,[`am`,`is`,`are`,`be`],1,`She goes with "is".`),
+ Q(1,`He ___ two brothers.`,[`have`,`has`,`haves`,`having`],1,`He/she/it uses "has".`),
+ Q(1,`What is the plural of "child"?`,[`childs`,`childes`,`children`,`childrens`],2,`Child is irregular: children.`),
+ Q(1,`They ___ play cricket on Sundays.`,[`do not`,`does not`,`is not`,`are not`],0,`With "they" and a base verb we use "do not".`),
+ Q(1,`"___ do you live?" "I live in Madurai."`,[`What`,`Where`,`Who`,`Why`],1,`The answer is a place, so the question word is Where.`),
+ Q(2,`Yesterday I ___ to the market.`,[`go`,`goes`,`went`,`going`],2,`The past tense of go is went.`),
+ Q(2,`She is ___ than her sister.`,[`tall`,`taller`,`tallest`,`more tall`],1,`Use the comparative: taller than.`),
+ Q(2,`Look! The children ___ in the garden.`,[`play`,`plays`,`are playing`,`played`],2,`"Look!" shows something happening now: present continuous.`),
+ Q(2,`Which word has the stress on the SECOND syllable?`,[`teacher`,`table`,`hotel`,`happy`],2,`ho-TEL. Most two-syllable nouns are stressed on the first syllable, but hotel is on the second.`),
+ Q(2,`There isn't ___ milk in the fridge.`,[`many`,`much`,`a few`,`several`],1,`Milk is uncountable, so use "much" in negatives.`),
+ Q(3,`I ___ in Chennai since 2020.`,[`live`,`lived`,`have lived`,`am living`],2,`"Since" with a period up to now needs the present perfect.`),
+ Q(3,`If it rains tomorrow, we ___ at home.`,[`stay`,`will stay`,`would stay`,`stayed`],1,`First conditional: if + present, will + verb.`),
+ Q(3,`English ___ in many countries.`,[`speaks`,`is spoken`,`is speaking`,`spoke`],1,`Passive voice: is spoken.`),
+ Q(3,`The woman ___ lives next door is a doctor.`,[`which`,`who`,`whose`,`what`],1,`Use "who" for people as the subject of a relative clause.`),
+ Q(3,`If I ___ more time, I would learn French.`,[`have`,`had`,`will have`,`would have`],1,`Second conditional: if + past simple, would + verb.`)
+];
+const BAND_NAMES=['Foundations','Beginner (A1)','Elementary (A2)','Intermediate (B1)'];
+
+// ---------- state ----------
+let st={i:0,ans:[]};
+const pkey=()=>'s4p_placement_v1_'+uid();
+const getP=()=>LS(pkey());
+
+// ---------- DOM ----------
+function ensureDom(){
+  if(!document.getElementById('academy-style')){
+    const s=document.createElement('style'); s.id='academy-style';
+    s.textContent=`
+    .ac-card{background:var(--paper,#fff);border:1px solid var(--line,#E6DDCC);border-radius:18px;padding:18px 18px 16px;margin:0 0 26px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+    .ac-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .ac-eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3,#777);font-weight:700}
+    .ac-level{font-family:var(--font-h,inherit);font-size:19px;font-weight:700;color:var(--pine,#1C3F6E);margin:2px 0 6px}
+    .ac-pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--sage-l,#E5EEE2);color:var(--sage,#357A2D)}
+    .ac-pct{font-family:var(--font-h,inherit);font-size:34px;font-weight:800;color:var(--pine,#1C3F6E);line-height:1}
+    .ac-pct small{display:block;font-size:11px;font-weight:600;color:var(--ink3,#777);margin-top:4px;text-align:right}
+    .ac-bar{height:8px;background:var(--line,#E6DDCC);border-radius:99px;overflow:hidden;margin:14px 0}
+    .ac-bar>div{height:100%;background:var(--pine3,#E08429);border-radius:99px;transition:width .5s}
+    .ac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+    .ac-stat{background:var(--cream,#F6F3EC);border-radius:12px;padding:10px 6px;text-align:center}
+    .ac-stat b{display:block;font-size:19px;color:var(--ink,#222)}
+    .ac-stat span{font-size:11.5px;color:var(--ink3,#777)}
+    .ac-next{display:flex;align-items:center;gap:12px;border:1px solid var(--line,#E6DDCC);border-radius:12px;padding:12px;cursor:pointer;margin-top:8px}
+    .ac-next .t{flex:1;min-width:0}
+    .ac-next .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3,#777);font-weight:700}
+    .ac-next .n{font-size:15px;font-weight:700;color:var(--ink,#222)}
+    .ac-next .a{font-size:12.5px;color:var(--sage,#357A2D);font-weight:600}
+    .ac-link{font-size:13px;color:var(--pine,#1C3F6E);font-weight:600;cursor:pointer;margin-top:10px;display:inline-block}
+    @media(max-width:520px){.ac-grid{grid-template-columns:repeat(2,1fr)}}
+    .pt-wrap{max-width:640px;margin:0 auto;padding:6px 2px 30px}
+    .pt-h{font-family:var(--font-h,inherit);font-size:24px;font-weight:700;color:var(--pine,#1C3F6E);margin:0 0 6px}
+    .pt-p{color:var(--ink2,#444);line-height:1.55;font-size:15px}
+    .pt-box{background:var(--paper,#fff);border:1px solid var(--line,#E6DDCC);border-radius:16px;padding:18px;margin:14px 0}
+    .pt-prog{height:6px;background:var(--line,#E6DDCC);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+    .pt-prog>div{height:100%;background:var(--pine3,#E08429)}
+    .pt-q{font-size:18px;font-weight:600;line-height:1.4;margin:6px 0 14px;color:var(--ink,#222)}
+    .pt-opt{display:block;width:100%;text-align:left;background:var(--paper,#fff);border:1.5px solid var(--line2,#D9CCAF);border-radius:12px;padding:13px 14px;margin:8px 0;font-size:16px;cursor:pointer;color:var(--ink,#222)}
+    .pt-opt:active{background:var(--cream,#F6F3EC)}
+    .pt-opt.idk{border-style:dashed;color:var(--ink3,#777);font-size:14.5px}
+    .pt-btn{background:var(--pine,#1C3F6E);color:#fff;border:0;border-radius:12px;padding:13px 20px;font-size:16px;font-weight:700;cursor:pointer}
+    .pt-btn.alt{background:var(--paper,#fff);color:var(--pine,#1C3F6E);border:1.5px solid var(--pine,#1C3F6E)}
+    .pt-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .pt-band{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px}
+    .pt-band .l{width:130px;color:var(--ink2,#444)}
+    .pt-band .b{flex:1;height:9px;background:var(--line,#E6DDCC);border-radius:99px;overflow:hidden}
+    .pt-band .b>div{height:100%;background:var(--pine,#1C3F6E)}
+    .pt-band .v{width:36px;text-align:right;font-weight:700}
+    .pt-rev{border-top:1px solid var(--line,#E6DDCC);padding:10px 0;font-size:14.5px}
+    .pt-ok{color:var(--sage,#357A2D);font-weight:700}.pt-no{color:#B3261E;font-weight:700}
+    `;
+    document.head.appendChild(s);
+  }
+  if(!document.getElementById('screen-placement')){
+    const dash=document.getElementById('screen-dashboard');
+    if(dash&&dash.parentNode){
+      const d=document.createElement('div'); d.className='screen'; d.id='screen-placement';
+      d.innerHTML='<span class="back-link" onclick="showScreen(\'screen-dashboard\')">← Back to dashboard</span><div id="placement-body" class="pt-wrap"></div>';
+      dash.parentNode.insertBefore(d,dash.nextSibling);
+    }
+  }
+  if(!document.getElementById('academy-card')){
+    const dash=document.getElementById('screen-dashboard');
+    const first=dash&&dash.querySelector('.nav-section');
+    if(first){ const c=document.createElement('div'); c.id='academy-card'; first.parentNode.insertBefore(c,first); }
+  }
+}
+
+// ---------- placement flow ----------
+function body(h){ document.getElementById('placement-body').innerHTML=h; }
+window.openPlacement=function(){
+  try{ if(typeof requireRealLogin==='function'&&!requireRealLogin())return; }catch(e){}
+  ensureDom();
+  showScreen('screen-placement');
+  const p=getP();
+  if(p)return renderResult(p,false);
+  renderIntro();
+};
+function renderIntro(){
+  body(`<h1 class="pt-h">English Placement Test</h1>
+  <p class="pt-p">20 short questions, about 10 minutes. We use your answers to find the right starting level, so you do not repeat what you already know and you do not start too high.</p>
+  <div class="pt-box"><p class="pt-p" style="margin:0">
+  • Questions start easy and get harder.<br>• If you do not know, tap <b>I don't know</b>. Please do not guess, it gives a more accurate level.<br>• You will see explanations at the end. There is no pass or fail.</p></div>
+  <div class="pt-row"><button class="pt-btn" onclick="ptStart()">Start the test</button></div>`);
+}
+window.ptStart=function(){ st={i:0,ans:[]}; renderQ(); };
+function renderQ(){
+  const q=PQ[st.i];
+  body(`<div style="font-size:13px;color:var(--ink3,#777);font-weight:600">Question ${st.i+1} of ${PQ.length}</div>
+  <div class="pt-prog"><div style="width:${Math.round(st.i/PQ.length*100)}%"></div></div>
+  <div class="pt-q">${E(q.q)}</div>
+  ${q.o.map((o,j)=>`<button class="pt-opt" onclick="ptAnswer(${j})">${E(o)}</button>`).join('')}
+  <button class="pt-opt idk" onclick="ptAnswer(-1)">I don't know</button>`);
+}
+window.ptAnswer=function(j){
+  st.ans[st.i]=j; st.i++;
+  if(st.i<PQ.length)return renderQ();
+  finish();
+};
+function finish(){
+  const score=PQ.reduce((n,q,i)=>n+(st.ans[i]===q.c?1:0),0);
+  const bands=[0,1,2,3].map(b=>({b,right:PQ.filter((q,i)=>q.band===b&&st.ans[i]===q.c).length,total:PQ.filter(q=>q.band===b).length}));
+  const res={score,level:levelFor(score),bands,ans:st.ans.slice(),date:new Date().toISOString()};
+  LS(pkey(),res);
+  renderResult(res,true);
+  try{ renderAcademyCard(); }catch(e){}
+}
+function renderResult(p,justFinished){
+  const L=LEVELS[p.level];
+  body(`<div class="pt-eyebrow" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3,#777);font-weight:700">${justFinished?'Your result':'Your last result'}</div>
+  <h1 class="pt-h">${E(L.name)} · ${E(L.title)}</h1>
+  <p class="pt-p"><b>${p.score} / ${PQ.length}</b> correct &nbsp;·&nbsp; about ${E(L.cefr)}<br>${E(L.desc)}</p>
+  <div class="pt-box">
+    ${p.bands.map(x=>`<div class="pt-band"><div class="l">${E(BAND_NAMES[x.b])}</div><div class="b"><div style="width:${x.total?Math.round(x.right/x.total*100):0}%"></div></div><div class="v">${x.right}/${x.total}</div></div>`).join('')}
+  </div>
+  <div class="pt-box">
+    <div style="font-weight:700;margin-bottom:6px">Where to start</div>
+    <p class="pt-p" style="margin:0 0 10px">Grammar: <b>${E(L.gram)}</b><br>Pronunciation: <b>${E(L.pron)}</b>${p.level===0?'<br><span style="color:var(--ink3,#777)">Level 0: do the Pronunciation letter sounds first.</span>':''}</p>
+    <div class="pt-row">
+      <button class="pt-btn" onclick="s4pGoTrack('Grammar','${E(L.gram).replace(/&amp;/g,'&')}')">Start Grammar</button>
+      <button class="pt-btn alt" onclick="s4pGoTrack('Pronunciation','${E(L.pron).replace(/&amp;/g,'&')}')">Start Pronunciation</button>
+    </div>
+  </div>
+  <p class="pt-p" style="font-size:13.5px;color:var(--ink3,#777)">This test gives an estimate. You can open any lesson at any time, and your counsellor can adjust your level after speaking with you.</p>
+  <div class="pt-row">
+    <button class="pt-btn alt" onclick="ptReview()">Review my answers</button>
+    <button class="pt-btn alt" onclick="ptRetake()">Retake the test</button>
+  </div>
+  <div id="pt-review"></div>`);
+}
+window.ptReview=function(){
+  const p=getP(); if(!p)return;
+  document.getElementById('pt-review').innerHTML=`<div class="pt-box" style="margin-top:14px">`+PQ.map((q,i)=>{
+    const a=p.ans[i], ok=a===q.c;
+    return `<div class="pt-rev"><div><b>${i+1}.</b> ${E(q.q)}</div>
+    <div>${ok?'<span class="pt-ok">✓ Correct</span>':'<span class="pt-no">✗ '+(a>=0?'Your answer: '+E(q.o[a]):'Skipped')+'</span>'} &nbsp; Answer: <b>${E(q.o[q.c])}</b></div>
+    <div style="color:var(--ink3,#777);font-size:13.5px">${E(q.a)}</div></div>`;
+  }).join('')+`</div>`;
+};
+window.ptRetake=function(){
+  if(!confirm('Retake the test? Your new result will replace the old one.'))return;
+  renderIntro();
+};
+
+// ---------- jump into a track ----------
+window.s4pGoTrack=async function(test,moduleName){
+  try{
+    showScreen('screen-testprep');
+    await loadAllTpProgress();
+    openTestDetail(test);
+    setTpSubtab('lessons');
+    openLevelView('core');
+    // scroll to the recommended topic area
+    setTimeout(()=>{
+      const el=document.getElementById('tp-subtab-content'); if(!el)return;
+      const hit=[...el.querySelectorAll('div')].find(d=>d.children.length===0&&d.textContent.trim()===moduleName);
+      if(hit)hit.scrollIntoView({block:'start',behavior:'smooth'});
+    },80);
+  }catch(e){ console.warn('go track failed',e); }
+};
+
+// ---------- quiz score memory (called when a lesson is completed) ----------
+window.s4pRecordScore=function(test,id,s,t){
+  if(!t)return;
+  const k='s4p_scores_v1_'+uid(); const all=LS(k)||{};
+  all[test+'/'+id]={s:s,t:t};
+  LS(k,all);
+};
+
+// ---------- dashboard card ----------
+function trackLessons(test){
+  const T=TEST_DATA[test]; if(!T)return [];
+  const out=[];
+  (T.gettingStarted||[]).forEach(l=>out.push({l,mod:null,src:'gs'}));
+  const lvl=(T.levels||[])[0]; if(!lvl)return out;
+  (T.modules||Object.keys(lvl.skills)).forEach(m=>(lvl.skills[m]||[]).forEach(l=>out.push({l,mod:m,src:'level',lvl:lvl.key})));
+  return out;
+}
+function nextIn(test,startModule){
+  const list=trackLessons(test); const done=(tpProgressCache[test]||{});
+  let from=0;
+  if(startModule){ const i=list.findIndex(x=>x.mod===startModule); if(i>=0)from=i; }
+  return list.slice(from).find(x=>!done[x.l.id]) || list.find(x=>!done[x.l.id]) || null;
+}
+window.s4pOpenNext=function(test,id){
+  try{
+    const x=trackLessons(test).find(y=>y.l.id===id); if(!x)return;
+    currentTpTest=test;
+    showScreen('screen-testprep');
+    document.getElementById('tp-select-view').style.display='none';
+    document.getElementById('tp-detail-view').style.display='block';
+    document.getElementById('tp-detail-title').textContent=TEST_DATA[test].name;
+    if(x.src==='gs')openLessonView('gs',x.l.id);
+    else openLessonView('level',x.lvl,x.mod,x.l.id);
+  }catch(e){ console.warn('open next failed',e); }
+};
+let cardBusy=false;
+window.renderAcademyCard=async function(){
+  if(cardBusy)return;
+  ensureDom();
+  const host=document.getElementById('academy-card'); if(!host)return;
+  if(typeof currentSession==='undefined'||!currentSession){ host.innerHTML=''; return; }
+  cardBusy=true;
+  try{
+    try{ await loadAllTpProgress(); }catch(e){}
+    const tracks=['Grammar','Pronunciation'].filter(k=>TEST_DATA[k]);
+    let total=0,done=0;
+    tracks.forEach(t=>trackLessons(t).forEach(x=>{ total++; if((tpProgressCache[t]||{})[x.l.id])done++; }));
+    const pct=total?Math.round(done/total*100):0;
+    const sc=LS('s4p_scores_v1_'+uid())||{}; const vals=Object.values(sc).filter(v=>v.t>0);
+    const avg=vals.length?Math.round(vals.reduce((n,v)=>n+v.s/v.t,0)/vals.length*100)+'%':'—';
+    let words='—', talks='—';
+    try{
+      let cache=(typeof vocabProgressCache!=='undefined'&&Object.keys(vocabProgressCache).length)?vocabProgressCache:await loadVocabProgress();
+      words=Object.values(cache||{}).filter(r=>r.box>=2).length;
+    }catch(e){}
+    try{
+      const r=await sb.from('speaking_sessions').select('id',{count:'exact',head:true}).eq('student_id',currentSession.user.id);
+      if(typeof r.count==='number')talks=r.count;
+    }catch(e){}
+    const p=getP(); const L=p?LEVELS[p.level]:null;
+    const g=nextIn('Grammar',L&&L.gram), pr=nextIn('Pronunciation',L&&L.pron);
+    const status=pct>=100?'Completed':pct>0?'In progress':'Not started';
+    host.innerHTML=`<div class="ac-card">
+      <div class="ac-top">
+        <div>
+          <div class="ac-eyebrow">English Academy · My progress</div>
+          <div class="ac-level">${L?E(L.name)+' · '+E(L.title):'Find your level'}</div>
+          <span class="ac-pill">${status}</span>
+        </div>
+        <div class="ac-pct">${pct}%<small>Overall progress</small></div>
+      </div>
+      <div class="ac-bar"><div style="width:${pct}%"></div></div>
+      <div class="ac-grid">
+        <div class="ac-stat"><b>${done}/${total}</b><span>Lessons completed</span></div>
+        <div class="ac-stat"><b>${avg}</b><span>Average quiz score</span></div>
+        <div class="ac-stat"><b>${words}</b><span>Words learned</span></div>
+        <div class="ac-stat"><b>${talks}</b><span>Speaking activities</span></div>
+      </div>
+      ${g?`<div class="ac-next" onclick="s4pOpenNext('Grammar','${g.l.id}')"><div class="t"><div class="k">Next lesson · Grammar</div><div class="n">${E(g.l.title)}</div><div class="a">Available to continue</div></div><div style="font-size:20px;color:var(--ink3,#777)">›</div></div>`:''}
+      ${pr?`<div class="ac-next" onclick="s4pOpenNext('Pronunciation','${pr.l.id}')"><div class="t"><div class="k">Next lesson · Pronunciation</div><div class="n">${E(pr.l.title)}</div><div class="a">Available to continue</div></div><div style="font-size:20px;color:var(--ink3,#777)">›</div></div>`:''}
+      <span class="ac-link" onclick="openPlacement()">${p?'View or retake my placement test →':'Take the 20-question placement test →'}</span>
+    </div>`;
+  }catch(e){ console.warn('academy card',e); }
+  finally{ cardBusy=false; }
+};
+
+// refresh the card whenever the dashboard is shown
+try{
+  const _ss=showScreen;
+  showScreen=function(id){ _ss(id); if(id==='screen-dashboard'){ try{ renderAcademyCard(); }catch(e){} } };
+}catch(e){}
+})();
+
+(function(){
 const L=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz)=>({
   id,title,time:'15-20 minutes',objectives:obj,concept,
   example:'<i>(Original scenario — not from a real IELTS test)</i><br><br>'+example,
@@ -9549,7 +10221,7 @@ function openTestPrep(){
   document.getElementById('tp-detail-view').style.display='none';
   renderTpGrid();
 }
-const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘' };
+const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘', Pronunciation: '🔊' };
 
 /* ============================================================
    VISA ASSISTANCE — general, non-legal-advice guidance per
@@ -11192,6 +11864,7 @@ async function completeLstepLesson(){
     if(myGeneration!==lstepGeneration)return;
     if(!tpProgressCache[currentTpTest])tpProgressCache[currentTpTest]={};
     tpProgressCache[currentTpTest][lesson.id]=true;
+    try{ s4pRecordScore(currentTpTest,lesson.id,s.quizScore,s.quizTotal); }catch(e){}
     // Level-complete check — only meaningful for lessons that belong to a
     // level (not Getting Started), and only fires on the exact completion
     // that pushes the level from "not all done" to "all done", since
