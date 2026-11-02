@@ -8771,6 +8771,591 @@ try{
 }catch(e){}
 })();
 (function(){
+const A=window.__ACD=window.__ACD||{};
+A.M={W:'Words & Vocabulary',G:'Grammar in Use',S:'Speaking',R:'Reading & Writing'};
+A.G=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz,extra,time)=>Object.assign({
+  id,title,time:time||'12-15 minutes',objectives:obj,concept,
+  example:'<i>(Original example)</i><br><br>'+example,
+  vocab,mistakes,practice,practiceAnswer,
+  quiz:quiz.map(([q,options,correct,a])=>({q,options,correct,a}))
+},extra||{});
+const G=A.G, M=A.M;
+const sk={};
+sk[M.W]=[
+G('ac-b-w1','Everyday Things and Food',
+[`Name 20 common objects and foods in English`,`Use "This is a ..." to name things`,`Connect English words with their Tamil meanings`],
+`Start with things you see every day. Learn the word, say it aloud, then use it in a sentence: <b>This is a table.</b><br><br><b>Things:</b> chair (நாற்காலி), table (மேசை), door (கதவு), window (ஜன்னல்), phone (கைப்பேசி), bag (பை), pen (பேனா), book (புத்தகம்).<br><b>Food:</b> rice (சாதம்), milk (பால்), bread (ரொட்டி), egg (முட்டை), water (தண்ணீர்), fruit (பழம்), salt (உப்பு).<br><br><b>தமிழில்:</b> ஒரு பொருளின் ஆங்கிலப் பெயரைக் கற்றுக்கொண்டவுடன் "This is a ..." என்ற வாக்கியத்தில் பயன்படுத்துங்கள். அப்போதுதான் சொல் நினைவில் நிற்கும்.`,
+`This is a <b>pen</b>. &nbsp; That is a <b>door</b>.<br>I drink <b>milk</b>. &nbsp; I eat <b>rice</b>.<br>Look around your room and name five things: <i>This is a chair. This is my phone.</i>`,
+[[`chair`,`a seat for one person`],[`bread`,`food made from flour and baked`],[`fruit`,`sweet food that grows on trees or plants`],[`salt`,`white powder that makes food taste better`]],
+[`Learning words without saying them aloud.`,`Forgetting "a" before a single thing ("This is pen").`,`Using "a" with water or milk ("a water").`,`Mixing up "pen" and "pencil".`],
+`Name five things you can see right now in English, then five foods you ate this week. Write each as: <b>This is a ... / I eat ...</b>`,
+`Any correct answers, for example: This is a chair. This is a door. I eat rice. I drink milk.`,
+[[`We read a ___.`,[`book`,`water`,`rice`,`door`],0,`We read a book.`],
+ [`We drink ___.`,[`chair`,`milk`,`bag`,`pen`],1,`Milk is a drink.`],
+ [`Which word is NOT food?`,[`bread`,`egg`,`window`,`fruit`],2,`A window is part of a building.`]],
+{match:[[`chair`,`நாற்காலி`],[`milk`,`பால்`],[`egg`,`முட்டை`],[`door`,`கதவு`]],matchInstruction:`Match each word to its Tamil meaning.`,
+ reorder:[{words:[`This`,`is`,`a`,`pen.`],instruction:`Build the sentence.`}]}),
+
+G('ac-b-w2','Family, Colours and Numbers',
+[`Name family members`,`Say colours and numbers 1-20`,`Describe things with colour words`],
+`<b>Family:</b> father (அப்பா), mother (அம்மா), brother (சகோதரன்), sister (சகோதரி), grandfather (தாத்தா), grandmother (பாட்டி), son (மகன்), daughter (மகள்), parents (பெற்றோர்).<br><b>Colours:</b> red (சிவப்பு), blue (நீலம்), green (பச்சை), yellow (மஞ்சள்), black (கருப்பு), white (வெள்ளை).<br><b>Numbers:</b> one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve ... twenty.<br><br>For colours, say: <b>The sky is blue.</b> For family: <b>This is my mother.</b> For numbers: <b>I have two brothers.</b>`,
+`My name is Divya. I live with my <b>parents</b>. I have <b>one brother</b> and <b>two sisters</b>. My <b>grandmother</b> is kind. The sky is <b>blue</b> and the ball is <b>red</b>.`,
+[[`parents`,`your mother and father`],[`sibling`,`a brother or sister`],[`grandmother`,`your mother's or father's mother`],[`colour`,`red, blue, green and others`]],
+[`Saying "I have two brother" (plural needs -s).`,`Spelling "brother" as "bother".`,`Using "he" for a sister.`,`Saying "colour" with the wrong stress.`],
+`Write 4 sentences about your family and 2 about colours. Example: <b>I have one sister. My father is tall. The sky is blue.</b>`,
+`Any correct sentences using family words, numbers and colours with is/have.`,
+[[`Your father's father is your ___.`,[`uncle`,`grandfather`,`son`,`brother`],1,`Grandfather means father's father.`],
+ [`I have two ___.`,[`sister`,`sisters`,`sistering`,`a sister`],1,`Two needs the plural: sisters.`],
+ [`The sky is ___.`,[`blue`,`brother`,`two`,`mother`],0,`Blue is a colour.`]],
+{match:[[`mother`,`அம்மா`],[`brother`,`சகோதரன்`],[`green`,`பச்சை`],[`white`,`வெள்ளை`]],matchInstruction:`Match each word to its Tamil meaning.`,
+ reorder:[{words:[`I`,`have`,`two`,`brothers.`],instruction:`Build the sentence.`}]}),
+
+G('ac-b-w3','Daily Routine and Action Words',
+[`Learn 15 action words`,`Describe your day with time words`,`Say the time on the hour`],
+`<b>Action words (verbs):</b> wake up (எழுந்திரு), brush (பல் துலக்கு), bathe (குளி), eat (சாப்பிடு), go (போ), study (படி), work (வேலை செய்), cook (சமை), sleep (தூங்கு).<br><b>Time words:</b> in the morning, in the afternoon, in the evening, at night, at 6 o'clock.<br><br>Pattern: <b>I + action + time.</b> I wake up at 6 o'clock. I study in the evening.`,
+`I <b>wake up</b> at 6 o'clock. I <b>brush</b> my teeth. I <b>eat</b> breakfast at 7. I <b>go</b> to college at 8. In the evening I <b>study</b> English. I <b>sleep</b> at 10 p.m.`,
+[[`routine`,`things you do regularly every day`],[`breakfast`,`the first meal of the day`],[`wake up`,`to stop sleeping`],[`o'clock`,`used for a time exactly on the hour`]],
+[`Saying "I am wake up" (do not use am with a verb).`,`Saying "in 6 o'clock" (use at).`,`Forgetting "up" in wake up.`,`Mixing up morning and evening.`],
+`Write 5 sentences about your day, starting with: <b>I wake up at ... I go to ... In the evening I ...</b>`,
+`For example: I wake up at 6. I eat breakfast at 7. I go to college at 8. In the evening I study. I sleep at 10.`,
+[[`I wake up ___ 6 o'clock.`,[`in`,`on`,`at`,`by`],2,`Use at with clock times.`],
+ [`I ___ breakfast at 7.`,[`eat`,`sleep`,`run`,`read`],0,`We eat breakfast.`],
+ [`Which is NOT an action word?`,[`study`,`cook`,`morning`,`walk`],2,`Morning is a time word.`]],
+{match:[[`wake up`,`எழுந்திரு`],[`study`,`படி`],[`cook`,`சமை`],[`sleep`,`தூங்கு`]],matchInstruction:`Match each action word to its Tamil meaning.`,
+ reorder:[{words:[`I`,`study`,`English`,`in`,`the`,`evening.`],instruction:`Build the sentence.`}]})
+];
+sk[M.G]=[
+G('ac-b-g1','Am, Is, Are and Pronouns',
+[`Use I, you, he, she, it, we, they`,`Choose am, is or are`,`Make simple negatives and questions`],
+`A pronoun replaces a noun (பெயர்ச்சொல்லுக்குப் பதிலாக வரும் சொல்). <b>I</b> (நான்), <b>you</b> (நீ/நீங்கள்), <b>he</b> (அவன்), <b>she</b> (அவள்), <b>it</b> (அது), <b>we</b> (நாம்), <b>they</b> (அவர்கள்).<br><br>The verb "to be" changes: <b>I am</b>, <b>he/she/it is</b>, <b>you/we/they are</b>.<br>Negative: add <b>not</b> (I am not tired). Question: put the verb first (Are you a student?).`,
+`I <b>am</b> a student. &nbsp; She <b>is</b> happy. &nbsp; They <b>are</b> friends.<br>He <b>is not</b> a doctor. &nbsp; <b>Are</b> you ready? &nbsp; <b>Is</b> she your sister?<br>Ravi is happy → <b>He</b> is happy.`,
+[[`pronoun`,`a word that replaces a noun (he, she, it)`],[`to be`,`the verb am / is / are`],[`negative`,`a sentence with not`],[`question`,`a sentence that asks for information`]],
+[`Saying "I is" or "he are".`,`Saying "She not a teacher" (needs is).`,`Using "you is".`,`Forgetting the capital I.`],
+`Fill in: 1. I ___ happy. 2. She ___ a teacher. 3. They ___ students. 4. We ___ ready. Then change number 2 into a question and a negative.`,
+`am, is, are, are. Is she a teacher? She is not a teacher.`,
+[[`He ___ my friend.`,[`am`,`is`,`are`,`be`],1,`He takes is.`],
+ [`They ___ in the garden.`,[`is`,`am`,`are`,`be`],2,`They takes are.`],
+ [`Make a question: "You are a student."`,[`You are a student?`,`Are you a student?`,`Is you a student?`,`Do you a student?`],1,`Put are before the subject.`]],
+{match:[[`I`,`am`],[`she`,`is`],[`they`,`are`],[`we`,`are`]],matchInstruction:`Match each pronoun to the correct form of "to be".`,
+ reorder:[{words:[`She`,`is`,`not`,`tired.`],instruction:`Build the negative sentence.`},{words:[`Are`,`you`,`a`,`student?`],instruction:`Build the question.`}]}),
+
+G('ac-b-g2','A, An, The, This, That and Plurals',
+[`Choose a, an or the`,`Use this/that/these/those`,`Make regular and common irregular plurals`],
+`<b>a</b> before a consonant <i>sound</i> (a book, a university). <b>an</b> before a vowel <i>sound</i> (an apple, an hour). <b>the</b> for something already known (I saw a dog. The dog was black.).<br><br><b>This / these</b> are near (இது / இவை). <b>That / those</b> are far (அது / அவை).<br><b>Plurals:</b> most nouns add -s (books); after s, x, ch, sh add -es (buses, boxes); consonant + y becomes -ies (baby → babies). Irregular: child → children, man → men, woman → women.`,
+`<b>an</b> apple, <b>a</b> pen, <b>an</b> umbrella, <b>a</b> university.<br><b>This</b> is my phone. <b>Those</b> are birds.<br>one baby, two <b>babies</b>; one child, three <b>children</b>.`,
+[[`article`,`a, an or the`],[`singular`,`one`],[`plural`,`more than one`],[`irregular`,`not following the usual rule`]],
+[`Saying "an university" (it starts with a /j/ sound, so use a).`,`Saying "childs" or "womans".`,`Saying "this books".`,`Using "a" before plural nouns.`],
+`Choose a/an/the and plural: 1. ___ apple 2. ___ hour 3. one box → two ___ 4. one baby → two ___ 5. ___ are my shoes (near).`,
+`an apple, an hour, boxes, babies, These.`,
+[[`___ umbrella`,[`a`,`an`,`the`,`two`],1,`Umbrella starts with a vowel sound.`],
+ [`The plural of "woman" is:`,[`womans`,`womens`,`women`,`womanes`],2,`Woman is irregular: women.`],
+ [`___ are my books. (near)`,[`This`,`That`,`These`,`Those`],2,`Plural and near: these.`]],
+{match:[[`this`,`one, near`],[`that`,`one, far`],[`these`,`many, near`],[`those`,`many, far`]],matchInstruction:`Match each word to its meaning.`,
+ reorder:[{words:[`These`,`are`,`my`,`books.`],instruction:`Build the sentence.`}]}),
+
+G('ac-b-g3','Simple Present: Habits and Facts',
+[`Use the simple present for habits`,`Add -s/-es for he, she, it`,`Make negatives with do not / does not and questions with Do / Does`],
+`Use the simple present for habits and facts (அன்றாடப் பழக்கங்கள் மற்றும் உண்மைகள்). <b>I/you/we/they + base verb</b>: I play. <b>He/she/it + verb+s</b>: She plays. After consonant + y: study → studies. Go → goes.<br><br><b>Negative:</b> do not / does not + base verb (She <b>does not like</b> tea, not "does not likes").<br><b>Question:</b> Do / Does + subject + base verb (<b>Does</b> he play cricket?).`,
+`I <b>wake up</b> at 6. She <b>wakes up</b> at 7.<br>He <b>studies</b> English. She <b>goes</b> to college.<br>They <b>do not</b> play football. &nbsp; <b>Does</b> she speak English?`,
+[[`habit`,`something you do regularly`],[`base verb`,`the verb without -s or -ed (play, eat)`],[`fact`,`something that is always true`],[`third person`,`he, she or it`]],
+[`Saying "She go" (needs goes).`,`Saying "He does not likes" (use like).`,`Saying "Do she play?" (use Does).`,`Writing "studys" for study + s.`],
+`Complete: 1. She (play) cricket. 2. He (study) English. 3. They (not like) tea. 4. (Do/Does) she speak English?`,
+`plays, studies, do not like, Does.`,
+[[`She ___ coffee every day.`,[`drink`,`drinks`,`drinking`,`drank`],1,`She + verb with -s.`],
+ [`He ___ not like tea.`,[`do`,`does`,`is`,`are`],1,`He takes does not.`],
+ [`___ you speak English?`,[`Does`,`Do`,`Is`,`Are`],1,`With you, use Do.`]],
+{match:[[`I play`,`She plays`],[`I study`,`She studies`],[`I go`,`She goes`],[`I do`,`She does`]],matchInstruction:`Match each I-form to the she-form.`,
+ reorder:[{words:[`She`,`does`,`not`,`like`,`tea.`],instruction:`Build the negative sentence.`},{words:[`Does`,`he`,`play`,`cricket?`],instruction:`Build the question.`}]})
+];
+sk[M.S]=[
+G('ac-b-s1','Greetings and Introducing Yourself',
+[`Greet people at different times of day`,`Introduce yourself in 5 sentences`,`Say "nice to meet you" naturally`],
+`<b>Greetings:</b> Hello / Hi; Good morning (காலை வணக்கம்); Good afternoon; Good evening; Good night (only when leaving or going to bed).<br><b>How are you?</b> I am fine, thank you. And you?<br><br><b>Self-introduction pattern:</b> Hello! My name is ___. I am from ___. I am a ___. I am learning English. Nice to meet you!<br>Smile, look at the person, and say your name slowly.`,
+`"Hello! My name is Arun. I am from Madurai. I am a student. I am learning English. Nice to meet you!"<br><br>A: Hello! How are you? B: I am fine, thank you. How are you? A: I am good. What is your name? B: My name is Priya.`,
+[[`greeting`,`words you say when you meet someone`],[`introduce`,`to tell someone your name and who you are`],[`nice to meet you`,`a polite phrase when you meet someone for the first time`],[`from`,`used for your home town or country`]],
+[`Saying "I am fine" without asking back.`,`Using "Good night" as a meeting greeting.`,`Saying "My self Arun" (say "My name is Arun").`,`Speaking too fast and not smiling.`],
+`Record yourself: <b>Hello! My name is ___. I am from ___. I am a ___. I am learning English. Nice to meet you!</b> Listen back: is it slow and clear?`,
+`A clear 5-sentence introduction. Slow down if it sounds rushed.`,
+[[`Which greeting is right at 9 a.m.?`,[`Good night`,`Good morning`,`Good evening`,`Goodbye`],1,`Good morning is for the morning.`],
+ [`The best way to say your name is:`,[`My self Arun.`,`I am called as Arun.`,`My name is Arun.`,`Name Arun.`],2,`My name is ... is correct and natural.`],
+ [`After "How are you?" a good answer is:`,[`I am fine, thank you. And you?`,`Yes.`,`I am a student.`,`Good night.`],0,`Answer and ask back.`]],
+{match:[[`Good morning`,`before noon`],[`Good evening`,`after 5 p.m.`],[`Nice to meet you`,`first meeting`],[`How are you?`,`asks about feelings`]],matchInstruction:`Match each phrase to when you use it.`,
+ reorder:[{words:[`My`,`name`,`is`,`Priya.`],instruction:`Build the sentence.`},{words:[`Nice`,`to`,`meet`,`you.`],instruction:`Build the phrase.`}]},'12-15 minutes'),
+
+G('ac-b-s2','Asking for Help and Directions',
+[`Ask politely for help`,`Ask where a place is`,`Understand left, right, straight and near`],
+`<b>Polite help:</b> Excuse me. Can you help me? Could you repeat that, please? Please speak slowly. I don't understand. Thank you for your help.<br><b>Places:</b> Where is the bus stop? How can I get to the hospital?<br><b>Directions:</b> go straight (நேராக), turn left (இடது), turn right (வலது), near (அருகில்), far (தொலைவில்), next to, in front of, behind.<br>Always start with <b>Excuse me</b> and end with <b>Thank you</b>.`,
+`Student: Excuse me. Where is the library?<br>Person: Go straight and turn left.<br>Student: Is it far?<br>Person: No, it is near the school.<br>Student: Thank you!`,
+[[`excuse me`,`a polite way to start talking to a stranger`],[`straight`,`not turning`],[`near`,`not far`],[`repeat`,`say again`]],
+[`Starting without "Excuse me".`,`Saying "Where is bus stop?" (needs "the").`,`Not saying thank you.`,`Saying "I am not understanding" (say I don't understand).`],
+`Make a conversation: ask a stranger how to get to the post office. Use <b>Excuse me, Where is, Go straight, Turn left, Thank you</b>.`,
+`Excuse me. Where is the post office? Go straight and turn right. Thank you!`,
+[[`A polite way to start:`,[`Hey you!`,`Excuse me.`,`Tell me.`,`Where?`],1,`Excuse me is polite.`],
+ [`"Go straight" means:`,[`turn left`,`do not turn`,`stop`,`go back`],1,`Straight means keep going forward.`],
+ [`If you do not understand, you say:`,[`Please speak slowly.`,`Go away.`,`I am fine.`,`Yes, yes.`],0,`Ask the person to slow down.`]],
+{match:[[`left`,`இடது`],[`right`,`வலது`],[`straight`,`நேராக`],[`near`,`அருகில்`]],matchInstruction:`Match each direction word to its Tamil meaning.`,
+ reorder:[{words:[`Excuse`,`me,`,`where`,`is`,`the`,`bus`,`stop?`],instruction:`Build the question.`}]}),
+
+G('ac-b-s3','Shopping and Prices',
+[`Ask "How much is it?"`,`Say prices in rupees`,`Use polite shopping phrases`],
+`<b>Questions:</b> How much is this? How much are these? Do you have a bigger size? Can I try it?<br><b>Answers:</b> It is 200 rupees. They are 50 rupees each.<br><b>Polite phrases:</b> I would like ... / I will take this. / It is too expensive. / Do you have a cheaper one?<br><br>Use <b>is</b> for one thing and <b>are</b> for many: How much <b>is</b> this shirt? How much <b>are</b> these shoes?`,
+`Customer: Excuse me. How much is this shirt?<br>Shop: It is 400 rupees.<br>Customer: It is too expensive. Do you have a cheaper one?<br>Shop: Yes, this one is 250 rupees.<br>Customer: I will take it. Thank you.`,
+[[`price`,`how much something costs`],[`expensive`,`costing a lot of money`],[`cheap`,`not costing a lot`],[`size`,`how big or small something is`]],
+[`Saying "How much cost?" (use How much is it?).`,`Saying "it costs 200 rupee" (rupees).`,`Using "is" for plural items.`,`Being rude when it is expensive.`],
+`Write a shopping dialogue: you want to buy two notebooks, ask the price, say it is expensive, ask for a cheaper one, and buy it.`,
+`Any polite dialogue using How much are these? / Do you have a cheaper one? / I will take them.`,
+[[`How much ___ these shoes?`,[`is`,`are`,`am`,`be`],1,`Shoes is plural: are.`],
+ [`Something costs a lot. It is:`,[`cheap`,`expensive`,`small`,`free`],1,`Expensive means high price.`],
+ [`To ask for a lower price you say:`,[`Do you have a cheaper one?`,`Give me free.`,`What is this?`,`Where is it?`],0,`A polite question.`]],
+{match:[[`expensive`,`costs a lot`],[`cheap`,`costs little`],[`price`,`how much it costs`],[`size`,`big or small`]],matchInstruction:`Match each word to its meaning.`,
+ reorder:[{words:[`How`,`much`,`is`,`this`,`shirt?`],instruction:`Build the question.`}]})
+];
+sk[M.R]=[
+G('ac-b-r1','Reading a Short Personal Profile',
+[`Read a short text for facts`,`Answer who, where, what and why questions`,`Find key words in a paragraph`],
+`When you read, ask 4 questions: <b>Who?</b> <b>Where?</b> <b>What?</b> <b>Why?</b> Look for the answer in the text, then underline it.<br><br>Read this profile: <i>"My name is Karthik. I am 20 years old. I live in Chennai. I am a college student. I enjoy reading books and playing cricket. I want to improve my English because I want to study abroad."</i>`,
+`Who? Karthik, a college student.<br>Where? Chennai.<br>What does he enjoy? Reading books and playing cricket.<br>Why English? Because he wants to study abroad.`,
+[[`profile`,`a short description of a person`],[`enjoy`,`to like doing something`],[`improve`,`to make better`],[`abroad`,`in another country`]],
+[`Reading every word slowly without looking for answers.`,`Copying the whole sentence instead of the key words.`,`Not reading the question first.`,`Confusing "live" (home) with "life".`],
+`Read the profile above and answer: 1. How old is Karthik? 2. Where does he live? 3. What does he want to study abroad for? (Why does he want to improve English?)`,
+`1. He is 20. 2. Chennai. 3. Because he wants to study abroad.`,
+[[`Where does Karthik live?`,[`Madurai`,`Chennai`,`Delhi`,`Abroad`],1,`I live in Chennai.`],
+ [`What does he enjoy?`,[`Cooking`,`Swimming`,`Reading books and playing cricket`,`Singing`],2,`The profile says so.`],
+ [`Why does he want to improve his English?`,[`To get a job in a shop`,`To study abroad`,`To meet friends`,`For fun only`],1,`because I want to study abroad.`]],
+{match:[[`Who?`,`a person`],[`Where?`,`a place`],[`When?`,`a time`],[`Why?`,`a reason`]],matchInstruction:`Match each question word to what it asks for.`,
+ reorder:[{words:[`Karthik`,`lives`,`in`,`Chennai.`],instruction:`Build the sentence.`}]}),
+
+G('ac-b-r2','Writing About Yourself: Five Good Sentences',
+[`Start sentences with a capital letter and end with a full stop`,`Write 5 connected sentences about yourself`,`Use and, but and because`],
+`A good sentence starts with a <b>capital letter</b>, ends with a <b>full stop</b>, and has a subject and a verb. Names (Chennai, Priya, Monday) always start with a capital.<br><br>Join short sentences with: <b>and</b> (adds), <b>but</b> (shows difference), <b>because</b> (gives a reason).<br>Plan: 1. name 2. place 3. job or study 4. like 5. goal.`,
+`My name is Priya. I live in Madurai. I am a student, and I study commerce. I like music, but I do not like cricket. I want to learn English because I want a good job.`,
+[[`capital letter`,`a big letter, like A or B`],[`full stop`,`the dot at the end of a sentence`],[`and`,`adds more information`],[`because`,`gives a reason`]],
+[`Writing "i" instead of "I".`,`No full stop at the end.`,`Writing a name without a capital letter.`,`Writing one long sentence with no punctuation.`],
+`Write 5 sentences about yourself: name, place, study or job, one thing you like, and your goal. Use and, but or because once.`,
+`A correct 5-sentence paragraph with capitals and full stops.`,
+[[`Which sentence is correct?`,[`i live in chennai`,`I live in chennai.`,`I live in Chennai.`,`i live in Chennai`],2,`I and Chennai need capitals, and the sentence needs a full stop.`],
+ [`"I like tea ___ I do not like coffee."`,[`because`,`but`,`and so`,`or`],1,`But shows a difference.`],
+ [`"I study English ___ I want a good job."`,[`because`,`but`,`or`,`if`],0,`Because gives a reason.`]],
+{match:[[`and`,`adds`],[`but`,`shows difference`],[`because`,`gives a reason`],[`.`,`full stop`]],matchInstruction:`Match each word or mark to its job.`,
+ reorder:[{words:[`I`,`study`,`English`,`because`,`I`,`want`,`a`,`good`,`job.`],instruction:`Build the sentence.`}]}),
+
+G('ac-b-r3','Forms, Messages and Short Notes',
+[`Fill in a simple form`,`Write a short message (WhatsApp / SMS)`,`Write dates and times correctly`],
+`<b>Forms</b> ask for: Name, Age, Date of birth, Address, Phone number, Email. Write in capital letters if the form says so. Dates: <b>15 August 2026</b> or <b>15/08/2026</b> (day first).<br><br><b>Messages:</b> Keep them short and clear. Start with a greeting, give the key information, end with thanks.<br><i>Hi Ravi, I am at the bus stop. Please come at 5 p.m. Thanks!</i><br>Do not use too many short forms ("u", "pls") in messages to teachers or offices.`,
+`<b>Form:</b> Name: Priya Kumar. Age: 20. Date of birth: 12 May 2006. Phone: 98765 43210.<br><b>Message:</b> Good morning, sir. I am unwell today, so I cannot come to class. Thank you. - Priya`,
+[[`form`,`a paper or page with spaces to write information`],[`date of birth`,`the day you were born`],[`address`,`where you live`],[`message`,`a short written note to someone`]],
+[`Writing the month before the day in India forms.`,`Using "u" and "pls" in messages to teachers.`,`Forgetting a greeting.`,`Leaving blanks in a form.`],
+`Write a short message to your teacher saying you are late today because the bus is late, and you will come at 10 a.m.`,
+`Good morning, sir. I am late today because the bus is late. I will come at 10 a.m. Thank you.`,
+[[`The date "15/08/2026" shows:`,[`15 August`,`8 May`,`15 July`,`2026 August`],0,`Day first, then month.`],
+ [`A polite message to a teacher starts with:`,[`Hey`,`Good morning, sir/madam,`,`Hi dude`,`Yo`],1,`Use a polite greeting.`],
+ [`"Address" means:`,[`your age`,`where you live`,`your name`,`your phone`],1,`Address is the place you live.`]],
+{match:[[`Name`,`Priya Kumar`],[`Age`,`20`],[`Date of birth`,`12 May 2006`],[`Phone`,`98765 43210`]],matchInstruction:`Match each form field to the right answer.`,
+ reorder:[{words:[`Good`,`morning,`,`sir.`,`I`,`am`,`unwell`,`today.`],instruction:`Build the message.`}]})
+];
+A.basic=sk;
+})();
+
+(function(){
+const A=window.__ACD; const G=A.G, M=A.M; const sk={};
+sk[M.W]=[
+G('ac-m-w1','Travel and Accommodation Words',
+[`Use 20 travel and accommodation words`,`Book a room and ask about facilities`,`Understand common signs and notices`],
+`<b>Travel:</b> passport, visa, ticket, flight, platform, luggage, departure, arrival, delay, passenger.<br><b>Accommodation:</b> hostel, hotel, apartment, landlord, rent, deposit, single room, shared room, check-in, check-out, facilities, Wi-Fi.<br><br>Useful questions: <b>Is breakfast included?</b> <b>How much is the deposit?</b> <b>What time is check-out?</b> <b>Is there Wi-Fi in the room?</b><br>For students abroad: ask whether <b>bills are included</b> and how far the place is from <b>campus</b>.`,
+`Guest: Hello, I have a booking for three nights under the name Kumar.<br>Receptionist: Yes, a single room. Check-out is at 11 a.m.<br>Guest: Is breakfast included, and is there Wi-Fi?<br>Receptionist: Breakfast is included. Wi-Fi is free.`,
+[[`deposit`,`money paid in advance and returned later if nothing is damaged`],[`landlord`,`the person who owns the house you rent`],[`check-in`,`arriving and registering at a hotel`],[`included`,`already part of the price`]],
+[`Saying "I am coming for check-in" instead of "I have a booking".`,`Confusing "rent" (money) and "rant".`,`Forgetting to ask if bills are included.`,`Saying "deposit" when you mean "payment".`],
+`Write 5 questions you would ask a landlord before renting a room near your university.`,
+`For example: How much is the rent? Is the deposit returned? Are bills included? How far is the campus? Is the room furnished?`,
+[[`Money you pay and may get back is a:`,[`ticket`,`deposit`,`platform`,`delay`],1,`A deposit is returned if nothing is damaged.`],
+ [`Who owns the house you rent?`,[`passenger`,`landlord`,`receptionist`,`guest`],1,`The landlord owns it.`],
+ [`"Is breakfast included?" asks if breakfast is:`,[`free or part of the price`,`cold`,`late`,`far`],0,`Included means part of the price.`]],
+{match:[[`luggage`,`bags you carry when you travel`],[`delay`,`a train or flight that is late`],[`rent`,`money paid monthly for a home`],[`passport`,`document for travelling abroad`]],matchInstruction:`Match each word to its meaning.`,
+ reorder:[{words:[`Is`,`breakfast`,`included`,`in`,`the`,`price?`],instruction:`Build the question.`}]}),
+
+G('ac-m-w2','Study and University Words',
+[`Use 20 words from university life`,`Understand a course description`,`Ask about deadlines and requirements`],
+`<b>People and places:</b> lecturer, professor, tutor, classmate, campus, library, department, faculty.<br><b>Study words:</b> assignment, essay, deadline, lecture, seminar, module, semester, scholarship, tuition fees, attendance, grade, exam.<br><br>Note: a <b>lecture</b> is a talk by the teacher; a <b>seminar</b> is a smaller discussion; a <b>deadline</b> is the last date to submit work.<br>Useful: <b>When is the deadline?</b> <b>How many credits is this module?</b> <b>Can I get an extension?</b>`,
+`"This semester I have three modules. My essay deadline is next Friday. My lecturer says attendance is important. I am applying for a scholarship to pay part of my tuition fees."`,
+[[`deadline`,`the last date to finish or submit work`],[`scholarship`,`money given to a student to help pay for study`],[`extension`,`extra time to finish work`],[`attendance`,`being present in class`]],
+[`Saying "submission date" for deadline only (both work, deadline is more common).`,`Mixing lecture and lecturer.`,`Saying "I am in first semester" (use "my first semester").`,`Forgetting that "tuition fees" is plural.`],
+`Write 4 sentences about your course using these words: <b>module, deadline, lecture, scholarship</b>.`,
+`Any correct sentences, for example: My module has two lectures a week. The deadline for the essay is Monday.`,
+[[`The last day to submit work is the:`,[`semester`,`deadline`,`faculty`,`campus`],1,`That is the deadline.`],
+ [`A person who gives a lecture is a:`,[`lecturer`,`classmate`,`tutor only`,`landlord`],0,`Lecturer.`],
+ [`Money to support your study is a:`,[`grade`,`scholarship`,`seminar`,`module`],1,`Scholarship.`]],
+{match:[[`lecture`,`a talk by a teacher`],[`seminar`,`a small group discussion`],[`campus`,`the university grounds`],[`grade`,`your mark or result`]],matchInstruction:`Match each word to its meaning.`,
+ reorder:[{words:[`The`,`essay`,`deadline`,`is`,`next`,`Friday.`],instruction:`Build the sentence.`}]}),
+
+G('ac-m-w3','Everyday Phrasal Verbs and Linking Words',
+[`Use 12 common phrasal verbs`,`Link ideas with however, so, although and because`,`Avoid literal translation`],
+`A <b>phrasal verb</b> is a verb + a small word, with a special meaning: <b>get up</b> (leave bed), <b>look for</b> (search), <b>give up</b> (stop trying), <b>turn on/off</b>, <b>find out</b> (discover), <b>fill in</b> (a form), <b>pick up</b>, <b>set up</b>, <b>carry on</b>, <b>look after</b>, <b>come back</b>, <b>run out of</b>.<br><br><b>Linking words:</b> and, but, so (result), because (reason), although (contrast), however (new sentence, contrast).<br>"I was tired, <b>so</b> I slept." "<b>Although</b> it was raining, we went out." "I like the course. <b>However</b>, it is expensive."`,
+`I <b>looked for</b> my phone, but I could not <b>find</b> it. Please <b>fill in</b> this form. Do not <b>give up</b>. I <b>ran out of</b> money, <b>so</b> I called my father.`,
+[[`phrasal verb`,`a verb + small word with a special meaning`],[`however`,`used to show contrast at the start of a new sentence`],[`although`,`used to join two ideas that contrast`],[`give up`,`stop trying`]],
+[`Translating phrasal verbs word by word.`,`Using "although" and "but" together ("Although it rained, but we went").`,`Using "however" between two clauses with a comma only.`,`Forgetting "up" in "give up".`],
+`Complete with a phrasal verb: 1. Please ___ the form (complete it). 2. I ___ my glasses everywhere (searched). 3. Do not ___ (stop trying).`,
+`fill in, looked for, give up.`,
+[[`"Do not give up" means:`,[`do not stop trying`,`do not give gifts`,`do not wake up`,`do not look`],0,`Give up = stop trying.`],
+ [`___ it was cold, we went for a walk.`,[`Because`,`Although`,`So`,`But`],1,`Although shows contrast.`],
+ [`"I ran out of milk" means:`,[`I drank the milk`,`I had no milk left`,`I ran to buy milk`,`I spilled milk`],1,`Run out of = have none left.`]],
+{match:[[`look for`,`search`],[`find out`,`discover`],[`fill in`,`complete a form`],[`look after`,`take care of`]],matchInstruction:`Match each phrasal verb to its meaning.`,
+ reorder:[{words:[`Although`,`it`,`was`,`raining,`,`we`,`went`,`out.`],instruction:`Build the sentence.`}]})
+];
+sk[M.G]=[
+G('ac-m-g1','Past Simple: Regular and Irregular Verbs',
+[`Form the past simple`,`Use did / did not for questions and negatives`,`Learn 20 common irregular verbs`],
+`Use the past simple for finished actions at a definite time: <b>I visited Chennai last year.</b><br><b>Regular:</b> verb + ed (work → worked, study → studied, stop → stopped).<br><b>Irregular:</b> go → went, see → saw, eat → ate, buy → bought, take → took, have → had, make → made, come → came, write → wrote, speak → spoke.<br><b>Negative / question:</b> did not / Did + <b>base verb</b>: She <b>did not go</b>. <b>Did</b> you <b>see</b> him?<br>Time words: yesterday, last week, in 2020, two days ago.`,
+`I <b>went</b> to the market yesterday and <b>bought</b> some fruit. I <b>did not buy</b> vegetables. <b>Did</b> you <b>see</b> Ravi?`,
+[[`past simple`,`the tense for finished actions in the past`],[`irregular verb`,`a verb with a special past form`],[`did`,`the helper used for past questions and negatives`],[`ago`,`used after a time to say how long before now`]],
+[`Saying "I goed" or "I buyed".`,`Saying "Did you went?" (use go).`,`Saying "I did not saw".`,`Forgetting -ed on regular verbs.`],
+`Put into the past: 1. I go to college. 2. She buys a book. 3. They do not eat meat. 4. Do you see him?`,
+`went, bought, did not eat, Did you see him?`,
+[[`Yesterday I ___ a film.`,[`see`,`saw`,`seen`,`seeing`],1,`Saw is the past of see.`],
+ [`She did not ___ to the party.`,[`went`,`go`,`goes`,`gone`],1,`After did not use the base verb.`],
+ [`___ you speak to him?`,[`Do`,`Did`,`Are`,`Does`],1,`Past question: Did you speak?`]],
+{match:[[`go`,`went`],[`buy`,`bought`],[`write`,`wrote`],[`take`,`took`]],matchInstruction:`Match each verb to its past form.`,
+ reorder:[{words:[`I`,`did`,`not`,`see`,`him`,`yesterday.`],instruction:`Build the sentence.`}]}),
+
+G('ac-m-g2','Present Perfect or Past Simple?',
+[`Form the present perfect`,`Choose between present perfect and past simple`,`Use for, since, already, yet and ever`],
+`<b>Present perfect = have/has + past participle.</b> It connects the past with now.<br>Use it for: <b>experience</b> (I have visited Delhi), <b>unfinished time</b> (I have lived here for 3 years / since 2023), <b>recent news</b> (She has just left).<br>Use the <b>past simple</b> when the time is finished and stated: I visited Delhi <b>in 2022</b>.<br><br><b>for</b> + length of time (for two years); <b>since</b> + starting point (since 2023). <b>already</b> (earlier than expected), <b>yet</b> (in questions/negatives), <b>ever / never</b>.`,
+`I <b>have lived</b> in Chennai <b>for</b> five years. I <b>moved</b> here <b>in</b> 2021.<br><b>Have</b> you <b>ever</b> been abroad? No, I <b>have never</b> travelled. I <b>haven't</b> finished <b>yet</b>.`,
+[[`present perfect`,`have/has + past participle`],[`past participle`,`the third form of the verb (done, been, seen)`],[`since`,`from a point in the past until now`],[`for`,`a length of time`]],
+[`Saying "I have seen him yesterday".`,`Saying "I am living here since 2020".`,`Using "since" with a length of time.`,`Forgetting has with he/she/it.`],
+`Choose: 1. I (lived / have lived) here since 2020. 2. She (went / has gone) to Delhi last week. 3. (Did / Have) you ever eaten sushi?`,
+`have lived, went, Have.`,
+[[`I ___ here for three years.`,[`live`,`lived`,`have lived`,`am living`],2,`For + length of time with the present perfect.`],
+ [`She ___ to Delhi in 2022.`,[`has gone`,`went`,`goes`,`has been going`],1,`A finished time (2022) needs the past simple.`],
+ [`I have worked here ___ 2023.`,[`for`,`since`,`from`,`in`],1,`Since + starting point.`]],
+{match:[[`for`,`three years`],[`since`,`2023`],[`ever`,`in questions about experience`],[`yet`,`in negatives and questions`]],matchInstruction:`Match each word to what it goes with.`,
+ reorder:[{words:[`I`,`have`,`lived`,`here`,`since`,`2021.`],instruction:`Build the sentence.`}]}),
+
+G('ac-m-g3','Talking About the Future: Will, Going to, Present Continuous',
+[`Choose the right future form`,`Make predictions and promises`,`Talk about fixed plans`],
+`<b>Going to + verb</b>: plans and intentions, or evidence now: I <b>am going to study</b> in the UK. Look at those clouds, it <b>is going to rain</b>.<br><b>Will + verb</b>: quick decisions, promises, predictions: I <b>will help</b> you. I think it <b>will be</b> hot tomorrow.<br><b>Present continuous</b>: fixed arrangements: I <b>am meeting</b> my tutor at 3 p.m. tomorrow.<br>Short forms: I'll, won't (will not), I'm going to.`,
+`"I <b>am going to apply</b> for a scholarship next month. My counsellor <b>is calling</b> me on Friday. I <b>will send</b> the documents tomorrow, I promise."`,
+[[`intention`,`a plan to do something`],[`promise`,`a firm statement that you will do something`],[`arrangement`,`a fixed plan with other people`],[`prediction`,`a guess about the future`]],
+[`Saying "I will going to".`,`Using "will" for plans already made.`,`Saying "I will to go".`,`Forgetting am/is/are in going to.`],
+`Choose: 1. Look at the sky! It (will rain / is going to rain). 2. "The phone is ringing." "I (will answer / am answering)." 3. I (am meeting / will meet) my teacher at 4 (fixed).`,
+`is going to rain, will answer, am meeting.`,
+[[`A promise uses:`,[`am going to`,`will`,`have been`,`did`],1,`I will help you.`],
+ [`"Look at those clouds! It ___ rain."`,[`will`,`is going to`,`rained`,`has`],1,`Evidence now: is going to.`],
+ [`Which is correct?`,[`I will going to study.`,`I am going to study.`,`I going to study.`,`I will to study.`],1,`am going to + base verb.`]],
+{match:[[`I'll help you`,`promise`],[`I am going to apply`,`plan`],[`I am meeting her at 3`,`arrangement`],[`It will be hot`,`prediction`]],matchInstruction:`Match each sentence to its meaning.`,
+ reorder:[{words:[`I`,`am`,`going`,`to`,`apply`,`for`,`a`,`scholarship.`],instruction:`Build the sentence.`}]})
+];
+sk[M.S]=[
+G('ac-m-s1','Talking About Past Experiences',
+[`Tell a short story in the past`,`Use time words to order events`,`Answer "What did you do...?" with details`],
+`When you tell a story, use <b>past tenses</b> and <b>order words</b>: first, then, after that, later, finally.<br>Add details: <b>where, when, who, how you felt</b>.<br><br>Structure: 1. Set the scene (Last year I went to Chennai with my family.) 2. What happened (First we..., then...) 3. How it ended and how you felt (Finally... It was wonderful.)<br>Use <b>was/were</b> for feelings: I was nervous. The food was delicious.`,
+`"Last summer I <b>visited</b> my uncle in Chennai. <b>First</b>, we <b>went</b> to the beach. <b>Then</b> we <b>ate</b> dinner at a small restaurant. <b>After that</b>, we <b>walked</b> home. It <b>was</b> a wonderful day, and I <b>felt</b> very happy."`,
+[[`first`,`used to start a sequence`],[`after that`,`used to say what happened next`],[`finally`,`used for the last event`],[`wonderful`,`very good`]],
+[`Mixing present and past ("I go there yesterday").`,`Missing the order words.`,`Saying only short answers.`,`No feeling or detail.`],
+`Record a 30-second story about your last holiday or a special day. Use <b>first, then, after that, finally</b> and say how you felt.`,
+`A clear story in the past tense with order words and a feeling.`,
+[[`Which word shows the LAST event?`,[`first`,`then`,`finally`,`after`],2,`Finally shows the end.`],
+ [`"Yesterday I ___ to the market."`,[`go`,`went`,`gone`,`going`],1,`Past simple: went.`],
+ [`A good story includes:`,[`only one sentence`,`order, place and feeling`,`only questions`,`no details`],1,`Add order, details and feelings.`]],
+{match:[[`first`,`start`],[`then`,`next`],[`after that`,`later`],[`finally`,`end`]],matchInstruction:`Match each word to its place in a story.`,
+ reorder:[{words:[`First,`,`we`,`went`,`to`,`the`,`beach.`],instruction:`Build the sentence.`}]}),
+
+G('ac-m-s2','Making Plans, Suggestions and Invitations',
+[`Make and respond to suggestions`,`Invite and accept or decline politely`,`Use "How about", "Let's", "Would you like to"`],
+`<b>Suggest:</b> Let's go to the cinema. / How about going on Saturday? / Why don't we meet at 5?<br><b>Invite:</b> Would you like to join us? / Do you want to come?<br><b>Accept:</b> Great idea! I'd love to. Sounds good.<br><b>Decline politely:</b> I'm sorry, I can't. I have an exam. Maybe next time. Thanks for asking.<br>Always give a short reason when you decline.`,
+`A: Let's go to the cinema on Saturday.<br>B: Sounds good! What time?<br>A: How about 6 o'clock?<br>B: Perfect. See you at the cinema.<br>--<br>A: Would you like to join us?<br>B: I'm sorry, I can't. I have an exam. Maybe next time.`,
+[[`suggest`,`to give an idea`],[`invite`,`to ask someone to come`],[`decline`,`to say no politely`],[`maybe`,`possibly`]],
+[`Saying only "No" without a reason.`,`Saying "Let's to go".`,`Saying "How about to go" (use going).`,`Sounding rude with "I don't want".`],
+`Role-play: invite a friend to a birthday dinner. Your friend declines politely and suggests another day.`,
+`Would you like to come to my birthday dinner on Friday? I'm sorry, I can't, I have class. How about Saturday? Great idea!`,
+[[`"How about ___ to the park?"`,[`go`,`going`,`went`,`to go`],1,`How about + -ing.`],
+ [`A polite way to say no:`,[`I don't want.`,`No way.`,`I'm sorry, I can't. I have an exam.`,`Go away.`],2,`Say sorry and give a reason.`],
+ [`"Let's ___ at 5."`,[`meet`,`meeting`,`to meet`,`met`],0,`Let's + base verb.`]],
+{match:[[`Let's go!`,`suggestion`],[`Would you like to...?`,`invitation`],[`I'd love to`,`acceptance`],[`I'm sorry, I can't`,`polite refusal`]],matchInstruction:`Match each phrase to its job.`,
+ reorder:[{words:[`Would`,`you`,`like`,`to`,`join`,`us?`],instruction:`Build the invitation.`}]}),
+
+G('ac-m-s3','Giving Opinions and Agreeing or Disagreeing Politely',
+[`Give an opinion and a reason`,`Agree and disagree politely`,`Speak for 30 seconds on a simple topic`],
+`<b>Opinion:</b> I think / In my opinion / I believe + a reason with <b>because</b>.<br><b>Agree:</b> I agree. You are right. That is true.<br><b>Disagree politely:</b> I see your point, but... / I'm not sure I agree. / That's one way to look at it, however...<br><br>Structure: <b>Opinion → reason → example.</b><br>"I think students should learn English because it helps in many jobs. For example, many companies need English for emails."`,
+`A: I think online classes are better.<br>B: I see your point, but I prefer classroom classes because I can ask questions easily.`,
+[[`opinion`,`what you think about something`],[`agree`,`to have the same opinion`],[`disagree`,`to have a different opinion`],[`reason`,`why you think something`]],
+[`Saying "No, you are wrong" (too direct).`,`Giving an opinion with no reason.`,`Saying "In my opinion, I think" (repeating).`,`Using only "good" and "bad".`],
+`Speak for 30 seconds: <b>Should students use phones in class?</b> Give your opinion, one reason and one example.`,
+`I think ... because ... For example, ...`,
+[[`A polite way to disagree:`,[`You are wrong.`,`I see your point, but...`,`Nonsense.`,`No.`],1,`It shows respect.`],
+ [`A good opinion answer has:`,[`only "yes"`,`opinion, reason and example`,`only an example`,`a long silence`],1,`Opinion, reason, example.`],
+ [`"I ___ that exercise is important."`,[`am thinking`,`think`,`thinks`,`thought`],1,`I think is the simple form.`]],
+{match:[[`I agree`,`same view`],[`I see your point, but...`,`polite disagreement`],[`In my opinion`,`gives your view`],[`For example`,`gives an example`]],matchInstruction:`Match each phrase to its job.`,
+ reorder:[{words:[`I`,`think`,`English`,`is`,`important`,`because`,`it`,`helps`,`in`,`jobs.`],instruction:`Build the opinion sentence.`}]})
+];
+sk[M.R]=[
+G('ac-m-r1','Reading for Main Idea and Detail',
+[`Skim for the main idea`,`Scan for names, dates and numbers`,`Answer True / False / Not given`],
+`<b>Skim:</b> read the title and first sentence of each paragraph to find the <b>main idea</b>. <b>Scan:</b> move your eyes quickly to find specific words, numbers or names.<br><br><b>True / False / Not given:</b> True = the text says it. False = the text says the opposite. <b>Not given</b> = the text does not say it either way.<br>Tip: do not use your own knowledge, use only the text.`,
+`Text: "The library opens at 9 a.m. on weekdays and closes at 6 p.m. Students can borrow up to five books for two weeks."<br>1. The library opens at 8 a.m. → <b>False</b>.<br>2. Students can borrow five books → <b>True</b>.<br>3. The library has a café → <b>Not given</b>.`,
+[[`skim`,`to read quickly for the main idea`],[`scan`,`to look quickly for specific information`],[`not given`,`the text does not say`],[`main idea`,`the central point of a text`]],
+[`Reading every word slowly.`,`Using your own knowledge for Not given.`,`Choosing False when the text just does not mention it.`,`Not underlining numbers.`],
+`Text: "The course starts on 5 October and lasts 12 weeks. The fee is 20,000 rupees." Decide True / False / Not given: 1. The course lasts 12 weeks. 2. The fee is 25,000. 3. The course is online.`,
+`True, False, Not given.`,
+[[`To find a date quickly you:`,[`skim`,`scan`,`translate`,`memorise`],1,`Scan for specific information.`],
+ [`If the text does not mention it:`,[`True`,`False`,`Not given`,`Guess`],2,`Not given.`],
+ [`The main idea is found by:`,[`reading titles and first sentences`,`reading backwards`,`counting words`,`skipping everything`],0,`Skim.`]],
+{match:[[`skim`,`main idea`],[`scan`,`specific detail`],[`False`,`text says the opposite`],[`Not given`,`text is silent`]],matchInstruction:`Match each term to its meaning.`,
+ reorder:[{words:[`Scan`,`for`,`dates`,`and`,`numbers.`],instruction:`Build the sentence.`}]}),
+
+G('ac-m-r2','Writing an Informal Email or Message',
+[`Use a friendly structure`,`Write a short email to a friend`,`Use contractions and friendly phrases correctly`],
+`<b>Informal email structure:</b> 1. Greeting (Hi Ravi,) 2. Opening line (How are you? Thanks for your message.) 3. Main news (paragraph) 4. Closing line (Write soon.) 5. Sign-off (Best wishes, Priya / Take care).<br>Contractions are fine (I'm, don't). Use short paragraphs and friendly phrases: <b>By the way, Guess what!, I can't wait to...</b>`,
+`Hi Ravi,<br>How are you? Thanks for your message.<br>I'm writing to tell you that I got the scholarship! I'm so happy. I'm flying to the UK in September, and I can't wait to start my course.<br>Write soon and tell me your news.<br>Take care,<br>Priya`,
+[[`informal`,`friendly, relaxed style`],[`sign-off`,`the closing words before your name`],[`contraction`,`a short form such as I'm or don't`],[`news`,`new information`]],
+[`Forgetting a greeting or sign-off.`,`Writing one huge paragraph.`,`Using "u" and "gr8" in an email.`,`Switching between formal and informal.`],
+`Write a 5-line email to a friend telling them about your new course. Include a greeting, one piece of news, a question and a sign-off.`,
+`Hi ..., How are you? ... I'm happy to tell you ... What about you? Take care, ...`,
+[[`A good informal opening:`,[`Dear Sir,`,`Hi Ravi,`,`To whom,`,`Respected Madam,`],1,`Hi + name.`],
+ [`A friendly sign-off:`,[`Yours faithfully`,`Take care,`,`Regards sir`,`Thank you sir`],1,`Take care is friendly.`],
+ [`In informal emails contractions are:`,[`not allowed`,`fine`,`wrong`,`rude`],1,`I'm and don't are fine.`]],
+{match:[[`Hi Ravi,`,`greeting`],[`Guess what!`,`friendly news opener`],[`Write soon.`,`closing line`],[`Take care,`,`sign-off`]],matchInstruction:`Match each part to its job.`,
+ reorder:[{words:[`Thanks`,`for`,`your`,`message.`],instruction:`Build the opening line.`}]}),
+
+G('ac-m-r3','Writing a Clear Paragraph',
+[`Write a topic sentence`,`Support it with reasons and an example`,`Finish with a closing sentence`],
+`A good paragraph has a <b>topic sentence</b> (main idea), <b>2-3 supporting sentences</b> (reasons, facts, an example) and a <b>closing sentence</b>.<br>Use linking words: <b>first, also, for example, because, as a result, in conclusion</b>.<br>Stay on one idea only. Keep sentences clear, not too long.`,
+`<b>Topic:</b> Learning English is useful. <br><b>Paragraph:</b> Learning English is very useful for students. <b>First</b>, many university courses are taught in English. <b>Also</b>, English helps students find better jobs. <b>For example</b>, many companies ask for good English in interviews. <b>In conclusion</b>, English opens many doors.`,
+[[`topic sentence`,`the sentence that states the main idea`],[`support`,`reasons or examples that explain the main idea`],[`closing sentence`,`the last sentence that ends the paragraph`],[`for example`,`introduces an example`]],
+[`Several ideas in one paragraph.`,`No topic sentence.`,`No example.`,`Ending suddenly with no closing sentence.`],
+`Write a paragraph (5 sentences) on: <b>Why exercise is important.</b> Use a topic sentence, two reasons, one example and a closing sentence.`,
+`A 5-sentence paragraph with a clear topic sentence, support and a closing sentence.`,
+[[`The sentence that states the main idea is the:`,[`topic sentence`,`closing sentence`,`example`,`title only`],0,`It tells the reader what the paragraph is about.`],
+ [`To introduce an example use:`,[`however`,`for example`,`but`,`so`],1,`For example introduces an example.`],
+ [`A paragraph should have:`,[`one main idea`,`five ideas`,`no topic`,`only questions`],0,`One idea per paragraph.`]],
+{match:[[`first`,`starts a list of reasons`],[`also`,`adds another reason`],[`for example`,`gives an example`],[`in conclusion`,`ends the paragraph`]],matchInstruction:`Match each linker to its job.`,
+ reorder:[{words:[`English`,`opens`,`many`,`doors.`],instruction:`Build the closing sentence.`}]})
+];
+A.mid=sk;
+})();
+
+(function(){
+const A=window.__ACD; const G=A.G, M=A.M; const sk={};
+sk[M.W]=[
+G('ac-p-w1','Workplace Vocabulary and Collocations',
+[`Use 25 workplace words and common word pairs`,`Describe jobs, teams and tasks`,`Avoid unnatural word combinations`],
+`<b>People:</b> colleague, manager, supervisor, client, stakeholder, applicant, intern.<br><b>Work:</b> task, project, deadline, target, workload, schedule, budget, report, shift, promotion.<br><b>Collocations</b> (words that go together): <b>meet a deadline</b>, <b>make a decision</b>, <b>do research</b>, <b>give a presentation</b>, <b>attend a meeting</b>, <b>handle a complaint</b>, <b>reach a target</b>, <b>work overtime</b>, <b>take responsibility</b>.<br>Using the right collocation makes your English sound natural and professional.`,
+`"I <b>report to</b> the project manager. This quarter we must <b>meet</b> an important <b>deadline</b> and <b>reach</b> our sales <b>target</b>. I <b>attend</b> a team <b>meeting</b> every Monday and <b>give</b> a short <b>update</b>."`,
+[[`stakeholder`,`a person or group with an interest in a project`],[`workload`,`the amount of work you have to do`],[`collocation`,`words that are commonly used together`],[`report to`,`to have someone as your direct manager`]],
+[`Saying "do a decision" (make a decision).`,`Saying "make a research" (do research).`,`Saying "attend to a meeting" (attend a meeting).`,`Saying "do a presentation" (give a presentation).`],
+`Fill in the verb: 1. ___ a deadline 2. ___ a decision 3. ___ research 4. ___ a presentation 5. ___ a complaint (deal with).`,
+`meet, make, do, give, handle.`,
+[[`We must ___ the deadline.`,[`do`,`meet`,`take`,`give`],1,`Meet a deadline.`],
+ [`She ___ a decision yesterday.`,[`did`,`made`,`took`,`gave`],1,`Make a decision.`],
+ [`A person with an interest in a project is a:`,[`stakeholder`,`intern`,`shift`,`target`],0,`Stakeholder.`]],
+{match:[[`meet`,`a deadline`],[`make`,`a decision`],[`give`,`a presentation`],[`do`,`research`]],matchInstruction:`Match each verb with the noun it usually goes with.`,
+ reorder:[{words:[`We`,`must`,`meet`,`the`,`deadline.`],instruction:`Build the sentence.`}]}),
+
+G('ac-p-w2','Formal and Informal Register',
+[`Choose formal or informal words for the situation`,`Rewrite informal sentences formally`,`Avoid slang and contractions in formal writing`],
+`<b>Register</b> is how formal or informal your language is. Use formal language with managers, clients, officials and in exams.<br>Informal → Formal:<br>get → obtain/receive; ask for → request; need → require; start → commence/begin; help → assist; buy → purchase; look into → investigate; find out → determine; say sorry → apologise; ok → acceptable.<br>Formal writing: no contractions (do not), no slang, complete sentences, polite openings.<br>Informal: "Can you send me the file?" Formal: "<b>Could you please send me the file?</b>"`,
+`Informal: "Hi, I need the report by Friday."<br>Formal: "Good morning, <b>I would be grateful if you could send</b> the report by Friday."<br>Informal: "Sorry I'm late." Formal: "<b>I apologise for the delay.</b>"`,
+[[`register`,`the level of formality in language`],[`slang`,`very informal words used by a group`],[`formal`,`polite, serious and professional`],[`apologise`,`to say sorry formally`]],
+[`Using slang with clients.`,`Using contractions in a formal letter.`,`Being too formal in a message to a friend.`,`Mixing "Dear Sir" with "Hey".`],
+`Rewrite formally: 1. Can you help me? 2. I need the report. 3. Sorry I'm late. 4. We'll look into it.`,
+`Could you please assist me? I require the report. I apologise for the delay. We will investigate it.`,
+[[`The most formal option:`,[`Gimme the file.`,`Send me the file.`,`Could you please send me the file?`,`Send file pls.`],2,`Please with could is formal and polite.`],
+ [`A formal word for "buy":`,[`get`,`purchase`,`grab`,`pick up`],1,`Purchase.`],
+ [`In formal writing you should:`,[`use contractions`,`avoid contractions`,`use slang`,`use emojis`],1,`Write do not, not don't.`]],
+{match:[[`ask for`,`request`],[`help`,`assist`],[`need`,`require`],[`say sorry`,`apologise`]],matchInstruction:`Match each informal word to its formal form.`,
+ reorder:[{words:[`I`,`would`,`be`,`grateful`,`if`,`you`,`could`,`reply.`],instruction:`Build the formal sentence.`}]}),
+
+G('ac-p-w3','Linking and Signposting Language',
+[`Use linkers to organise ideas`,`Signpost a talk or an email`,`Show contrast, addition, result and example clearly`],
+`<b>Addition:</b> in addition, moreover, furthermore.<br><b>Contrast:</b> however, on the other hand, whereas, despite.<br><b>Result:</b> therefore, as a result, consequently.<br><b>Example:</b> for instance, such as.<br><b>Sequence:</b> firstly, next, finally.<br><b>Signposts in a talk:</b> "I'd like to begin by...", "Turning to...", "To sum up..."<br>Note the punctuation: <b>However,</b> starts a new sentence; <b>whereas</b> joins two clauses; <b>despite</b> is followed by a noun or -ing.`,
+`Remote work saves time. <b>However,</b> it can feel lonely. <b>Despite</b> <b>working</b> from home, she <b>attended</b> every meeting. Sales fell; <b>therefore</b>, we reduced the budget.`,
+[[`signpost`,`a word or phrase that tells the listener where you are in the talk`],[`moreover`,`in addition (formal)`],[`consequently`,`as a result`],[`whereas`,`used to compare two different things`]],
+[`Using "despite of".`,`Using "however" with a comma splice.`,`Overusing "and" and "but".`,`Using "moreover" for contrast.`],
+`Join: 1. Online learning is flexible. It can be isolating. (contrast) 2. The service was slow. Customers left. (result)`,
+`Online learning is flexible. However, it can be isolating. The service was slow; as a result, customers left.`,
+[[`Which shows contrast?`,[`moreover`,`however`,`therefore`,`for instance`],1,`However shows contrast.`],
+ [`"___ the rain, the event continued."`,[`Although`,`Despite`,`Because`,`However`],1,`Despite + noun.`],
+ [`Which shows result?`,[`consequently`,`whereas`,`for example`,`in addition`],0,`Consequently = as a result.`]],
+{match:[[`moreover`,`addition`],[`however`,`contrast`],[`therefore`,`result`],[`for instance`,`example`]],matchInstruction:`Match each linker to its job.`,
+ reorder:[{words:[`Despite`,`the`,`delay,`,`we`,`finished`,`on`,`time.`],instruction:`Build the sentence.`}]})
+];
+sk[M.G]=[
+G('ac-p-g1','Polite Requests, Modals and Diplomacy',
+[`Make polite requests`,`Soften opinions and refusals`,`Use could, would, might, may and "would you mind"`],
+`<b>Requests:</b> Can you...? (informal) → Could you...? → <b>Would you mind + -ing</b>? ("Would you mind sending the file?").<br><b>Permission:</b> May I...? Is it all right if I...?<br><b>Softening:</b> It might be better to... / I was wondering if you could... / Perhaps we could... / I'm afraid we can't...<br><b>Advice:</b> You should / You might want to / I'd recommend...<br>In professional English, the <b>longer and softer</b> the sentence, the more polite it sounds.`,
+`<b>Could you</b> send me the schedule, please?<br><b>Would you mind</b> checking this report?<br>I <b>was wondering if</b> you <b>could</b> extend the deadline.<br><b>I'm afraid</b> we cannot approve that.<br>You <b>might want to</b> add a summary.`,
+[[`diplomatic`,`careful, tactful and polite`],[`soften`,`to make a message less direct`],[`would you mind`,`a very polite way to ask someone to do something`],[`I'm afraid`,`used before bad news, politely`]],
+[`Saying "Would you mind to send?" (use sending).`,`Saying "You must do this" to a manager.`,`Saying "Give me the file".`,`Saying "I can't" without "I'm afraid".`],
+`Make these polite: 1. Give me the report. 2. You are wrong. 3. We cannot do it. 4. Extend the deadline.`,
+`Could you give me the report, please? I see it a little differently. I'm afraid we cannot do it. I was wondering if you could extend the deadline.`,
+[[`The most polite request:`,[`Send it.`,`Can you send it?`,`Would you mind sending it?`,`You must send it.`],2,`Would you mind + -ing is the most polite.`],
+ [`"I'm afraid" is used to:`,[`show fear`,`give bad news politely`,`ask a question`,`end a call`],1,`It softens bad news.`],
+ [`"Would you mind ___ this?"`,[`check`,`to check`,`checking`,`checked`],2,`Would you mind + -ing.`]],
+{match:[[`Can you...?`,`informal`],[`Could you...?`,`polite`],[`Would you mind...?`,`very polite`],[`Send it now.`,`too direct`]],matchInstruction:`Match each request to its level of politeness.`,
+ reorder:[{words:[`I`,`was`,`wondering`,`if`,`you`,`could`,`help`,`me.`],instruction:`Build the polite request.`}]}),
+
+G('ac-p-g2','Passive Voice in Formal and Business Writing',
+[`Use the passive when the action matters more than the person`,`Form passive in several tenses`,`Write formal reports with the passive`],
+`<b>Passive = be + past participle.</b> Use it when the doer is unknown, unimportant or when you want an objective tone (reports, notices, news).<br>Present: Reports <b>are submitted</b> every Friday. Past: The system <b>was updated</b> last night. Present perfect: The contract <b>has been signed</b>. Future: The results <b>will be announced</b> on Monday. Modal: This <b>must be completed</b> today.<br>Add <b>by + agent</b> only if it matters: The report was written <b>by the finance team</b>.<br>But do not overuse the passive: active is clearer when the doer is important.`,
+`Active: The company <b>launched</b> the product in May.<br>Passive: The product <b>was launched</b> in May.<br>"All applications <b>must be submitted</b> before 30 June. Applicants <b>will be notified</b> by email."`,
+[[`passive voice`,`a sentence where the action is more important than the doer`],[`agent`,`the person or thing that does the action`],[`objective`,`not personal, based on facts`],[`notify`,`to inform formally`]],
+[`Using the wrong participle ("was wrote").`,`Forgetting "be" ("The report submitted").`,`Overusing the passive everywhere.`,`Changing the meaning when turning active into passive.`],
+`Rewrite in the passive: 1. The team completed the project. 2. Someone will send the invoice. 3. We must submit the form by Friday.`,
+`The project was completed by the team. The invoice will be sent. The form must be submitted by Friday.`,
+[[`The report ___ yesterday.`,[`was finished`,`is finished`,`finished`,`finishing`],0,`Past passive: was finished.`],
+ [`Applicants ___ by email.`,[`will notify`,`will be notified`,`will notifying`,`notified`],1,`Future passive: will be notified.`],
+ [`The passive is common in:`,[`jokes`,`formal reports and notices`,`text messages`,`slang`],1,`It gives an objective tone.`]],
+{match:[[`is done`,`present passive`],[`was done`,`past passive`],[`has been done`,`present perfect passive`],[`will be done`,`future passive`]],matchInstruction:`Match each passive form to its tense.`,
+ reorder:[{words:[`The`,`results`,`will`,`be`,`announced`,`on`,`Monday.`],instruction:`Build the sentence.`}]}),
+
+G('ac-p-g3','Hypotheticals and Negotiation: Second and Third Conditionals',
+[`Use the second conditional for unreal present or future situations`,`Use the third conditional for past regrets`,`Negotiate politely using conditionals`],
+`<b>Second conditional:</b> If + past simple, <b>would</b> + base verb. For unreal or unlikely situations: If I <b>had</b> more time, I <b>would learn</b> French. In formal use: <b>If I were</b> you, I would...<br><b>Third conditional:</b> If + past perfect, <b>would have</b> + past participle. For past situations that did not happen: If we <b>had left</b> earlier, we <b>would have caught</b> the train.<br><b>Negotiation:</b> If you <b>could</b> deliver by Friday, we <b>would</b> be able to pay in advance. / We <b>would consider</b> a discount if you <b>ordered</b> in bulk.`,
+`"<b>If we ordered</b> 500 units, <b>would you offer</b> a discount?"<br>"<b>If I had known</b> about the deadline, I <b>would have started</b> earlier."<br>"We <b>would be happy to</b> continue <b>if</b> the price <b>were</b> lower."`,
+[[`hypothetical`,`imagined, not real`],[`regret`,`sadness about something in the past`],[`negotiate`,`to discuss to reach an agreement`],[`bulk`,`in large amounts`]],
+[`Saying "If I would have time".`,`Saying "If I had known, I would know".`,`Using "will" after if in second conditional.`,`Forgetting "have" in the third conditional.`],
+`Complete: 1. If I (have) more money, I (buy) a laptop. 2. If she (study) harder, she (pass) the exam (past, did not happen). 3. If you (order) 100 units, we (give) a discount.`,
+`had, would buy; had studied, would have passed; ordered, would give.`,
+[[`If I ___ you, I would accept.`,[`am`,`was`,`were`,`will be`],2,`If I were you is the standard advice form.`],
+ [`If she had studied, she ___ passed.`,[`would`,`would have`,`will have`,`had`],1,`Third conditional: would have + participle.`],
+ [`Which is correct?`,[`If I would have time, I would help.`,`If I had time, I would help.`,`If I have time, I would helped.`,`If I had time, I will help.`],1,`Second conditional.`]],
+{match:[[`If I had time...`,`second conditional`],[`If I had known...`,`third conditional`],[`would + base verb`,`second conditional result`],[`would have + participle`,`third conditional result`]],matchInstruction:`Match each pattern to its type.`,
+ reorder:[{words:[`If`,`we`,`ordered`,`more,`,`would`,`you`,`offer`,`a`,`discount?`],instruction:`Build the negotiation question.`}]})
+];
+sk[M.S]=[
+G('ac-p-s1','Job Interview Answers: The STAR Method',
+[`Answer "Tell me about yourself" in 60 seconds`,`Use STAR for experience questions`,`Close an interview professionally`],
+`<b>Tell me about yourself</b> (60 seconds): Present (who you are now) → Past (relevant study/experience) → Future (why this job). Not your whole life.<br><b>STAR</b> for "Tell me about a time when...": <b>S</b>ituation (context) → <b>T</b>ask (your responsibility) → <b>A</b>ction (what you did) → <b>R</b>esult (the outcome, with a number if possible).<br><b>Strengths:</b> name one + an example. <b>Weakness:</b> a real one + how you are improving it.<br>Close: "Thank you for your time. I'm very interested in the role."`,
+`"In my last project <b>(S)</b> our team had a tight deadline. <b>(T)</b> I was responsible for the final report. <b>(A)</b> I created a schedule, divided the tasks and checked each section. <b>(R)</b> We submitted two days early and received positive feedback."`,
+[[`STAR`,`Situation, Task, Action, Result`],[`strength`,`something you do well`],[`weakness`,`something you are improving`],[`feedback`,`comments on how well you did`]],
+[`Saying only "I am hardworking" with no example.`,`Telling your life story.`,`Speaking too fast when nervous.`,`Forgetting the Result.`],
+`Record a 60-second answer to <b>Tell me about yourself</b>: Present, Past, Future. Then a STAR answer about a challenge you handled.`,
+`A clear 60-second answer in 3 parts and a STAR answer with a result.`,
+[[`In STAR, the "R" stands for:`,[`Reason`,`Result`,`Reply`,`Role`],1,`Result.`],
+ [`The best "Tell me about yourself" is:`,[`your childhood`,`present, past, future in 60 seconds`,`a list of hobbies`,`one word`],1,`Keep it focused.`],
+ [`A good weakness answer includes:`,[`no weakness`,`a real weakness and how you are improving it`,`a joke`,`blaming others`],1,`Be honest and show action.`]],
+{match:[[`S`,`Situation`],[`T`,`Task`],[`A`,`Action`],[`R`,`Result`]],matchInstruction:`Match each STAR letter to its meaning.`,
+ reorder:[{words:[`I`,`was`,`responsible`,`for`,`the`,`final`,`report.`],instruction:`Build the Task sentence.`}]}),
+
+G('ac-p-s2','Meetings: Opening, Interrupting, Clarifying and Agreeing',
+[`Use key meeting phrases`,`Interrupt and clarify politely`,`Summarise decisions and next steps`],
+`<b>Open:</b> Shall we get started? The purpose of today's meeting is...<br><b>Give your view:</b> From my perspective... / I'd like to suggest...<br><b>Interrupt politely:</b> Sorry to interrupt, but... / Could I just add something?<br><b>Clarify:</b> Could you clarify what you mean by...? / So, if I understand correctly, you mean...<br><b>Agree / disagree:</b> I completely agree. / I see it slightly differently.<br><b>Close:</b> To sum up, we have agreed to... The next steps are... Who will take action?`,
+`"Shall we get started? <b>The purpose of today's meeting is</b> to review the budget." ... "<b>Sorry to interrupt, but</b> could I just add something?" ... "<b>To sum up</b>, we agreed to approve the plan. <b>The next step</b> is for Ravi to send the revised budget by Friday."`,
+[[`agenda`,`the list of topics for a meeting`],[`minutes`,`the written record of a meeting`],[`action point`,`a task someone agrees to do`],[`clarify`,`to make something clear`]],
+[`Interrupting without "Sorry".`,`Saying "What do you mean?" in a harsh tone.`,`No summary at the end.`,`Not assigning responsibility for actions.`],
+`Role-play a 2-minute meeting: open it, give one suggestion, interrupt politely once, ask for clarification, and close with action points.`,
+`Shall we get started? ... Sorry to interrupt, but ... To sum up, ... The next step is...`,
+[[`To interrupt politely:`,[`Stop talking.`,`Sorry to interrupt, but...`,`Wait!`,`No.`],1,`Soft and polite.`],
+ [`"Action points" are:`,[`jokes`,`tasks agreed at the meeting`,`late arrivals`,`coffee breaks`],1,`Tasks with owners.`],
+ [`A good closing phrase:`,[`That is all.`,`To sum up, we agreed...`,`Goodbye now.`,`Finished.`],1,`Summarise decisions.`]],
+{match:[[`agenda`,`list of topics`],[`minutes`,`written record`],[`clarify`,`make clear`],[`action point`,`task to do`]],matchInstruction:`Match each meeting word to its meaning.`,
+ reorder:[{words:[`Sorry`,`to`,`interrupt,`,`but`,`could`,`I`,`add`,`something?`],instruction:`Build the interruption.`}]}),
+
+G('ac-p-s3','Presentations: Opening, Signposting, Closing and Q&A',
+[`Structure a 3-minute presentation`,`Use signposting language`,`Handle questions confidently`],
+`<b>Structure:</b> Opening → 3 main points → Closing.<br><b>Open:</b> Good morning, everyone. My name is... Today I'd like to talk about... I'll cover three points.<br><b>Signpost:</b> Let's begin with... / Moving on to... / This brings me to... / Let me give you an example.<br><b>Close:</b> To sum up... / In conclusion... Thank you for listening. I'd be happy to take questions.<br><b>Q&A:</b> That's a good question. / Could you repeat that, please? / I'm not sure, but I'll check and get back to you.<br>Speak slowly, pause, make eye contact, and stress key words.`,
+`"Good morning, everyone. <b>Today I'd like to talk about</b> online learning. <b>I'll cover</b> three points: flexibility, cost and challenges. <b>Let's begin with</b> flexibility..." ... "<b>To sum up</b>, online learning offers flexibility, but it needs discipline. Thank you. <b>I'd be happy to take questions.</b>"`,
+[[`signposting`,`phrases that guide the audience through the talk`],[`audience`,`the people listening`],[`eye contact`,`looking at the listeners`],[`get back to you`,`reply later with more information`]],
+[`Reading from slides word for word.`,`No clear structure.`,`Speaking too fast.`,`Saying "I don't know" without offering to check.`],
+`Prepare and record a 3-minute talk on <b>Advantages and disadvantages of remote work</b> with an opening, three points, signposts and a closing.`,
+`A structured talk using signposting phrases.`,
+[[`A signposting phrase:`,[`Um...`,`Let's move on to...`,`Right.`,`Okay so.`],1,`It guides the audience.`],
+ [`When you do not know an answer:`,[`Stay silent.`,`That's a good question. I'll check and get back to you.`,`Say it is a bad question.`,`Leave.`],1,`Be honest and professional.`],
+ [`A presentation closing includes:`,[`a summary and thanks`,`a new topic`,`a long story`,`nothing`],0,`Sum up and thank.`]],
+{match:[[`Today I'd like to talk about...`,`opening`],[`Moving on to...`,`signposting`],[`To sum up...`,`closing`],[`That's a good question.`,`handling Q&A`]],matchInstruction:`Match each phrase to its part of the talk.`,
+ reorder:[{words:[`Let's`,`begin`,`with`,`the`,`first`,`point.`],instruction:`Build the signpost.`}]})
+];
+sk[M.R]=[
+G('ac-p-r1','Professional Emails: Requests, Follow-ups and Complaints',
+[`Use a professional email structure`,`Write a clear subject line`,`Write a polite request, follow-up and complaint`],
+`<b>Structure:</b> Subject → Greeting (Dear Mr Kumar, / Dear Hiring Manager,) → Purpose (I am writing to...) → Details → Action requested (Could you please...?) → Closing (I look forward to your reply.) → Sign-off (Yours sincerely, if you know the name; Yours faithfully, if you do not; Kind regards) + full name.<br><b>Subject lines:</b> short and specific: "Request for extension - Essay deadline".<br><b>Follow-up:</b> I am writing to follow up on my email of 5 May. <b>Complaint:</b> state the problem, the facts, and the solution you want, in a calm tone.`,
+`<b>Subject:</b> Request for deadline extension - Module ENG201<br>Dear Dr Rao,<br><b>I am writing to request</b> a one-week extension for my essay because I was unwell last week. I have attached a medical certificate. <b>I would be grateful if you could</b> let me know whether this is possible.<br><b>I look forward to your reply.</b><br>Kind regards,<br>Priya Kumar`,
+[[`subject line`,`the short title of an email`],[`attach`,`to add a file to an email`],[`follow up`,`to contact again about an earlier message`],[`yours faithfully`,`sign-off when you do not know the name`]],
+[`Writing "Respected sir" (old-fashioned) instead of "Dear Sir/Dr ...".`,`An empty or vague subject line.`,`Writing everything in one paragraph.`,`Forgetting to mention attachments.`],
+`Write a professional email to a landlord about a broken heater. State the problem, when it started, and when you need it fixed. Include a subject line.`,
+`Subject: Broken heater - Flat 4. Dear Mr ... I am writing to report ... I would be grateful if it could be repaired by ... Kind regards, ...`,
+[[`A good subject line:`,[`Hello`,`Urgent!!!`,`Request for extension - Module ENG201`,`Please read`],2,`It is short and specific.`],
+ [`If you do not know the person's name:`,[`Yours faithfully`,`Yours sincerely`,`See you`,`Bye`],0,`Dear Sir/Madam ... Yours faithfully.`],
+ [`The purpose of the opening is to:`,[`say why you are writing`,`tell a joke`,`give your life story`,`close the email`],0,`I am writing to...`]],
+{match:[[`I am writing to...`,`states the purpose`],[`I look forward to your reply.`,`closing line`],[`Kind regards,`,`sign-off`],[`Attached is...`,`mentions an attachment`]],matchInstruction:`Match each phrase to its job.`,
+ reorder:[{words:[`I`,`am`,`writing`,`to`,`request`,`an`,`extension.`],instruction:`Build the opening sentence.`}]}),
+
+G('ac-p-r2','Writing a Short Report and Summary',
+[`Structure a short report`,`Summarise information in your own words`,`Write recommendations`],
+`<b>Short report structure:</b> Title → Introduction (purpose) → Findings (facts and figures, in sections with headings) → Conclusion → Recommendations.<br>Use formal, objective language and the passive when suitable. Use headings and bullet points for clarity.<br><b>Summary:</b> keep the main ideas only, use your own words, shorter than the original (about one third), no personal opinion.<br>Phrases: <b>The purpose of this report is to...</b> / It was found that... / Most respondents said... / It is recommended that...`,
+`<b>Report on Student Library Use</b><br><b>Introduction:</b> The purpose of this report is to examine how students use the library.<br><b>Findings:</b> 70% of students visit weekly. Most respondents said opening hours are too short.<br><b>Recommendations:</b> It is recommended that the library <b>extend</b> its hours until 10 p.m.`,
+[[`findings`,`the facts discovered`],[`recommendation`,`a suggestion for action`],[`respondent`,`a person who answers a survey`],[`summary`,`a short version of the main ideas`]],
+[`Giving personal opinions in a summary.`,`Copying sentences directly (plagiarism).`,`Writing recommendations that do not match the findings.`,`No headings.`],
+`Write a 120-word report on: <b>How students in your class spend their free time</b>, with Introduction, Findings (two facts), and one Recommendation.`,
+`A short structured report with headings, facts and a recommendation.`,
+[[`The "Findings" section contains:`,[`opinions`,`facts and figures`,`greetings`,`jokes`],1,`Facts and figures.`],
+ [`A summary should be:`,[`longer than the original`,`shorter and in your own words`,`copied word for word`,`full of opinions`],1,`Shorter and in your own words.`],
+ [`"It is recommended that" introduces:`,[`a fact`,`a recommendation`,`a greeting`,`an apology`],1,`It introduces a suggestion.`]],
+{match:[[`Introduction`,`purpose of the report`],[`Findings`,`facts discovered`],[`Conclusion`,`main summary`],[`Recommendations`,`suggested actions`]],matchInstruction:`Match each section to its job.`,
+ reorder:[{words:[`The`,`purpose`,`of`,`this`,`report`,`is`,`to`,`examine`,`library`,`use.`],instruction:`Build the opening sentence.`}]}),
+
+G('ac-p-r3','CV, Cover Letter and Professional Profile',
+[`Write a clear CV structure`,`Use strong action verbs and results`,`Write a short cover letter and profile summary`],
+`<b>CV sections:</b> Contact details → Profile (3 lines) → Education → Experience → Skills → Achievements.<br>Start each bullet with an <b>action verb</b> in the past tense (managed, organised, created, improved, led, analysed) and add a <b>result</b>: "Organised a college event for 300 students, raising 50,000 rupees."<br><b>Cover letter:</b> 3 short paragraphs: why this job, why you (2 strengths + evidence), closing with thanks and availability.<br><b>Profile summary:</b> "Motivated commerce graduate with strong communication skills, seeking an entry-level role in customer support."`,
+`<b>Profile:</b> Motivated commerce graduate with strong communication skills and experience in event management.<br><b>Experience:</b><br>• <b>Led</b> a team of 5 volunteers for a college fest.<br>• <b>Reduced</b> registration time by 30% by introducing an online form.`,
+[[`CV`,`a short document about your education and experience`],[`action verb`,`a strong verb like led, created, improved`],[`achievement`,`something successful you did`],[`cover letter`,`a letter that goes with your CV`]],
+[`Writing "responsible for" in every line.`,`Using "I" in CV bullets.`,`No numbers or results.`,`A CV longer than two pages.`],
+`Write 3 CV bullet points about something you did (a project, event or job), each starting with an action verb and including a result.`,
+`For example: Organised ... for 200 students; Improved ... by 20%; Created ... that helped ...`,
+[[`A CV bullet should start with:`,[`I am`,`an action verb`,`Because`,`Maybe`],1,`Led, created, improved, etc.`],
+ [`The best bullet is:`,[`Did many things.`,`Organised an event for 300 students and raised 50,000 rupees.`,`Hard worker.`,`Was there.`],1,`Action + result with numbers.`],
+ [`A cover letter should be:`,[`3 short paragraphs`,`10 pages`,`one word`,`a poem`],0,`Short and focused.`]],
+{match:[[`led`,`managed a team`],[`created`,`made something new`],[`improved`,`made better`],[`analysed`,`studied data`]],matchInstruction:`Match each CV verb to its meaning.`,
+ reorder:[{words:[`Organised`,`a`,`college`,`event`,`for`,`300`,`students.`],instruction:`Build the CV bullet.`}]})
+];
+A.pro=sk;
+})();
+
+(function(){
+const A=window.__ACD; if(!A||!A.basic)return;
+const M=A.M, mods=[M.W,M.G,M.S,M.R];
+const cnt=o=>Object.values(o).reduce((n,a)=>n+a.length,0);
+const T={
+  name:'English Academy: Basic to Professional', ready:true,
+  stats:[[String(cnt(A.basic)+cnt(A.mid)+cnt(A.pro)),'Lessons'],['3','Levels'],['Free','Basic has Tamil support']],
+  info:{
+    why:[
+      ['🪜','Zero to Professional, Step by Step','Three levels: Basic (A1), Everyday (A2-B1) and Professional (B2). Start where the placement test puts you and move up when you are ready.'],
+      ['🗣️','Words, Grammar, Speaking, Reading & Writing','Every level has the same four areas, so your skills grow together instead of just grammar.'],
+      ['💼','Real-Life and Workplace English','From shopping and directions, to university and travel, to interviews, meetings, presentations, emails and reports.'],
+    ],
+    sections:[
+      ['Level 1 · Basic English','12 lessons','Everyday words, am/is/are, simple present, greetings, directions, shopping, reading profiles and writing short messages. Tamil support is included.'],
+      ['Level 2 · Everyday English','12 lessons','Travel and university words, past, perfect and future tenses, plans, opinions, emails and paragraphs.'],
+      ['Level 3 · Professional English','12 lessons','Workplace vocabulary, formal register, diplomatic language, passive and conditionals, interviews, meetings, presentations, business emails, reports and CVs.'],
+    ],
+    mistakes:[
+      ['1','Starting too high','Take the placement test on your dashboard first. It is better to move up quickly than to feel lost.'],
+      ['2','Reading without speaking','Say every example aloud, and record yourself. Use Spark to practise the speaking lessons.'],
+      ['3','Skipping Reading & Writing','Real progress needs all four areas. Write the small tasks, they take 5 minutes.'],
+    ],
+  },
+  coaching:[
+    ['🎤','Practise with Spark','After each Speaking lesson, repeat the task with Spark and ask for feedback.'],
+    ['🗣️','Ask Your Counsellor','Share your recordings and writing with your counsellor for personal feedback.'],
+  ],
+  modules:mods, gettingStarted:[],
+  levels:[
+    {key:'basic',name:'Level 1 · Basic English (A1)',band:'No prior knowledge needed. Tamil support included.',skills:A.basic,order:['ac-b-w1','ac-b-s1','ac-b-w2','ac-b-g1','ac-b-w3','ac-b-g2','ac-b-s2','ac-b-g3','ac-b-s3','ac-b-r1','ac-b-r2','ac-b-r3']},
+    {key:'mid',name:'Level 2 · Everyday English (A2-B1)',band:'You can make simple sentences and want to talk about the past, future and opinions.',skills:A.mid,order:['ac-m-w1','ac-m-w2','ac-m-g1','ac-m-s1','ac-m-r1','ac-m-g3','ac-m-s2','ac-m-w3','ac-m-g2','ac-m-r2','ac-m-s3','ac-m-r3']},
+    {key:'pro',name:'Level 3 · Professional English (B2)',band:'For work, interviews, meetings and formal writing.',skills:A.pro,order:['ac-p-w1','ac-p-g1','ac-p-w2','ac-p-s1','ac-p-r1','ac-p-w3','ac-p-g2','ac-p-s2','ac-p-r2','ac-p-g3','ac-p-s3','ac-p-r3']}
+  ]
+};
+TEST_DATA.English=T;
+try{
+  const keys=Object.keys(TEST_DATA), gi=keys.indexOf('Grammar');
+  const order=['Grammar','English','Pronunciation'];
+  const rest=keys.filter(k=>order.indexOf(k)<0);
+  const hold={}; keys.forEach(k=>hold[k]=TEST_DATA[k]); keys.forEach(k=>delete TEST_DATA[k]);
+  order.forEach(k=>{ if(hold[k])TEST_DATA[k]=hold[k]; }); rest.forEach(k=>{TEST_DATA[k]=hold[k];});
+}catch(e){}
+})();
+
+(function(){
 // ---- listen helper (browser / Android text-to-speech) ----
 window.s4pSay=function(t){
   try{
@@ -9152,11 +9737,11 @@ const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 
 // ---------- levels ----------
 const LEVELS=[
- {n:0,name:'Level 0',title:'Foundations',cefr:'Pre-A1',desc:'Start from the alphabet, letter sounds and your first words.',gram:'Parts of Speech',pron:'Letter Sounds & Phonics'},
- {n:1,name:'Level 1',title:'Beginner English',cefr:'A1',desc:'You know some words. Build simple sentences with nouns, verbs, is/am/are and questions.',gram:'Parts of Speech',pron:'Vowel Sounds'},
- {n:2,name:'Level 2',title:'Elementary English',cefr:'A2',desc:'You can make simple sentences. Next: tenses, comparisons and everyday accuracy.',gram:'Tenses & Agreement',pron:'Word Stress'},
- {n:3,name:'Level 3',title:'Intermediate English',cefr:'B1',desc:'You handle everyday English. Next: conditionals, passive, modal verbs and longer sentences.',gram:'Beyond the Basics',pron:'Sentence Stress'},
- {n:4,name:'Level 4',title:'Upper-Intermediate English',cefr:'B2',desc:'Strong base. Focus on idioms, collocations, style and exam skills (IELTS, TOEFL, PTE).',gram:'Words & Idioms',pron:'Intonation'}
+ {n:0,name:'Level 0',title:'Foundations',cefr:'Pre-A1',desc:'Start from the alphabet, letter sounds and your first words.',gram:'Parts of Speech',pron:'Letter Sounds & Phonics',eng:'basic'},
+ {n:1,name:'Level 1',title:'Beginner English',cefr:'A1',desc:'You know some words. Build simple sentences with nouns, verbs, is/am/are and questions.',gram:'Parts of Speech',pron:'Vowel Sounds',eng:'basic'},
+ {n:2,name:'Level 2',title:'Elementary English',cefr:'A2',desc:'You can make simple sentences. Next: tenses, comparisons and everyday accuracy.',gram:'Tenses & Agreement',pron:'Word Stress',eng:'mid'},
+ {n:3,name:'Level 3',title:'Intermediate English',cefr:'B1',desc:'You handle everyday English. Next: conditionals, passive, modal verbs and longer sentences.',gram:'Beyond the Basics',pron:'Sentence Stress',eng:'mid'},
+ {n:4,name:'Level 4',title:'Upper-Intermediate English',cefr:'B2',desc:'Strong base. Focus on idioms, collocations, style and exam skills (IELTS, TOEFL, PTE).',gram:'Words & Idioms',pron:'Intonation',eng:'pro'}
 ];
 const levelFor=score=> score<=5?0 : score<=10?1 : score<=14?2 : score<=18?3 : 4;
 
@@ -9304,10 +9889,11 @@ function renderResult(p,justFinished){
   </div>
   <div class="pt-box">
     <div style="font-weight:700;margin-bottom:6px">Where to start</div>
-    <p class="pt-p" style="margin:0 0 10px">Grammar: <b>${E(L.gram)}</b><br>Pronunciation: <b>${E(L.pron)}</b>${p.level===0?'<br><span style="color:var(--ink3,#777)">Level 0: do the Pronunciation letter sounds first.</span>':''}</p>
+    <p class="pt-p" style="margin:0 0 10px">English Academy: <b>${E(L.title)} level</b><br>Grammar: <b>${E(L.gram)}</b><br>Pronunciation: <b>${E(L.pron)}</b>${p.level===0?'<br><span style="color:var(--ink3,#777)">Level 0: do the Pronunciation letter sounds first.</span>':''}</p>
     <div class="pt-row">
-      <button class="pt-btn" onclick="s4pGoTrack('Grammar','${E(L.gram).replace(/&amp;/g,'&')}')">Start Grammar</button>
-      <button class="pt-btn alt" onclick="s4pGoTrack('Pronunciation','${E(L.pron).replace(/&amp;/g,'&')}')">Start Pronunciation</button>
+      <button class="pt-btn" onclick="s4pGoTrack('English','','${L.eng}')">Start English Academy</button>
+      <button class="pt-btn alt" onclick="s4pGoTrack('Grammar','${E(L.gram).replace(/&amp;/g,'&')}')">Grammar</button>
+      <button class="pt-btn alt" onclick="s4pGoTrack('Pronunciation','${E(L.pron).replace(/&amp;/g,'&')}')">Pronunciation</button>
     </div>
   </div>
   <p class="pt-p" style="font-size:13.5px;color:var(--ink3,#777)">This test gives an estimate. You can open any lesson at any time, and your counsellor can adjust your level after speaking with you.</p>
@@ -9332,18 +9918,18 @@ window.ptRetake=function(){
 };
 
 // ---------- jump into a track ----------
-window.s4pGoTrack=async function(test,moduleName){
+window.s4pGoTrack=async function(test,moduleName,levelKey){
   try{
     showScreen('screen-testprep');
     await loadAllTpProgress();
     openTestDetail(test);
     setTpSubtab('lessons');
-    openLevelView('core');
+    openLevelView(levelKey||((TEST_DATA[test].levels||[])[0]||{}).key||'core');
     // scroll to the recommended topic area
     setTimeout(()=>{
       const el=document.getElementById('tp-subtab-content'); if(!el)return;
       const hit=[...el.querySelectorAll('div')].find(d=>d.children.length===0&&d.textContent.trim()===moduleName);
-      if(hit)hit.scrollIntoView({block:'start',behavior:'smooth'});
+      if(moduleName&&hit)hit.scrollIntoView({block:'start',behavior:'smooth'});
     },80);
   }catch(e){ console.warn('go track failed',e); }
 };
@@ -9361,14 +9947,15 @@ function trackLessons(test){
   const T=TEST_DATA[test]; if(!T)return [];
   const out=[];
   (T.gettingStarted||[]).forEach(l=>out.push({l,mod:null,src:'gs'}));
-  const lvl=(T.levels||[])[0]; if(!lvl)return out;
-  (T.modules||Object.keys(lvl.skills)).forEach(m=>(lvl.skills[m]||[]).forEach(l=>out.push({l,mod:m,src:'level',lvl:lvl.key})));
+  (T.levels||[]).forEach(lvl=>{
+    (T.modules||Object.keys(lvl.skills)).forEach(m=>(lvl.skills[m]||[]).forEach(l=>out.push({l,mod:m,src:'level',lvl:lvl.key})));
+  });
   return out;
 }
-function nextIn(test,startModule){
+function nextIn(test,startModule,startLevel){
   const list=trackLessons(test); const done=(tpProgressCache[test]||{});
   let from=0;
-  if(startModule){ const i=list.findIndex(x=>x.mod===startModule); if(i>=0)from=i; }
+  if(startLevel){ const i=list.findIndex(x=>x.lvl===startLevel); if(i>=0)from=i; } else if(startModule){ const i=list.findIndex(x=>x.mod===startModule); if(i>=0)from=i; }
   return list.slice(from).find(x=>!done[x.l.id]) || list.find(x=>!done[x.l.id]) || null;
 }
 window.s4pOpenNext=function(test,id){
@@ -9392,9 +9979,9 @@ window.renderAcademyCard=async function(){
   cardBusy=true;
   try{
     try{ await loadAllTpProgress(); }catch(e){}
-    const tracks=['Grammar','Pronunciation'].filter(k=>TEST_DATA[k]);
+    const tracks=['English','Grammar','Pronunciation'].filter(k=>TEST_DATA[k]);
     let total=0,done=0;
-    tracks.forEach(t=>trackLessons(t).forEach(x=>{ total++; if((tpProgressCache[t]||{})[x.l.id])done++; }));
+    pathList().forEach(x=>{ total++; if((tpProgressCache[x.test]||{})[x.l.id])done++; });
     const pct=total?Math.round(done/total*100):0;
     const sc=LS('s4p_scores_v1_'+uid())||{}; const vals=Object.values(sc).filter(v=>v.t>0);
     const avg=vals.length?Math.round(vals.reduce((n,v)=>n+v.s/v.t,0)/vals.length*100)+'%':'—';
@@ -9408,7 +9995,7 @@ window.renderAcademyCard=async function(){
       if(typeof r.count==='number')talks=r.count;
     }catch(e){}
     const p=getP(); const L=p?LEVELS[p.level]:null;
-    const g=nextIn('Grammar',L&&L.gram), pr=nextIn('Pronunciation',L&&L.pron);
+    const nx=pathNext(L?L.n:0);
     const status=pct>=100?'Completed':pct>0?'In progress':'Not started';
     host.innerHTML=`<div class="ac-card">
       <div class="ac-top">
@@ -9426,19 +10013,570 @@ window.renderAcademyCard=async function(){
         <div class="ac-stat"><b>${words}</b><span>Words learned</span></div>
         <div class="ac-stat"><b>${talks}</b><span>Speaking activities</span></div>
       </div>
-      ${g?`<div class="ac-next" onclick="s4pOpenNext('Grammar','${g.l.id}')"><div class="t"><div class="k">Next lesson · Grammar</div><div class="n">${E(g.l.title)}</div><div class="a">Available to continue</div></div><div style="font-size:20px;color:var(--ink3,#777)">›</div></div>`:''}
-      ${pr?`<div class="ac-next" onclick="s4pOpenNext('Pronunciation','${pr.l.id}')"><div class="t"><div class="k">Next lesson · Pronunciation</div><div class="n">${E(pr.l.title)}</div><div class="a">Available to continue</div></div><div style="font-size:20px;color:var(--ink3,#777)">›</div></div>`:''}
+      ${nx?`<div class="ac-next" onclick="s4pOpenNext('${nx.test}','${nx.l.id}')"><div class="t"><div class="k">Next on your path · ${E(nx.stageName)} · ${E(nx.trackName)}</div><div class="n">${E(nx.l.title)}</div><div class="a">Available to continue</div></div><div style="font-size:20px;color:var(--ink3,#777)">›</div></div>`:''}
+      <span class="ac-link" onclick="openPath()" style="margin-right:16px">See my full learning path →</span>
       <span class="ac-link" onclick="openPlacement()">${p?'View or retake my placement test →':'Take the 20-question placement test →'}</span>
     </div>`;
   }catch(e){ console.warn('academy card',e); }
   finally{ cardBusy=false; }
 };
 
+
+// ============ Whole learning path: easy -> hard across all tracks ============
+const STAGES=[
+ {n:1,name:'Stage 1 · Foundations',sub:'Words, first sentences, letter sounds and vowels',
+  parts:[['English','basic',null],['Grammar',null,['Getting Started','Parts of Speech','Everyday Sentence Basics','Sentence Skeleton']],['Pronunciation',null,['Letter Sounds & Phonics','Vowel Sounds']]]},
+ {n:2,name:'Stage 2 · Building',sub:'Past, future, plans, clear consonants and syllables',
+  parts:[['English','mid',null],['Grammar',null,['Sentence Building','Tenses & Agreement','Practical Fixes']],['Pronunciation',null,['Consonant Sounds','Syllables','Word Stress']]]},
+ {n:3,name:'Stage 3 · Growing',sub:'Longer sentences, voice, speech, rhythm and tone',
+  parts:[['Grammar',null,['Beyond the Basics','Syntax, Voice & Speech']],['Pronunciation',null,['Sentence Stress','Intonation','Common Difficulties']]]},
+ {n:4,name:'Stage 4 · Professional',sub:'Work, interviews, meetings, reports and style',
+  parts:[['English','pro',null],['Grammar',null,['Words & Idioms']]]}
+];
+const TRACK_NAME={English:'English Academy',Grammar:'Grammar',Pronunciation:'Pronunciation'};
+let _pathCache=null;
+function pathList(){
+  if(_pathCache)return _pathCache;
+  const out=[];
+  STAGES.forEach(st=>{
+    const bucket=[];
+    st.parts.forEach(([test,lvlKey,mods])=>{
+      const T=TEST_DATA[test]; if(!T)return;
+      let items=[];
+      if(lvlKey){
+        const lvl=(T.levels||[]).find(l=>l.key===lvlKey); if(!lvl)return;
+        const ord=lvl.order||[]; const all=[];
+        Object.entries(lvl.skills).forEach(([m,ls])=>ls.forEach(l=>all.push({l,mod:m})));
+        items=ord.length?ord.map(id=>all.find(x=>x.l.id===id)).filter(Boolean):all;
+        items=items.map(x=>({test,l:x.l,mod:x.mod,src:'level',lvl:lvlKey}));
+      } else {
+        const lvl=(T.levels||[])[0];
+        mods.forEach(m=>{
+          if(m==='Getting Started')(T.gettingStarted||[]).forEach(l=>items.push({test,l,mod:null,src:'gs'}));
+          else if(lvl)(lvl.skills[m]||[]).forEach(l=>items.push({test,l,mod:m,src:'level',lvl:lvl.key}));
+        });
+      }
+      items.forEach((x,i)=>bucket.push(Object.assign(x,{stage:st.n,stageName:st.name,trackName:TRACK_NAME[test]||test,pos:(i+.5)/items.length})));
+    });
+    bucket.sort((a,b)=>a.pos-b.pos);
+    out.push(...bucket);
+  });
+  _pathCache=out; return out;
+}
+window.pathList=pathList;
+function pathNext(level){
+  const list=pathList(); const startStage=level<=1?1:level===2?2:level===3?3:4;
+  const open=x=>!(tpProgressCache[x.test]||{})[x.l.id];
+  return list.find(x=>x.stage>=startStage&&open(x))||list.find(open)||null;
+}
+window.openPath=async function(){
+  try{ if(typeof requireRealLogin==='function'&&!requireRealLogin())return; }catch(e){}
+  ensureDom();
+  if(!document.getElementById('screen-path')){
+    const d=document.createElement('div'); d.className='screen'; d.id='screen-path';
+    d.innerHTML='<span class="back-link" onclick="showScreen(\'screen-dashboard\')">← Back to dashboard</span><div id="path-body" class="pt-wrap"></div>';
+    document.getElementById('screen-dashboard').parentNode.appendChild(d);
+  }
+  showScreen('screen-path');
+  try{ await loadAllTpProgress(); }catch(e){}
+  const p=getP(), lv=p?p.level:0, nx=pathNext(lv);
+  const list=pathList(); const done=x=>!!(tpProgressCache[x.test]||{})[x.l.id];
+  let html=`<h1 class="pt-h">My Learning Path</h1><p class="pt-p">One path from easy to hard. Every lesson is open, so you can jump anywhere. The highlighted lesson is the one we suggest next.</p>`;
+  STAGES.forEach(st=>{
+    const ls=list.filter(x=>x.stage===st.n); const d=ls.filter(done).length;
+    html+=`<div class="pt-box"><div style="display:flex;justify-content:space-between;gap:8px"><div><b>${E(st.name)}</b><div style="font-size:13px;color:var(--ink3,#777)">${E(st.sub)}</div></div><div style="font-weight:700;white-space:nowrap">${d}/${ls.length}</div></div>
+    <div class="pt-prog" style="margin:8px 0 4px"><div style="width:${ls.length?Math.round(d/ls.length*100):0}%"></div></div>`;
+    ls.forEach(x=>{
+      const isNext=nx&&nx.l.id===x.l.id&&nx.test===x.test;
+      html+=`<div class="tp-module-row" onclick="s4pOpenNext('${x.test}','${x.l.id}')" style="cursor:pointer;${isNext?'border-color:var(--pine3,#E08429);background:var(--cream,#F6F3EC)':''}">
+        <div class="tp-module-check ${done(x)?'done':''}">${done(x)?'✓':''}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600">${E(x.l.title)}</div><div style="font-size:12.5px;color:var(--ink3,#777)">${E(x.trackName)}${x.mod?' · '+E(x.mod):''}${isNext?' · <b style="color:var(--pine3,#E08429)">Suggested next</b>':''}</div></div>
+        <div style="color:var(--ink3,#777);font-size:16px">›</div></div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('path-body').innerHTML=html;
+};
+
+// ============ Easy -> hard inside a lesson ============
+// Recognise (match) -> choose (quiz, shortest first) -> build (reorder, shortest first) -> produce (practice, last)
+try{
+  const _b=buildLstepSteps;
+  buildLstepSteps=function(lesson,ctx){
+    const steps=_b(lesson,ctx);
+    const head=steps.filter(s=>['intro','concept','example','vocab','mistakes'].includes(s.kind)||s.extra);
+    const by=k=>steps.filter(s=>s.kind===k&&!s.extra);
+    const weight=q=>(q.q||'').length+Math.max(0,...(q.options||[]).map(o=>String(o).length));
+    const quiz=by('quiz').sort((x,y)=>weight(x.q)-weight(y.q)).map((s,i)=>Object.assign({},s,{i}));
+    const reo=by('reorder').sort((x,y)=>x.words.length-y.words.length);
+    const known=new Set(['intro','concept','example','vocab','mistakes','practice','match','reorder','quiz','complete']);
+    const other=steps.filter(s=>!s.extra&&!known.has(s.kind));
+    // keep original relative order of intro..mistakes (including vocab-check extras)
+    const lead=steps.filter(s=>s.extra||['intro','concept','example','vocab','mistakes'].includes(s.kind));
+    return [...lead,...other,...by('match'),...quiz,...reo,...by('practice'),...by('complete')];
+  };
+}catch(e){ console.warn('step order patch skipped',e); }
+
+// ============ Easy -> hard inside a level (English Academy shows one ordered list) ============
+try{
+  const _olv=openLevelView;
+  openLevelView=function(levelKey){
+    const t=TEST_DATA[currentTpTest]; const lvl=t&&(t.levels||[]).find(l=>l.key===levelKey);
+    if(!lvl||!lvl.order)return _olv(levelKey);
+    currentTpLevel=levelKey;
+    const all=[]; Object.entries(lvl.skills).forEach(([m,ls])=>ls.forEach(l=>all.push({l,m})));
+    const rows=lvl.order.map(id=>all.find(x=>x.l.id===id)).filter(Boolean);
+    document.getElementById('tp-subtab-content').innerHTML=`
+      <span class="back-link" onclick="renderLessonsRoot()">← All levels</span>
+      <div style="font-family:var(--font-h);font-size:16px;font-weight:600;color:var(--pine);margin-bottom:2px">${esc(lvl.name)}</div>
+      <div style="font-size:13.5px;color:var(--ink3);margin-bottom:6px">${esc(lvl.band)}</div>
+      <div style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">Lessons are ordered from easiest to hardest.</div>
+      ${rows.map((x,i)=>`<div class="tp-module-row" onclick="openLessonView('level','${levelKey}','${esc(x.m)}','${x.l.id}')" style="cursor:pointer">
+        <div class="tp-module-check ${(tpProgressCache[currentTpTest]||{})[x.l.id]?'done':''}">${(tpProgressCache[currentTpTest]||{})[x.l.id]?'✓':''}</div>
+        <div style="flex:1"><div style="font-size:15.5px;font-weight:600">${i+1}. ${esc(x.l.title)}</div><div style="font-size:13px;color:var(--ink3)">${esc(x.m)} · ${esc(x.l.time)}</div></div>
+        <div style="color:var(--ink3);font-size:16px">›</div></div>`).join('')}`;
+  };
+}catch(e){ console.warn('level order patch skipped',e); }
+
 // refresh the card whenever the dashboard is shown
 try{
   const _ss=showScreen;
   showScreen=function(id){ _ss(id); if(id==='screen-dashboard'){ try{ renderAcademyCard(); }catch(e){} } };
 }catch(e){}
+})();
+
+(function(){
+/* ============================================================
+   Study Abroad Guide: data + screen.
+   Content is DATA (S4P_GUIDE) so it can later move to a database table
+   and be edited from the CRM without a new app release.
+   "rules" sections hold facts that change; each carries the check date.
+   ============================================================ */
+const CHECKED='2 Nov 2026';
+// item types: do, dont, tip, update, ahead, fact
+const I=(t,h,d)=>({t,h,d:d||''});
+const OFF={
+  UK:['GOV.UK: Student visa','https://www.gov.uk/student-visa'],
+  USA:['US Dept of State: Student visa','https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html'],
+  CA:['IRCC: Study in Canada','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada.html'],
+  AU:['Home Affairs: Student visa (500)','https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500'],
+  IE:['Irish Immigration: Study in Ireland','https://www.irishimmigration.ie/coming-to-study-in-ireland/'],
+  DE:['DAAD: Study in Germany','https://www.daad.de/en/'],
+  FR:['Campus France','https://www.campusfrance.org/en'],
+  NL:['Study in NL','https://www.studyinnl.org/']
+};
+const G={
+ checked:CHECKED,
+ disclaimer:'This guide is for general information, not legal or immigration advice. Rules change often. Always confirm on the official site and with your counsellor before you apply or travel.',
+ countries:[
+ {key:'general',flag:'🌍',name:'General',blurb:'Do\'s and don\'ts that apply almost everywhere.',sections:[
+  {title:'Before you go',icon:'🧳',kind:'guide',items:[
+   I('do','Carry both originals and copies of key documents','Passport, offer letter, funds proof, accommodation proof, insurance, photos, academic certificates. Keep digital copies in your email and cloud storage too.'),
+   I('do','Keep your money story consistent','Bank statements, sponsor letters and your own answers should all match. Inconsistency is a common reason for refusal.'),
+   I('dont','Never use fake or edited documents','Even one false document can mean a refusal and a long ban for every future application. Your counsellor can help fix a genuine gap.'),
+   I('do','Buy travel insurance and learn your health cover','Know what is covered, how to see a doctor and what to do in an emergency.'),
+   I('tip','Take a small amount of local currency','Plus a forex card. Open a local bank account in the first week.'),
+   I('tip','Book your first 2 to 4 weeks of accommodation before you fly','Use the university\'s own housing or a well-known platform, never pay a deposit to someone you have not verified.')]},
+  {title:'Work, money and rules',icon:'💼',kind:'guide',items:[
+   I('dont','Do not work more than your visa allows','Going over the weekly limit can cancel your visa, even if your employer asked you to. Keep a record of your hours.'),
+   I('do','Learn the tax and ID numbers','National Insurance (UK), SSN or ITIN (USA), SIN (Canada), TFN (Australia), PPS (Ireland), tax ID (Germany). You usually need one before you can work legally.'),
+   I('tip','Track deadlines','Visa end date, enrolment, insurance renewals and permit extensions. Set phone reminders 60 days ahead.')]},
+  {title:'Culture and everyday manners',icon:'🤝',kind:'guide',items:[
+   I('do','Be on time','Being 5 to 10 minutes early is normal for classes, jobs and appointments. Message if you are going to be late.'),
+   I('do','Queue patiently','Pushing in is seen as rude in most of these countries.'),
+   I('do','Say "please", "thank you" and "sorry" often','These small words are a big part of polite English.'),
+   I('do','Make eye contact and give a firm, friendly greeting','Smile, say your name and ask a short question back. Small talk about weather, studies and weekend plans is normal.'),
+   I('dont','Do not ask very personal questions early','Age, salary, religion and marriage are usually private with new people.'),
+   I('do','Respect personal space','Stand about an arm\'s length away in queues and conversations.'),
+   I('dont','Do not copy and paste work','Plagiarism is treated seriously at universities everywhere. Always reference your sources.')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Never pay a "visa fee" or "fast-track" to a stranger','Official fees are paid only on government or university websites. Be careful with unknown agents on social media.'),
+   I('dont','Do not send passport photos or bank details to unverified people','Fake job offers and fake landlords are common scams for new arrivals.'),
+   I('do','Save emergency numbers and your embassy contact','Share your address with a family member and your counsellor.')]},
+  {title:'Smart tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Join your university\'s international and Indian student societies in week 1','They run free airport pick-ups, group trips and job tips.'),
+   I('tip','Use the university career centre early','CV checks, mock interviews and part-time job boards are free.'),
+   I('tip','Learn the local transport apps and student discounts','Student travel cards and railcards can save a lot every month.'),
+   I('tip','Keep a "first 30 days" checklist','Bank, SIM, address proof, GP or health registration, student card, ID number.')]},
+  {title:'Looking ahead',icon:'🔭',kind:'ahead',items:[
+   I('ahead','Governments are moving from "more students" to "quality and fit"','Expect clearer proof of funds, stricter interviews, caps by provider and shorter post-study stays in several countries. Have a Plan B country.'),
+   I('ahead','AI skills are becoming a normal job requirement','Learn how to use AI tools well and honestly. Always follow your university\'s rules on AI in assignments.'),
+   I('ahead','Digital immigration status is replacing paper','More countries use online accounts and share codes. Keep your accounts secure and your email address active.'),
+   I('ahead','Build a small digital portfolio','Projects, certificates and a clean LinkedIn profile help with jobs and with visa interviews.')]}
+ ],sources:[]},
+
+ {key:'uk',flag:'🇬🇧',name:'United Kingdom',blurb:'Study visa, work limits, Graduate Route and daily life.',sections:[
+  {title:'Key numbers',icon:'📊',kind:'rules',items:[
+   I('fact','Work while studying','Degree-level students: up to 20 hours a week in term time, counted Monday to Sunday across all jobs. Other course levels are usually limited to 10 hours. Full-time work is allowed in official vacations.'),
+   I('fact','Not allowed','Self-employment, most freelance work, permanent roles, professional sport or coaching.'),
+   I('fact','Funds to show (2026/27)','About £1,529 a month for London (up to 9 months, max £13,761) and £1,171 a month outside London (max £10,539), plus tuition due.'),
+   I('fact','Costs','Visa fee about £558 and Immigration Health Surcharge about £776 for each year of study. Check the exact amount on GOV.UK before paying.'),
+   I('fact','English','Generally B2 level for degree study, shown with an approved test or accepted evidence.'),
+   I('fact','Graduate Route','Currently 2 years after an eligible degree (3 for doctorates).')]},
+  {title:'Recent changes to watch',icon:'🔔',kind:'rules',items:[
+   I('update','Graduate Route shortens to 18 months','For applications made from 1 January 2027, the standard period is due to reduce to 18 months (doctoral graduates stay at 3 years). Plan your timing and confirm the date.'),
+   I('update','Digital status, not a card','Your immigration status is online (eVisa). Keep your UKVI account details safe and learn how to create a share code for employers and landlords.')]},
+  {title:'Visa application: do\'s and don\'ts',icon:'🛂',kind:'guide',items:[
+   I('do','Check that your CAS details match your passport exactly','Names, dates and course details must all match.'),
+   I('do','Keep your funds in your account for the required period','Show the money was held for the full period, with a clear source.'),
+   I('dont','Do not submit loan or relative letters in the wrong format','Follow GOV.UK format rules exactly or your application can fail.'),
+   I('do','Be ready to explain your course choice and plans','Credibility checks can happen, so know your course, university and why the UK.')]},
+  {title:'Culture and etiquette',icon:'☕',kind:'guide',items:[
+   I('do','Queue, and say "sorry" and "thanks"','Politeness is very important. "Cheers" can mean thanks.'),
+   I('do','Be understated and polite','British people often use soft language, so "that\'s interesting" can mean "I disagree".'),
+   I('do','Round up or add about 10 to 12% tip in sit-down restaurants','Check if service is already included.'),
+   I('dont','Do not talk loudly on public transport','Quiet is normal on trains and buses.')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('do','Know your rights as a tenant','Ask for a written contract, and check how your deposit is protected.'),
+   I('tip','Register with a GP','Do this in your first weeks. Your Health Surcharge gives you access to NHS care.'),
+   I('tip','Get a railcard and a student travel pass','Both can cut transport costs a lot.')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of fake accommodation adverts and "HMRC" or "visa" phone scams','Real authorities never ask for payment by gift card or crypto.'),
+   I('do','Call 999 for emergencies and 111 for non-emergency NHS advice','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Look at the Graduate Route and skilled worker route early','Pick modules and work placements that help you meet job requirements.'),
+   I('tip','Use university career services for part-time work','Many campus jobs are flexible around lectures.')]}
+ ],sources:[OFF.UK,['Paragon Law: UK student visa 2026','https://www.paragonlaw.co.uk/resources/uk-student-visa-2026-requirements-costs-work-rights'],['Davidson Morris: UK student working hours','https://www.davidsonmorris.com/uk-student-visa-working-hours/']]},
+
+ {key:'usa',flag:'🇺🇸',name:'United States',blurb:'F-1 interview, new fixed-stay rule, OPT and student life.',sections:[
+  {title:'Key numbers and rules',icon:'📊',kind:'rules',items:[
+   I('fact','Interview','Most F-1 applicants now need an in-person interview, including renewals, because most interview waivers ended on 1 October 2025. Book early.'),
+   I('fact','Fees to plan for','SEVIS I-901 fee about $350 and visa application (MRV) fee about $185. A new Visa Integrity Fee of at least $250 is being phased in, so confirm the current amount.'),
+   I('fact','Social media','You must list your social media identifiers (usually for the past 5 years) on the DS-160. Keep profiles public and consistent with your application.'),
+   I('fact','Work','On-campus work up to 20 hours a week in term. CPT and OPT are available under conditions. STEM OPT extension is 180 days.')]},
+  {title:'Recent changes to watch',icon:'🔔',kind:'rules',items:[
+   I('update','Fixed stay replaces "duration of status"','A final rule published in July 2026 was scheduled to take effect on 15 September 2026. F-1 students are admitted for the length of the program on the I-20, not more than 4 years. The grace period after the program is cut to 30 days. Confirm details with your school\'s DSO.'),
+   I('update','Extensions and transfers','If you need more time, you must apply to USCIS before your admission period ends. Transfers are limited in the first academic year, and program changes have new limits.'),
+   I('update','Plan finances for the full program','Officers look closely at funds for the entire course, not just the first year.')]},
+  {title:'Visa interview: do\'s and don\'ts',icon:'🎤',kind:'guide',items:[
+   I('do','Speak clearly and answer only what is asked','The interview is short and is also a check of your English. Practise in Spark.'),
+   I('do','Explain why this course, this university and this country','Be specific about faculty, curriculum and your career goal.'),
+   I('do','Show how you will pay for the whole program','Know your sponsor\'s occupation, income and your documents.'),
+   I('dont','Do not memorise a speech','Officers can tell. Natural, honest answers are better.'),
+   I('dont','Do not argue or hide a refusal','If you were refused before, say so honestly and explain what changed.'),
+   I('do','Be calm and polite and keep documents organised','Carry the I-20, passport, DS-160 confirmation, SEVIS receipt, financial documents and test scores.')]},
+  {title:'Culture and etiquette',icon:'🗽',kind:'guide',items:[
+   I('do','Tip 15 to 20% in restaurants','Service is not included, and servers rely on tips.'),
+   I('do','Be friendly and use first names','Americans often start with casual, upbeat small talk.'),
+   I('do','Be direct but polite','Saying clearly what you need is normal. Silence can be read as lack of interest.'),
+   I('dont','Do not ask about salary, politics or religion at first meetings','')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('tip','Build a credit history early','A student credit card and on-time payments help with renting later.'),
+   I('tip','Learn about health insurance','Universities often require it, and a doctor visit without insurance can be very costly.'),
+   I('do','Respect on-campus work limits and keep your I-20 updated','Report address changes to your DSO as required.')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of fake "IRS", "immigration" or "university" callers','They threaten arrest or deportation to force payment. Hang up and call the official number.'),
+   I('do','Know campus emergency and non-emergency numbers and call 911 in an emergency','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Look for assistantships, on-campus jobs and CPT','These can reduce cost and build experience.'),
+   I('tip','Meet your DSO in week 1','Ask about work rules, travel signatures and OPT timelines.')]}
+ ],sources:[OFF.USA,['Ogletree: DHS final rule on fixed admission periods','https://ogletree.com/insights-resources/blog-posts/dhs-publishes-final-rule-replacing-duration-of-status-with-fixed-admission-periods-for-f-j-and-i-nonimmigrants/'],['InternationalStudent.com: F-1 interview guide','https://www.internationalstudent.com/immigration/f1-student-visa/f1-visa-interview-questions/']]},
+
+ {key:'canada',flag:'🇨🇦',name:'Canada',blurb:'Study permit, caps, 24-hour work rule and PGWP.',sections:[
+  {title:'Key numbers and rules',icon:'📊',kind:'rules',items:[
+   I('fact','Work while studying','Off-campus up to 24 hours a week during academic sessions, with no limit in regular scheduled breaks. You must be full-time at a designated learning institution, hold a permit that allows work, and have a Social Insurance Number.'),
+   I('fact','Proof of funds','About C$22,895 for a single applicant for living costs (outside Quebec, from 1 September 2025), plus tuition and travel. Check the current amount before applying.'),
+   I('fact','Provincial letter','Most applicants need a Provincial or Territorial Attestation Letter (PAL/TAL). Master\'s and doctoral students at public institutions were exempt from 1 January 2026.'),
+   I('fact','Intake cap','Canada has an annual national cap on study permits. The 2026 target was reported as about 408,000 permits, of which 155,000 are for new arrivals.')]},
+  {title:'Recent changes to watch',icon:'🔔',kind:'rules',items:[
+   I('update','PGWP needs language and field of study','For applications on or after 1 November 2024: CLB 7 in each skill for university graduates and CLB 5 for college graduates. College and non-degree programs must be on the eligible field list.'),
+   I('update','Changing school','Moving to a new institution requires a new study permit (since 8 November 2024). Confirm before you transfer.'),
+   I('update','Check dates on the official site','Immigration pages from different sites sometimes disagree on dates, so use canada.ca as the final word.')]},
+  {title:'Application: do\'s and don\'ts',icon:'🛂',kind:'guide',items:[
+   I('do','Write a clear, honest study plan','Explain why this program, why Canada and how it fits your past study and future career.'),
+   I('do','Get your PAL/TAL before applying if required','Applications without it can be returned.'),
+   I('dont','Do not work over the limit','Violations can lead to refusal of a PGWP or loss of status.'),
+   I('dont','Do not choose a program only for immigration','Choose one with real career value and check PGWP eligibility.')]},
+  {title:'Culture and etiquette',icon:'🍁',kind:'guide',items:[
+   I('do','Be polite and apologise easily','"Sorry" is used all the time and is a form of politeness.'),
+   I('do','Tip 15 to 20% at restaurants','')  ,
+   I('do','Respect diversity','Canada is multicultural. Inclusive language is expected in class and at work.'),
+   I('tip','Dress for the weather','Layers, winter boots and a proper coat matter from October.')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('tip','Open a student bank account and apply for a SIN','The SIN is needed for work and taxes.'),
+   I('tip','Check provincial health cover','Some provinces cover international students and some need private insurance.'),
+   I('do','Read the lease and avoid sending e-transfers to unverified landlords','')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of fake "CRA" or "immigration" calls and fake job offers','Real agencies do not demand gift cards or crypto.'),
+   I('do','Call 911 for emergencies','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Choose co-op programs where possible','They give paid work experience that is allowed under your permit.'),
+   I('tip','Prepare for IELTS, CELPIP or TEF early','The PGWP language level is high.')]}
+ ],sources:[OFF.CA,['BridgePoint Law: Study permit and PGWP guide 2026','https://bridgepointlaw.ca/canada-study-permit-pgwp-complete-guide-2026/'],['IRCC.com: Off-campus work hours (independent site)','https://ircc.com/news/off-campus-work-hours-for-international-students-2026-rules']]},
+
+ {key:'australia',flag:'🇦🇺',name:'Australia',blurb:'Subclass 500, Genuine Student test, 48-hour rule.',sections:[
+  {title:'Key numbers and rules',icon:'📊',kind:'rules',items:[
+   I('fact','Work while studying','Up to 48 hours per fortnight during study periods, with no cap in official course breaks. Master\'s by research and PhD students have no cap once the course starts.'),
+   I('fact','Money','Living-cost evidence of about AUD 29,710 a year for a single student, with more for a partner or children. Visa application fee reported as AUD 2,000.'),
+   I('fact','English','IELTS 6.0 overall is commonly cited for most courses, with lower scores for packaged ELICOS and pathway courses. Check your provider and the Home Affairs site.'),
+   I('fact','After study (485)','Typically 2 years after bachelor\'s or master\'s coursework and 3 years after research degrees. The extra 2 years for some skill-shortage degrees has ended.')]},
+  {title:'Recent changes to watch',icon:'🔔',kind:'rules',items:[
+   I('update','Genuine Student requirement','You must explain your course choice, how it fits your background and goals, and how you will follow visa conditions. Write it in your own words.'),
+   I('update','Provider-level caps','A "traffic light" system based on how full each provider is (Ministerial Direction 115, from 14 November 2025) can change how quickly your application is processed.'),
+   I('update','Healthcare and aged care exemption','A work-hour exemption for eligible healthcare and aged-care students was reported to run until 31 December 2026. Verify before relying on it.')]},
+  {title:'Application: do\'s and don\'ts',icon:'🛂',kind:'guide',items:[
+   I('do','Write a personal, specific Genuine Student statement','Mention the modules, the career link and why not study at home.'),
+   I('do','Show funds clearly and consistently','Use simple, well-documented sources.'),
+   I('dont','Do not use copied or AI-generated generic statements','They are easy to spot and weaken your case.'),
+   I('dont','Do not work over the 48-hour limit','Condition 8105 breaches can lead to cancellation.')]},
+  {title:'Culture and etiquette',icon:'🦘',kind:'guide',items:[
+   I('do','Be casual and friendly','Australians use first names and humour, and "no worries" is very common.'),
+   I('do','Respect Aboriginal and Torres Strait Islander culture','Learn the local acknowledgement of country at events.'),
+   I('dont','Do not skip sun and water safety','Use sunscreen, swim between the flags and respect beach warnings.'),
+   I('do','Tipping is optional','Not expected, though a little for great service is welcome.')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('do','Do not pay a deposit or rent before you inspect a property','Scams on rental sites are common.'),
+   I('tip','Buy OSHC health cover','It is required for your visa, and your university can help.'),
+   I('tip','Get a Tax File Number','You need it to work and for tax.')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of fake "Home Affairs" or "police" calls demanding money','Real officials will not threaten you for payment.'),
+   I('do','Call 000 for emergencies','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Use course breaks to earn more','Unlimited work is allowed during officially scheduled breaks.'),
+   I('tip','Look at regional study options','Regional study can give extra post-study options.')]}
+ ],sources:[OFF.AU,['StudyAU: 48-hour work cap guide','https://www.studyau.au/posts/500-student-visa-work-hours-australia-0073/'],['IDP: Australia student visa rules 2026','https://www.idp.com/blog/visa-rules-for-internaional-students-australia/']]},
+
+ {key:'ireland',flag:'🇮🇪',name:'Ireland',blurb:'Stamp 2, work limits and the Graduate Scheme.',sections:[
+  {title:'Key numbers and rules',icon:'📊',kind:'rules',items:[
+   I('fact','Work while studying (Stamp 2)','Up to 20 hours a week in term time, and up to 40 hours a week from 1 June to 30 September and from 15 December to 15 January.'),
+   I('fact','Graduate Scheme (Stamp 1G)','Education in Ireland lists 12 months, with an option to extend by a further 12 months subject to conditions. The length can depend on your qualification level, so confirm before you plan.'),
+   I('fact','After results','After your results are released, you can apply for Stamp 1G. Until it is approved, you are limited to part-time hours.'),
+   I('fact','Funds and fees','Proof of funds and tuition payment are required. The exact amounts were not confirmed in this check, so please verify on irishimmigration.ie.')]},
+  {title:'Application: do\'s and don\'ts',icon:'🛂',kind:'guide',items:[
+   I('do','Choose a programme from an approved institution','Check the list of eligible programmes and institutions before paying.'),
+   I('do','Plan your IRP registration','Book your immigration registration soon after arrival.'),
+   I('dont','Do not exceed the term-time hour limit','Keep your payslips and a record of your hours.')]},
+  {title:'Culture and etiquette',icon:'☘️',kind:'guide',items:[
+   I('do','Be friendly and chat','Small talk, humour and "how\'s it going?" are normal. Irish people often use understatement.'),
+   I('do','Buy your round','In a pub group, each person takes a turn buying drinks.'),
+   I('do','Tip around 10% in restaurants where service is not included','')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('tip','Start the housing search very early','Rent is high and supply is limited, especially in Dublin, Cork and Galway.'),
+   I('tip','Get a Leap card for transport','Student fares can cut travel costs.'),
+   I('tip','Get a PPS number','You need it to work legally.')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of rental deposit scams','Do not pay before viewing and verifying the landlord.'),
+   I('do','Call 112 or 999 for emergencies','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Use holiday windows to work full-time','Summer and the Christmas period have higher limits.'),
+   I('tip','Look at tech, pharma and finance clusters','They hire many international graduates.')]}
+ ],sources:[OFF.IE,['Education in Ireland: Working in Ireland','https://www.educationinireland.com/en/living-in-ireland/working-in-ireland'],['ApplyBoard: Ireland Stamp 2 2026','https://assist.applyboard.com/hc/en-us/articles/43170065693837-Ireland-Stamp-2-Student-Visa-2026-Work-Rights-Requirements']]},
+
+ {key:'eu',flag:'🇪🇺',name:'Europe (EU)',blurb:'Rules differ by country. Germany checked in detail.',sections:[
+  {title:'Important to know',icon:'ℹ️',kind:'rules',items:[
+   I('fact','There is no single EU student visa','Each country (Germany, France, the Netherlands, Italy, Spain and others) sets its own visa, funds, work and post-study rules. A Schengen visa lets you travel, but your residence permit is national.'),
+   I('tip','Check the language','Many master\'s programs are in English, but daily life and part-time work often need the local language.')]},
+  {title:'Germany: key numbers',icon:'🇩🇪',kind:'rules',items:[
+   I('fact','Work while studying','Non-EU students can work 140 full days or 280 half days a year (a half day is up to 4 hours). A lecture-period week with up to 20 hours counts as 2.5 days.'),
+   I('fact','Blocked account (Sperrkonto)','About €11,904 for the first year (about €992 a month). Check the current figure with your bank and the official site.'),
+   I('fact','After graduation','You can get a permit of up to 18 months to look for a job that matches your degree.'),
+   I('fact','Pay','The statutory minimum wage was €13.90 an hour from 1 January 2026. Mini-jobs have a monthly income ceiling.')]},
+  {title:'France and the Netherlands (not re-checked this round)',icon:'🗺️',kind:'rules',items:[
+   I('fact','France','Students have usually been allowed to work up to 964 hours a year. Confirm on Campus France and the prefecture.'),
+   I('fact','Netherlands','Students have usually been allowed to work up to 16 hours a week or full-time only in June to August. Confirm on IND and Study in NL.')]},
+  {title:'Application: do\'s and don\'ts',icon:'🛂',kind:'guide',items:[
+   I('do','Apply to the correct country\'s embassy or visa centre','Book early, as appointments can take weeks.'),
+   I('do','Get documents translated and legalised if the embassy asks','Check whether apostille or sworn translation is needed.'),
+   I('dont','Do not travel on a visitor visa to "convert" to a student permit','Follow the correct route for your country.')]},
+  {title:'Culture and etiquette',icon:'🏛️',kind:'guide',items:[
+   I('do','Learn basic greetings in the local language','Even a few words are appreciated.'),
+   I('do','Be punctual, especially in Germany and the Netherlands','Being late is seen as disrespectful.'),
+   I('do','Respect quiet hours and recycling rules','Many cities have strict rules on noise on Sundays and in the evening, and on separating waste.'),
+   I('tip','Carry some cash','Some small shops and cafes still prefer cash, depending on the country.')]},
+  {title:'Housing, banking and daily life',icon:'🏠',kind:'guide',items:[
+   I('tip','Register your address (Anmeldung in Germany)','Many services, including a bank account, need it.'),
+   I('tip','Use student housing and early applications','Rooms can be scarce in big cities.'),
+   I('do','Get health insurance as required by the country','')]},
+  {title:'Safety and scams',icon:'🛡️',kind:'guide',items:[
+   I('dont','Beware of fake room adverts that ask for money before you see the room','')  ,
+   I('do','Call 112 anywhere in the EU for emergencies','')]},
+  {title:'Tips and tricks',icon:'💡',kind:'guide',items:[
+   I('tip','Travel cheaply with student rail and transport passes','')  ,
+   I('tip','Look at public universities with low tuition','Several European countries have low or no tuition for some programs. Check each country\'s rules.')]}
+ ],sources:[OFF.DE,OFF.FR,OFF.NL,['StudyU: Working while studying in Germany','https://www.studyu.org/en/blog-working-while-studying-in-germany']]}
+ ]
+};
+window.S4P_GUIDE=G;
+
+// ---------------- UI ----------------
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ICON={do:['✅','Do','#0F6E56','#E5EEE2'],dont:['❌','Don\'t','#B3261E','#FBE9E7'],tip:['💡','Tip','#8A5A00','#FFF4DC'],update:['🔔','Update','#0C447C','#E6F1FB'],ahead:['🔭','Looking ahead','#5B3FA0','#EFE9FB'],fact:['📌','Rule','#1C3F6E','#EEF2F8']};
+let curKey='general', q='', isAdmin=false, editing=null;
+const fmt=d=>{ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return d; } };
+async function loadRemote(){
+  try{
+    if(typeof sb==='undefined')return;
+    const r=await sb.from('guide_content').select('*');
+    if(r&&Array.isArray(r.data)){
+      r.data.forEach(row=>{
+        const i=G.countries.findIndex(c=>c.key===row.country_key); if(i<0||!row.data||!Array.isArray(row.data.sections))return;
+        const base=G.countries[i];
+        G.countries[i]=Object.assign({},base,row.data,{key:base.key,flag:base.flag,name:base.name,checked:row.checked_on?fmt(row.checked_on):base.checked,remote:true});
+      });
+    }
+  }catch(e){}
+  try{
+    if(typeof currentSession!=='undefined'&&currentSession&&typeof sb!=='undefined'){ const a=await sb.rpc('guide_is_admin'); isAdmin=a&&a.data===true; }
+  }catch(e){ isAdmin=false; }
+}
+function ensure(){
+  if(!document.getElementById('guide-style')){
+    const s=document.createElement('style'); s.id='guide-style';
+    s.textContent=`.gd-wrap{max-width:720px;margin:0 auto;padding:6px 2px 30px}.gd-h{font-family:var(--font-h,inherit);font-size:24px;font-weight:700;color:var(--pine,#1C3F6E);margin:0 0 4px}
+    .gd-chips{display:flex;gap:8px;overflow-x:auto;padding:8px 0 10px;margin:0 -2px;-webkit-overflow-scrolling:touch}
+    .gd-chip{flex:0 0 auto;border:1.5px solid var(--line2,#D9CCAF);background:var(--paper,#fff);border-radius:99px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink,#222);white-space:nowrap}
+    .gd-chip.on{background:var(--pine,#1C3F6E);color:#fff;border-color:var(--pine,#1C3F6E)}
+    .gd-note{background:var(--cream,#F6F3EC);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink2,#444);margin:6px 0 10px;line-height:1.5}
+    .gd-search{width:100%;box-sizing:border-box;border:1.5px solid var(--line2,#D9CCAF);border-radius:12px;padding:11px 12px;font-size:15px;margin:2px 0 8px;background:var(--paper,#fff)}
+    .gd-sec{background:var(--paper,#fff);border:1px solid var(--line,#E6DDCC);border-radius:14px;margin:10px 0;overflow:hidden}
+    .gd-sec>summary{list-style:none;cursor:pointer;padding:13px 14px;font-weight:700;display:flex;gap:8px;align-items:center;color:var(--ink,#222)}
+    .gd-sec>summary::-webkit-details-marker{display:none}
+    .gd-sec>summary .c{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink3,#777)}
+    .gd-sec[open]>summary{border-bottom:1px solid var(--line,#E6DDCC)}
+    .gd-it{padding:11px 14px;border-bottom:1px solid var(--line,#E6DDCC)}.gd-it:last-child{border-bottom:0}
+    .gd-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:2px 8px;margin-right:6px}
+    .gd-it .h{font-weight:600;font-size:15px;line-height:1.4}.gd-it .d{font-size:14px;color:var(--ink2,#444);margin-top:4px;line-height:1.5}
+    .gd-src a{color:var(--pine,#1C3F6E);font-size:14px;display:block;padding:4px 0}
+    .gd-chk{font-size:11.5px;font-weight:700;color:#0C447C;background:#E6F1FB;border-radius:99px;padding:2px 8px;margin-left:6px}`;
+    document.head.appendChild(s);
+  }
+  if(!document.getElementById('screen-country-guide')){
+    const dash=document.getElementById('screen-dashboard'); if(!dash)return;
+    const d=document.createElement('div'); d.className='screen'; d.id='screen-country-guide';
+    d.innerHTML='<span class="back-link" onclick="showScreen(\'screen-dashboard\')">← Back to dashboard</span><div id="guide-body" class="gd-wrap"></div>';
+    dash.parentNode.appendChild(d);
+  }
+  if(!document.getElementById('guide-tile')){
+    const tile=[...document.querySelectorAll('#screen-dashboard .nav-tile')].find(t=>/Test Prep Hub/.test(t.textContent));
+    if(tile){
+      const n=document.createElement('div'); n.className='nav-tile'; n.id='guide-tile'; n.setAttribute('onclick','openCountryGuide()');
+      n.innerHTML='<div class="ico o"><i class="ti ti-world"></i></div><div class="label">Study Abroad Guide<span class="lsub">Country do\'s and don\'ts, rules and tips</span></div>';
+      tile.parentNode.appendChild(n);
+    }
+  }
+}
+function matchItem(it){ if(!q)return true; const t=(it.h+' '+it.d).toLowerCase(); return q.toLowerCase().split(/\s+/).every(w=>t.includes(w)); }
+function render(){
+  const c=G.countries.find(x=>x.key===curKey)||G.countries[0];
+  const chips=G.countries.map(x=>`<div class="gd-chip ${x.key===c.key?'on':''}" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
+  let secs='', shown=0;
+  c.sections.forEach((s,si)=>{
+    const items=s.items.filter(matchItem); if(!items.length)return; shown+=items.length;
+    secs+=`<details class="gd-sec" ${(q||si<2)?'open':''}><summary><span>${s.icon}</span><span>${E(s.title)}</span>${s.kind==='rules'?`<span class="gd-chk">checked ${E(c.checked||G.checked)}</span>`:''}<span class="c">${items.length}</span></summary>
+      ${items.map(it=>{const k=ICON[it.t]||ICON.tip;return `<div class="gd-it"><div class="h"><span class="gd-badge" style="color:${k[2]};background:${k[3]}">${k[0]} ${k[1]}</span>${E(it.h)}</div>${it.d?`<div class="d">${E(it.d)}</div>`:''}</div>`}).join('')}</details>`;
+  });
+  if(!shown)secs=`<div class="gd-note">Nothing found for "${E(q)}" in ${E(c.name)}. Try another word or country.</div>`;
+  const src=(c.sources||[]).length?`<details class="gd-sec"><summary><span>🔗</span><span>Sources and official links</span><span class="c">${c.sources.length}</span></summary><div class="gd-it gd-src">${c.sources.map(s=>`<a href="${E(s[1])}" target="_blank" rel="noopener">${E(s[0])} ↗</a>`).join('')}<div class="d" style="font-size:12.5px;margin-top:6px">Official pages are listed so you can confirm every rule. Third-party pages were used to read current figures and may lag behind the government site.</div></div></details>`:'';
+  document.getElementById('guide-body').innerHTML=`<h1 class="gd-h">Study Abroad Guide</h1>
+   <div class="gd-note">Last checked <b>${E(c.checked||G.checked)}</b>. ${E(G.disclaimer)}</div>
+   ${isAdmin?`<div class="gd-note" style="background:#E6F1FB">You are an admin. <b style="cursor:pointer;color:#0C447C;text-decoration:underline" onclick="guideEdit()">Edit ${E(c.name)}</b></div>`:''}
+   <div class="gd-chips">${chips}</div>
+   <input class="gd-search" id="guide-q" placeholder="Search ${E(c.name)} (e.g. work hours, interview, tip)" value="${E(q)}" oninput="guideSearch(this.value)">
+   <div style="font-size:14px;color:var(--ink2,#444);margin:4px 0 2px">${c.flag} <b>${E(c.name)}</b>: ${E(c.blurb)}</div>
+   ${secs}${src}`;
+  const inp=document.getElementById('guide-q'); if(inp&&q){ inp.focus(); inp.setSelectionRange(q.length,q.length); }
+}
+window.guidePick=function(k){ curKey=k; q=''; render(); window.scrollTo&&window.scrollTo(0,0); };
+window.guideSearch=function(v){ q=v; render(); };
+window.openCountryGuide=async function(k){
+  ensure(); if(k)curKey=k; q='';
+  if(!document.getElementById('screen-country-guide'))return;
+  showScreen('screen-country-guide'); render();
+  await loadRemote(); if(!editing)render();
+};
+// make sure the tile exists once the dashboard is shown
+try{ const _s=showScreen; showScreen=function(id){ _s(id); if(id==='screen-dashboard'){ try{ ensure(); }catch(e){} } }; }catch(e){}
+document.addEventListener&&document.addEventListener('DOMContentLoaded',()=>{ try{ ensure(); }catch(e){} });
+setTimeout(()=>{ try{ ensure(); }catch(e){} },300);
+
+// ---------------- Admin editor ----------------
+const clone=o=>JSON.parse(JSON.stringify(o));
+const TYPES=[['fact','Rule / fact'],['do','Do'],['dont','Don\'t'],['tip','Tip'],['update','Update'],['ahead','Looking ahead']];
+const KINDS=[['rules','Rules (shows checked date)'],['guide','Guidance'],['ahead','Looking ahead']];
+const opt=(arr,v)=>arr.map(a=>`<option value="${a[0]}" ${a[0]===v?'selected':''}>${E(a[1])}</option>`).join('');
+const iso=()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+window.guideEdit=function(){
+  const c=G.countries.find(x=>x.key===curKey); if(!c)return;
+  editing={key:c.key,name:c.name,date:iso(),draft:{blurb:c.blurb,sections:clone(c.sections),sources:clone(c.sources||[])}};
+  renderEditor();
+};
+function renderEditor(){
+  const e=editing, d=e.draft;
+  const inp='width:100%;box-sizing:border-box;border:1.5px solid var(--line2,#D9CCAF);border-radius:10px;padding:9px;font-size:14.5px;background:var(--paper,#fff);font-family:inherit';
+  const btn='border:1.5px solid var(--line2,#D9CCAF);background:var(--paper,#fff);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer';
+  let h=`<h1 class="gd-h">Edit: ${E(e.name)}</h1>
+  <div class="gd-note">Changes go live for all students as soon as you tap Save. Set the date you checked the official source.</div>
+  <div class="gd-it" style="border:1px solid var(--line,#E6DDCC);border-radius:12px;margin:8px 0">
+    <label style="font-size:13px;font-weight:700">Last checked date</label>
+    <input type="date" value="${e.date}" style="${inp};margin:4px 0 10px" onchange="guideField('date',this.value)">
+    <label style="font-size:13px;font-weight:700">One-line description</label>
+    <input value="${E(d.blurb||'')}" style="${inp};margin-top:4px" oninput="guideField('blurb',this.value)"></div>`;
+  d.sections.forEach((s,si)=>{
+    h+=`<div class="gd-sec" style="padding:10px 12px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+        <input value="${E(s.title)}" style="${inp};flex:1;min-width:150px;font-weight:700" oninput="guideSec(${si},'title',this.value)">
+        <select style="${inp};width:auto" onchange="guideSec(${si},'kind',this.value)">${opt(KINDS,s.kind)}</select>
+        <button style="${btn}" onclick="guideMove(${si},-1)">↑</button><button style="${btn}" onclick="guideMove(${si},1)">↓</button>
+        <button style="${btn};color:#B3261E" onclick="guideDelSec(${si})">Delete section</button></div>`;
+    s.items.forEach((it,ii)=>{
+      h+=`<div style="border-top:1px dashed var(--line,#E6DDCC);padding:8px 0">
+        <div style="display:flex;gap:6px;margin-bottom:6px"><select style="${inp};width:auto" onchange="guideItem(${si},${ii},'t',this.value)">${opt(TYPES,it.t)}</select>
+        <input value="${E(it.h)}" placeholder="Headline" style="${inp}" oninput="guideItem(${si},${ii},'h',this.value)">
+        <button style="${btn};color:#B3261E" onclick="guideDelItem(${si},${ii})">✕</button></div>
+        <textarea rows="3" placeholder="Details (optional)" style="${inp}" oninput="guideItem(${si},${ii},'d',this.value)">${E(it.d||'')}</textarea></div>`;
+    });
+    h+=`<button style="${btn}" onclick="guideAddItem(${si})">+ Add item</button></div>`;
+  });
+  h+=`<button style="${btn};margin:6px 0" onclick="guideAddSec()">+ Add section</button>
+  <div class="gd-sec" style="padding:10px 12px"><div style="font-weight:700;margin-bottom:6px">Sources and official links</div>`;
+  d.sources.forEach((s,i)=>{ h+=`<div style="display:flex;gap:6px;margin-bottom:6px"><input value="${E(s[0])}" placeholder="Name" style="${inp}" oninput="guideSrc(${i},0,this.value)"><input value="${E(s[1])}" placeholder="https://..." style="${inp}" oninput="guideSrc(${i},1,this.value)"><button style="${btn};color:#B3261E" onclick="guideDelSrc(${i})">✕</button></div>`; });
+  h+=`<button style="${btn}" onclick="guideAddSrc()">+ Add link</button></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px">
+    <button class="pt-btn" style="background:var(--pine,#1C3F6E);color:#fff;border:0;border-radius:12px;padding:13px 20px;font-size:16px;font-weight:700;cursor:pointer" onclick="guideSave()">Save for all students</button>
+    <button style="${btn};padding:12px 16px" onclick="guideCancel()">Cancel</button>
+    <button style="${btn};padding:12px 16px;color:#B3261E" onclick="guideRevert()">Revert to built-in</button></div><div id="guide-msg" style="font-size:14px;margin:6px 0"></div>`;
+  document.getElementById('guide-body').innerHTML=h; window.scrollTo&&window.scrollTo(0,0);
+}
+window.guideField=(k,v)=>{ if(k==='date')editing.date=v; else editing.draft[k]=v; };
+window.guideSec=(i,k,v)=>{ editing.draft.sections[i][k]=v; if(k==='kind'){} };
+window.guideItem=(i,j,k,v)=>{ editing.draft.sections[i].items[j][k]=v; };
+window.guideSrc=(i,k,v)=>{ editing.draft.sources[i][k]=v; };
+window.guideAddItem=i=>{ editing.draft.sections[i].items.push({t:'tip',h:'',d:''}); renderEditor(); };
+window.guideDelItem=(i,j)=>{ editing.draft.sections[i].items.splice(j,1); renderEditor(); };
+window.guideAddSec=()=>{ editing.draft.sections.push({title:'New section',icon:'📌',kind:'guide',items:[{t:'tip',h:'',d:''}]}); renderEditor(); };
+window.guideDelSec=i=>{ if(confirm('Delete this whole section?')){ editing.draft.sections.splice(i,1); renderEditor(); } };
+window.guideMove=(i,dir)=>{ const a=editing.draft.sections, j=i+dir; if(j<0||j>=a.length)return; [a[i],a[j]]=[a[j],a[i]]; renderEditor(); };
+window.guideAddSrc=()=>{ editing.draft.sources.push(['','https://']); renderEditor(); };
+window.guideDelSrc=i=>{ editing.draft.sources.splice(i,1); renderEditor(); };
+window.guideCancel=()=>{ editing=null; render(); };
+function clean(){
+  const d=clone(editing.draft);
+  d.sections=d.sections.filter(s=>(s.title||'').trim()).map(s=>Object.assign({},s,{title:s.title.trim(),items:s.items.filter(i=>(i.h||'').trim()).map(i=>({t:i.t,h:i.h.trim(),d:(i.d||'').trim()}))}));
+  d.sources=d.sources.filter(x=>(x[0]||'').trim()&&/^https:\/\//.test((x[1]||'').trim())).map(x=>[x[0].trim(),x[1].trim()]);
+  return d;
+}
+window.guideSave=async function(){
+  const m=document.getElementById('guide-msg'); const d=clean();
+  if(!d.sections.length){ m.textContent='Add at least one section with an item.'; return; }
+  m.textContent='Saving...';
+  try{
+    const r=await sb.rpc('save_guide_country',{p_key:editing.key,p_data:d,p_checked:editing.date});
+    if(r.error)throw r.error;
+    const i=G.countries.findIndex(c=>c.key===editing.key), base=G.countries[i];
+    G.countries[i]=Object.assign({},base,d,{checked:fmt(editing.date),remote:true});
+    editing=null; render();
+  }catch(e){ m.innerHTML='<span style="color:#B3261E">Could not save: '+E(e.message||e)+'. Make sure the 0026 database file has been run.</span>'; }
+};
+window.guideRevert=async function(){
+  if(!confirm('Remove your saved version and go back to the built-in content for this country?'))return;
+  const m=document.getElementById('guide-msg'); m.textContent='Reverting...';
+  try{
+    const r=await sb.rpc('save_guide_country',{p_key:editing.key,p_data:null,p_checked:null});
+    if(r.error)throw r.error;
+    m.textContent='Reverted. Reload the app to see the built-in text.'; editing=null;
+  }catch(e){ m.innerHTML='<span style="color:#B3261E">Could not revert: '+E(e.message||e)+'</span>'; }
+};
+
 })();
 
 (function(){
@@ -10221,7 +11359,7 @@ function openTestPrep(){
   document.getElementById('tp-detail-view').style.display='none';
   renderTpGrid();
 }
-const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘', Pronunciation: '🔊' };
+const TEST_ICONS = { IELTS: '🎓', PTE: '💻', TOEFL: '🗽', Duolingo: '🌐', Grammar: '📘', Pronunciation: '🔊', English: '🪜' };
 
 /* ============================================================
    VISA ASSISTANCE — general, non-legal-advice guidance per
