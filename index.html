@@ -493,9 +493,14 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     <div class="auth-card">
       <h1 class="auth-h">Welcome</h1>
       <p class="auth-sub">Sign in to continue. New here? Enter your mobile number and we'll set up your account.</p>
-      <div class="seg"><button type="button" id="seg-otp" class="on" onclick="setAuthMode('otp')">Sign in with OTP</button><button type="button" id="seg-pw" onclick="setAuthMode('password')">Use password</button></div>
+      <div class="seg"><button type="button" id="seg-otp" class="on" onclick="setAuthMode('otp')">Sign in with OTP</button><button type="button" id="seg-pw" onclick="setAuthMode('password')">Use password</button><button type="button" id="seg-email" onclick="setAuthMode('email')">Email</button></div>
       <form id="phoneForm" onsubmit="return submitPhoneForm(event)" autocomplete="on" novalidate>
-        <div class="ff">
+        <div class="ff" id="emailField" style="display:none">
+          <label for="emailLoginInput">Email address</label>
+          <input type="email" id="emailLoginInput" autocomplete="email" placeholder="you@example.com" inputmode="email">
+          <div style="font-size:12px;color:var(--ink3);margin-top:6px">We'll email you a code. Works from any country.</div>
+        </div>
+        <div class="ff" id="phoneField">
           <label for="phoneInput">Mobile number</label>
           <div class="phone-row">
             <select id="countryCode" aria-label="Country code">
@@ -524,16 +529,16 @@ html.native #install-banner,html.native .install-banner{display:none!important}
   <!-- LOGIN: OTP entry -->
   <div class="screen" id="screen-otp">
     <div class="auth-card">
-      <span class="back-link" onclick="showScreen('screen-phone')">← Change number</span>
+      <span class="back-link" onclick="showScreen('screen-phone')">← Go back</span>
       <h1 class="auth-h">Enter the code</h1>
-      <p class="auth-sub">We sent a 6-digit code to <b id="otpPhoneDisplay"></b></p>
+      <p class="auth-sub">We sent a code to <b id="otpPhoneDisplay"></b></p>
       <div class="ff">
         <label for="otpInput">Verification code</label>
-        <input type="text" id="otpInput" autocomplete="one-time-code" placeholder="123456" inputmode="numeric" maxlength="6" style="letter-spacing:.4em;text-align:center;font-size:22px;font-weight:600">
+        <input type="text" id="otpInput" autocomplete="one-time-code" placeholder="123456" inputmode="numeric" maxlength="8" style="letter-spacing:.4em;text-align:center;font-size:22px;font-weight:600">
       </div>
       <button class="btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify & Continue</button>
       <div class="err" id="otpErr" style="display:none"></div>
-      <div class="hint">Didn't get a code? <span class="auth-link" onclick="sendOtp()">Resend</span></div>
+      <div class="hint">Didn't get a code? <span class="auth-link" onclick="resendCode()">Resend</span> <span style="color:var(--ink3)">· for email codes, check your spam folder too.</span></div>
     </div>
   </div>
 
@@ -1262,6 +1267,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const DEFAULT_DOCS = ['Passport Copy','Academic Transcripts','English Test Scores','MOI (Medium of Instruction)','Bank Statements','SOP Draft','References / LOR','Photo'];
 
 let currentSession=null;
+let pendingEmail=null; // set while an EMAIL code is pending (phone flow keeps pendingPhone)
 let pendingPhone=null; // full E.164 number, set after sendOtp, used by verifyOtp
 let isPreviewMode=false; // true when browsing without a real login — read-only, no saving
 
@@ -1319,14 +1325,17 @@ function setAuthMode(mode){
   authMode=mode;
   document.getElementById('seg-otp').classList.toggle('on',mode==='otp');
   document.getElementById('seg-pw').classList.toggle('on',mode==='password');
+  document.getElementById('seg-email').classList.toggle('on',mode==='email');
   document.getElementById('pwField').style.display=mode==='password'?'block':'none';
   document.getElementById('pwAlt').style.display=mode==='password'?'block':'none';
-  document.getElementById('sendOtpBtn').textContent=mode==='password'?'Sign in':'Send OTP';
+  document.getElementById('emailField').style.display=mode==='email'?'block':'none';
+  document.getElementById('phoneField').style.display=mode==='email'?'none':'block';
+  document.getElementById('sendOtpBtn').textContent=mode==='password'?'Sign in':(mode==='email'?'Email me a code':'Send OTP');
   document.getElementById('phoneErr').style.display='none';
 }
 function submitPhoneForm(ev){
   if(ev&&ev.preventDefault)ev.preventDefault();
-  if(authMode==='password')pwSignIn(); else sendOtp();
+  if(authMode==='password')pwSignIn(); else if(authMode==='email')sendEmailOtp(); else sendOtp();
   return false;
 }
 function togglePw(id,btn){
@@ -1397,6 +1406,36 @@ async function savePassword(){
 }
 async function skipPassword(){await afterLogin();}
 
+
+// ── Email code sign-in (for students outside India / without an Indian number) ──
+function resendCode(){ if(pendingEmail)sendEmailOtp(true); else sendOtp(); }
+async function sendEmailOtp(isResend){
+  const errEl=document.getElementById('phoneErr');errEl.style.display='none';
+  const email=(pendingEmail&&isResend===true?pendingEmail:document.getElementById('emailLoginInput').value).trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return;}
+  const btn=document.getElementById('sendOtpBtn');btn.disabled=true;btn.textContent='Sending…';
+  const{error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+  btn.disabled=false;btn.textContent='Email me a code';
+  if(error){
+    errEl.textContent=/rate|seconds|too many/i.test(error.message||'')?'Please wait a minute before asking for another code.':(error.message||'Could not send the code. Please try again.');
+    errEl.style.display='block';return;
+  }
+  pendingEmail=email;pendingPhone=null;
+  document.getElementById('otpPhoneDisplay').textContent=email;
+  showScreen('screen-otp');
+}
+async function verifyEmailOtp(token,errEl){
+  if(!/^\d{6,8}$/.test(token)){errEl.textContent='Enter the code from your email (6–8 digits).';errEl.style.display='block';return;}
+  const btn=document.getElementById('verifyOtpBtn');btn.disabled=true;btn.textContent='Verifying…';
+  const{data,error}=await sb.auth.verifyOtp({email:pendingEmail,token,type:'email'});
+  btn.disabled=false;btn.textContent='Verify & Continue';
+  if(error||!data||!data.session){errEl.textContent='That code is wrong or has expired. Please request a new one.';errEl.style.display='block';return;}
+  currentSession=data.session;
+  applyKeepSignedIn();
+  // Email accounts have no phone password to set — go straight in.
+  await afterLogin();
+}
+
 async function sendOtp(){
   const code=document.getElementById('countryCode').value;
   const raw=document.getElementById('phoneInput').value.trim().replace(/\D/g,'');
@@ -1404,7 +1443,7 @@ async function sendOtp(){
   errEl.style.display='none';
   if(raw.length<7){ errEl.textContent='Please enter a valid mobile number.'; errEl.style.display='block'; return; }
 
-  pendingPhone=code+raw;
+  pendingPhone=code+raw;pendingEmail=null;
   const btn=document.getElementById('sendOtpBtn');
   btn.disabled=true; btn.textContent='Sending…';
 
@@ -1431,6 +1470,7 @@ async function verifyOtp(){
   const token=document.getElementById('otpInput').value.trim();
   const errEl=document.getElementById('otpErr');
   errEl.style.display='none';
+  if(pendingEmail){ return verifyEmailOtp(token,errEl); }
   if(token.length!==6){ errEl.textContent='Enter the 6-digit code.'; errEl.style.display='block'; return; }
 
   const btn=document.getElementById('verifyOtpBtn');
@@ -1476,6 +1516,7 @@ async function afterLogin(){
   // Open access: anyone can sign in and use the portal. Mock access is
   // decided by credits (my_mock_access), not by a subscription gate here.
   if(!student?.full_name){
+    try{const em=currentSession.user.email;const ei=document.getElementById('emailInput');if(em&&ei&&!ei.value){ei.value=em;}}catch(e){}
     showScreen('screen-name');
   } else {
     document.getElementById('dashGreeting').textContent='Welcome back, '+student.full_name.split(' ')[0];
@@ -1730,7 +1771,7 @@ async function saveName(){
   // if that assumption turns out to be wrong.
   const{error}=await sb.from('students').upsert({
     id:currentSession.user.id,
-    phone:currentSession.user.phone,
+    phone:currentSession.user.phone||null,
     full_name:name,
     email:emailVal,
     referral_code:generateReferralCode(),
@@ -10577,6 +10618,226 @@ window.guideRevert=async function(){
   }catch(e){ m.innerHTML='<span style="color:#B3261E">Could not revert: '+E(e.message||e)+'</span>'; }
 };
 
+})();
+
+// ── Lesson translations + English edits (saved in the database, editable by portal admins) ──
+// Students: see a saved, reviewed translation in their language on every lesson step
+//           (objectives, concept, example, mistakes, practice). If none is saved yet, a
+//           clearly-labelled machine translation button is offered instead.
+// Admins:   "Edit" opens an editor with one tab per language (English = change the lesson
+//           text itself). Needs SQL 0028_lesson_i18n.sql in the portal Supabase project.
+(function(){
+  const FIELDS=[
+    ['title','Title','line'],
+    ['objectives','Learning objectives (one per line)','lines'],
+    ['concept','Concept','html'],
+    ['example','Worked example','html'],
+    ['mistakes','Common mistakes (one per line)','lines'],
+    ['practice','Practice task','html'],
+    ['practiceAnswer','Model answer','text']
+  ];
+  const STEP_FIELD={intro:'objectives',concept:'concept',example:'example',mistakes:'mistakes',practice:'practice'};
+  let I18N={};            // I18N[lessonId][lang][field]={t:content,r:reviewed}
+  let ORIG={};            // ORIG[lessonId][field]=original value (for revert of English edits)
+  let LESSON_INDEX=null;
+  let adminFor=null, isAdminUser=false;   // cached per signed-in user
+  const MT={};            // machine translation cache
+
+  const langs=()=>(typeof SUPPORTED_LANGUAGES!=='undefined'?SUPPORTED_LANGUAGES:[{code:'ta',name:'Tamil',native:'தமிழ்',rtl:false,font:'var(--font-tamil)'},{code:'hi',name:'Hindi',native:'हिन्दी',rtl:false,font:'var(--font-hindi)'}]);
+  const langInfo=c=>langs().find(l=>l.code===c)||{code:c,name:c,native:c,rtl:false,font:'inherit'};
+  function getLang(){try{return localStorage.getItem('s4p_lang')||'ta';}catch(e){return 'ta';}}
+  function setLang(c){try{localStorage.setItem('s4p_lang',c);}catch(e){}}
+  const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // ── find lessons anywhere in TEST_DATA by id ──
+  function indexLessons(){
+    if(LESSON_INDEX)return LESSON_INDEX;
+    LESSON_INDEX={};
+    const seen=new Set();
+    (function walk(o,d){
+      if(!o||typeof o!=='object'||d>8||seen.has(o))return;seen.add(o);
+      if(Array.isArray(o)){o.forEach(x=>walk(x,d+1));return;}
+      if(typeof o.id==='string'&&('concept' in o)&&('quiz' in o))LESSON_INDEX[o.id]=o;
+      Object.keys(o).forEach(k=>{const v=o[k];if(v&&typeof v==='object')walk(v,d+1);});
+    })(TEST_DATA,0);
+    return LESSON_INDEX;
+  }
+  const toText=v=>Array.isArray(v)?v.join('\n'):(v==null?'':String(v));
+  function origText(lesson,field){
+    const o=ORIG[lesson.id];
+    return toText(o&&(field in o)?o[field]:lesson[field]);
+  }
+  function fromText(field,txt){
+    const f=FIELDS.find(x=>x[0]===field);
+    return f&&f[2]==='lines'?txt.split('\n').map(x=>x.trim()).filter(Boolean):txt;
+  }
+
+  // ── load + apply ──
+  async function loadI18n(){
+    try{
+      const rows=[];let from=0;
+      for(;;){
+        const{data,error}=await sb.from('lesson_i18n').select('lesson_id,lang,field,content,reviewed').range(from,from+999);
+        if(error||!data)break;
+        rows.push(...data);
+        if(data.length<1000)break;from+=1000;
+      }
+      I18N={};
+      rows.forEach(r=>{((I18N[r.lesson_id]=I18N[r.lesson_id]||{})[r.lang]=I18N[r.lesson_id][r.lang]||{})[r.field]={t:r.content,r:!!r.reviewed};});
+      applyEnglish();
+    }catch(e){}
+  }
+  function applyEnglish(){
+    const idx=indexLessons();
+    // restore anything that no longer has an override, then apply current overrides
+    Object.keys(ORIG).forEach(id=>{
+      const les=idx[id];if(!les)return;
+      Object.keys(ORIG[id]).forEach(f=>{
+        const ov=I18N[id]&&I18N[id].en&&I18N[id].en[f];
+        if(!ov)les[f]=ORIG[id][f];
+      });
+    });
+    Object.keys(I18N).forEach(id=>{
+      const en=I18N[id].en;if(!en||!idx[id])return;
+      Object.keys(en).forEach(f=>{
+        const les=idx[id];
+        ORIG[id]=ORIG[id]||{};
+        if(!(f in ORIG[id]))ORIG[id][f]=les[f];
+        les[f]=fromText(f,en[f].t);
+      });
+    });
+  }
+
+  async function checkAdmin(){
+    if(typeof currentSession==='undefined'||!currentSession||!currentSession.user)return false;
+    if(adminFor===currentSession.user.id)return isAdminUser;
+    adminFor=currentSession.user.id;
+    try{const r=await sb.rpc('guide_is_admin');isAdminUser=r.data===true;}catch(e){isAdminUser=false;}
+    return isAdminUser;
+  }
+
+  // ── machine translation fallback (existing AI function) ──
+  async function machineTranslate(text,langCode){
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({action:'translate',text,targetLanguage:langCode})});
+    const d=await r.json();
+    if(!r.ok||d.error||!d.translation)throw new Error(d.error||'Could not translate right now.');
+    return d.translation;
+  }
+  const plain=h=>{const d=document.createElement('div');d.innerHTML=String(h).replace(/<br\s*\/?>/gi,'\n');return d.textContent;};
+
+  // ── student-facing card under each lesson step ──
+  function cardHtml(text,lang,badge,ok){
+    const li=langInfo(lang);
+    return `<div class="lesson-tamil-box" style="margin-top:12px">
+      <div class="lesson-tamil-box-header"><i class="ti ti-language"></i> ${E(li.native)} (${E(li.name)})
+        <span style="margin-left:auto;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;background:${ok?'#e4f3ea':'#fff3cd'};color:${ok?'#1b6b3a':'#7a5b00'}">${E(badge)}</span></div>
+      <div class="lesson-tamil-box-text" style="font-family:${li.font};white-space:pre-wrap" dir="${li.rtl?'rtl':'ltr'}">${E(text)}</div>
+    </div>`;
+  }
+  async function renderBar(){
+    const s=lstepState;const step=s&&s.steps&&s.steps[s.idx];if(!step)return;
+    const field=STEP_FIELD[step.kind];
+    const host=document.getElementById('tp-lesson-content');
+    const old=document.getElementById('i18n-wrap');if(old)old.remove();
+    if(!field||!host)return;
+    const lesson=s.lesson,lang=getLang();
+    const rec=(I18N[lesson.id]||{})[lang]&&I18N[lesson.id][lang][field];
+    const admin=await checkAdmin();
+    // concept step already has the older "Explain" row; only add ours when a saved translation exists or for admins
+    if(step.kind==='concept'&&!rec&&!admin)return;
+    const wrap=document.createElement('div');wrap.id='i18n-wrap';wrap.style.cssText='margin-top:10px';
+    let inner=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="i18n-lang" style="font-size:12.5px;padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--cream)">${langs().map(l=>`<option value="${l.code}" ${l.code===lang?'selected':''}>${E(l.name)} / ${E(l.native)}</option>`).join('')}</select>
+      ${(!rec&&step.kind!=='concept')?`<button class="btn-outline btn" id="i18n-mt" style="width:auto;padding:7px 14px;font-size:12.5px"><i class="ti ti-language"></i> Translate</button>`:''}
+      ${admin?`<button class="btn-outline btn" id="i18n-edit" style="width:auto;padding:7px 14px;font-size:12.5px"><i class="ti ti-pencil"></i> Edit</button>`:''}
+    </div><div id="i18n-card">${rec?cardHtml(rec.t,lang,rec.r?'✓ Reviewed':'Not yet reviewed',rec.r):''}</div>`;
+    wrap.innerHTML=inner;host.appendChild(wrap);
+    wrap.querySelector('#i18n-lang').onchange=function(){setLang(this.value);const sel=document.getElementById('lesson-lang-select');if(sel)sel.value=this.value;renderBar();};
+    const mt=wrap.querySelector('#i18n-mt');
+    if(mt)mt.onclick=async function(){
+      const key=lesson.id+'|'+lang+'|'+field;const card=wrap.querySelector('#i18n-card');
+      if(MT[key]){card.innerHTML=cardHtml(MT[key],lang,'Machine translation — may contain errors',false);return;}
+      mt.disabled=true;mt.innerHTML='<i class="ti ti-loader-2"></i> Translating…';
+      try{const t=await machineTranslate(plain(toText(lesson[field])),lang);MT[key]=t;card.innerHTML=cardHtml(t,lang,'Machine translation — may contain errors',false);mt.innerHTML='<i class="ti ti-language"></i> Translate';}
+      catch(e){card.innerHTML='<div style="font-size:13px;color:var(--ink3);margin-top:8px">Couldn\'t translate right now — please try again.</div>';mt.innerHTML='<i class="ti ti-language"></i> Translate';}
+      mt.disabled=false;
+    };
+    const ed=wrap.querySelector('#i18n-edit');if(ed)ed.onclick=()=>openEditor(lesson.id,lang);
+  }
+
+  // ── admin editor ──
+  function openEditor(lessonId,startLang){
+    const lesson=indexLessons()[lessonId];if(!lesson)return;
+    let cur=startLang||getLang();
+    let ov=document.getElementById('i18n-editor');if(ov)ov.remove();
+    ov=document.createElement('div');ov.id='i18n-editor';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(15,25,40,.6);z-index:9999;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 10px';
+    document.body.appendChild(ov);
+    const tabs=[{code:'en',name:'English (edit lesson)'},...langs()];
+    function draw(){
+      const rec=(f)=>(I18N[lessonId]||{})[cur]&&I18N[lessonId][cur][f];
+      ov.innerHTML=`<div style="background:var(--paper,#fff);border-radius:14px;max-width:760px;width:100%;padding:18px 20px 24px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="font-weight:700;font-size:16px;flex:1">Edit lesson — ${E(origText(lesson,'title'))}</div><button id="ie-close" class="btn-outline btn" style="width:auto;padding:6px 12px">Close</button></div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:10px">${cur==='en'?'Changes here replace the English lesson text for every student immediately. HTML tags like &lt;b&gt; are allowed in Concept / Example / Practice.':'Translations are shown to students in this language. Tick "Reviewed" once a native speaker has checked it.'}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${tabs.map(t=>`<button data-t="${t.code}" class="btn${t.code===cur?'':' btn-outline'}" style="width:auto;padding:5px 11px;font-size:12px">${E(t.name)}</button>`).join('')}</div>
+        ${FIELDS.map(([f,label,kind])=>{
+          const r=rec(f);const base=origText(lesson,f);
+          if(cur!=='en'&&!base.trim())return '';
+          const val=cur==='en'?(r?r.t:toText(lesson[f])):(r?r.t:'');
+          const li=langInfo(cur);
+          return `<div class="ie-block" data-f="${f}" style="border-top:1px solid var(--line);padding:10px 0">
+            <div style="font-size:12px;font-weight:700;margin-bottom:4px">${E(label)} ${cur==='en'?(r?'<span style="color:#1b6b3a">· edited</span>':''):(r?(r.r?'<span style="color:#1b6b3a">· reviewed</span>':'<span style="color:#7a5b00">· saved, not reviewed</span>'):'<span style="color:var(--ink3)">· not translated</span>')}</div>
+            ${cur!=='en'?`<div style="font-size:12px;color:var(--ink3);background:var(--cream,#f6f6f6);padding:6px 8px;border-radius:6px;margin-bottom:6px;white-space:pre-wrap;max-height:90px;overflow:auto">${E(plain(base))}</div>`:''}
+            <textarea class="ie-ta" rows="${kind==='line'?1:kind==='text'?3:5}" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font-size:13.5px;font-family:${cur==='en'?'inherit':li.font}" dir="${cur!=='en'&&li.rtl?'rtl':'ltr'}">${E(val)}</textarea>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap">
+              ${cur!=='en'?`<button class="btn-outline btn ie-mt" style="width:auto;padding:5px 11px;font-size:12px"><i class="ti ti-language"></i> Machine draft</button><label style="font-size:12px;display:flex;align-items:center;gap:5px"><input type="checkbox" class="ie-rev" ${r&&r.r?'checked':''}> Reviewed</label>`:''}
+              <button class="btn ie-save" style="width:auto;padding:5px 14px;font-size:12px">Save</button>
+              ${r?`<button class="btn-outline btn ie-del" style="width:auto;padding:5px 11px;font-size:12px">${cur==='en'?'Revert to original':'Delete'}</button>`:''}
+              <span class="ie-msg" style="font-size:12px;color:var(--ink3)"></span>
+            </div></div>`;}).join('')}
+      </div>`;
+      ov.querySelector('#ie-close').onclick=()=>{ov.remove();renderBar();};
+      ov.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{cur=b.dataset.t;if(cur!=='en')setLang(cur);draw();});
+      ov.querySelectorAll('.ie-block').forEach(blk=>{
+        const f=blk.dataset.f,ta=blk.querySelector('.ie-ta'),msg=blk.querySelector('.ie-msg');
+        const say=(t,ok)=>{msg.textContent=t;msg.style.color=ok?'#1b6b3a':'#a33';};
+        async function save(content,reviewed){
+          const{data,error}=await sb.rpc('save_lesson_i18n',{p_lesson:lessonId,p_lang:cur,p_field:f,p_content:content,p_reviewed:reviewed});
+          if(error){say(/function|does not exist|not find/i.test(error.message||'')?'Run SQL 0028 in the portal Supabase first.':error.message,false);return false;}
+          I18N[lessonId]=I18N[lessonId]||{};I18N[lessonId][cur]=I18N[lessonId][cur]||{};
+          if(data==='deleted'||!content.trim())delete I18N[lessonId][cur][f];else I18N[lessonId][cur][f]={t:content,r:reviewed};
+          if(cur==='en')applyEnglish();
+          return true;
+        }
+        blk.querySelector('.ie-save').onclick=async()=>{
+          let c=ta.value;
+          if(cur==='en'&&c.trim()===origText(lesson,f).trim())c='';   // same as original → no override
+          const rev=blk.querySelector('.ie-rev');
+          if(await save(c,rev?rev.checked:true)){say('Saved ✓',true);const y=ov.scrollTop;draw();ov.scrollTop=y;}
+        };
+        const del=blk.querySelector('.ie-del');
+        if(del)del.onclick=async()=>{if(!confirm(cur==='en'?'Revert this field to the original lesson text?':'Delete this translation?'))return;if(await save('',false)){const y=ov.scrollTop;draw();ov.scrollTop=y;}};
+        const mt=blk.querySelector('.ie-mt');
+        if(mt)mt.onclick=async()=>{mt.disabled=true;say('Translating…',true);try{ta.value=await machineTranslate(plain(origText(lesson,f)),cur);const rv=blk.querySelector('.ie-rev');if(rv)rv.checked=false;say('Draft ready — check it, then Save.',true);}catch(e){say(e.message,false);}mt.disabled=false;};
+      });
+    }
+    draw();
+  }
+
+  // ── wire into the lesson player ──
+  const _origRender=renderLstepStep;
+  renderLstepStep=function(){
+    const r=_origRender.apply(this,arguments);
+    try{
+      const sel=document.getElementById('lesson-lang-select');
+      if(sel){sel.value=getLang();sel.addEventListener('change',()=>setLang(sel.value));}
+      renderBar();
+    }catch(e){}
+    return r;
+  };
+  window.s4pEditLesson=openEditor;
+  window.s4pReloadI18n=loadI18n;
+  setTimeout(loadI18n,1500);
 })();
 
 (function(){
