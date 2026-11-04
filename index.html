@@ -682,6 +682,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
       <div class="nav-grid">
         <div class="nav-tile" onclick="openCareer()"><div class="ico g"><i class="ti ti-briefcase"></i></div><div class="label">Career &amp; Scholarships<span class="lsub">Funding and what comes next</span></div><i class="ti ti-chevron-right chev"></i></div>
         <div class="nav-tile" onclick="openReferFriend()"><div class="ico g"><i class="ti ti-gift"></i></div><div class="label">Refer a Friend<span class="lsub">Invite friends, earn rewards</span></div><i class="ti ti-chevron-right chev"></i></div>
+        <div class="nav-tile" onclick="openHelpFaq()"><div class="ico g"><i class="ti ti-help-circle"></i></div><div class="label">Help &amp; FAQ<span class="lsub">Quick answers and support</span></div><i class="ti ti-chevron-right chev"></i></div>
       </div>
     </div>
   </div>
@@ -1160,6 +1161,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
       </div>
       <div>
         <h4>Need help?</h4>
+        <a href="#" onclick="openHelpFaq();return false"><i class="ti ti-help-circle"></i> Help &amp; FAQ</a>
         <a href="https://wa.me/919159158881" target="_blank" rel="noopener"><i class="ti ti-brand-whatsapp"></i> WhatsApp us</a>
         <a href="mailto:india@step4progress.com"><i class="ti ti-mail"></i> india@step4progress.com</a>
         <a href="https://step4progress.com/contact_page.html" target="_blank" rel="noopener"><i class="ti ti-headset"></i> Contact us</a>
@@ -10865,6 +10867,13 @@ window.guideRevert=async function(){
   @keyframes ashaZ{0%,100%{opacity:.2;transform:translateY(4px)}50%{opacity:1;transform:translateY(-4px)}}
   @media (prefers-reduced-motion:reduce){.asha *{animation:none!important}}
   .asha-off .asha *{animation:none!important}
+  .asha-av{position:relative;display:block;flex:0 0 auto}
+  .asha-in{position:absolute;left:0;top:calc(var(--w)*-0.23);width:var(--w);height:calc(var(--w)*1.807);-webkit-mask-image:linear-gradient(#000 58%,transparent 73.5%);mask-image:linear-gradient(#000 58%,transparent 73.5%)}
+  .asha-av.asha-still .asha-in img{animation:ashaBreath 3.8s ease-in-out infinite}
+  @keyframes ashaBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.2%) scale(1.012)}}
+  .asha-drawn .asha-in{display:none}
+  .asha-off .asha-av img{animation:none!important}
+  @media (prefers-reduced-motion:reduce){.asha-av img{animation:none!important}}
   .asha-row{display:flex;align-items:flex-end;gap:8px;margin:2px 0 12px}
   .asha-bubble{position:relative;background:#fff;border:1.5px solid #D9E3F3;border-radius:16px;padding:9px 13px;font-size:13.5px;line-height:1.5;color:var(--ink2,#333);box-shadow:0 2px 8px rgba(28,63,110,.08);max-width:300px}
   .asha-bubble:before{content:"";position:absolute;left:-7px;bottom:16px;width:12px;height:12px;background:#fff;border-left:1.5px solid #D9E3F3;border-bottom:1.5px solid #D9E3F3;transform:rotate(45deg)}
@@ -10911,7 +10920,7 @@ window.guideRevert=async function(){
     return '';
   }
   // mood: happy | wave | cheer | think | encourage | sleepy
-  window.ashaSvg=function(mood,size){
+  const ashaDrawn=function(mood,size){
     mood=mood||'happy'; size=size||96;
     return `<svg class="asha asha-${mood}" viewBox="0 0 200 220" width="${size}" height="${Math.round(size*1.1)}" role="img" aria-label="${NAME}, your guide">
     <g class="a-body">
@@ -10934,6 +10943,126 @@ window.guideRevert=async function(){
     </g>${extras(mood)}</svg>`;
   };
 
+  // ── Animated Asha (transparent WebM clips in the asha/ folder) ──
+  // Smooth by design: clips are preloaded as blobs, a still picture shows instantly, clips fade into each other,
+  // every action returns to the breathing loop, only a few videos play at once, and videos pause when off-screen.
+  // Browsers that cannot show transparent video (Safari / iPhone), data-saver and reduced-motion get a still picture.
+  const AB='asha/';
+  const CLIP_OF={wave:'wave',cheer:'cheer',think:'think',encourage:'heart',sleepy:'sleepy',happy:'thumbsup'};
+  const ALL=['idle','wave','thumbsup','heart','cheer','think','sleepy'];
+  const END={wave:7.6,thumbsup:7.5,heart:7.6,sleepy:7.4,think:7.85,cheer:9.8};
+  const FADE=220, MAXV=3;
+  const ALPHA_TEST='data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAIQEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEiTbuMU6uEHFO7a1OsggH67AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjAuMTYuMTAwV0GNTGF2ZjYwLjE2LjEwMESJiEBZAAAAAAAAFlSua8WuAQAAAAAAADzXgQFzxYixRYg9EVyHK5yBACK1nIN1bmSIgQCGhVZfVlA5g4EBI+ODhAX14QDgjbCBELqBEJqBAlPAgQESVMNnQIBzc6BjwIBnyJpFo4dFTkNPREVSRIeNTGF2ZjYwLjE2LjEwMHNz2mPAi2PFiLFFiD0RXIcrZ8ilRaOHRU5DT0RFUkSHmExhdmM2MC4zMS4xMDIgbGlidnB4LXZwOWfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDAuMTAwMDAwMDAwAB9DtnXN54EAoMihoIEAAACCSYNCAADwAPYAOCQcGIwAADBgAAAQv//6jeAAdaGjpqHugQGlnIJJg0IAAPAA9gA4JBwYjAAAMGAAABC///toaAAcU7trkbuPs4EAt4r3gQHxggGo8IED';
+  const urls={},pend={};let alphaOK=null;const alphaQ=[];let live=[],preloaded=false;
+  const slow=()=>{try{const c=navigator.connection;return !!(c&&(c.saveData||/^(slow-2g|2g)$/.test(c.effectiveType||'')));}catch(e){return false;}};
+  const noMotion=()=>{try{return document.documentElement.classList.contains('asha-off')||localStorage.getItem('s4p_motion')==='off'||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}};
+  function detectAlpha(cb){
+    if(alphaOK!==null)return cb(alphaOK);
+    alphaQ.push(cb);if(alphaQ.length>1)return;
+    const done=v=>{alphaOK=v;alphaQ.splice(0).forEach(f=>f(v));};
+    try{
+      const v=document.createElement('video');v.muted=true;v.playsInline=true;
+      v.onloadeddata=()=>{try{const c=document.createElement('canvas');c.width=c.height=4;const x=c.getContext('2d');x.drawImage(v,0,0,4,4);done(x.getImageData(1,1,1,1).data[3]===0);}catch(e){done(false);}};
+      v.onerror=()=>done(false);
+      setTimeout(()=>{if(alphaOK===null)done(false);},2500);
+      v.src=ALPHA_TEST;v.load();
+    }catch(e){done(false);}
+  }
+  function fetchClip(n){
+    if(urls[n])return Promise.resolve(urls[n]);
+    if(location.protocol==='file:'){urls[n]=AB+n+'.webm';return Promise.resolve(urls[n]);}
+    if(pend[n])return pend[n];
+    return pend[n]=fetch(AB+n+'.webm').then(r=>{if(!r.ok)throw 0;return r.blob();}).then(b=>urls[n]=URL.createObjectURL(b));
+  }
+  function preload(list){
+    list.reduce((p,n)=>p.then(()=>new Promise(res=>{const go=()=>fetchClip(n).then(res,res);(window.requestIdleCallback||(f=>setTimeout(f,150)))(go);})),Promise.resolve());
+  }
+  function firstUse(){
+    if(preloaded||slow()||noMotion())return;preloaded=true;
+    detectAlpha(ok=>{if(!ok)return;preload(['idle','wave','thumbsup']);setTimeout(()=>preload(['heart','think','cheer','sleepy']),4000);});
+  }
+  function confetti(host){
+    const c=document.createElement('canvas'),r=host.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+    const W=Math.max(120,r.width*2.2),Hh=Math.max(120,r.height*1.6);
+    c.width=W*dpr;c.height=Hh*dpr;
+    c.style.cssText='position:absolute;left:'+(-(W-r.width)/2)+'px;top:'+(-Hh*0.35)+'px;width:'+W+'px;height:'+Hh+'px;pointer-events:none;z-index:5';
+    host.appendChild(c);
+    const x=c.getContext('2d'),cols=['#C9A84C','#E8C96A','#1C3F6E','#2E86DE','#E74C3C','#27AE60','#fff'],P=[];
+    for(let i=0;i<60;i++)P.push({x:c.width*(.25+Math.random()*.5),y:c.height*.42,vx:(Math.random()-.5)*6*dpr,vy:(-2-Math.random()*6)*dpr,w:(4+Math.random()*4)*dpr,h:(7+Math.random()*6)*dpr,a:Math.random()*6,va:(Math.random()-.5)*.4,c:cols[i%cols.length]});
+    const t0=performance.now();
+    (function f(t){const k=(t-t0)/1900;x.clearRect(0,0,c.width,c.height);if(k>=1||!c.isConnected){c.remove();return;}
+      P.forEach(p=>{p.vy+=.26*dpr;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;x.save();x.globalAlpha=1-k*k;x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore();});
+      requestAnimationFrame(f);})(t0);
+  }
+  function mountAv(el){
+    el.setAttribute('data-m','1');
+    const mood=el.getAttribute('data-mood')||'happy',want=CLIP_OF[mood]||'idle',size=parseInt(el.getAttribute('data-size')||'76',10);
+    const inner=el.firstElementChild;
+    const img=document.createElement('img');img.alt=NAME+', your guide';img.decoding='async';img.draggable=false;
+    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain';
+    img.onerror=()=>{el.innerHTML=ashaDrawn(mood,size);el.classList.add('asha-drawn');};
+    inner.appendChild(img);
+    const mk=()=>{const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.preload='auto';v.disablePictureInPicture=true;
+      v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity '+FADE+'ms linear;pointer-events:none';inner.appendChild(v);return v;};
+    const st={mode:'init',name:null,shown:null,token:0,vis:true};
+    let cur=null,nxt=null;
+    const av={el:el,destroy(){try{if(cur)cur.pause();if(nxt)nxt.pause();}catch(e){}st.token++;st.mode='dead';}};
+    function still(){st.mode='still';av.mode='still';img.src=AB+(want==='idle'?'still':'still_'+want)+'.webp';el.classList.add('asha-still');}
+    function swapTo(name,loop){
+      const token=++st.token;
+      fetchClip(name).then(u=>{
+        if(token!==st.token)return;
+        const n=nxt;n.loop=loop;n.src=u;
+        const go=()=>{if(token!==st.token)return;
+          const p=n.play();(p&&p.then?p:Promise.resolve()).then(()=>{
+            if(token!==st.token){n.pause();return;}
+            n.style.opacity=1;cur.style.opacity=0;const old=cur;cur=n;nxt=old;st.shown=name;img.style.opacity=0;
+            setTimeout(()=>{if(old!==cur&&token===st.token)old.pause();},FADE+60);
+          }).catch(()=>{});};
+        if(n.readyState>=3)go();else n.addEventListener('canplay',go,{once:true});
+      }).catch(()=>{});
+    }
+    function play(name,loop){
+      st.name=name;swapTo(name,loop);
+      if(name==='cheer'&&!noMotion())confetti(el);
+      if(!loop){
+        const watch=()=>{
+          if(st.name!==name||st.mode!=='video')return;
+          if(st.shown!==name){setTimeout(watch,120);return;}
+          const end=Math.min(END[name]||9e9,cur.duration||9e9);
+          if(cur.currentTime>=end-FADE/1000-0.05||cur.ended){play('idle',true);return;}
+          (cur.requestVideoFrameCallback?cur.requestVideoFrameCallback.bind(cur):requestAnimationFrame)(watch);
+        };
+        setTimeout(watch,400);
+      }
+    }
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(es=>es.forEach(e=>{st.vis=e.isIntersecting;
+        if(st.mode==='video'){if(!st.vis)cur.pause();else cur.play().catch(()=>{});}})).observe(el);
+    }
+    document.addEventListener('visibilitychange',()=>{if(st.mode!=='video')return;if(document.hidden)cur.pause();else if(st.vis)cur.play().catch(()=>{});});
+    live=live.filter(a=>{if(a.el.isConnected)return true;a.destroy();return false;});
+    av.mode='init';live.push(av);
+    if(noMotion()||slow()){still();return;}
+    img.src=AB+'still.webp';
+    detectAlpha(ok=>{
+      if(!ok||live.filter(a=>a.mode==='video').length>=MAXV){still();return;}
+      cur=mk();nxt=mk();st.mode='video';av.mode='video';
+      play(want,want==='idle');
+    });
+    firstUse();
+  }
+  function scan(){document.querySelectorAll('.asha-av:not([data-m])').forEach(mountAv);}
+  let sched=false;
+  const mo=new MutationObserver(()=>{if(sched)return;sched=true;requestAnimationFrame(()=>{sched=false;scan();});});
+  function startObs(){if(document.body){mo.observe(document.body,{childList:true,subtree:true});scan();}else document.addEventListener('DOMContentLoaded',startObs);}
+  startObs();
+  // mood: happy | wave | cheer | think | encourage | sleepy  (same names as before, so every screen keeps working)
+  window.ashaSvg=function(mood,size){
+    mood=mood||'happy';size=size||96;
+    return `<span class="asha-av" data-mood="${mood}" data-size="${size}" style="--w:${size}px;width:${size}px;height:${Math.round(size*1.1)}px"><span class="asha-in"></span></span>`;
+  };
+
   // ── short messages (editable here). Native lines are short greetings only; have a native speaker check them. ──
   const MSG={
     en:{ok:['Great job!','Correct — well done!','You got it!'],no:["Almost! Let's look at it again.","Good try — you'll get it next time."],hello:"Hi, I'm Asha! Let's learn something new today.",done:'Lesson complete — well done!',back:'Welcome back! Ready to practise?'},
@@ -10949,6 +11078,8 @@ window.guideRevert=async function(){
   Object.assign(MSG.en,{start:"Ready? Let's test what you've learned!",great:'Excellent! You really know this.',good:'Good job! A little more practice and it is perfect.',retry:"Let's review these and try again. You can do it!",wait:'One moment… getting your test ready.',empty:"Nothing here yet. Let's start learning!",streak:'Come back every day to keep your streak going!',think:'Take your time. Read carefully.'});
   Object.assign(MSG.ta,{start:'தயாரா? கற்றதைச் சோதிப்போம்!',great:'அருமை! நீங்கள் நன்றாகக் கற்றுக்கொண்டீர்கள்!',good:'நல்லது! இன்னும் கொஞ்சம் பயிற்சி செய்தால் முழுமை!',retry:'தவறியவற்றை மீண்டும் பார்த்து, மறுபடி முயல்வோம்.',wait:'ஒரு நிமிடம்… உங்கள் தேர்வு தயாராகிறது.',empty:'இங்கே இன்னும் எதுவும் இல்லை. கற்கத் தொடங்குவோம்!',streak:'தினமும் வந்து உங்கள் ஸ்ட்ரீக்கைத் தொடருங்கள்!',think:'நிதானமாக, கவனமாகப் படியுங்கள்.'});
   Object.assign(MSG.hi,{start:'तैयार हो? देखते हैं आपने क्या सीखा!',great:'शानदार! आपने बहुत अच्छा सीखा!',good:'अच्छा! थोड़ा और अभ्यास, फिर परफेक्ट!',retry:'जो गलत हुए उन्हें दोबारा देखकर फिर कोशिश करें।',wait:'एक मिनट… आपका टेस्ट तैयार हो रहा है।',empty:'यहाँ अभी कुछ नहीं है। चलो सीखना शुरू करें!',streak:'रोज़ आइए और अपनी स्ट्रीक बनाए रखिए!',think:'आराम से, ध्यान से पढ़िए।'});
+  Object.assign(MSG.en,{devcheck:'Quick check first, so your test runs smoothly.'});Object.assign(MSG.ta,{devcheck:'முதலில் ஒரு சிறிய சோதனை, அப்போது தேர்வு சுமூகமாக நடக்கும்.'});Object.assign(MSG.hi,{devcheck:'पहले एक छोटा चेक, ताकि टेस्ट आराम से चले।'});
+  Object.assign(MSG.en,{help:'Hi! Ask me anything and I will help you find the answer.'});Object.assign(MSG.ta,{help:'வணக்கம்! எதையும் கேளுங்கள், பதிலைக் கண்டுபிடிக்க உதவுகிறேன்.'});Object.assign(MSG.hi,{help:'नमस्ते! कुछ भी पूछिए, मैं जवाब ढूँढने में मदद करूँगी।'});
   const RTL={ur:1,ar:1};
   function pref(){try{return localStorage.getItem('s4p_lang');}catch(e){return null;}}
   const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -10986,7 +11117,7 @@ window.guideRevert=async function(){
   function feedback(ok){
     const fb=document.getElementById('lstep-quiz-feedback');if(!fb)return;
     const k=ok?'ok':'no';
-    fb.insertAdjacentHTML('afterbegin',window.ashaBubble(ok?'cheer':'encourage',k,70));
+    fb.insertAdjacentHTML('afterbegin',window.ashaBubble(ok?'happy':'encourage',k,70));
   }
   const _check=checkQuizOption;
   checkQuizOption=function(){
@@ -11714,6 +11845,263 @@ window.guideRevert=async function(){
     return r;
   };
   window.s4pTaskStats=()=>T.map(x=>({test:x.t,id:x.id,title:x.title,count:(()=>{try{return x.count();}catch(e){return -1;}})()}));
+})();
+
+// ── Exam realism: device check, step bar, question number strip, split reading, full screen ──
+(function(){
+  const $=id=>document.getElementById(id);
+  const bubble=(m,k,s)=>(window.ashaBubble?window.ashaBubble(m,k,s):'');
+  const css=`
+  #s4p-dc{position:fixed;inset:0;background:rgba(15,25,45,.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
+  #s4p-dc .dc-card{background:var(--cream,#fff);width:100%;max-width:440px;max-height:92vh;overflow:auto;border-radius:18px;padding:18px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .dc-row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line,#eee)}
+  .dc-ico{width:38px;height:38px;border-radius:12px;background:#EEF3FC;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+  .dc-state{font-size:12px;margin-top:3px;color:var(--ink3)}
+  .dc-ok .dc-ico{background:#E3F2E5}.dc-ok .dc-state{color:#2E6B3A;font-weight:600}
+  .dc-meter{height:8px;border-radius:99px;background:#E7E2D6;overflow:hidden;margin-top:8px}
+  .dc-meter i{display:block;height:100%;width:0;background:#2E7D32;transition:width .08s}
+  .fm-stepbar{display:flex;align-items:center;gap:0;margin:2px 0 12px;overflow-x:auto;padding-bottom:2px}
+  .fm-step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink3);white-space:nowrap}
+  .fm-step b{width:22px;height:22px;border-radius:50%;background:#E7E2D6;color:#6B6558;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+  .fm-step.done b{background:#2E7D32;color:#fff}.fm-step.cur{color:var(--pine,#1C3F6E)}.fm-step.cur b{background:var(--pine,#1C3F6E);color:#fff}
+  .fm-sep{flex:0 0 18px;height:2px;background:#E7E2D6;margin:0 6px}.fm-sep.done{background:#2E7D32}
+  .fm-strip{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:8px 0;position:sticky;top:42px;background:var(--cream,#fff);z-index:4;border-bottom:1px solid var(--line,#eee)}
+  .fm-chip{min-width:30px;height:30px;border-radius:8px;border:1.5px solid var(--line,#ddd);background:#fff;font-size:12.5px;font-weight:700;color:var(--ink2,#444);cursor:pointer;padding:0 6px}
+  .fm-chip.ans{background:var(--pine,#1C3F6E);border-color:var(--pine,#1C3F6E);color:#fff}
+  #tp-lesson-view.fm-mode .lstep-navbar,#tp-lesson-view.fm-mode .lstep-progress-row{display:none}
+  .fm-fs{background:none;border:1.5px solid var(--line,#ddd);border-radius:8px;padding:3px 9px;font-size:13px;cursor:pointer;margin-left:8px}
+  .fm-split .fm-left{position:sticky;top:78px;max-height:38vh;overflow:auto;z-index:3;background:var(--cream,#fff)}
+  @media(min-width:900px){
+    .fm-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+    .fm-split .fm-left{top:90px;max-height:calc(100vh - 130px)}
+    .fm-split .fm-right{max-height:calc(100vh - 130px);overflow:auto;padding-right:4px}
+  }`;
+  function injectCss(){if($('exam-css'))return;const s=document.createElement('style');s.id='exam-css';s.textContent=css;document.head.appendChild(s);}
+  injectCss();document.addEventListener('DOMContentLoaded',injectCss);
+
+  // ═══ device check ═══
+  let dcStream=null,dcCtx=null,dcRaf=0;
+  function dcStop(){try{cancelAnimationFrame(dcRaf);}catch(e){}try{dcStream&&dcStream.getTracks().forEach(t=>t.stop());}catch(e){}try{dcCtx&&dcCtx.close();}catch(e){}dcStream=null;dcCtx=null;}
+  function dcClose(res){dcStop();const o=$('s4p-dc');if(o)o.remove();const f=dcDone;dcDone=null;if(f)f(res);}
+  let dcDone=null,dcState={spk:false,mic:false,needMic:true,micTried:false};
+  function dcRefresh(){
+    const set=(id,ok,txt)=>{const r=$(id);if(!r)return;r.classList.toggle('dc-ok',!!ok);const st=r.querySelector('.dc-state');if(st&&txt)st.textContent=txt;};
+    set('dc-spk',dcState.spk,dcState.spk?'Sound works':null);
+    set('dc-mic',dcState.mic,dcState.mic?'Microphone works':null);
+    set('dc-net',navigator.onLine!==false,navigator.onLine!==false?'You are online':'No internet connection');
+    const ready=dcState.spk&&(!dcState.needMic||dcState.mic)&&navigator.onLine!==false;
+    const b=$('dc-go');if(b){b.disabled=!ready;b.style.opacity=ready?'1':'.5';}
+  }
+  window.s4pDeviceCheck=function(opts){
+    opts=opts||{};
+    // remembered for this browser session, so students are not asked again and again
+    try{if(!opts.force&&sessionStorage.getItem('s4p_dc_ok')==='1'&&(!opts.mic||sessionStorage.getItem('s4p_dc_mic')==='1'))return Promise.resolve(true);}catch(e){}
+    return new Promise(res=>{
+      dcClose(null);dcDone=res;dcState={spk:false,mic:false,needMic:!!opts.mic,micTried:false};
+      const o=document.createElement('div');o.id='s4p-dc';
+      o.innerHTML=`<div class="dc-card" role="dialog" aria-label="Device check">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:var(--font-h);font-weight:800;font-size:18px;color:var(--pine)">Device check</div><button onclick="s4pDC.cancel()" aria-label="Close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button></div>
+        ${bubble('think','devcheck',64)}
+        <div class="dc-row" id="dc-spk"><div class="dc-ico">🔊</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Speakers or headphones</div><div class="dc-state">Tap play. Can you hear it?</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.play()">▶ Play test sound</button><button class="btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.heard()">I can hear it</button></div></div></div>
+        ${opts.mic?`<div class="dc-row" id="dc-mic"><div class="dc-ico">🎤</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Microphone</div><div class="dc-state">Tap test, then say “hello” in a normal voice.</div>
+          <div class="dc-meter"><i id="dc-lvl"></i></div>
+          <div style="margin-top:8px"><button class="btn-outline btn" id="dc-micbtn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.mic()">🎙 Test microphone</button></div></div></div>`:''}
+        <div class="dc-row" id="dc-net"><div class="dc-ico">📶</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Internet</div><div class="dc-state">Checking…</div></div></div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:8px 0 12px">Tip: use headphones in a quiet room, and keep your phone charged. In the real exam you cannot pause the audio.</p>
+        <button class="btn btn-p" id="dc-go" disabled style="opacity:.5" onclick="s4pDC.go()">Start</button>
+        <div style="text-align:center;margin-top:8px"><a href="#" onclick="s4pDC.skip();return false" style="font-size:12.5px;color:var(--ink3)">Skip the check</a></div></div>`;
+      document.body.appendChild(o);dcRefresh();
+    });
+  };
+  function beep(){
+    try{const C=new (window.AudioContext||window.webkitAudioContext)();const o=C.createOscillator(),g=C.createGain();o.type='sine';o.frequency.value=660;g.gain.value=.15;o.connect(g);g.connect(C.destination);o.start();
+      setTimeout(()=>{o.frequency.value=880;},250);setTimeout(()=>{o.stop();C.close();},550);}catch(e){}
+  }
+  window.s4pDC={
+    play(){beep();try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('If you can hear this voice, your sound is working.');u.lang='en-US';setTimeout(()=>speechSynthesis.speak(u),650);}catch(e){}},
+    heard(){dcState.spk=true;dcRefresh();},
+    async mic(){
+      const btn=$('dc-micbtn');dcStop();dcState.micTried=true;
+      try{
+        dcStream=await navigator.mediaDevices.getUserMedia({audio:true});
+        const C=window.AudioContext||window.webkitAudioContext;dcCtx=new C();try{await dcCtx.resume();}catch(e){}const src=dcCtx.createMediaStreamSource(dcStream);const an=dcCtx.createAnalyser();an.fftSize=512;src.connect(an);
+        const buf=new Uint8Array(an.fftSize);let loud=0;
+        if(btn)btn.textContent='Listening… say “hello”';
+        const tick=()=>{an.getByteTimeDomainData(buf);let m=0;for(let i=0;i<buf.length;i++)m=Math.max(m,Math.abs(buf[i]-128));
+          const lv=Math.min(100,Math.round(m/60*100));const bar=$('dc-lvl');if(bar)bar.style.width=lv+'%';
+          if(lv>22)loud++;else loud=Math.max(0,loud-1);
+          if(loud>=8&&!dcState.mic){dcState.mic=true;dcRefresh();if(btn)btn.textContent='🎙 Test again';}
+          dcRaf=requestAnimationFrame(tick);};
+        tick();
+      }catch(e){
+        const st=document.querySelector('#dc-mic .dc-state');if(st)st.textContent='We cannot use the microphone. Allow microphone access in your browser settings, then test again.';
+        if(btn)btn.textContent='🎙 Try again';
+      }
+    },
+    go(){try{sessionStorage.setItem('s4p_dc_ok','1');if(dcState.mic)sessionStorage.setItem('s4p_dc_mic','1');}catch(e){}dcClose(true);},
+    skip(){dcClose(true);},
+    cancel(){dcClose(false);}
+  };
+  window.addEventListener('online',dcRefresh);window.addEventListener('offline',dcRefresh);
+
+  // run the check before the IELTS full mock starts
+  if(typeof fmStart==='function'){
+    const _fm=fmStart;
+    fmStart=async function(){const a=arguments,self=this;const ok=await window.s4pDeviceCheck({mic:true});if(!ok)return;return _fm.apply(self,a);};
+  }
+  // and before task practice that needs sound or a microphone
+  const NEED={'det-sp':1,'det-rts':1,'det-ss':1,'ie-s1':1,'ie-s2':1,'ie-s3':1,'to-lr':1,'to-is':1,'pt-ra':1,'pt-rs':1,'det-lt':0,'ie-dict':0,'pt-wd':0};
+  function hookTasks(){
+    if(!window.s4pTK||window.s4pTK.__dc)return;
+    const _s=window.s4pTK.start;
+    window.s4pTK.start=async function(id,pre){
+      if(Object.prototype.hasOwnProperty.call(NEED,id)){const ok=await window.s4pDeviceCheck({mic:!!NEED[id]});if(!ok)return;}
+      return _s.call(this,id,pre);
+    };
+    window.s4pTK.__dc=true;
+  }
+  hookTasks();
+
+  // ═══ full-mock look: step bar, question strip, full screen ═══
+  const ICON={Listening:'🎧',Reading:'📖',Writing:'✍️',Speaking:'🎤'};
+  function stepBar(){
+    const sk=FM.def.sections.map(s=>s.skill);const cur=FM.cur&&FM.cur.skill;
+    const steps=sk.concat(['Finish']);
+    return `<div class="fm-stepbar">`+steps.map((n,i)=>{
+      const done=n!=='Finish'&&FM.results&&FM.results[n];const isCur=n===cur;
+      return `${i?`<span class="fm-sep ${done||(steps[i-1]!==undefined&&FM.results&&FM.results[steps[i-1]])?'done':''}"></span>`:''}<span class="fm-step ${done?'done':isCur?'cur':''}"><b>${done?'✓':(i+1)}</b>${n}</span>`;
+    }).join('')+`</div>`;
+  }
+  function chips(){
+    const n=FM.cur.questions.length;
+    return `<div class="fm-strip" id="fm-strip">`+Array.from({length:n},(_,i)=>`<button class="fm-chip${(FM.cur.answers[i]||'').trim()?' ans':''}" data-i="${i}" onclick="s4pExam.jump(${i})">${i+1}</button>`).join('')+`</div>`;
+  }
+  function fsBtn(){
+    const can=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;
+    return can?`<button class="fm-fs" id="fm-fs" onclick="s4pExam.fs()" title="Full screen">⛶</button>`:'';
+  }
+  window.s4pExam={
+    jump(i){const el=$('fm-q-'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},
+    fs(){try{if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement);}}catch(e){}}
+  };
+  function refreshChips(){
+    if(!FM||!FM.cur)return;
+    document.querySelectorAll('#fm-strip .fm-chip').forEach(c=>{const i=parseInt(c.dataset.i,10);c.classList.toggle('ans',!!(FM.cur.answers[i]||'').trim());});
+  }
+  if(typeof fmRenderSection==='function'){
+    const _r=fmRenderSection;
+    fmRenderSection=function(){
+      const r=_r.apply(this,arguments);
+      try{
+        const el=$('tp-lesson-content');
+        const lv=$('tp-lesson-view');if(lv)lv.classList.add('fm-mode');
+        // give each question card an id so the number strip can jump to it
+        el.querySelectorAll('.tp-info-card h4').forEach(h=>{const m=/^Question (\d+)$/.exec((h.textContent||'').trim());if(m)h.parentElement.id='fm-q-'+(parseInt(m[1],10)-1);});
+        // timer row: add the full-screen button
+        const t=$('fm-timer');
+        if(t&&t.parentElement){t.insertAdjacentHTML('afterend',fsBtn());t.parentElement.insertAdjacentHTML('afterend',chips());}
+        el.insertAdjacentHTML('afterbegin',stepBar());
+        if(!el.__chipListen){el.__chipListen=true;el.addEventListener('input',()=>setTimeout(refreshChips,0));}
+      }catch(e){}
+      return r;
+    };
+  }
+  const _closeEx=closeLessonView;
+  closeLessonView=function(){const lv=$('tp-lesson-view');if(lv)lv.classList.remove('fm-mode');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}return _closeEx.apply(this,arguments);};
+  window.s4pExamRefresh=refreshChips;
+  // keep the bar fresh if answers are set in other ways (e.g. dictation)
+  setInterval(()=>{try{if(typeof FM!=='undefined'&&FM&&FM.cur&&$('fm-strip'))refreshChips();}catch(e){}},1500);
+})();
+
+// ── Help & FAQ (opens from the dashboard tile and the footer) ───────────────
+// Edit the questions below. Keep answers factual: only say what the portal really does.
+(function(){
+  const $=id=>document.getElementById(id);
+  const WA='https://wa.me/919159158881';
+  const FAQ=[
+    ['Getting started','🚀',[
+      ['How do I sign in?','Use your phone number with an OTP or your password. If you are outside India, you can sign in with your email address and a code we send you. Tick “Keep me signed in on this device” if you use your own phone.'],
+      ['I did not receive my OTP.','Check that the number or email is correct and wait a minute, then ask for a new code. For email codes, look in your spam folder too. Still nothing? Message us on WhatsApp.'],
+      ['I forgot my password.','Sign in with an OTP instead. After you sign in, the portal asks you to create a new password.'],
+      ['Which browser should I use?','The latest Chrome, Edge or Safari. If something looks wrong, refresh the page or sign out and in again.']
+    ]],
+    ['Lessons and practice','📚',[
+      ['What is the lesson test?','Each lesson ends with a short test of about 5 questions. It shows your score and explains the answers you missed. It is for practice, so you can retake lessons as often as you like.'],
+      ['Can I learn in my own language?','Yes. In a lesson, open the Concept step, choose your language and tap Explain. Tamil, Hindi, Urdu, Bengali, Telugu, Malayalam and Arabic are available. Translations are a learning aid, so check anything important with your counsellor or teacher.'],
+      ['What are Instant Practice Sets?','Ready-made question sets built from your lessons, in the Mock Tests tab. They are free, start instantly and give a fresh mix each time.'],
+      ['What is Practice by task?','One card for each question type in the exam, such as Read and Select, Fill in the Blanks or Speaking Part 2. Pick a card and practise just that task.'],
+      ['Who marks my speaking and writing answers?','In practice tasks you compare your answer with a sample and tick a checklist yourself. Spark, our AI speaking partner, can give feedback on your speaking. Sample answers show what a strong answer includes.'],
+      ['Are these the official exam questions?','No. They are our own practice questions in the same style. A practice score cannot predict your official result.'],
+      ['Is my progress saved?','Yes, when you are signed in. Finished lessons, XP and streaks are saved to your account.']
+    ]],
+    ['Mock tests and plans','🎯',[
+      ['What is a full mock test?','A timed, exam-style test in sections, with a device check first. Each recording plays once, like the real test. Full mocks use your mock credits.'],
+      ['How do plans and credits work?','Open Plans in the portal to see the current plans, prices and what each includes. Lessons and Instant Practice Sets stay free.'],
+      ['How can I pay?','Where online payment is available you can pay by UPI, card or net banking. If you do not see an online option, message us on WhatsApp and we will add your plan.'],
+      ['I paid but my credits are not showing.','Wait a few minutes and refresh. If they are still missing, send us your payment screenshot on WhatsApp with your name and phone number.'],
+      ['Why does the test ask for my microphone and sound?','Speaking and listening tasks need them. The device check tests your speakers and microphone first. If your microphone does not work, allow microphone access for this site in your browser settings and test again.']
+    ]],
+    ['My application','📋',[
+      ['Where can I see my application status?','Open My Status on your dashboard. It appears once your counsellor has set up your application.'],
+      ['Who is my counsellor?','Your counsellor’s name and a WhatsApp button are on your dashboard.'],
+      ['How do I upload my documents?','Open My Documents, then upload each document from the checklist.'],
+      ['Can my parents see my progress?','Parent View lets you share your progress with your family.']
+    ]],
+    ['Speaking with Spark','🎤',[
+      ['What is Spark?','Spark is our AI speaking partner. You can talk or type, and it helps you practise English conversation and interviews.'],
+      ['Is there a daily limit?','Spark has daily limits that depend on your plan. The portal tells you when you reach one.']
+    ]],
+    ['Account and privacy','🔒',[
+      ['How is my data used?','Your details are kept private and used to run your account and support your application. Ask us if you would like to know more.'],
+      ['How do I delete my account?','Use “Delete my account” in the footer or your profile. This cannot be undone.']
+    ]]
+  ];
+  const css=`
+  #s4p-help{position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:10000;display:flex;align-items:flex-end;justify-content:center}
+  #s4p-help .hp-card{background:var(--cream,#fff);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 18px 22px;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+  @media(min-width:700px){#s4p-help{align-items:center}#s4p-help .hp-card{border-radius:18px}}
+  .hp-search{width:100%;padding:11px 14px;border:1.5px solid var(--line,#ddd);border-radius:12px;font-size:14.5px;font-family:var(--font-b);margin:6px 0 12px;background:#fff}
+  .hp-cat{font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:16px 0 4px}
+  .hp-q{border-bottom:1px solid var(--line,#eee);padding:11px 0}
+  .hp-q summary{font-weight:600;font-size:14.5px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--ink,#222)}
+  .hp-q summary::-webkit-details-marker{display:none}
+  .hp-q summary::after{content:"+";font-size:18px;color:var(--ink3);flex-shrink:0}
+  .hp-q[open] summary{color:var(--pine,#1C3F6E)}.hp-q[open] summary::after{content:"–"}
+  .hp-q p{font-size:13.5px;color:var(--ink2,#444);line-height:1.65;margin:8px 0 0}
+  .hp-none{text-align:center;color:var(--ink3);font-size:13.5px;padding:18px 0}`;
+  function injectCss(){if($('help-css'))return;const s=document.createElement('style');s.id='help-css';s.textContent=css;document.head.appendChild(s);}
+  injectCss();document.addEventListener('DOMContentLoaded',injectCss);
+  const esc2=s=>(typeof esc==='function'?esc(s):String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])));
+  function render(q){
+    q=(q||'').trim().toLowerCase();let n=0;
+    const html=FAQ.map(([cat,ic,items])=>{
+      const list=items.filter(([a,b])=>!q||(a+' '+b).toLowerCase().includes(q));
+      if(!list.length)return '';n+=list.length;
+      return `<div class="hp-cat">${ic} ${esc2(cat)}</div>`+list.map(([a,b])=>`<details class="hp-q"${q?' open':''}><summary>${esc2(a)}</summary><p>${esc2(b)}</p></details>`).join('');
+    }).join('');
+    const host=$('hp-list');if(host)host.innerHTML=html||`<div class="hp-none">No answer found for “${esc2(q)}”. Ask us on WhatsApp and we will help.</div>`;
+  }
+  window.openHelpFaq=function(){
+    closeHelpFaq();
+    const o=document.createElement('div');o.id='s4p-help';
+    o.innerHTML=`<div class="hp-card" role="dialog" aria-label="Help and FAQ">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:var(--font-h);font-weight:800;font-size:20px;color:var(--pine)">Help &amp; FAQ</div><button onclick="closeHelpFaq()" aria-label="Close" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--ink3)">×</button></div>
+      ${window.ashaBubble?window.ashaBubble('wave','help',70):''}
+      <input class="hp-search" id="hp-search" type="search" placeholder="Search, for example “OTP” or “mock”" oninput="s4pHelpSearch(this.value)" autocomplete="off">
+      <div id="hp-list"></div>
+      <div style="margin-top:18px;padding:14px;border-radius:14px;background:#fff;border:1px solid var(--line,#eee);text-align:center">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">Still need help?</div>
+        <div style="font-size:13px;color:var(--ink3);margin-bottom:10px">Your counsellor and our team are happy to help.</div>
+        <a href="${WA}" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13.5px;text-decoration:none;margin-right:6px">WhatsApp us</a>
+        <a href="mailto:india@step4progress.com" style="display:inline-block;border:1.5px solid var(--line,#ddd);color:var(--ink2);padding:9px 16px;border-radius:10px;font-weight:600;font-size:13.5px;text-decoration:none">Email</a>
+      </div></div>`;
+    o.addEventListener('click',e=>{if(e.target===o)closeHelpFaq();});
+    document.body.appendChild(o);render('');
+  };
+  window.closeHelpFaq=function(){const o=$('s4p-help');if(o)o.remove();};
+  window.s4pHelpSearch=render;
+  window.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelpFaq();});
 })();
 
 (function(){
@@ -13506,17 +13894,19 @@ function fmRenderSection(){
   if(sec.skill==='Listening') html+=`<div class="tp-info-card"><p style="font-size:13px">Each recording plays <b>once</b>, like the real test. Use headphones in a quiet place. Press play only when you are ready, then answer as you listen.</p></div>`;
   c.partInfo.forEach((pi,pidx)=>{
     html+=`<div style="font-size:15px;font-weight:700;color:var(--pine);margin:18px 0 8px">${esc(pi.title)}</div>`;
+    let pH='',qH='';
     c.passages.filter(p=>p.part===pidx).forEach(p=>{
       if(p.audio){
-        html+=`<div class="tp-example-box" style="margin-bottom:10px" id="fm-aud-${p.id}"><span class="tp-example-badge">Recording</span><div style="margin-top:8px"><button class="btn" id="fm-play-${p.id}" style="width:auto;padding:9px 18px;font-size:13px" onclick="fmPlay('${p.id}')">▶ Play recording</button></div><p id="fm-tx-${p.id}" style="display:none;margin:10px 0 0;white-space:pre-wrap;font-size:13.5px">${escMockText(p.text)}</p></div>`;
+        pH+=`<div class="tp-example-box" style="margin-bottom:10px" id="fm-aud-${p.id}"><span class="tp-example-badge">Recording</span><div style="margin-top:8px"><button class="btn" id="fm-play-${p.id}" style="width:auto;padding:9px 18px;font-size:13px" onclick="fmPlay('${p.id}')">▶ Play recording</button></div><p id="fm-tx-${p.id}" style="display:none;margin:10px 0 0;white-space:pre-wrap;font-size:13.5px">${escMockText(p.text)}</p></div>`;
       } else {
-        html+=`<div class="tp-example-box" style="margin-bottom:10px"><span class="tp-example-badge">Passage</span><p style="margin:8px 0 0;white-space:pre-wrap">${escMockText(p.text)}</p></div>`;
+        pH+=`<div class="tp-example-box" style="margin-bottom:10px"><span class="tp-example-badge">Passage</span><p style="margin:8px 0 0;white-space:pre-wrap">${escMockText(p.text)}</p></div>`;
       }
     });
     for(let i=pi.start;i<pi.end;i++){
       const q=c.questions[i];
-      html+=`<div class="tp-info-card"><h4>Question ${i+1}</h4><p style="white-space:pre-wrap">${escMockText(q.prompt)}</p>${fmQInput(q,i)}</div>`;
+      qH+=`<div class="tp-info-card"><h4>Question ${i+1}</h4><p style="white-space:pre-wrap">${escMockText(q.prompt)}</p>${fmQInput(q,i)}</div>`;
     }
+    html+=(sec.skill==='Reading')?`<div class="fm-split"><div class="fm-left">${pH}</div><div class="fm-right">${qH}</div></div>`:pH+qH;
   });
   html+=`<button class="btn btn-p" style="margin-top:8px" onclick="fmFinishSection()">Submit ${esc(sec.skill)}</button>`;
   fmEl().innerHTML=html;
