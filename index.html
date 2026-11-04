@@ -10840,6 +10840,525 @@ window.guideRevert=async function(){
   setTimeout(loadI18n,1500);
 })();
 
+// ── Asha: Step4Progress's friendly guide (original character, drawn in code) ──
+// Shows up on the dashboard, lesson intros, quiz answers and lesson completion.
+// Short messages are shown in English, plus the student's chosen language once they have picked one.
+// Animations switch off automatically for people whose device asks for reduced motion
+// (or if localStorage 's4p_motion' is set to 'off').
+(function(){
+  const NAME='Asha';
+  const css=`
+  .asha{display:block;overflow:visible}
+  .asha .a-body{animation:ashaBob 3.4s ease-in-out infinite}
+  .asha .a-eyes{transform-box:fill-box;transform-origin:center;animation:ashaBlink 5.2s infinite}
+  .asha .a-tail{transform-box:view-box;transform-origin:138px 70px;animation:ashaTail 3.4s ease-in-out infinite}
+  .asha .a-wave{transform-box:view-box;transform-origin:150px 172px;animation:ashaWave .9s ease-in-out infinite alternate}
+  .asha .a-up{animation:ashaUp .7s ease-in-out infinite alternate}
+  .asha .a-conf{animation:ashaConf 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+  .asha .a-z{animation:ashaZ 2.4s ease-in-out infinite}
+  @keyframes ashaBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes ashaBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+  @keyframes ashaTail{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
+  @keyframes ashaWave{from{transform:rotate(-8deg)}to{transform:rotate(14deg)}}
+  @keyframes ashaUp{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+  @keyframes ashaConf{0%{opacity:0;transform:translateY(10px) scale(.4)}25%{opacity:1}100%{opacity:0;transform:translateY(-26px) scale(1) rotate(160deg)}}
+  @keyframes ashaZ{0%,100%{opacity:.2;transform:translateY(4px)}50%{opacity:1;transform:translateY(-4px)}}
+  @media (prefers-reduced-motion:reduce){.asha *{animation:none!important}}
+  .asha-off .asha *{animation:none!important}
+  .asha-row{display:flex;align-items:flex-end;gap:8px;margin:2px 0 12px}
+  .asha-bubble{position:relative;background:#fff;border:1.5px solid #D9E3F3;border-radius:16px;padding:9px 13px;font-size:13.5px;line-height:1.5;color:var(--ink2,#333);box-shadow:0 2px 8px rgba(28,63,110,.08);max-width:300px}
+  .asha-bubble:before{content:"";position:absolute;left:-7px;bottom:16px;width:12px;height:12px;background:#fff;border-left:1.5px solid #D9E3F3;border-bottom:1.5px solid #D9E3F3;transform:rotate(45deg)}
+  .asha-bubble b{color:var(--pine,#1C3F6E)}
+  .asha-bubble .a-l2{display:block;margin-top:3px;color:var(--ink3,#666)}
+  `;
+  const SK='#D9A073', SKD='#C98A5E', HAIR='#2A1A16', NAVY='#1C3F6E', ORG='#E08429';
+
+  function eyes(m){
+    const closedHappy=`<path d="M72 98 Q81 88 90 98" /><path d="M110 98 Q119 88 128 98" />`;
+    if(m==='cheer')return `<g fill="none" stroke="${HAIR}" stroke-width="3.4" stroke-linecap="round">${closedHappy}</g>`;
+    if(m==='sleepy')return `<g fill="none" stroke="${HAIR}" stroke-width="3.2" stroke-linecap="round"><path d="M72 98 Q81 105 90 98" /><path d="M110 98 Q119 105 128 98" /></g>`;
+    const dx=m==='think'?3:0, dy=m==='think'?-3:0;
+    return `<g class="a-eyes"><ellipse cx="81" cy="97" rx="7.2" ry="9" fill="#fff"/><ellipse cx="119" cy="97" rx="7.2" ry="9" fill="#fff"/>
+      <ellipse cx="${81+dx}" cy="${98+dy}" rx="5.4" ry="7" fill="${HAIR}"/><ellipse cx="${119+dx}" cy="${98+dy}" rx="5.4" ry="7" fill="${HAIR}"/>
+      <circle cx="${83+dx}" cy="${95+dy}" r="2" fill="#fff"/><circle cx="${121+dx}" cy="${95+dy}" r="2" fill="#fff"/></g>`;
+  }
+  function brows(m){
+    let l='M72 80 Q81 75 90 80', r='M110 80 Q119 75 128 80';
+    if(m==='encourage'){ l='M72 82 Q80 76 90 77'; r='M110 77 Q120 76 128 82'; }
+    if(m==='think'){ l='M72 82 Q81 80 90 82'; r='M110 76 Q119 70 128 76'; }
+    if(m==='cheer'){ l='M72 78 Q81 72 90 78'; r='M110 78 Q119 72 128 78'; }
+    return `<g fill="none" stroke="${HAIR}" stroke-width="3" stroke-linecap="round"><path d="${l}"/><path d="${r}"/></g>`;
+  }
+  function mouth(m){
+    if(m==='cheer')return `<path d="M86 113 Q100 140 114 113 Z" fill="#7A2E2E"/><path d="M92 126 Q100 134 108 126 Q100 122 92 126Z" fill="#E88"/>`;
+    if(m==='think')return `<path d="M93 119 Q100 117 107 121" fill="none" stroke="#7A2E2E" stroke-width="3" stroke-linecap="round"/>`;
+    if(m==='sleepy')return `<ellipse cx="100" cy="120" rx="4" ry="3.2" fill="#7A2E2E"/>`;
+    if(m==='encourage')return `<path d="M90 117 Q100 126 110 117" fill="none" stroke="#7A2E2E" stroke-width="3.2" stroke-linecap="round"/>`;
+    return `<path d="M87 114 Q100 130 113 114" fill="none" stroke="#7A2E2E" stroke-width="3.4" stroke-linecap="round"/>`;
+  }
+  function arms(m){
+    const sleeve=(d)=>`<path d="${d}" fill="none" stroke="${NAVY}" stroke-width="24" stroke-linecap="round"/>`;
+    const hand=(x,y)=>`<circle cx="${x}" cy="${y}" r="11.5" fill="${SK}"/>`;
+    if(m==='wave')return `<g class="a-wave">${sleeve('M150 176 Q176 150 172 122')}${hand(172,112)}</g>`;
+    if(m==='cheer')return `<g class="a-up">${sleeve('M50 176 Q24 150 28 116')}${hand(28,106)}${sleeve('M150 176 Q176 150 172 116')}${hand(172,106)}</g>`;
+    if(m==='think')return `${sleeve('M150 180 Q166 150 130 140')}${hand(123,133)}`;
+    if(m==='encourage')return `${sleeve('M150 178 Q178 160 172 134')}<circle cx="172" cy="124" r="11.5" fill="${SK}"/><rect x="167" y="102" width="10" height="20" rx="5" fill="${SK}"/>`;
+    return '';
+  }
+  function extras(m){
+    if(m==='cheer')return `<g><rect class="a-conf" x="30" y="40" width="7" height="7" rx="1.5" fill="${ORG}"/><circle class="a-conf" style="animation-delay:.3s" cx="168" cy="44" r="4" fill="#3DA5D9"/><rect class="a-conf" style="animation-delay:.6s" x="55" y="22" width="6" height="6" rx="1" fill="#6BBF59"/><circle class="a-conf" style="animation-delay:.9s" cx="146" cy="24" r="3.5" fill="#E8557A"/><rect class="a-conf" style="animation-delay:1.1s" x="100" y="12" width="6" height="6" rx="1" fill="${ORG}"/></g>`;
+    if(m==='sleepy')return `<g fill="${NAVY}" font-family="Arial" font-weight="700"><text class="a-z" x="146" y="60" font-size="18">z</text><text class="a-z" style="animation-delay:.6s" x="160" y="42" font-size="14">z</text></g>`;
+    return '';
+  }
+  // mood: happy | wave | cheer | think | encourage | sleepy
+  window.ashaSvg=function(mood,size){
+    mood=mood||'happy'; size=size||96;
+    return `<svg class="asha asha-${mood}" viewBox="0 0 200 220" width="${size}" height="${Math.round(size*1.1)}" role="img" aria-label="${NAME}, your guide">
+    <g class="a-body">
+      <g class="a-tail"><path d="M134 62 C196 46 206 132 164 166 C148 150 142 122 134 100 Z" fill="${HAIR}"/><path d="M150 84 C172 84 182 112 170 138" fill="none" stroke="#4A2F28" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+        <g transform="translate(140 70) rotate(-25)"><path d="M0 0 L22 -7 L10 8 Z" fill="${ORG}"/><path d="M0 0 L10 8 L6 -1 Z" fill="#B8651B"/></g></g>
+      <path d="M40 222 C40 172 70 152 100 152 C130 152 160 172 160 222 Z" fill="${NAVY}"/>
+      <path d="M84 153 Q100 176 116 153" fill="${SKD}"/>
+      <path d="M92 168 L90 192 M108 168 L110 192" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <g transform="translate(100 200) rotate(-20)"><path d="M0 0 L20 -6 L9 8 Z" fill="${ORG}"/></g>
+      <rect x="88" y="126" width="24" height="30" rx="11" fill="${SKD}"/>
+      <ellipse cx="55" cy="96" rx="6" ry="9" fill="${SK}"/><ellipse cx="145" cy="96" rx="6" ry="9" fill="${SK}"/>
+      <ellipse cx="100" cy="92" rx="45" ry="49" fill="${SK}"/>
+      <path d="M52 94 C44 40 92 24 118 32 C150 40 156 74 148 96 C146 74 128 58 104 58 C80 58 62 70 52 94 Z" fill="${HAIR}"/>
+      <path d="M54 92 C54 66 80 52 106 54 C90 62 76 76 70 100 C62 100 56 98 54 92 Z" fill="${HAIR}"/>
+      <ellipse cx="68" cy="112" rx="8" ry="5" fill="#F29A8A" opacity=".55"/><ellipse cx="132" cy="112" rx="8" ry="5" fill="#F29A8A" opacity=".55"/>
+      ${brows(mood)}${eyes(mood)}
+      <path d="M99 104 Q102 108 99 110" fill="none" stroke="${SKD}" stroke-width="2.4" stroke-linecap="round"/>
+      ${mouth(mood)}
+      ${arms(mood)}
+    </g>${extras(mood)}</svg>`;
+  };
+
+  // ── short messages (editable here). Native lines are short greetings only; have a native speaker check them. ──
+  const MSG={
+    en:{ok:['Great job!','Correct — well done!','You got it!'],no:["Almost! Let's look at it again.","Good try — you'll get it next time."],hello:"Hi, I'm Asha! Let's learn something new today.",done:'Lesson complete — well done!',back:'Welcome back! Ready to practise?'},
+    ta:{ok:['அருமை!','சரியான பதில்!'],no:['கிட்டத்தட்ட சரி! மீண்டும் பார்ப்போம்.'],hello:'வணக்கம்! நான் ஆஷா. இன்று புதிதாக ஒன்று கற்போம்!',done:'பாடம் முடிந்தது! நன்றாகச் செய்தீர்கள்!',back:'மீண்டும் வரவேற்கிறோம்! பயிற்சி செய்யலாமா?'},
+    hi:{ok:['बहुत बढ़िया!','सही जवाब!'],no:['लगभग सही! चलो फिर से देखते हैं।'],hello:'नमस्ते! मैं आशा हूँ। आज कुछ नया सीखते हैं!',done:'पाठ पूरा हुआ! शाबाश!',back:'वापसी पर स्वागत है! अभ्यास करें?'},
+    ur:{ok:['بہت خوب!','درست جواب!'],no:['تقریباً درست! آئیے دوبارہ دیکھتے ہیں۔'],hello:'السلام علیکم! میں آشا ہوں۔ آج کچھ نیا سیکھتے ہیں!',done:'سبق مکمل ہوا! شاباش!',back:'خوش آمدید! مشق کریں؟'},
+    bn:{ok:['দারুণ!','সঠিক উত্তর!'],no:['প্রায় হয়ে গেছে! আবার দেখি।'],hello:'নমস্কার! আমি আশা। আজ নতুন কিছু শিখি!',done:'পাঠ শেষ! খুব ভালো!',back:'আবার স্বাগতম! অনুশীলন করবেন?'},
+    te:{ok:['అద్భుతం!','సరైన సమాధానం!'],no:['దాదాపు సరైనదే! మళ్ళీ చూద్దాం.'],hello:'నమస్తే! నేను ఆశ. ఈ రోజు కొత్తగా నేర్చుకుందాం!',done:'పాఠం పూర్తయింది! బాగా చేశారు!',back:'మళ్ళీ స్వాగతం! సాధన చేద్దామా?'},
+    ml:{ok:['കൊള്ളാം!','ശരിയായ ഉത്തരം!'],no:['ഏറെക്കുറെ ശരി! ഒന്നുകൂടി നോക്കാം.'],hello:'നമസ്കാരം! ഞാൻ ആശ. ഇന്ന് പുതിയതെന്തെങ്കിലും പഠിക്കാം!',done:'പാഠം പൂർത്തിയായി! നന്നായി!',back:'വീണ്ടും സ്വാഗതം! പരിശീലിക്കാമോ?'},
+    ar:{ok:['أحسنت!','إجابة صحيحة!'],no:['كدت تصيب! لنراجعها مرة أخرى.'],hello:'مرحباً! أنا آشا. لنتعلم شيئاً جديداً اليوم!',done:'اكتمل الدرس! أحسنت!',back:'أهلاً بعودتك! هل نتدرب؟'}
+  };
+  // extra lines for tests, waiting screens and reminders (Tamil + Hindi written by Claude; please have them checked)
+  Object.assign(MSG.en,{start:"Ready? Let's test what you've learned!",great:'Excellent! You really know this.',good:'Good job! A little more practice and it is perfect.',retry:"Let's review these and try again. You can do it!",wait:'One moment… getting your test ready.',empty:"Nothing here yet. Let's start learning!",streak:'Come back every day to keep your streak going!',think:'Take your time. Read carefully.'});
+  Object.assign(MSG.ta,{start:'தயாரா? கற்றதைச் சோதிப்போம்!',great:'அருமை! நீங்கள் நன்றாகக் கற்றுக்கொண்டீர்கள்!',good:'நல்லது! இன்னும் கொஞ்சம் பயிற்சி செய்தால் முழுமை!',retry:'தவறியவற்றை மீண்டும் பார்த்து, மறுபடி முயல்வோம்.',wait:'ஒரு நிமிடம்… உங்கள் தேர்வு தயாராகிறது.',empty:'இங்கே இன்னும் எதுவும் இல்லை. கற்கத் தொடங்குவோம்!',streak:'தினமும் வந்து உங்கள் ஸ்ட்ரீக்கைத் தொடருங்கள்!',think:'நிதானமாக, கவனமாகப் படியுங்கள்.'});
+  Object.assign(MSG.hi,{start:'तैयार हो? देखते हैं आपने क्या सीखा!',great:'शानदार! आपने बहुत अच्छा सीखा!',good:'अच्छा! थोड़ा और अभ्यास, फिर परफेक्ट!',retry:'जो गलत हुए उन्हें दोबारा देखकर फिर कोशिश करें।',wait:'एक मिनट… आपका टेस्ट तैयार हो रहा है।',empty:'यहाँ अभी कुछ नहीं है। चलो सीखना शुरू करें!',streak:'रोज़ आइए और अपनी स्ट्रीक बनाए रखिए!',think:'आराम से, ध्यान से पढ़िए।'});
+  const RTL={ur:1,ar:1};
+  function pref(){try{return localStorage.getItem('s4p_lang');}catch(e){return null;}}
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  function say(key){
+    const en=MSG.en[key];const enT=Array.isArray(en)?pick(en):en;
+    const l=pref();const nat=l&&l!=='en'&&MSG[l]?MSG[l][key]:null;
+    const natT=nat?(Array.isArray(nat)?pick(nat):nat):null;
+    return {en:enT,nat:natT,lang:l};
+  }
+  window.ashaBubble=function(mood,key,size){
+    const m=say(key);
+    return `<div class="asha-row">${window.ashaSvg(mood,size||76)}<div class="asha-bubble"><b>${m.en}</b>${m.nat?`<span class="a-l2" dir="${RTL[m.lang]?'rtl':'ltr'}">${m.nat}</span>`:''}</div></div>`;
+  };
+
+  function injectCss(){
+    if(document.getElementById('asha-css'))return;
+    const s=document.createElement('style');s.id='asha-css';s.textContent=css;document.head.appendChild(s);
+    try{if(localStorage.getItem('s4p_motion')==='off')document.documentElement.classList.add('asha-off');}catch(e){}
+  }
+  injectCss();
+  document.addEventListener('DOMContentLoaded',injectCss);
+  window.ashaMotion=function(on){try{localStorage.setItem('s4p_motion',on?'on':'off');}catch(e){}document.documentElement.classList.toggle('asha-off',!on);};
+
+  // ── lesson player hooks ──
+  function panel(){return document.querySelector('#tp-lesson-content .lstep-panel');}
+  const _render=renderLstepStep;
+  renderLstepStep=function(){
+    const r=_render.apply(this,arguments);
+    try{
+      const s=lstepState,step=s.steps[s.idx];
+      if(step&&step.kind==='intro'){const p=panel();if(p)p.insertAdjacentHTML('afterbegin',window.ashaBubble('wave','hello',80));}
+    }catch(e){}
+    return r;
+  };
+  function feedback(ok){
+    const fb=document.getElementById('lstep-quiz-feedback');if(!fb)return;
+    const k=ok?'ok':'no';
+    fb.insertAdjacentHTML('afterbegin',window.ashaBubble(ok?'cheer':'encourage',k,70));
+  }
+  const _check=checkQuizOption;
+  checkQuizOption=function(){
+    const s=lstepState,before=s.quizAnswered;
+    const r=_check.apply(this,arguments);
+    try{if(!before&&s.quizAnswered){const step=s.steps[s.idx];feedback(s.quizSelected===step.q.correct);}}catch(e){}
+    return r;
+  };
+  const _mark=markQuizStep;
+  markQuizStep=function(ok){
+    const before=lstepState.quizAnswered;
+    const r=_mark.apply(this,arguments);
+    try{if(!before)feedback(!!ok);}catch(e){}
+    return r;
+  };
+  const _complete=completeLstepLesson;
+  completeLstepLesson=async function(){
+    const r=await _complete.apply(this,arguments);
+    try{const p=panel();if(p&&!p.querySelector('.asha-row'))p.insertAdjacentHTML('afterbegin',window.ashaBubble('cheer','done',96));}catch(e){}
+    return r;
+  };
+  // dashboard greeting
+  const _after=afterLogin;
+  afterLogin=async function(){
+    const r=await _after.apply(this,arguments);
+    try{
+      const g=document.getElementById('dashGreeting');
+      if(g&&g.parentElement&&!document.getElementById('asha-dash')){
+        g.insertAdjacentHTML('beforebegin',`<div id="asha-dash" style="float:right;margin:-4px 0 4px 8px">${window.ashaSvg('wave',72)}</div>`);
+      }
+    }catch(e){}
+    return r;
+  };
+})();
+
+// ── Lesson tests, Instant Practice Sets and extra Asha placements ──────────────
+// Everything here is pre-written (built from the lessons' own quiz questions and
+// word lists), so it needs no AI call, no credits and no waiting.
+(function(){
+  const $=id=>document.getElementById(id);
+  const shuf=a=>shuffleArray(a.slice());
+  const norm=x=>String(x==null?'':x).trim().toLowerCase();
+  const bubble=(mood,key,size)=>(window.ashaBubble?window.ashaBubble(mood,key,size):'');
+
+  // ── lesson lists ──
+  function collect(node,out,lvl,skill,seen){
+    if(!node||typeof node!=='object'||seen.has(node))return;
+    seen.add(node);
+    if(Array.isArray(node)){node.forEach(n=>collect(n,out,lvl,skill,seen));return;}
+    if(typeof node.id==='string'&&(Array.isArray(node.quiz)||Array.isArray(node.vocab))){out.push({l:node,lvl:lvl,skill:skill});return;}
+    Object.values(node).forEach(n=>collect(n,out,lvl,skill,seen));
+  }
+  function lessonsOf(t){
+    const out=[],seen=new Set();
+    collect(t.gettingStarted,out,null,null,seen);
+    (t.levels||[]).forEach(lv=>Object.entries(lv.skills||{}).forEach(([sk,arr])=>collect(arr,out,lv.key,sk,seen)));
+    return out;
+  }
+
+  // ── question building ──
+  function vocabOf(l){return (l.vocab||[]).filter(x=>x&&x[0]&&x[1]);}
+  function mixOpts(q){
+    const correctText=q.options[q.correct];
+    const opts=shuf(q.options);
+    return Object.assign({},q,{options:opts,correct:opts.indexOf(correctText)});
+  }
+  function quizMcqs(l){
+    return (l.quiz||[]).filter(q=>q&&q.q&&q.options&&q.options.length>=2&&typeof q.correct==='number'&&q.options[q.correct]!=null)
+      .map(q=>mixOpts({q:q.q,options:q.options.slice(),correct:q.correct,a:q.a||'',lesson:l.title}));
+  }
+  function vocabQ(item,l,pool,dir){
+    // dir 'rev': definition -> word.  dir 'fwd': word -> definition.
+    const ai=dir==='rev'?0:1;
+    const right=String(item[ai]);
+    const seen=new Set([norm(right)]);const dis=[];
+    const own=vocabOf(l).filter(x=>x!==item);
+    for(const v of [...shuf(own),...shuf(pool)]){
+      if(dis.length>=3)break;
+      const k=norm(v[ai]);if(!k||seen.has(k)||k===norm(item[1-ai]))continue;
+      seen.add(k);dis.push(String(v[ai]));
+    }
+    if(dis.length<2)return null;
+    const opts=shuf([right,...dis]);
+    return {q:dir==='rev'?`Which word or phrase means: “${item[1]}”?`:`What does “${item[0]}” mean?`,
+      options:opts,correct:opts.indexOf(right),a:`“${item[0]}” means: ${item[1]}`,lesson:l.title};
+  }
+  function poolVocab(list){const p=[];list.forEach(({l})=>vocabOf(l).forEach(v=>p.push(v)));return p;}
+
+  // end-of-lesson test: a few fresh vocab questions plus the lesson's own quiz questions
+  function lessonTestQs(lesson,testKey){
+    const t=TEST_DATA[testKey]||{};
+    const all=lessonsOf(t);
+    const pool=poolVocab(all.length?all:[{l:lesson}]);
+    const quiz=shuf(quizMcqs(lesson));
+    const vq=shuf(vocabOf(lesson)).map(v=>vocabQ(v,lesson,pool,'rev')).filter(Boolean);
+    const out=[];const seenQ=new Set();
+    const take=(arr,n)=>{for(const q of arr){if(out.length>=5||n<=0)break;if(seenQ.has(norm(q.q)))continue;seenQ.add(norm(q.q));out.push(q);n--;}};
+    take(vq,2);take(quiz,3);take(vq,5);take(quiz,5);
+    return shuf(out).slice(0,5);
+  }
+
+  // instant practice set questions
+  function setQs(testKey,kind,key,n){
+    const t=TEST_DATA[testKey];const all=lessonsOf(t);
+    let use=all;
+    if(kind==='level')use=all.filter(x=>x.lvl===key);
+    else if(kind==='skill')use=all.filter(x=>x.skill===key);
+    const pool=poolVocab(all);
+    const cands=[];
+    use.forEach(x=>{
+      quizMcqs(x.l).forEach(q=>cands.push({q}));
+      vocabOf(x.l).forEach(v=>cands.push({v:v,l:x.l}));
+    });
+    const out=[];const seenQ=new Set();
+    for(const c of shuf(cands)){
+      if(out.length>=n)break;
+      const q=c.q||vocabQ(c.v,c.l,pool,Math.random()<.5?'rev':'fwd');
+      if(!q||seenQ.has(norm(q.q)))continue;
+      seenQ.add(norm(q.q));out.push(q);
+    }
+    return out;
+  }
+  function setsFor(testKey){
+    const t=TEST_DATA[testKey];if(!t)return [];
+    const all=lessonsOf(t);if(!all.length)return [];
+    const count=(f)=>{let n=0;all.filter(f).forEach(x=>{n+=quizMcqs(x.l).length+vocabOf(x.l).length;});return n;};
+    const sets=[];
+    const total=count(()=>true);
+    if(total>=8)sets.push({kind:'mix',key:'quick',n:Math.min(10,total),title:'Mixed Quick Set',sub:'All topics, a fresh mix every time',icon:'🎲'});
+    if(total>=20)sets.push({kind:'mix',key:'full',n:Math.min(25,total),title:'Mixed Long Set',sub:'A longer test across everything',icon:'🏁'});
+    (t.levels||[]).forEach(lv=>{const c=count(x=>x.lvl===lv.key);if(c>=8)sets.push({kind:'level',key:lv.key,n:Math.min(15,c),title:lv.name+' Set',sub:'Only questions from this level',icon:'🪜'});});
+    const skills=[];all.forEach(x=>{if(x.skill&&!skills.includes(x.skill))skills.push(x.skill);});
+    skills.forEach(sk=>{const c=count(x=>x.skill===sk);if(c>=8)sets.push({kind:'skill',key:sk,n:Math.min(15,c),title:sk+' Set',sub:'Practise one skill',icon:'🎯'});});
+    return sets;
+  }
+  function bestKey(testKey,s){return 's4p_pm_best_'+testKey+'_'+s.kind+'_'+s.key;}
+  function getBest(testKey,s){try{return parseInt(localStorage.getItem(bestKey(testKey,s)),10)||0;}catch(e){return 0;}}
+  function setBest(testKey,s,pct){try{if(pct>getBest(testKey,s))localStorage.setItem(bestKey(testKey,s),String(pct));}catch(e){}}
+
+  // ── shared question UI ──
+  function optsHtml(q,fn){return q.options.map((o,i)=>`<div class="lstep-quiz-opt" data-oi="${i}" onclick="${fn}(${i})">${esc(o)}</div>`).join('');}
+  function lock(q,pick){
+    document.querySelectorAll('.lt-opts .lstep-quiz-opt').forEach(el=>{
+      const oi=parseInt(el.dataset.oi,10);el.onclick=null;
+      if(oi===q.correct)el.classList.add('correct-answer');
+      else if(oi===pick)el.classList.add('wrong-answer');
+      else el.classList.add('dimmed');
+    });
+  }
+  function select(oi){
+    document.querySelectorAll('.lt-opts .lstep-quiz-opt').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.oi,10)===oi));
+    const n=$('lstep-next-btn');if(n)n.disabled=false;
+  }
+  function feedbackHtml(q,ok){
+    return bubble(ok?'cheer':'encourage',ok?'ok':'no',64)+`<div class="lstep-feedback ${ok?'correct':'incorrect'}">${ok?'Correct. ':'Not quite. '}${esc(q.a||('Answer: '+q.options[q.correct]))}</div>`;
+  }
+  function reviewHtml(wrong){
+    if(!wrong.length)return '';
+    return `<div style="text-align:left;margin-top:14px"><div style="font-weight:700;font-size:13.5px;color:var(--pine);margin-bottom:6px">Review these</div>`+
+      wrong.map(w=>`<div class="tp-info-card" style="margin-bottom:8px"><p style="margin:0;font-weight:600">${esc(w.q.q)}</p><p style="margin:6px 0 0;font-size:13px;color:var(--ink2)">Your answer: ${esc(w.q.options[w.pick])}</p><p style="margin:2px 0 0;font-size:13px;color:#2E6B3A"><b>Correct:</b> ${esc(w.q.options[w.q.correct])}</p>${w.q.lesson?`<p style="margin:4px 0 0;font-size:12px;color:var(--ink3)">From lesson: ${esc(w.q.lesson)}</p>`:''}</div>`).join('')+`</div>`;
+  }
+  function resultMood(pct){return pct>=80?['cheer','great']:pct>=50?['happy','good']:['encourage','retry'];}
+
+  // ═══ 1. End-of-lesson test (a step before “Lesson complete”) ═══
+  const _build=buildLstepSteps;
+  buildLstepSteps=function(lesson,ctx){
+    const steps=_build.apply(this,arguments);
+    try{
+      const qs=lessonTestQs(lesson,currentTpTest);
+      if(qs.length>=3){
+        const ci=steps.findIndex(s=>s.kind==='complete');
+        steps.splice(ci<0?steps.length:ci,0,{kind:'ltest',qs:qs});
+      }
+    }catch(e){}
+    return steps;
+  };
+  const LT={
+    start(step){step.qs=lessonTestQs(lstepState.lesson,currentTpTest);step.i=0;step.score=0;step.wrong=[];step.phase='q';step.pick=null;LT.show(step);},
+    show(step){
+      const q=step.qs[step.i];step.phase='q';step.pick=null;
+      $('tp-lesson-content').innerHTML=`<div class="lstep-panel">
+        <div class="lstep-badge quiz"><i class="ti ti-clipboard-check"></i> Lesson test ${step.i+1} / ${step.qs.length}</div>
+        ${step.i===0?bubble('think','start',70):''}
+        <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(q.q)}</div>
+        <div class="lt-opts">${optsHtml(q,'s4pLT.pick')}</div><div id="lt-fb"></div></div>`;
+      const n=$('lstep-next-btn');n.textContent='Check answer';n.disabled=true;
+    },
+    pick(oi){const step=lstepState.steps[lstepState.idx];if(!step||step.phase!=='q')return;step.pick=oi;select(oi);},
+    next(){
+      const s=lstepState,step=s.steps[s.idx];const n=$('lstep-next-btn');
+      if(step.phase==='q'){
+        if(step.pick==null)return;
+        const q=step.qs[step.i];const ok=step.pick===q.correct;
+        if(ok)step.score++;else step.wrong.push({q:q,pick:step.pick});
+        lock(q,step.pick);step.phase='fb';
+        $('lt-fb').innerHTML=feedbackHtml(q,ok);
+        n.textContent=step.i<step.qs.length-1?'Next question':'See my result';
+        return;
+      }
+      if(step.phase==='fb'){
+        if(step.i<step.qs.length-1){step.i++;LT.show(step);return;}
+        LT.result(step);return;
+      }
+      if(step.phase==='result'){
+        s.testScore=step.score;s.testTotal=step.qs.length;
+        if(s.idx<s.steps.length-1){s.idx++;renderLstepStep('fwd');}
+      }
+    },
+    result(step){
+      const s=lstepState;const tot=step.qs.length;const pct=Math.round(step.score/tot*100);
+      const [mood,key]=resultMood(pct);
+      s.testScore=step.score;s.testTotal=tot;step.phase='result';
+      $('tp-lesson-content').innerHTML=`<div class="lstep-panel" style="text-align:center">
+        <div class="lstep-badge quiz"><i class="ti ti-clipboard-check"></i> Lesson test result</div>
+        ${bubble(mood,key,90)}
+        <div style="font-family:var(--font-h);font-size:34px;font-weight:800;color:var(--pine)">${step.score} / ${tot}</div>
+        <div style="color:var(--ink3);font-size:13px">${pct}% correct</div>
+        ${reviewHtml(step.wrong)}</div>`;
+      const n=$('lstep-next-btn');n.textContent='Finish lesson';n.disabled=false;
+    }
+  };
+  window.s4pLT=LT;
+
+  // ═══ 2. Instant Practice Sets (pre-written mocks) ═══
+  const PM={active:false,set:null,testKey:null,qs:[],i:0,score:0,wrong:[],phase:'q',pick:null,t0:0};
+  function dots(){
+    const d=$('lstep-dots'),c=$('lstep-counter');if(!d||!c)return;
+    c.textContent=Math.min(PM.i+1,PM.qs.length)+' / '+PM.qs.length;
+    d.innerHTML=PM.qs.map((_,i)=>`<div class="lstep-dot ${i<PM.i?'done':i===PM.i?'active':''}"></div>`).join('');
+  }
+  const pmApi={
+    start(testKey,kind,key,n){
+      if(typeof requireRealLogin==='function'&&!requireRealLogin())return;
+      const s=setsFor(testKey).find(x=>x.kind===kind&&String(x.key)===String(key));
+      const num=n||(s&&s.n)||10;
+      const qs=setQs(testKey,kind,key,num);
+      if(qs.length<3){alert('Not enough questions for this set yet.');return;}
+      Object.assign(PM,{active:true,set:s||{kind:kind,key:key,title:'Practice Set',n:num},testKey:testKey,qs:qs,i:0,score:0,wrong:[],phase:'q',pick:null,t0:Date.now()});
+      $('tp-subtab-content').parentElement.style.display='none';
+      $('tp-lesson-view').style.display='block';
+      $('lstep-back-btn').style.display='none';
+      pmApi.show();
+    },
+    show(){
+      const q=PM.qs[PM.i];PM.phase='q';PM.pick=null;dots();
+      $('tp-lesson-content').innerHTML=`<div class="lstep-panel">
+        <div class="lstep-badge quiz"><i class="ti ti-bolt"></i> ${esc(PM.set.title)} · ${PM.i+1} / ${PM.qs.length}</div>
+        ${PM.i===0?bubble('think','think',70):''}
+        <div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(q.q)}</div>
+        <div class="lt-opts">${optsHtml(q,'s4pPM.pick')}</div><div id="lt-fb"></div></div>`;
+      const n=$('lstep-next-btn');n.classList.remove('is-done');n.textContent='Check answer';n.disabled=true;
+    },
+    pick(oi){if(!PM.active||PM.phase!=='q')return;PM.pick=oi;select(oi);},
+    next(){
+      const n=$('lstep-next-btn');
+      if(PM.phase==='q'){
+        if(PM.pick==null)return;
+        const q=PM.qs[PM.i];const ok=PM.pick===q.correct;
+        if(ok)PM.score++;else PM.wrong.push({q:q,pick:PM.pick});
+        lock(q,PM.pick);PM.phase='fb';$('lt-fb').innerHTML=feedbackHtml(q,ok);
+        n.textContent=PM.i<PM.qs.length-1?'Next question':'See my result';return;
+      }
+      if(PM.phase==='fb'){
+        if(PM.i<PM.qs.length-1){PM.i++;pmApi.show();return;}
+        pmApi.result();return;
+      }
+      if(PM.phase==='result'){closeLessonView();}
+    },
+    result(){
+      const tot=PM.qs.length,pct=Math.round(PM.score/tot*100);const [mood,key]=resultMood(pct);
+      PM.phase='result';PM.i=tot;dots();
+      const secs=Math.max(1,Math.round((Date.now()-PM.t0)/1000));
+      const prev=getBest(PM.testKey,PM.set);setBest(PM.testKey,PM.set,pct);
+      const weak=[...new Set(PM.wrong.map(w=>w.q.lesson).filter(Boolean))].slice(0,4);
+      $('tp-lesson-content').innerHTML=`<div class="lstep-panel" style="text-align:center">
+        <div class="lstep-badge quiz"><i class="ti ti-bolt"></i> ${esc(PM.set.title)} · result</div>
+        ${bubble(mood,key,96)}
+        <div style="font-family:var(--font-h);font-size:36px;font-weight:800;color:var(--pine)">${PM.score} / ${tot}</div>
+        <div style="color:var(--ink3);font-size:13px">${pct}% · ${Math.floor(secs/60)}m ${secs%60}s${prev&&pct>prev?' · 🎉 new best!':prev?` · best ${prev}%`:''}</div>
+        ${weak.length?`<p style="font-size:13px;color:var(--ink2);margin:12px 0 0"><b>Revise:</b> ${weak.map(esc).join(' · ')}</p>`:''}
+        <button class="btn" style="margin:14px auto 0;width:auto;padding:10px 20px;font-size:13.5px" onclick="s4pPM.again()">Try a new set</button>
+        ${reviewHtml(PM.wrong)}</div>`;
+      const n=$('lstep-next-btn');n.textContent='Done';n.disabled=false;
+    },
+    again(){const s=PM.set;pmApi.start(PM.testKey,s.kind,s.key,s.n);}
+  };
+  window.s4pPM=pmApi;
+
+  // ── hook into the lesson player's buttons ──
+  const _next=lessonStepNext;
+  lessonStepNext=function(){
+    if(PM.active)return pmApi.next();
+    const s=lstepState,step=s&&s.steps&&s.steps[s.idx];
+    if(step&&step.kind==='ltest')return LT.next();
+    return _next.apply(this,arguments);
+  };
+  const _back=lessonStepBack;
+  lessonStepBack=function(){if(PM.active)return;return _back.apply(this,arguments);};
+  const _render=renderLstepStep;
+  renderLstepStep=function(dir){
+    const s=lstepState,step=s&&s.steps&&s.steps[s.idx];
+    if(step&&step.kind==='ltest'){
+      const nb=$('lstep-next-btn'),bb=$('lstep-back-btn');
+      bb.style.display=s.idx>0?'block':'none';nb.classList.remove('is-done');nb.disabled=false;
+      renderLstepDots();LT.start(step);return;
+    }
+    return _render.apply(this,arguments);
+  };
+  const _close=closeLessonView;
+  closeLessonView=function(){
+    const was=PM.active;
+    if(was){PM.active=false;try{currentTpLevel=null;}catch(e){}}
+    const r=_close.apply(this,arguments);
+    if(was){try{setTpSubtab('mocks');}catch(e){}}
+    return r;
+  };
+  // show the lesson-test score on the completion screen
+  const _complete=completeLstepLesson;
+  completeLstepLesson=async function(){
+    const r=await _complete.apply(this,arguments);
+    try{
+      const s=lstepState;
+      if(s.testTotal){
+        const row=document.querySelector('#tp-lesson-content .lstep-complete-stat');
+        if(row&&row.parentElement&&!row.parentElement.querySelector('.lt-stat'))
+          row.parentElement.insertAdjacentHTML('beforeend',`<div class="lstep-complete-stat lt-stat" style="background:#E8EEF9;border-radius:14px;padding:12px 18px;min-width:90px;animation-delay:.3s"><div style="font-family:var(--font-h);font-weight:700;color:var(--pine);font-size:19px">${s.testScore}/${s.testTotal}</div><div style="font-size:11px;color:var(--ink3)">lesson test</div></div>`);
+      }
+    }catch(e){}
+    return r;
+  };
+
+  // ── Mock Tests tab: Asha + Instant Practice Sets ──
+  const _mocks=renderMocksTab;
+  renderMocksTab=async function(){
+    const r=await _mocks.apply(this,arguments);
+    try{
+      const el=$('tp-subtab-content');const tk=currentTpTest;
+      const sets=setsFor(tk);
+      if(!el)return r;
+      const coming=/Coming Soon/.test(el.innerHTML);
+      let html=bubble(coming?'think':'happy',coming?'empty':'start',80);
+      if(sets.length){
+        html+=`<h4 style="font-size:14px;color:var(--pine);margin:6px 0 4px">⚡ Instant Practice Sets <span style="font-size:10.5px;background:var(--sage-l);color:#0F6E56;padding:2px 8px;border-radius:99px;font-weight:700;vertical-align:middle">FREE</span></h4>
+        <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">Ready-made questions from your lessons. No waiting, a fresh mix every time.</p>`+
+        sets.map(s=>{const b=getBest(tk,s);return `<div class="tp-info-card" style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><div style="font-size:24px">${s.icon}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px">${esc(s.title)}</div><div style="font-size:12px;color:var(--ink3)">${s.n} questions · ${esc(s.sub)}${b?` · best ${b}%`:''}</div></div><button class="btn" style="width:auto;padding:8px 16px;font-size:13px;margin:0" onclick="s4pPM.start('${tk}','${s.kind}','${String(s.key).replace(/'/g,"\\'")}',${s.n})">Start</button></div>`;}).join('');
+        if(!coming)html+=`<div style="height:10px"></div>`;
+      }
+      el.insertAdjacentHTML('afterbegin',html);
+    }catch(e){}
+    return r;
+  };
+
+  // ── Dashboard: a short note from Asha instead of just a floating wave ──
+  const _after=afterLogin;
+  afterLogin=async function(){
+    const r=await _after.apply(this,arguments);
+    try{
+      const g=document.getElementById('dashGreeting');
+      const dash=document.getElementById('asha-dash');if(dash&&document.getElementById('asha-tip'))dash.remove();
+      if(g&&!document.getElementById('asha-tip')){
+        const today=new Date().toISOString().slice(0,10);let last=null;
+        try{last=localStorage.getItem('s4p_last_visit');localStorage.setItem('s4p_last_visit',today);}catch(e){}
+        const days=last?Math.round((new Date(today)-new Date(last))/864e5):null;
+        const html=days==null?bubble('wave','hello',72):days>=2?bubble('sleepy','back',72):bubble('happy','streak',72);
+        const old=document.getElementById('asha-dash');if(old)old.remove();
+        g.insertAdjacentHTML('afterend',`<div id="asha-tip">${html}</div>`);
+      }
+    }catch(e){}
+    return r;
+  };
+})();
+
 (function(){
 const L=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz)=>({
   id,title,time:'15-20 minutes',objectives:obj,concept,
@@ -11935,7 +12454,7 @@ async function startMockTest(testKey,templateKey,tier,levelKey){
   document.getElementById('tp-subtab-content').parentElement.style.display='none';
   const lv=document.getElementById('tp-lesson-view');
   lv.style.display='block';
-  document.getElementById('tp-lesson-content').innerHTML=`<div style="text-align:center;padding:40px 20px"><div style="font-size:32px;margin-bottom:10px">🎲</div><p style="color:var(--ink3)">Generating a fresh set of questions just for this attempt…</p></div>`;
+  document.getElementById('tp-lesson-content').innerHTML=`<div style="text-align:center;padding:30px 20px"><div style="display:flex;justify-content:center">${window.ashaBubble?window.ashaBubble('think','wait',90):'<div style="font-size:32px">🎲</div>'}</div><p style="color:var(--ink3)">Generating a fresh set of questions just for this attempt…</p></div>`;
 
   try{
     const res=await fetch(GENERATE_MOCK_URL,{
@@ -12057,7 +12576,7 @@ async function submitMockTest(){
   document.getElementById('tp-lesson-content').innerHTML=`
     <div style="text-align:center;margin-bottom:20px">
       ${tierBadge}
-      <div style="font-size:40px">${exactTotal===0||exactCorrect/Math.max(exactTotal,1)>=0.7?'🎉':'💪'}</div>
+      ${window.ashaBubble?(()=>{const p=exactTotal===0?100:Math.round(exactCorrect/exactTotal*100);return p>=80?window.ashaBubble('cheer','great',96):p>=50?window.ashaBubble('happy','good',96):window.ashaBubble('encourage','retry',96);})():`<div style="font-size:40px">${exactTotal===0||exactCorrect/Math.max(exactTotal,1)>=0.7?'🎉':'💪'}</div>`}
       ${scoreLine}
     </div>
     ${review}
@@ -12219,12 +12738,60 @@ async function doDeleteAccount(){
     alert('Your account has been deleted.');
   }catch(e){st.textContent='Could not reach the server. Please try again.';go.disabled=false;}
 }
+// ── Online payment on the web (Razorpay checkout) ──────────────────
+// Server makes the order (price from the database), Razorpay takes the payment, server verifies it and adds the credits.
+let _rzLoading=null;
+function loadRazorpayJs(){
+  if(window.Razorpay)return Promise.resolve();
+  if(_rzLoading)return _rzLoading;
+  _rzLoading=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://checkout.razorpay.com/v1/checkout.js';sc.onload=res;sc.onerror=()=>{_rzLoading=null;rej(new Error('load'));};document.head.appendChild(sc);});
+  return _rzLoading;
+}
+async function webCheckout(code,plan,done){
+  let order;
+  try{
+    const r=await fetch(CUSTOM_OTP_BASE_URL+'/razorpay-create-order',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({plan:code})});
+    order=await r.json().catch(()=>({}));
+    if(r.status===503||r.status===404||(order&&order.error==='not_configured'))return 'fallback';   // gateway not switched on yet
+    if(!r.ok||!order.order_id){ done(`<div class="tp-info-card"><h4>Couldn't start the payment</h4><p>${esc((order&&order.error)||'Please try again in a moment.')}</p></div>`); return 'error'; }
+  }catch(e){ return 'fallback'; }
+  try{ await loadRazorpayJs(); }
+  catch(e){ done(`<div class="tp-info-card"><h4>Couldn't open the payment window</h4><p>Please check your internet connection and try again.</p></div>`); return 'error'; }
+  const u=(currentSession&&currentSession.user)||{};
+  return new Promise(resolve=>{
+    const rz=new Razorpay({
+      key:order.key_id, order_id:order.order_id, amount:order.amount, currency:order.currency,
+      name:'Step4Progress', description:order.plan_name||(plan&&plan.name)||'Plan',
+      prefill:{email:u.email||'',contact:u.phone?('+'+String(u.phone).replace(/^\+/,'')):''},
+      theme:{color:'#1C3F6E'},
+      handler:async function(resp){
+        done(`<div class="tp-info-card"><h4>⏳ Confirming your payment…</h4><p>Please wait a moment. Don't close this page.</p></div>`);
+        try{
+          const r=await fetch(CUSTOM_OTP_BASE_URL+'/razorpay-confirm',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(currentSession?currentSession.access_token:'')},body:JSON.stringify({order_id:resp.razorpay_order_id,payment_id:resp.razorpay_payment_id,signature:resp.razorpay_signature})});
+          const d=await r.json().catch(()=>({}));
+          if(!r.ok||!d.ok)throw new Error(d.error||'confirm failed');
+          try{await loadMockAccess(true);}catch(e){}
+          done(`<div class="tp-info-card"><h4>✅ Payment received</h4><p>Thank you! <b>${esc((plan&&plan.name)||'Your plan')}</b> is now active on your account.</p></div>`);
+        }catch(e){
+          done(`<div class="tp-info-card"><h4>We received your payment, but your plan isn't showing yet</h4><p>Don't pay again. It usually appears within a minute — reopen this page. If it doesn't, contact your Step4Progress counsellor with this payment id: <b>${esc(resp.razorpay_payment_id||'')}</b></p></div>`);
+        }
+        resolve('paid');
+      },
+      modal:{ondismiss:function(){ done(`<div class="tp-info-card"><h4>Payment not completed</h4><p>No money was taken. You can choose a plan again whenever you're ready.</p></div>`); resolve('cancelled'); }}
+    });
+    rz.on('payment.failed',function(r){ try{console.warn('payment failed',r&&r.error);}catch(e){} });
+    rz.open();
+  });
+}
 async function choosePlan(code){
   if(!requireRealLogin())return;
   if(IS_NATIVE){return nativeBuy(code);}
   const plan=(MOCK_PLANS||PLAN_FALLBACK).find(p=>p.code===code);
   const body=document.getElementById('plans-body');
   const done=(t)=>{ if(body)body.innerHTML=t; else alert(t.replace(/<[^>]+>/g,' ')); };
+  // Online payment first (Razorpay). If it is not switched on yet, fall back to the "our team will contact you" request below.
+  const gw=await webCheckout(code,plan,done);
+  if(gw!=='fallback')return;
   try{
     const{error}=await sb.rpc('request_plan',{p_plan:code,p_note:null});
     if(error)throw error;
