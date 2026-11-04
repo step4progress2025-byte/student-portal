@@ -11359,6 +11359,363 @@ window.guideRevert=async function(){
   };
 })();
 
+// ── Practice by task type (Duolingo, IELTS, TOEFL, PTE) ─────────────────────────
+// One card per question type. Most questions are built from the portal's own lesson text
+// (so the bank is large), the rest are hand-written prompts. "AI more" reuses the existing
+// generate-mock-test Edge Function, so it needs that function (and the API key) to be live.
+(function(){
+  const $=id=>document.getElementById(id);
+  const shuf=a=>shuffleArray(a.slice());
+  const norm=x=>String(x==null?'':x).trim().toLowerCase();
+  const bubble=(m,k,s)=>(window.ashaBubble?window.ashaBubble(m,k,s):'');
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+  // ═══ hand-written content ═══
+  const FAKE=['tramwick','glimbel','prestoral','quintable','frondish','dalmetic','sprelling','vorbent','knarble','mistrane','cobloid','trelfin','hustrume','plimmer','drensome','falbrick','gorsilate','umbrelent','scravel','yontrick','wendrous','blisten','florinth','grumpsy','tabel','chiar','houze','rellow','pensil','tomorow','beautful','nesessary','definately','wellcome','garbidge','sandwhich','intresting','dictionnary','bicicle','restarant','tomatoe','windoe','frenzel','portugle','stramble','cupboad','pillowe','misture'];
+  const SCENES=[
+    ['🧑‍🍳🍳🥕','Two people cook together in a bright kitchen. A woman in an apron stirs a large pot while a man chops vegetables on a wooden board. Plates and bowls are stacked on a shelf behind them.','This picture shows two people preparing a meal together in a kitchen. In the foreground, a woman is stirring a pot and a man is chopping vegetables. In the background there are shelves with plates and bowls. They seem to be getting ready for a family dinner, so they are probably enjoying working as a team.'],
+    ['🛒🍎🥬','A busy outdoor market. A seller in a green shirt arranges apples and leafy vegetables on a table. Two customers hold cloth bags and talk to him. Colourful umbrellas cover the stalls behind.','This is a busy outdoor market. In the foreground, a seller is arranging fruit and vegetables while two customers talk to him. In the background, colourful umbrellas cover other stalls. The customers are probably choosing what to buy for their meals this week.'],
+    ['🏫📚✏️','A classroom with about ten students. A teacher stands at a whiteboard and points to a diagram. Most students are writing in notebooks, and one student has a hand raised.','This photo shows a classroom. In the foreground, students are writing in their notebooks and one student is raising a hand. In the background, a teacher is pointing to a diagram on the whiteboard. The student probably has a question about the lesson.'],
+    ['🪁🌳👧','A park on a sunny day. A girl runs across the grass holding a string with a red kite high in the sky. A man sits on a bench reading a newspaper under a large tree.','This picture is of a park on a sunny day. In the foreground, a girl is running with a kite. In the background, a man is sitting on a bench under a tree, reading. The weather is probably windy enough for flying a kite, and the girl is clearly having fun.'],
+    ['🚆🧳⏰','A railway platform. A woman with a suitcase looks at a large clock while a train waits behind her. Other passengers walk toward the train carrying bags.','This photo shows a railway platform. In the foreground, a woman with a suitcase is checking the clock. In the background, a train is waiting and other passengers are walking toward it. She is probably worried about missing her train.'],
+    ['📖🪑🤫','A quiet library. Several people sit at long tables reading or typing on laptops. Tall shelves full of books fill the wall behind them.','This picture shows a quiet library. In the foreground, people are sitting at tables, reading or using laptops. In the background, tall shelves are full of books. Everyone is probably studying or preparing for exams.'],
+    ['🏖️🏄☀️','A beach in the afternoon. A surfer carries a board toward the water while a family builds a sandcastle on the sand. Small waves roll in behind them.','This photo shows a beach in the afternoon. In the foreground, a family is building a sandcastle. Behind them, a surfer is carrying a board toward the waves. It is probably a holiday, and people are relaxing in the warm weather.'],
+    ['💼🗂️👥','An office meeting. Four colleagues sit around a table with papers and laptops. One woman stands and points to a chart on a screen while the others listen.','This picture shows a business meeting. In the foreground, four colleagues are sitting around a table with laptops and papers. In the background, a woman is presenting a chart on a screen. They are probably discussing the results of a project.'],
+    ['🥖🥐👩‍🍳','A small bakery. A baker hands a paper bag to a customer across the counter. Fresh bread and pastries are displayed in the glass cabinet in front of them.','This photo shows a small bakery. In the foreground, there are fresh bread and pastries in a glass cabinet. Behind the counter, a baker is handing a bag to a customer. The customer has probably just bought breakfast.'],
+    ['🚲🏙️🌧️','A city street in light rain. A cyclist in a yellow raincoat rides past a row of shops. People with umbrellas wait to cross the road.','This picture shows a city street in the rain. In the foreground, a cyclist in a yellow raincoat is riding past shops. In the background, people with umbrellas are waiting to cross the road. It is probably a normal working day and everyone is on their way somewhere.']
+  ];
+  const DET_WRITE=['Describe a skill you would like to learn and explain why it is useful.','Some people prefer to live in a big city, others in a small town. Which do you prefer, and why?','Write about a person who has had a strong influence on your life.','Do you think children should have homework every day? Give your opinion.','Describe your ideal weekend.','What is the most important invention of the last hundred years? Explain your choice.','Write about a time you had to solve a difficult problem.','Is it better to study alone or with other students? Explain.','Describe a place in your country that visitors should see.','Write about a habit you would like to change.'];
+  const DET_SPEAK=['Describe a time when you helped someone.','What is your favourite way to spend free time, and why?','Talk about a place you would like to visit.','Describe a teacher who influenced you.','Do you prefer studying alone or in a group? Explain.','Describe a tradition from your family or culture.','Which technology could you not live without? Why?','Talk about a goal you want to reach in the next five years.','Describe your hometown to someone who has never been there.','What makes a good friend?'];
+  const DET_READSPEAK=['Do you think students should wear school uniforms? Explain your opinion.','How has the internet changed the way people learn?','Is it better to rent or to buy a home? Give reasons.','Should public transport be free for everyone? Why or why not?','What are the advantages of learning a second language?','Do you think people spend too much time on their phones? Explain.','Is it important to have a hobby? Why?','What can people do to protect the environment in daily life?'];
+  const IELTS_ESSAY=['Some people believe that university education should be free for everyone. To what extent do you agree or disagree?','Many people now work from home. Discuss the advantages and disadvantages of this trend.','Some people think children should learn a foreign language from primary school. Others believe it is better to start later. Discuss both views and give your opinion.','The number of cars in cities is growing fast. What problems does this cause, and what can be done?','Some people say that museums and art galleries should be free for all visitors. Do you agree or disagree?','Young people today spend more time on social media than with friends in person. Is this a positive or negative development?','Governments should spend money on public transport rather than on roads. To what extent do you agree?','Some people think that the best way to reduce crime is to give longer prison sentences. Others believe there are better ways. Discuss both views.','Online shopping is replacing traditional shops. Is this a good or bad development?','In many countries, people are living longer. What are the effects on society and how can they be managed?'];
+  const IELTS_LETTER=['You recently bought a product online but it arrived damaged. Write a letter to the company. Explain what happened and say what you want them to do.','A friend is coming to stay at your home next month. Write a letter telling them about your area and what you can do together.','You are unhappy with the noise from a neighbour. Write a letter to the neighbour explaining the problem and suggesting a solution.','You want to join a evening course at your local college. Write a letter asking for information about the course.','You have lost your bag on a train. Write a letter to the railway company describing the bag and asking for help.','Write a letter to your manager asking for a week of leave. Give your reasons and suggest how your work will be covered.'];
+  const IELTS_P1=['Where is your hometown, and what do you like about it?','Do you work or are you a student? What do you enjoy about it?','What kind of food do you like to eat?','How do you usually spend your weekends?','Do you prefer to stay at home or go out in the evening? Why?','What was your favourite subject at school?','How often do you use the internet, and what for?','Tell me about your family.','What type of weather do you like best?','Do you enjoy cooking? Why or why not?','What do you do to stay healthy?','Do you like travelling by train or by bus?'];
+  const IELTS_P2=['Describe a person who has helped you.\nYou should say:\n• who the person is\n• how you know them\n• what they did to help you\nand explain how you felt about it.','Describe a place you visited that you would like to go back to.\nYou should say:\n• where it is\n• when you went there\n• what you did there\nand explain why you want to return.','Describe a book or film that you enjoyed.\nYou should say:\n• what it was\n• what it was about\n• when you read or watched it\nand explain why you enjoyed it.','Describe a time you learned a new skill.\nYou should say:\n• what the skill was\n• how you learned it\n• who helped you\nand explain how useful the skill is.','Describe a celebration in your country.\nYou should say:\n• what the celebration is\n• when it takes place\n• what people do\nand explain why it is important.','Describe a piece of technology you use every day.\nYou should say:\n• what it is\n• how often you use it\n• what you use it for\nand explain why it is important to you.'];
+  const IELTS_P3=['Why do some people prefer to travel alone rather than in a group?','How has technology changed the way people communicate?','Do you think children today learn better than in the past? Why?','What are the advantages of living in a big city?','How important is it for people to keep traditions alive?','Should governments encourage people to use public transport? Why?','Do you think it is better to have one close friend or many friends?','How can schools help students prepare for work?'];
+  const TOEFL_EMAIL=['Write an email to your professor. Explain that you missed class because you were ill and ask what you should do to catch up.','Write an email to your landlord. Say that the heating in your flat has stopped working and ask when it can be fixed.','Write an email to a classmate asking if they would like to form a study group for the final exam. Suggest a time and place.','Write an email to the university library. You returned a book on time but still received a fine. Explain and ask them to check.','Write an email to your manager asking to change your work schedule next week because of a family event.','Write an email to a hotel. You booked a room for next month and want to change the dates. Give the new dates and ask about availability.'];
+  const TOEFL_DISC=['Professor: Some people think that universities should require all students to take a course in a foreign language. What is your opinion?\nStudent A: I think it is useful because language skills help in many careers.\nStudent B: I disagree. Students should use their time for subjects related to their major.','Professor: Should cities spend more money on parks and public spaces, or on public transport?\nStudent A: Parks improve people\'s health and happiness, so they should come first.\nStudent B: Good transport helps everyone reach work and school, which matters more.','Professor: Do you think online classes are as effective as classes in a classroom?\nStudent A: Online classes are flexible and save time, so they are just as good.\nStudent B: In a classroom, it is easier to ask questions and stay focused.','Professor: Some companies now allow employees to work four days a week instead of five. Is this a good idea?\nStudent A: Yes, rested workers are more productive.\nStudent B: It may not work for jobs that need constant service, like hospitals or shops.','Professor: Should students be allowed to use phones during class for learning?\nStudent A: Phones are powerful tools for research, so yes.\nStudent B: They are too distracting, so they should be banned.'];
+  const TOEFL_SPEAK=['Some people prefer to study in the morning, others at night. Which do you prefer, and why?','Do you agree or disagree: it is better to live close to your family than far from them? Explain.','Some students prefer small classes, others prefer large classes. Which do you prefer and why?','Would you rather work for a large company or a small one? Explain your choice.','Do you think it is better to save money or to spend it on experiences? Why?','Some people like to plan everything in advance, others like to be spontaneous. Which describes you?'];
+  const PTE_ESSAY=['Some people think that technology has made our lives more complicated. Do you agree or disagree? Write an essay of 200–300 words.','Should governments invest more in renewable energy than in oil and gas? Discuss and give your opinion.','Young people should be required to do community service. To what extent do you agree?','Is it better for children to be taught at home or in a school? Discuss.','Do the benefits of international tourism outweigh the problems it creates?','Advertising influences people to buy things they do not need. Discuss.','Should university students be required to attend all their classes? Give your opinion.','Traditional books will disappear in the future. Do you agree or disagree?'];
+  const PTE_ASQ=[['What do you call a person who flies an aeroplane?','pilot'],['How many days are there in a week?','seven|7'],['What do you use to write on a whiteboard?','marker|pen|marker pen'],['Which season comes after winter?','spring'],['What is the opposite of "hot"?','cold'],['What do you call a doctor who treats animals?','vet|veterinarian'],['Which month comes after March?','april'],['What do you wear on your feet inside your shoes?','socks|sock'],['How many minutes are there in one hour?','sixty|60'],['What do you call frozen water?','ice'],['Which planet do we live on?','earth'],['What do you use to cut paper?','scissors'],['What do you call the room where you sleep?','bedroom'],['What is the capital city of France?','paris'],['What do we call a book of maps?','atlas'],['Which animal gives us milk and says "moo"?','cow'],['How many legs does a spider have?','eight|8'],['What do you call the place where you borrow books?','library'],['What is the colour of grass?','green'],['What do you use to see in the dark?','torch|flashlight|light|lamp'],['What do you call the person who teaches in a school?','teacher'],['What is the first day of the week on most calendars?','monday|sunday'],['What do you use to tell the time?','clock|watch'],['What is the word for a baby cat?','kitten'],['Which meal do you eat in the morning?','breakfast'],['What do you call the part of a tree that is under the ground?','root|roots'],['What do you use to measure temperature?','thermometer'],['Which direction does the sun rise from?','east'],['What do you call a person who writes books?','author|writer'],['What is the plural of "child"?','children']];
+  const TFNG=[
+    ['The city library opened in 1998 and now holds more than 40,000 books. It is open from nine to six on weekdays, but closed on Sundays. Membership is free for residents, though visitors must pay a small fee to borrow books.',[['The library has been open for more than twenty years.',0],['The library is open every day of the week.',1],['Residents can borrow audiobooks.',2]]],
+    ['Bees are essential to farming because they carry pollen between flowers. In recent years, many bee populations have declined, and scientists are studying the possible causes. Some believe pesticides play a role, while others point to the loss of wild flowers.',[['Bees help plants to reproduce.',0],['Scientists agree that pesticides are the only cause of the decline.',1],['Bees produce more honey now than in the past.',2]]],
+    ['Marta moved to Toronto to study engineering. Although she found the winters difficult at first, she quickly made friends through the university hiking club. After two years she decided to stay in Canada permanently.',[['Marta joined a university club.',0],['Marta found the winters easy from the beginning.',1],["Marta's family lives in Toronto.",2]]],
+    ['Electric buses were introduced in the town centre last year. They are quieter than diesel buses and produce no exhaust fumes. However, the buses need to be charged for several hours each night, which has increased the electricity bill of the bus company.',[['Electric buses make less noise than diesel buses.',0],['The electric buses never need charging.',1],['Passengers prefer electric buses to diesel ones.',2]]],
+    ["The museum's new exhibition about ancient Egypt attracted 12,000 visitors in its first month. Children under twelve enter free, and guided tours are offered every Saturday morning.",[['Guided tours take place on Saturdays.',0],['All visitors must pay to enter the exhibition.',1],['The exhibition will remain open for six months.',2]]]
+  ];
+  const TFNG_OPT=['True','False','Not Given'];
+
+  // ═══ text taken from the lessons (sentences, paragraphs, real words) ═══
+  let C=null;
+  const strip=h=>{const d=document.createElement('div');d.innerHTML=String(h||'');return (d.textContent||'').replace(/\s+/g,' ').trim();};
+  function corpus(){
+    if(C)return C;
+    const sents=[],paras=[],words=[],seen=new Set(),seenW=new Set();
+    const walk=(n,d)=>{
+      if(!n||typeof n!=='object'||d>8)return;
+      if(Array.isArray(n)){n.forEach(x=>walk(x,d+1));return;}
+      if(typeof n.id==='string'&&(n.example||n.concept)){
+        const ex=strip(n.example),cn=strip(n.concept);
+        [ex,cn].forEach(txt=>txt.split(/(?<=[.!?])\s+/).forEach(s=>{
+          s=s.trim().replace(/^["“]|["”]$/g,'');
+          const w=s.split(' ').length;
+          if(w>=6&&w<=20&&/^[A-Z]/.test(s)&&/[.!?]$/.test(s)&&/^[A-Za-z0-9 ,.'’?!\-]+$/.test(s)&&!seen.has(s)){seen.add(s);sents.push(s);}
+        }));
+        if(cn.split(' ').length>=40&&cn.split(' ').length<=140)paras.push(cn);
+        (n.vocab||[]).forEach(v=>{if(v&&v[0]&&/^[a-z]{4,10}$/i.test(v[0])&&!seenW.has(norm(v[0]))){seenW.add(norm(v[0]));words.push(String(v[0]).toLowerCase());}});
+        return;
+      }
+      Object.values(n).forEach(x=>walk(x,d+1));
+    };
+    Object.values(TEST_DATA).forEach(t=>walk(t,0));
+    C={sents,paras,words};return C;
+  }
+
+  // ═══ item builders ═══
+  const gen={
+    realfake:()=>{const c=corpus();const real=Math.random()<.5;const w=real?pick(c.words):pick(FAKE);
+      return {mode:'choice',prompt:'Is this a real English word?',big:w,options:['Real word','Not a real word'],correct:real?0:1,explain:real?`“${w}” is a real English word.`:`“${w}” is not a real English word — it only looks like one.`};},
+    blanks:()=>{const s=pick(corpus().sents.filter(x=>x.split(' ').length>=9));const toks=s.split(' ');const parts=[];let n=0;
+      toks.forEach((t,i)=>{const m=t.match(/^([A-Za-z]+)([^A-Za-z]*)$/);if(m&&i>0&&m[1].length>=4&&n<3&&i%2===1){const w=m[1],keep=Math.ceil(w.length/2);parts.push({blank:w,hint:w.slice(0,keep)});if(m[2])parts.push({t:m[2]});n++;}else parts.push({t:t});parts.push({t:' '});});
+      return {mode:'blanks',prompt:'Complete the words in the sentence.',parts:parts,answer:s};},
+    listen:()=>{const s=pick(corpus().sents);return {mode:'type',prompt:'Listen, then type exactly what you hear.',say:s,answer:s,grade:'dictation'};},
+    repeat:()=>{const s=pick(corpus().sents);return {mode:'speak',prompt:'Listen to the sentence, then repeat it exactly.',say:s,hideText:true,seconds:20,model:s,checklist:['I repeated every word','Words were in the same order','Pronunciation was clear'],oneshot:true};},
+    readaloud:()=>{const c=corpus();const p=pick(c.paras.length?c.paras:c.sents);let s=p.split(' ').slice(0,55).join(' ');const k=Math.max(s.lastIndexOf('. '),s.lastIndexOf('! '),s.lastIndexOf('? '));if(k>40)s=s.slice(0,k+1);
+      return {mode:'speak',prompt:'Read this text aloud. Speak clearly and keep going.',read:s,say:s,seconds:40,checklist:['Read at a steady pace','No long pauses','Pronounced each word clearly','Stress and rhythm sounded natural']};},
+    reorder:()=>{const s=pick(corpus().sents.filter(x=>{const n=x.split(' ').length;return n>=6&&n<=12;}));return {mode:'reorder',prompt:'Tap the words in the right order to build the sentence.',words:s.replace(/[.!?]$/,'').split(' '),answer:s.replace(/[.!?]$/,''),end:s.slice(-1)};},
+    summarize:()=>{const c=corpus();const p=pick(c.paras);return {mode:'write',prompt:'Read the passage, then summarise it in ONE sentence (5–75 words).',read:p,minWords:5,maxWords:75,seconds:600,checklist:['One sentence only','Covers the main idea','Uses your own words, not copied phrases','Correct grammar and punctuation']};},
+    list:(arr,mk)=>()=>mk(pick(arr)),
+    tfng:()=>{const [p,st]=pick(TFNG);const [t,a]=pick(st);return {mode:'choice',passage:p,prompt:t,options:TFNG_OPT,correct:a,explain:a===0?'The passage supports this statement, so the answer is True.':a===1?'The passage says the opposite, so the answer is False.':'The passage does not say anything about this, so the answer is Not Given.'};},
+    asq:()=>{const [q,a]=pick(PTE_ASQ);return {mode:'type',prompt:q,answer:a.split('|')[0],accept:a.split('|'),grade:'accept',short:true};}
+  };
+  const WCHK=['Answers every part of the prompt','Clear opening and closing','Reasons or examples included','Correct spelling and grammar','Natural, varied vocabulary'];
+  const SCHK=['Spoke for the full time','Clear answer to the question','Gave a reason and an example','Clear pronunciation','No long silences'];
+  const writeOf=(arr,o)=>()=>Object.assign({mode:'write',prompt:pick(arr),minWords:o.min,seconds:o.sec,checklist:o.chk||WCHK},o.extra||{});
+  const speakOf=(arr,o)=>()=>Object.assign({mode:'speak',prompt:pick(arr),seconds:o.sec,checklist:o.chk||SCHK},o.extra||{});
+  const photo=(mode)=>()=>{const [e,d,m]=pick(SCENES);return mode==='write'
+    ?{mode:'write',prompt:'Write one or more sentences describing the picture.',scene:{e:e,d:d},minWords:20,seconds:300,model:m,checklist:['Described the main people or objects','Mentioned the background','Used correct tenses (is/are + -ing)','Correct spelling']}
+    :{mode:'speak',prompt:'Describe the picture. Keep speaking for the full time.',scene:{e:e,d:d},seconds:90,model:m,checklist:['Gave an overview of the scene','Described foreground and background details','Made a logical guess about what is happening','Kept talking without long pauses']};};
+
+  // ═══ task catalogue ═══
+  const T=[
+    // Duolingo
+    {t:'Duolingo',id:'det-rs',icon:'🔎',title:'Read and Select',desc:'Decide whether the word on screen is a real English word.',mk:gen.realfake,count:()=>corpus().words.length+FAKE.length,per:10,ai:'read_and_select',tip:'Look at the spelling pattern. Invented words are often real words with one letter changed.'},
+    {t:'Duolingo',id:'det-fib',icon:'🧩',title:'Fill in the Blanks',desc:'Complete the sentence by finishing the unfinished words.',mk:gen.blanks,count:()=>corpus().sents.length,per:6,ai:'fill_in_blank_correct_form'},
+    {t:'Duolingo',id:'det-lt',icon:'🎧',title:'Listen and Type',desc:'Listen to a statement and type exactly what you hear.',mk:gen.listen,count:()=>corpus().sents.length,per:6,ai:'dictation'},
+    {t:'Duolingo',id:'det-sp',icon:'🖼️',title:'Speak About the Photo',desc:'Describe the scene, speaking for up to 90 seconds.',mk:photo('speak'),count:()=>SCENES.length,per:3,ai:'describe_image'},
+    {t:'Duolingo',id:'det-wp',icon:'📝',title:'Write About the Photo',desc:'Write one or more sentences describing the scene.',mk:photo('write'),count:()=>SCENES.length,per:3,ai:'describe_image'},
+    {t:'Duolingo',id:'det-ws',icon:'✍️',title:'Writing Sample',desc:'Write at length in response to the prompt (5 minutes).',mk:writeOf(DET_WRITE,{min:50,sec:300}),count:()=>DET_WRITE.length,per:2,ai:'essay'},
+    {t:'Duolingo',id:'det-rts',icon:'📖',title:'Read, Then Speak',desc:'Read the prompt, then speak your response for 90 seconds.',mk:speakOf(DET_READSPEAK,{sec:90}),count:()=>DET_READSPEAK.length,per:3,ai:'speaking_prompt'},
+    {t:'Duolingo',id:'det-ss',icon:'🎤',title:'Speaking Sample',desc:'Speak at length about the topic shown (1–3 minutes).',mk:speakOf(DET_SPEAK,{sec:120}),count:()=>DET_SPEAK.length,per:2,ai:'speaking_prompt'},
+    // IELTS
+    {t:'IELTS',id:'ie-tfng',icon:'🔍',title:'True / False / Not Given',desc:'Read the passage and decide if each statement is True, False or Not Given.',mk:gen.tfng,count:()=>TFNG.reduce((n,x)=>n+x[1].length,0),per:6,ai:'true_false_not_given'},
+    {t:'IELTS',id:'ie-dict',icon:'🎧',title:'Listening: Type What You Hear',desc:'Listen to a sentence and write it down exactly, like note completion.',mk:gen.listen,count:()=>corpus().sents.length,per:6,ai:'note_completion'},
+    {t:'IELTS',id:'ie-w1',icon:'✉️',title:'Writing: Letter (General)',desc:'Write a letter of at least 150 words in about 20 minutes.',mk:writeOf(IELTS_LETTER,{min:150,sec:1200}),count:()=>IELTS_LETTER.length,per:1,ai:'letter'},
+    {t:'IELTS',id:'ie-w2',icon:'📄',title:'Writing Task 2: Essay',desc:'Write an essay of at least 250 words in about 40 minutes.',mk:writeOf(IELTS_ESSAY,{min:250,sec:2400}),count:()=>IELTS_ESSAY.length,per:1,ai:'essay'},
+    {t:'IELTS',id:'ie-s1',icon:'💬',title:'Speaking Part 1',desc:'Answer short everyday questions about yourself.',mk:speakOf(IELTS_P1,{sec:30}),count:()=>IELTS_P1.length,per:5,ai:'speaking_part1'},
+    {t:'IELTS',id:'ie-s2',icon:'🗣️',title:'Speaking Part 2: Cue Card',desc:'Prepare for one minute, then speak for one to two minutes.',mk:speakOf(IELTS_P2,{sec:120,chk:['Covered every bullet point','Spoke for the full time','Used linking words','Clear pronunciation']}),count:()=>IELTS_P2.length,per:1,ai:'speaking_part2'},
+    {t:'IELTS',id:'ie-s3',icon:'🧠',title:'Speaking Part 3: Discussion',desc:'Give longer, more abstract answers with reasons.',mk:speakOf(IELTS_P3,{sec:60}),count:()=>IELTS_P3.length,per:4,ai:'speaking_part3'},
+    // TOEFL
+    {t:'TOEFL',id:'to-cw',icon:'🧩',title:'Complete the Words',desc:'Finish the unfinished words in the sentence.',mk:gen.blanks,count:()=>corpus().sents.length,per:6,ai:'complete_the_words'},
+    {t:'TOEFL',id:'to-bs',icon:'🔤',title:'Build a Sentence',desc:'Put the words in the right order.',mk:gen.reorder,count:()=>corpus().sents.length,per:6,ai:'build_a_sentence'},
+    {t:'TOEFL',id:'to-lr',icon:'🔁',title:'Listen and Repeat',desc:'Listen to a sentence and repeat it exactly.',mk:gen.repeat,count:()=>corpus().sents.length,per:5,ai:'listen_and_repeat'},
+    {t:'TOEFL',id:'to-em',icon:'📧',title:'Write an Email',desc:'Write a short, clear email for the situation.',mk:writeOf(TOEFL_EMAIL,{min:80,sec:420}),count:()=>TOEFL_EMAIL.length,per:1,ai:'email'},
+    {t:'TOEFL',id:'to-ad',icon:'💭',title:'Academic Discussion',desc:'Add your own idea to an online class discussion.',mk:writeOf(TOEFL_DISC,{min:100,sec:600}),count:()=>TOEFL_DISC.length,per:1,ai:'academic_discussion'},
+    {t:'TOEFL',id:'to-is',icon:'🎤',title:'Independent Speaking',desc:'Give your opinion and support it. 45 seconds.',mk:speakOf(TOEFL_SPEAK,{sec:45}),count:()=>TOEFL_SPEAK.length,per:3,ai:'independent_speaking'},
+    // PTE
+    {t:'PTE',id:'pt-ra',icon:'📢',title:'Read Aloud',desc:'Read the text aloud clearly and fluently.',mk:gen.readaloud,count:()=>corpus().paras.length,per:3,ai:'read_aloud'},
+    {t:'PTE',id:'pt-rs',icon:'🔁',title:'Repeat Sentence',desc:'Listen to the sentence and repeat it exactly.',mk:gen.repeat,count:()=>corpus().sents.length,per:5,ai:'repeat_sentence'},
+    {t:'PTE',id:'pt-wd',icon:'🎧',title:'Write from Dictation',desc:'Type the sentence exactly as you hear it.',mk:gen.listen,count:()=>corpus().sents.length,per:6,ai:'write_from_dictation'},
+    {t:'PTE',id:'pt-asq',icon:'❓',title:'Answer Short Question',desc:'Answer with one or a few words.',mk:gen.asq,count:()=>PTE_ASQ.length,per:8,ai:'answer_short_question'},
+    {t:'PTE',id:'pt-swt',icon:'🗜️',title:'Summarize Written Text',desc:'Summarise the passage in one sentence.',mk:gen.summarize,count:()=>corpus().paras.length,per:2,ai:'summarize_written_text'},
+    {t:'PTE',id:'pt-we',icon:'📄',title:'Write Essay',desc:'Write a 200–300 word essay in 20 minutes.',mk:writeOf(PTE_ESSAY,{min:200,sec:1200}),count:()=>PTE_ESSAY.length,per:1,ai:'essay'}
+  ];
+  const FAQ={
+    Duolingo:[['What should I say in Speak About the Photo?','Use three parts: an overview of the scene, details from the foreground and background, then a sensible guess about what is happening. Keep talking so there are no long pauses.'],['How do I get better at Read and Select?','Look at the spelling pattern and ask yourself if you have seen the word before. Invented words are often real words with a letter changed. Do not overthink it.'],['Is Listen and Type only about spelling?','Spelling matters, but so does hearing every word. Listen again, type the whole sentence, then check each word.'],['Are these official Duolingo English Test questions?','No. They are our own practice items in the same style. A practice score cannot predict your official result.']],
+    IELTS:[['How do I plan a Task 2 essay?','Spend about five minutes planning. State a clear position, write two body paragraphs with a reason and an example each, then a short conclusion. Aim for at least 250 words.'],['How long should I speak in Part 2?','Aim for one to two minutes. Use your preparation time to note a few keywords for each bullet point, and cover all of them.'],['What is the difference between False and Not Given?','False means the passage says the opposite. Not Given means the passage does not give that information at all.'],['Are these official IELTS questions?','No. They are our own practice items in the same style. A practice score cannot predict your official band.']],
+    TOEFL:[['How do I write a good email?','Start with a greeting, state your purpose in the first line, give the details, make a clear request, and end politely.'],['What makes a strong Academic Discussion post?','Add a new idea instead of repeating, explain it with a reason or example, and refer to what another student said.'],['What should I focus on in Listen and Repeat?','Repeat the whole sentence in the same order. Do not stop to fix a word. Keep a natural rhythm.'],['Are these official TOEFL questions?','No. They are our own practice items. A practice score cannot predict your official score.']],
+    PTE:[['What matters most in Read Aloud?','A steady pace, clear pronunciation and no long pauses. If you make a small mistake, keep going.'],['How do I do well in Repeat Sentence?','Listen for the meaning and rhythm of the whole sentence, then repeat it right away. Do not try to remember each word separately.'],['What should I remember in Write from Dictation?','Every word and its spelling count. Type while listening and check singular and plural endings.'],['Are these official PTE questions?','No. They are our own practice items. A practice score cannot predict your official score.']]
+  };
+
+  // ═══ speech and recording helpers ═══
+  function say(text,rate){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=rate||0.95;speechSynthesis.speak(u);}catch(e){}}
+  let rec=null;
+  async function toggleRec(btn){
+    try{
+      if(rec&&rec.r&&rec.r.state==='recording'){rec.r.stop();return;}
+      const st=await navigator.mediaDevices.getUserMedia({audio:true});const chunks=[];const r=new MediaRecorder(st);
+      r.ondataavailable=e=>chunks.push(e.data);
+      r.onstop=()=>{st.getTracks().forEach(t=>t.stop());const url=URL.createObjectURL(new Blob(chunks,{type:r.mimeType||'audio/webm'}));$('tk-audio').innerHTML=`<audio controls src="${url}" style="width:100%;margin-top:8px"></audio>`;btn.innerHTML='<i class="ti ti-microphone"></i> Record again';btn.classList.remove('rec-on');S.recorded=true;enableNext();};
+      rec={r:r};r.start();btn.innerHTML='<i class="ti ti-player-stop"></i> Stop recording';btn.classList.add('rec-on');
+    }catch(e){$('tk-audio').innerHTML='<p style="font-size:12.5px;color:var(--rose)">Microphone not available. Speak out loud anyway, then tap the button below.</p>';S.recorded=true;enableNext();}
+  }
+
+  // ═══ session player ═══
+  const S={active:false,task:null,items:[],i:0,scores:[],phase:'ask',timer:null,recorded:false,extra:[]};
+  function dots(){const d=$('lstep-dots'),c=$('lstep-counter');if(!d||!c)return;c.textContent=Math.min(S.i+1,S.items.length)+' / '+S.items.length;d.innerHTML=S.items.map((_,i)=>`<div class="lstep-dot ${i<S.i?'done':i===S.i?'active':''}"></div>`).join('');}
+  function enableNext(){const n=$('lstep-next-btn');if(n)n.disabled=false;}
+  function stopTimer(){if(S.timer){clearInterval(S.timer);S.timer=null;}}
+  function startTimer(sec){stopTimer();let left=sec;const el=$('tk-timer');if(!el)return;const f=()=>{const m=Math.floor(left/60),s=left%60;el.textContent='⏱ '+m+':'+String(s).padStart(2,'0');if(left<=10)el.style.color='var(--rose)';};f();S.timer=setInterval(()=>{left--;if(left<0){stopTimer();return;}f();},1000);}
+  const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+
+  function play(text){return `<div style="display:flex;gap:8px;margin:6px 0 12px"><button class="btn-outline btn" style="width:auto;padding:8px 14px;font-size:13px;margin:0" onclick="s4pTK.say(0)"><i class="ti ti-volume"></i> Play</button><button class="btn-outline btn" style="width:auto;padding:8px 14px;font-size:13px;margin:0" onclick="s4pTK.say(1)">🐢 Slower</button></div>`;}
+  function sceneHtml(sc){return sc?`<div class="tp-example-box" style="margin-bottom:12px;text-align:center"><span class="tp-example-badge">Picture</span><div style="font-size:42px;margin:6px 0">${sc.e}</div><p style="margin:0;text-align:left;font-size:13.5px">${esc(sc.d)}</p></div>`:'';}
+
+  function show(){
+    const it=S.items[S.i];S.phase='ask';S.recorded=false;S.sel=null;rec=null;stopTimer();dots();
+    const n=$('lstep-next-btn');n.classList.remove('is-done');n.disabled=true;
+    let body='';
+    const head=`<div class="lstep-badge quiz"><i class="ti ti-target"></i> ${esc(S.task.title)} · ${S.i+1} / ${S.items.length}</div>${S.i===0?bubble('think','think',64):''}`;
+    if(it.mode==='choice'){
+      body=(it.passage?`<div class="tp-example-box" style="margin-bottom:12px"><span class="tp-example-badge">Passage</span><p style="margin:0;font-size:14px;line-height:1.6">${esc(it.passage)}</p></div>`:'')+
+        (it.big?`<div style="font-family:var(--font-h);font-size:34px;font-weight:800;text-align:center;color:var(--pine);margin:10px 0 16px;letter-spacing:.5px">${esc(it.big)}</div>`:'')+
+        `<div style="font-weight:600;font-size:15.5px;margin-bottom:14px;line-height:1.5">${esc(it.prompt)}</div><div class="lt-opts">${it.options.map((o,i)=>`<div class="lstep-quiz-opt" data-oi="${i}" onclick="s4pTK.choose(${i})">${esc(o)}</div>`).join('')}</div>`;
+      n.textContent='Check answer';
+    }else if(it.mode==='type'){
+      body=`<div style="font-weight:600;font-size:15.5px;margin-bottom:8px;line-height:1.5">${esc(it.prompt)}</div>${it.say?play():''}<textarea id="tk-in" oninput="s4pTK.typed(this)" rows="${it.short?1:3}" placeholder="Type your answer here" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;font-family:var(--font-b);resize:vertical"></textarea><div id="lt-fb"></div>`;
+      n.textContent='Check answer';
+      if(it.say)setTimeout(()=>say(it.say),250);
+    }else if(it.mode==='blanks'){
+      body=`<div style="font-weight:600;font-size:15.5px;margin-bottom:12px">${esc(it.prompt)}</div><div style="font-size:16px;line-height:2.4">${it.parts.map((p,i)=>p.blank?`<span style="white-space:nowrap"><b>${esc(p.hint)}</b><input class="tk-bl" data-i="${i}" oninput="s4pTK.blankTyped()" maxlength="${p.blank.length-p.hint.length+2}" autocapitalize="off" autocomplete="off" style="width:${Math.max(3,p.blank.length-p.hint.length+1)}.4ch;font-size:16px;border:none;border-bottom:2px solid var(--pine);background:transparent;outline:none;text-align:left;font-family:inherit"></span>`:esc(p.t)).join('')}</div><div id="lt-fb"></div>`;
+      n.textContent='Check answer';
+    }else if(it.mode==='reorder'){
+      S.bank=shuf(it.words.map((w,i)=>({w:w,i:i})));S.built=[];
+      body=`<div style="font-weight:600;font-size:15.5px;margin-bottom:12px">${esc(it.prompt)}</div><div id="tk-built" style="min-height:52px;border:2px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center"></div><div id="tk-bank" style="display:flex;flex-wrap:wrap;gap:8px"></div><div id="lt-fb"></div>`;
+      n.textContent='Check answer';setTimeout(drawReorder,0);
+    }else{
+      const speak=it.mode==='speak';
+      body=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-weight:700;color:var(--pine)">${speak?'🎤 Speaking':'✍️ Writing'}</div><div id="tk-timer" style="font-family:var(--font-h);font-weight:700;font-size:14px;color:var(--pine)"></div></div>`+
+        sceneHtml(it.scene)+
+        (it.read&&!speak?`<div class="tp-example-box" style="margin-bottom:12px"><span class="tp-example-badge">Passage</span><p style="margin:0;font-size:14px;line-height:1.6">${esc(it.read)}</p></div>`:'')+
+        (it.read&&speak?`<div class="tp-example-box" style="margin-bottom:12px"><span class="tp-example-badge">Text</span><p style="margin:0;font-size:15px;line-height:1.7">${esc(it.read)}</p></div>`:'')+
+        `<div style="font-weight:600;font-size:15.5px;margin-bottom:10px;line-height:1.5;white-space:pre-wrap">${esc(it.prompt)}</div>`+
+        (it.say?play():'')+
+        (speak?`<button class="btn" id="tk-rec" style="width:auto;padding:10px 18px;font-size:14px;margin:0" onclick="s4pTK.rec(this)"><i class="ti ti-microphone"></i> Start recording</button><div id="tk-audio"></div><p style="font-size:12px;color:var(--ink3);margin-top:8px">Your recording stays on your phone. Listen back and compare with the checklist.</p>`
+          :`<textarea id="tk-in" oninput="s4pTK.typed(this)" rows="8" placeholder="Write your answer here" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;font-family:var(--font-b);resize:vertical"></textarea><div id="tk-wc" style="font-size:12px;color:var(--ink3);margin-top:4px"></div>`)+
+        `<div id="lt-fb"></div>`;
+      n.textContent=speak?'I have finished':'Submit';if(speak)n.disabled=false;
+      if(!speak){const wc=$('tk-wc');if(wc)wc.textContent='0 words'+(it.minWords?` · aim for at least ${it.minWords}`:'');}
+      setTimeout(()=>startTimer(it.seconds||60),0);
+      if(it.say&&it.oneshot)setTimeout(()=>say(it.say),300);
+    }
+    $('tp-lesson-content').innerHTML=`<div class="lstep-panel">${head}${body}</div>`;
+  }
+  function drawReorder(){
+    const a=$('tk-built'),b=$('tk-bank');if(!a||!b)return;
+    const chip=(o,f)=>`<div class="reorder-chip" onclick="${f}(${o.i})" style="padding:9px 14px;background:var(--paper);border:1.5px solid var(--line);border-radius:8px;cursor:pointer;font-size:14px">${esc(o.w)}</div>`;
+    a.innerHTML=S.built.map(o=>chip(o,'s4pTK.unbuild')).join('');
+    b.innerHTML=S.bank.filter(o=>!S.built.includes(o)).map(o=>chip(o,'s4pTK.build')).join('');
+    const nb=$('lstep-next-btn');if(nb&&S.phase==='ask')nb.disabled=S.built.length!==S.items[S.i].words.length;
+  }
+  function lcs(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]+1:Math.max(d[i-1][j],d[i][j-1]);
+    const hit=new Set();let i=m,j=n;while(i>0&&j>0){if(a[i-1]===b[j-1]){hit.add(i-1);i--;j--;}else if(d[i-1][j]>=d[i][j-1])i--;else j--;}return hit;}
+  const tok=s=>norm(s).replace(/[^a-z0-9'\s]/g,' ').split(/\s+/).filter(Boolean);
+
+  function finishItem(score,fbHtml,nextLabel){
+    S.scores.push(score);S.phase='review';
+    $('lt-fb').innerHTML=fbHtml;
+    const n=$('lstep-next-btn');n.textContent=nextLabel||(S.i<S.items.length-1?'Next':'See my result');n.disabled=false;
+  }
+  function selfMark(it,modelHtml){
+    S.phase='mark';
+    const list=(it.checklist||[]).map((c,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:13.5px"><input type="checkbox" class="tk-ck" onchange="s4pTK.ck()" style="margin-top:3px"><span>${esc(c)}</span></label>`).join('');
+    $('lt-fb').innerHTML=`<div class="tp-info-card" style="margin-top:14px">${modelHtml||''}<div style="font-weight:700;font-size:13.5px;color:var(--pine);margin-bottom:4px">Check yourself</div>${list}<p style="font-size:12px;color:var(--ink3);margin:8px 0 0">Tick what you did well. Be honest, it helps you improve.</p></div>`;
+    const n=$('lstep-next-btn');n.textContent=S.i<S.items.length-1?'Next':'See my result';n.disabled=false;
+  }
+  const api={
+    choose(oi){if(S.phase!=='ask')return;S.sel=oi;document.querySelectorAll('.lt-opts .lstep-quiz-opt').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.oi,10)===oi));enableNext();},
+    typed(el){const it=S.items[S.i];const v=el.value.trim();
+      if(it.mode==='write'){const w=words(v);const wc=$('tk-wc');if(wc)wc.textContent=w+' words'+(it.minWords?` · aim for at least ${it.minWords}`:'');}
+      const n=$('lstep-next-btn');if(S.phase==='ask')n.disabled=it.mode==='write'?w0(v)<Math.min(5,it.minWords||5):v.length<1;},
+    blankTyped(){const n=$('lstep-next-btn');if(S.phase==='ask')n.disabled=[...document.querySelectorAll('.tk-bl')].some(i=>!i.value.trim());},
+    build(i){const o=S.bank.find(x=>x.i===i);if(o&&!S.built.includes(o)){S.built.push(o);drawReorder();}},
+    unbuild(i){const k=S.built.findIndex(x=>x.i===i);if(k>=0){S.built.splice(k,1);drawReorder();}},
+    say(slow){const it=S.items[S.i];say(it.say,slow?0.6:0.95);},
+    rec(btn){toggleRec(btn);},
+    ck(){},
+    next(){
+      const it=S.items[S.i];const n=$('lstep-next-btn');
+      if(S.phase==='review'||S.phase==='marked'){return api.advance();}
+      if(S.phase==='mark'){const ticks=[...document.querySelectorAll('.tk-ck')];const sc=ticks.length?ticks.filter(c=>c.checked).length/ticks.length:1;S.scores.push(sc);return api.advance();}
+      stopTimer();try{speechSynthesis.cancel();}catch(e){}
+      if(it.mode==='choice'){const ok=S.sel===it.correct;
+        document.querySelectorAll('.lt-opts .lstep-quiz-opt').forEach(el=>{const oi=parseInt(el.dataset.oi,10);el.onclick=null;if(oi===it.correct)el.classList.add('correct-answer');else if(oi===S.sel)el.classList.add('wrong-answer');else el.classList.add('dimmed');});
+        S.scores.push(ok?1:0);S.phase='review';
+        const host=document.querySelector('#tp-lesson-content .lstep-panel');host.insertAdjacentHTML('beforeend',`<div id="lt-fb">${bubble(ok?'cheer':'encourage',ok?'ok':'no',60)}<div class="lstep-feedback ${ok?'correct':'incorrect'}">${ok?'Correct. ':'Not quite. '}${esc(it.explain||'')}</div></div>`);
+        n.textContent=S.i<S.items.length-1?'Next':'See my result';return;}
+      if(it.mode==='type'){const v=$('tk-in').value;let sc,html;
+        if(it.grade==='accept'){const ok=it.accept.some(a=>norm(a)===norm(v).replace(/[.!?]$/,''));sc=ok?1:0;html=`<div class="lstep-feedback ${ok?'correct':'incorrect'}">${ok?'Correct!':'Not quite.'} Answer: <b>${esc(it.accept.join(' / '))}</b></div>`;}
+        else{const ref=tok(it.answer),got=tok(v);const hit=lcs(ref,got);sc=ref.length?hit.size/ref.length:0;const wrong=Math.max(0,got.length-hit.size);if(wrong)sc=Math.max(0,sc-0.05*wrong);
+          html=`<div class="lstep-feedback ${sc>=.9?'correct':'incorrect'}"><div><b>${Math.round(sc*100)}% match</b></div><div style="margin-top:6px;line-height:1.8">${ref.map((w,i)=>hit.has(i)?`<span style="color:#2E6B3A">${esc(w)}</span>`:`<span style="color:#B3261E;text-decoration:underline">${esc(w)}</span>`).join(' ')}</div><div style="font-size:12px;margin-top:6px;color:var(--ink3)">Green = you got it. Red = missed or misspelled.</div></div>`;}
+        document.getElementById('tk-in').disabled=true;
+        const ok=sc>=.9;finishItem(sc,bubble(ok?'cheer':'encourage',ok?'ok':'no',60)+html);return;}
+      if(it.mode==='blanks'){let right=0;const ins=[...document.querySelectorAll('.tk-bl')];let k=0;
+        it.parts.forEach(p=>{if(p.blank){const inp=ins[k++];const typed=norm(inp.value);const full=norm(p.blank);const ok=typed===full.slice(p.hint.length)||typed===full;if(ok)right++;inp.disabled=true;inp.style.color=ok?'#2E6B3A':'#B3261E';if(!ok)inp.insertAdjacentHTML('afterend',`<span style="color:#2E6B3A;font-size:13px"> (${esc(p.blank.slice(p.hint.length))})</span>`);}});
+        const sc=ins.length?right/ins.length:1;finishItem(sc,bubble(sc>=.8?'cheer':'encourage',sc>=.8?'ok':'no',60)+`<div class="lstep-feedback ${sc>=.8?'correct':'incorrect'}">${right} / ${ins.length} words correct. Full sentence: ${esc(it.answer)}</div>`);return;}
+      if(it.mode==='reorder'){const got=S.built.map(o=>o.w).join(' ');const ok=got===it.answer;
+        finishItem(ok?1:0,bubble(ok?'cheer':'encourage',ok?'ok':'no',60)+`<div class="lstep-feedback ${ok?'correct':'incorrect'}">${ok?'Correct! ':'Not quite. '}Correct order: ${esc(it.answer+it.end)}</div>`);return;}
+      if(it.mode==='write'){const v=$('tk-in').value;document.getElementById('tk-in').disabled=true;
+        const w=words(v);const need=it.minWords?`<p style="font-size:13px;margin:0 0 8px;color:${w>=it.minWords?'#2E6B3A':'#B3261E'}">${w} words${it.minWords?` (aim for ${it.minWords}+)`:''}</p>`:'';
+        selfMark(it,need+(it.model?`<div style="font-weight:700;font-size:13.5px;color:var(--pine);margin-bottom:4px">Sample answer</div><p style="font-size:13.5px;margin:0 0 10px">${esc(it.model)}</p>`:''));return;}
+      if(it.mode==='speak'){
+        if(rec&&rec.r&&rec.r.state==='recording')rec.r.stop();
+        selfMark(it,it.model?`<div style="font-weight:700;font-size:13.5px;color:var(--pine);margin-bottom:4px">${it.oneshot?'The sentence was':'Sample answer'}</div><p style="font-size:13.5px;margin:0 0 10px">${esc(it.model)}</p>`:'');}
+    },
+    advance(){
+      if(S.i<S.items.length-1){S.i++;show();return;}
+      api.result();
+    },
+    result(){
+      stopTimer();S.phase='result';S.i=S.items.length;dots();
+      const avg=S.scores.length?S.scores.reduce((a,b)=>a+b,0)/S.scores.length:0;const pct=Math.round(avg*100);
+      const mood=pct>=80?['cheer','great']:pct>=50?['happy','good']:['encourage','retry'];
+      const tip=S.task.tip||(FAQ[S.task.t]&&'');
+      $('tp-lesson-content').innerHTML=`<div class="lstep-panel" style="text-align:center"><div class="lstep-badge quiz"><i class="ti ti-target"></i> ${esc(S.task.title)} · result</div>${bubble(mood[0],mood[1],96)}
+        <div style="font-family:var(--font-h);font-size:36px;font-weight:800;color:var(--pine)">${pct}%</div>
+        <div style="color:var(--ink3);font-size:13px">${S.items.length} question${S.items.length>1?'s':''} · self-checked ones count what you ticked</div>
+        ${S.task.tip?`<p style="font-size:13px;color:var(--ink2);margin:12px 0 0"><b>Tip:</b> ${esc(S.task.tip)}</p>`:''}
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn" style="width:auto;padding:10px 18px;font-size:13.5px;margin:0" onclick="s4pTK.again()">Practise more</button><button class="btn-outline btn" style="width:auto;padding:10px 18px;font-size:13.5px;margin:0" onclick="s4pTK.ai('${S.task.id}')">✨ 5 more from AI</button></div></div>`;
+      const n=$('lstep-next-btn');n.textContent='Done';n.disabled=false;
+      try{const k='s4p_tk_'+S.task.id;const prev=parseInt(localStorage.getItem(k),10)||0;if(pct>prev)localStorage.setItem(k,String(pct));}catch(e){}
+    },
+    start(id,pre){
+      if(typeof requireRealLogin==='function'&&!requireRealLogin())return;
+      const task=T.find(x=>x.id===id);if(!task)return;
+      let items=pre||[];const need=task.per-items.length;
+      for(let i=0;i<need;i++){try{items.push(task.mk());}catch(e){}}
+      if(!items.length){alert('Not enough content for this task yet.');return;}
+      Object.assign(S,{active:true,task:task,items:items,i:0,scores:[],phase:'ask'});
+      $('tp-subtab-content').parentElement.style.display='none';$('tp-lesson-view').style.display='block';$('lstep-back-btn').style.display='none';
+      show();
+    },
+    again(){api.start(S.task.id);},
+    async ai(id){
+      const task=T.find(x=>x.id===id);if(!task)return;
+      if(typeof requireRealLogin==='function'&&!requireRealLogin())return;
+      if(typeof requireActiveSubscription==='function'&&!(await requireActiveSubscription()))return;
+      const was=S.active;
+      $('tp-subtab-content').parentElement.style.display='none';$('tp-lesson-view').style.display='block';S.active=true;S.task=task;
+      $('tp-lesson-content').innerHTML=`<div style="text-align:center;padding:30px 20px"><div style="display:flex;justify-content:center">${bubble('think','wait',90)}</div><p style="color:var(--ink3)">Writing fresh ${esc(task.title)} questions…</p></div>`;
+      $('lstep-next-btn').disabled=true;
+      try{
+        const res=await fetch(GENERATE_MOCK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({template:{title:task.title+' — Practice',questionCount:5,timeLimitMinutes:10,questionTypes:[task.ai],topicPool:['everyday life','study and work','travel','technology','health','environment'],difficultyNote:'Practice items for the "'+task.title+'" task of the '+task.t+' test. Keep them clear and at a realistic exam level.'},testName:task.t,kind:'quick'})});
+        const data=await res.json();
+        if(!res.ok||!data.questions)throw new Error(data.error||'not available');
+        const pass={};(data.passages||[]).forEach(p=>pass[p.id]=p.text);
+        const items=data.questions.map(q=>{const pre=q.passageId&&pass[q.passageId]?pass[q.passageId]:null;
+          if(q.gradingType==='sample')return {mode:'write',prompt:q.prompt,read:pre,minWords:0,seconds:300,model:q.sampleAnswer,checklist:(q.rubric&&q.rubric.length?q.rubric:WCHK)};
+          return {mode:'type',prompt:(pre?pre+'\n\n':'')+q.prompt,answer:q.answer,accept:[q.answer],grade:'accept',short:true};});
+        S.items=items;S.i=0;S.scores=[];api.startPrepared(task,items);
+      }catch(e){
+        $('tp-lesson-content').innerHTML=`<div class="tp-info-card"><h4>AI questions aren't available right now</h4><p>The question generator may not be switched on yet. The ready-made questions still work.</p></div>`;
+        $('lstep-next-btn').textContent='Back';$('lstep-next-btn').disabled=false;S.phase='result';
+      }
+    },
+    startPrepared(task,items){Object.assign(S,{active:true,task:task,items:items,i:0,scores:[],phase:'ask'});show();}
+  };
+  function w0(v){return words(v);}
+  window.s4pTK=api;
+
+  // ── hook the lesson player's buttons ──
+  const _next=lessonStepNext;
+  lessonStepNext=function(){if(S.active){if(S.phase==='result'){closeLessonView();return;}return api.next();}return _next.apply(this,arguments);};
+  const _back=lessonStepBack;
+  lessonStepBack=function(){if(S.active)return;return _back.apply(this,arguments);};
+  const _close=closeLessonView;
+  closeLessonView=function(){
+    const was=S.active;
+    if(was){S.active=false;stopTimer();try{speechSynthesis.cancel();}catch(e){}try{if(rec&&rec.r&&rec.r.state==='recording')rec.r.stop();}catch(e){}try{currentTpLevel=null;}catch(e){}}
+    const r=_close.apply(this,arguments);
+    if(was){try{setTpSubtab('mocks');}catch(e){}}
+    return r;
+  };
+
+  // ── Mock Tests tab: task grid + FAQ ──
+  const _mocks=renderMocksTab;
+  renderMocksTab=async function(){
+    const r=await _mocks.apply(this,arguments);
+    try{
+      const el=$('tp-subtab-content');const tk=currentTpTest;
+      const tasks=T.filter(x=>x.t===tk);
+      if(!el||!tasks.length)return r;
+      let best=id=>{try{return parseInt(localStorage.getItem('s4p_tk_'+id),10)||0;}catch(e){return 0;}};
+      let html=`<h4 style="font-size:14px;color:var(--pine);margin:6px 0 4px">🎯 Practice by task <span style="font-size:10.5px;background:var(--sage-l);color:#0F6E56;padding:2px 8px;border-radius:99px;font-weight:700;vertical-align:middle">FREE</span></h4>
+        <p style="font-size:12.5px;color:var(--ink3);margin-bottom:10px">One card for each question type in the exam. Pick one and practise.</p>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">`+
+        tasks.map(x=>{let c=0;try{c=x.count();}catch(e){}const b=best(x.id);
+          return `<div class="tp-info-card" style="margin:0"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:#EEF3FC;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${x.icon}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14.5px">${esc(x.title)}</div><div style="font-size:12.5px;color:var(--ink3);margin:2px 0 6px">${esc(x.desc)}</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><a href="#" onclick="s4pTK.start('${x.id}');return false" style="font-size:13px;font-weight:700;color:#2563EB;text-decoration:underline">${c} question${c===1?'':'s'} · start →</a><a href="#" onclick="s4pTK.ai('${x.id}');return false" style="font-size:12px;color:var(--ink3)">✨ AI more</a>${b?`<span style="font-size:12px;color:#0F6E56">best ${b}%</span>`:''}</div></div></div></div>`;}).join('')+`</div>`;
+      const fq=FAQ[tk];
+      if(fq)html+=`<h4 style="font-size:14px;color:var(--pine);margin:18px 0 8px">💡 Helpful answers</h4><div style="margin-bottom:16px">`+fq.map(([q,a])=>`<details style="border-bottom:1px solid var(--line);padding:10px 0"><summary style="font-weight:600;font-size:14px;cursor:pointer">${esc(q)}</summary><p style="font-size:13.5px;color:var(--ink2);margin:8px 0 0;line-height:1.6">${esc(a)}</p></details>`).join('')+`</div>`;
+      // after the Asha greeting, before the Instant Practice Sets
+      const anchor=el.querySelector('.asha-row');
+      if(anchor)anchor.insertAdjacentHTML('afterend',html);else el.insertAdjacentHTML('afterbegin',html);
+    }catch(e){}
+    return r;
+  };
+  window.s4pTaskStats=()=>T.map(x=>({test:x.t,id:x.id,title:x.title,count:(()=>{try{return x.count();}catch(e){return -1;}})()}));
+})();
+
 (function(){
 const L=(id,title,obj,concept,example,vocab,mistakes,practice,practiceAnswer,quiz)=>({
   id,title,time:'15-20 minutes',objectives:obj,concept,
