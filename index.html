@@ -13115,6 +13115,7 @@ async function renderMocksTab(){
 
   await loadMockAccess();
   let html=renderMockAccessCard(currentTpTest);
+  if(currentTpTest==='IELTS')setTimeout(()=>{try{pmHydrate();}catch(e){}},120);
   html+=`<h4 style="font-size:14px;color:var(--pine);margin:16px 0 8px">📝 Quick Practice Mocks</h4>`;
   html+=templates.map(([key,tpl])=>`
     <div class="tp-info-card">
@@ -13624,7 +13625,474 @@ function renderMockAccessCard(testKey){
     <p>All four sections in exam order: Listening is read aloud, Reading uses full-length passages, and Writing and Speaking get an estimated band with specific feedback. Each mock can be taken once.</p>
     <p style="margin-top:8px">${status}</p>${btn}
     <div style="margin-top:10px"><a href="javascript:openPlansDialog()" style="font-size:13px;color:var(--pine3)">See plans and prices</a></div>
-  </div>`;
+  </div>`+(testKey==='IELTS'?'<div id="pm-card" style="margin-top:12px"></div>':'');
+}
+
+// ═════════════ PREMIUM FULL MOCK: exam-day simulation (IELTS Academic Premium Mock 1) ═════════════
+// Content and answer key live in the database (0031_premium_mock.sql). The page only ever receives questions.
+// Audio and the Task 1 chart sit in the folder premium/ next to index.html.
+const PM_BASE='premium/', PM_ID='prem_ielts_1';
+let PM=null;
+const PM_STEPS=['intro','check','lins','L','rins','R','wins','W','sins','S','grading','result'];
+function pmCss(){
+  if(document.getElementById('pm-css'))return;
+  const s=document.createElement('style'); s.id='pm-css';
+  s.textContent=`#pm-root{position:fixed;inset:0;z-index:10050;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
+#pm-root *{box-sizing:border-box}
+.pm-top{background:#1E3A6B;color:#fff;display:flex;align-items:center;gap:14px;padding:9px 16px;flex:none}
+.pm-logo{font-weight:800;letter-spacing:.5px;font-size:17px}.pm-logo span{color:#F4A261}
+.pm-cand{font-size:12.5px;opacity:.85;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-timer{font-weight:800;font-size:17px;background:rgba(255,255,255,.14);padding:5px 12px;border-radius:8px;min-width:92px;text-align:center}
+.pm-timer.low{background:#B3261E}
+.pm-exit{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+.pm-main{flex:1;min-height:0;overflow:auto;padding:16px}
+.pm-wrap{max-width:980px;margin:0 auto}
+.pm-card{background:#fff;border:1px solid #d9dfea;border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.pm-card h2{margin:0 0 8px;font-size:21px;color:#1E3A6B}.pm-card h3{margin:0 0 6px;font-size:16px;color:#1E3A6B}
+.pm-card p,.pm-card li{font-size:14.5px;line-height:1.6}
+.pm-btn{background:#1E3A6B;color:#fff;border:0;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14.5px;cursor:pointer}
+.pm-btn.alt{background:#fff;color:#1E3A6B;border:1.5px solid #1E3A6B}.pm-btn.go{background:#C9631A}.pm-btn:disabled{opacity:.5;cursor:default}
+.pm-banner{border-radius:10px;padding:11px 14px;font-weight:600;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.pm-banner.read{background:#FFF4E5;color:#8a4b00}.pm-banner.play{background:#E7F3EA;color:#1d5c2e}.pm-banner.chk{background:#E8EEF9;color:#1E3A6B}
+.pm-bars{display:inline-flex;gap:3px;align-items:flex-end;height:18px}.pm-bars i{width:4px;background:#1d5c2e;border-radius:2px;animation:pmb 0.9s infinite ease-in-out}
+.pm-bars i:nth-child(2){animation-delay:.15s}.pm-bars i:nth-child(3){animation-delay:.3s}.pm-bars i:nth-child(4){animation-delay:.45s}
+@keyframes pmb{0%,100%{height:5px}50%{height:18px}}
+.pm-g h4{margin:14px 0 4px;font-size:14.5px;color:#C9631A}.pm-g .ins{font-size:13px;font-style:italic;color:#445;margin:0 0 8px}
+.pm-q{display:flex;gap:10px;padding:6px 0;align-items:baseline;font-size:14.5px;line-height:1.55}
+.pm-q b.n{flex:none;min-width:26px;height:26px;border-radius:6px;background:#E8EEF9;color:#1E3A6B;text-align:center;line-height:26px;font-size:13px}
+.pm-q.done b.n{background:#1E3A6B;color:#fff}
+.pm-gap{border:0;border-bottom:2px solid #1E3A6B;background:#f6f8fc;padding:2px 6px;min-width:120px;font-size:14.5px;font-family:inherit;border-radius:4px 4px 0 0}
+.pm-sel{padding:5px 8px;border:1.5px solid #b8c3d9;border-radius:8px;font-size:14px;background:#fff}
+.pm-opt{display:block;padding:3px 0;font-size:14.5px}.pm-opt input{margin-right:8px}
+.pm-box{background:#EEF1F6;border-radius:8px;padding:8px 12px;margin:6px 0 10px;font-size:14px}.pm-box div{padding:1px 0}
+.pm-split{display:flex;gap:14px;align-items:flex-start}.pm-left,.pm-right{flex:1;min-width:0;background:#fff;border:1px solid #d9dfea;border-radius:12px;padding:16px 18px;max-height:calc(100vh - 210px);overflow:auto}
+.pm-left p{font-size:15px;line-height:1.7;margin:0 0 10px}.pm-left p b{color:#C9631A;margin-right:6px}
+.pm-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.pm-tab{padding:7px 14px;border-radius:8px;border:1.5px solid #b8c3d9;background:#fff;font-weight:700;color:#1E3A6B;font-size:13.5px;cursor:pointer}
+.pm-tab.on{background:#1E3A6B;color:#fff;border-color:#1E3A6B}
+.pm-foot{background:#fff;border-top:1px solid #d9dfea;padding:8px 14px;display:flex;gap:6px;align-items:center;flex:none;flex-wrap:wrap}
+.pm-pal{display:flex;gap:4px;flex-wrap:wrap;flex:1}.pm-pal button{width:28px;height:28px;border-radius:6px;border:1.5px solid #b8c3d9;background:#fff;font-size:12px;font-weight:700;color:#1E3A6B;cursor:pointer;padding:0}
+.pm-pal button.a{background:#1E3A6B;color:#fff;border-color:#1E3A6B}
+.pm-ta{width:100%;min-height:calc(100vh - 330px);border:1.5px solid #b8c3d9;border-radius:10px;padding:12px;font-size:15px;line-height:1.6;font-family:inherit;resize:vertical}
+.pm-wc{font-size:13px;color:#445;margin-top:6px;font-weight:600}
+.pm-bignum{font-size:46px;font-weight:800;color:#1E3A6B}
+.pm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.pm-tile{background:#fff;border:1px solid #d9dfea;border-radius:12px;padding:12px;text-align:center}
+.pm-tile .b{font-size:28px;font-weight:800;color:#1E3A6B}
+.pm-rev td,.pm-rev th{padding:4px 8px;border-bottom:1px solid #e6eaf2;font-size:13.5px;text-align:left}.pm-ok{color:#1d7a35;font-weight:700}.pm-no{color:#B3261E;font-weight:700}
+.pm-modal{position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:10100;display:flex;align-items:center;justify-content:center;padding:16px}.pm-modal>div{background:#fff;border-radius:14px;padding:20px;max-width:420px;width:100%}
+@media(max-width:760px){.pm-split{flex-direction:column}.pm-left,.pm-right{max-height:none;width:100%}.pm-cand{display:none}.pm-ta{min-height:300px}}`;
+  document.head.appendChild(s);
+}
+function pmNow(){return Date.now();}
+function pmE(x){ return esc(x).replace(/"/g,'&quot;'); }
+function pmSave(){ if(!PM||PM.step==='result'||PM.view)return; try{ localStorage.setItem('pm_state_'+PM.take,JSON.stringify({step:PM.step,sub:PM.sub,ans:PM.ans,deadline:PM.deadline,secIdx:PM.secIdx,played:PM.played,subEnd:PM.subEnd,tab:PM.tab,res:PM.res,spk:PM.spk,w1:PM.w1})); }catch(e){} }
+function pmLoad(id){ try{ return JSON.parse(localStorage.getItem('pm_state_'+id)||'null'); }catch(e){ return null; } }
+function pmRoot(){ return document.getElementById('pm-root'); }
+function pmFmt(sec){ sec=Math.max(0,Math.ceil(sec)); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
+function pmCandidate(){ try{ const m=currentSession&&currentSession.user&&currentSession.user.user_metadata; return (m&&(m.full_name||m.name))||(currentSession&&currentSession.user&&currentSession.user.email)||'Candidate'; }catch(e){ return 'Candidate'; } }
+
+// ---- entry card on the Mock Tests tab ----
+async function pmHydrate(){
+  const el=document.getElementById('pm-card'); if(!el||isPreviewMode||!currentSession)return;
+  let st=null; try{ const r=await sb.rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===PM_ID); }catch(e){}
+  if(!st){ el.innerHTML=''; return; }
+  let status,btn;
+  if(st.taken){ status='You have taken this mock. Your result is saved.'; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmViewSaved()">View my result</button>`; }
+  else if(st.in_progress){ status='Your premium mock is in progress. You can resume it.'; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmStart()">Resume premium mock</button>`; }
+  else if(st.admin||st.credits>0){ status=st.admin?'Administrator: you can start this as often as you like.':`This uses <b>1 of your ${st.credits}</b> mock credit${st.credits===1?'':'s'}. It can be taken once.`; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmIntroConfirm()">Start premium mock</button>`; }
+  else { status='Available with any paid plan. It uses one mock credit.'; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="openPlansDialog('mock')">Choose a plan</button>`; }
+  el.innerHTML=`<div class="tp-info-card" style="border:2px solid #C9631A;background:linear-gradient(180deg,#FFF8F0,#fff)">
+    <h4>⭐ ${esc(st.title)}</h4>
+    <p>The complete exam-day experience: Listening with recordings played once, Reading and Writing under strict timing, and a Speaking interview, followed by an estimated band report. Original questions, written in exam style.</p>
+    <p style="margin-top:8px">${status}</p>${btn}
+    <div style="font-size:12px;color:var(--ink3);margin-top:8px">About 2 hours 30 minutes in one sitting. Use a laptop or tablet, headphones and a quiet room.</div></div>`;
+}
+function pmIntroConfirm(){
+  const m=document.createElement('div'); m.className='pm-modal'; m.id='pm-confirm'; m.style.zIndex=10100;
+  m.innerHTML=`<div><h3 style="margin:0 0 8px;color:#1E3A6B">Start the premium mock?</h3><p style="font-size:14px;line-height:1.6">It uses <b>one mock credit</b> and can be taken <b>once</b>. Set aside about 2 hours 30 minutes. If you leave, you can resume within 5 hours. The Listening recordings cannot be replayed.</p>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="pm-btn" onclick="document.getElementById('pm-confirm').remove();pmStart()">Start now</button><button class="pm-btn alt" onclick="document.getElementById('pm-confirm').remove()">Not yet</button></div></div>`;
+  document.body.appendChild(m);
+}
+async function pmStart(){
+  if(!requireRealLogin())return;
+  const{data,error}=await sb.rpc('begin_premium_mock',{p_mock:PM_ID});
+  if(error){
+    const msg=error.message||'';
+    if(/NO_CREDIT/.test(msg)){ await loadMockAccess(true); openPlansDialog('mock'); }
+    else if(/ALREADY_TAKEN/.test(msg)){ pmViewSaved(); }
+    else if(/EXPIRED/.test(msg)){ alert('This mock was started more than 5 hours ago and can no longer be resumed. Please contact your Step4Progress counsellor.'); }
+    else alert('Could not start the premium mock. Please try again in a moment.');
+    return;
+  }
+  const saved=pmLoad(data.take_id);
+  const c=data.content;
+  PM={take:data.take_id,c,ans:{L:{},R:{},W:{},S:{}},res:data.results||{},step:'intro',sub:null,secIdx:0,deadline:0,subEnd:0,played:{},tab:0,spk:{i:0,phase:'q'},w1:null,audio:null,tick:null,lastSave:0};
+  if(data.resumed&&!saved){ if(PM.res.reading)PM.step='wins'; else if(PM.res.listening)PM.step='rins'; }
+  if(saved&&data.resumed){ Object.assign(PM,{step:saved.step||'intro',sub:saved.sub,ans:saved.ans||PM.ans,deadline:saved.deadline||0,secIdx:saved.secIdx||0,played:saved.played||{},subEnd:saved.subEnd||0,tab:saved.tab||0,spk:saved.spk||PM.spk}); }
+  pmOpen();
+}
+function pmOpen(){
+  pmCss();
+  let r=pmRoot(); if(r)r.remove();
+  r=document.createElement('div'); r.id='pm-root';
+  r.innerHTML=`<div class="pm-top"><div class="pm-logo">IELTS<span>·</span>Premium</div><div class="pm-cand">Candidate: ${esc(pmCandidate())}</div><div class="pm-timer" id="pm-timer" style="display:none"></div><button class="pm-exit" onclick="pmExitAsk()">Exit</button></div><div class="pm-main" id="pm-main"></div><div id="pm-foot"></div>`;
+  document.body.appendChild(r);
+  r.addEventListener('input',pmOnInput); r.addEventListener('change',pmOnInput);
+  window.addEventListener('beforeunload',pmBeforeUnload);
+  if(PM.tick)clearInterval(PM.tick); PM.tick=setInterval(pmTick,500);
+  pmGo(PM.step,PM.sub,true);
+}
+function pmBeforeUnload(e){ if(PM&&PM.step!=='result'){ e.preventDefault(); e.returnValue=''; } }
+function pmExitAsk(){
+  const m=document.createElement('div'); m.className='pm-modal'; m.id='pm-exitm';
+  const live=PM&&PM.step!=='result';
+  m.innerHTML=`<div><h3 style="margin:0 0 8px;color:#1E3A6B">${live?'Leave the exam?':'Close'}</h3><p style="font-size:14px;line-height:1.6">${live?'Your answers are saved on this device and you can resume within 5 hours. The clock keeps running and a Listening recording that has started will not replay.':'Return to the portal.'}</p>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="pm-btn" onclick="document.getElementById('pm-exitm').remove();pmClose()">${live?'Leave':'Close'}</button><button class="pm-btn alt" onclick="document.getElementById('pm-exitm').remove()">Stay</button></div></div>`;
+  document.body.appendChild(m);
+}
+function pmClose(){
+  if(PM){ pmSave(); if(PM.tick)clearInterval(PM.tick); if(PM.audio){ try{PM.audio.pause();}catch(e){} } try{speechSynthesis.cancel();}catch(e){} try{ if(PM.rec)PM.rec.stop(); }catch(e){} }
+  window.removeEventListener('beforeunload',pmBeforeUnload);
+  const r=pmRoot(); if(r)r.remove(); PM=null;
+  try{ loadMockAccess(true).then(()=>{ const el=document.getElementById('pm-card'); if(el)pmHydrate(); }); }catch(e){}
+}
+function pmOnInput(e){
+  const t=e.target; if(!PM||!t||!t.dataset)return;
+  const sk=t.dataset.sk, n=t.dataset.n; if(!sk)return;
+  let v=t.value;
+  if(t.type==='radio'){ if(!t.checked)return; }
+  PM.ans[sk][n]=v;
+  const row=t.closest('.pm-q'); if(row)row.classList.toggle('done',String(v).trim()!=='');
+  if(sk==='W'){ pmWc(); }
+  if(sk==='R'){ pmPalette(); }
+  if(pmNow()-PM.lastSave>1500){ PM.lastSave=pmNow(); pmSave(); }
+}
+function pmWc(){ const n=(PM.ans.W[PM.tab+1]||'').trim().split(/\s+/).filter(Boolean).length; const el=document.getElementById('pm-wc'); if(el)el.textContent=n+' words'; }
+function pmSetTimer(secs,label){ PM.deadline=pmNow()+secs*1000; PM.timerLabel=label||''; pmSave(); const t=document.getElementById('pm-timer'); if(t)t.style.display=''; pmTick(); }
+function pmHideTimer(){ PM.deadline=0; const t=document.getElementById('pm-timer'); if(t)t.style.display='none'; }
+function pmTick(){
+  if(!PM)return;
+  const t=document.getElementById('pm-timer');
+  if(PM.deadline&&t){ const left=(PM.deadline-pmNow())/1000; t.textContent=pmFmt(left); t.classList.toggle('low',left<=300&&PM.step!=='L'); if(left<=0){ PM.deadline=0; pmTimeUp(); } }
+  if(PM.subEnd){ const l=Math.ceil((PM.subEnd-pmNow())/1000); const el=document.getElementById('pm-cd'); if(el)el.textContent=Math.max(0,l); if(l<=0){ PM.subEnd=0; pmSubDone(); } }
+}
+function pmTimeUp(){
+  if(PM.step==='R')pmSubmitReading(true);
+  else if(PM.step==='W')pmSubmitWriting(true);
+  else if(PM.step==='S'&&PM.sub==='p2speak')pmSpeakNext();
+}
+function pmMain(html){ const m=document.getElementById('pm-main'); if(m){ m.innerHTML=html; m.scrollTop=0; } }
+function pmFoot(html){ const f=document.getElementById('pm-foot'); if(f)f.innerHTML=html||''; }
+function pmGo(step,sub,resume){
+  PM.step=step; PM.sub=sub||null; pmSave();
+  const fn={intro:pmIntro,check:pmCheck,lins:pmLIns,L:pmListening,rins:pmRIns,R:pmReading,wins:pmWIns,W:pmWriting,sins:pmSIns,S:pmSpeaking,grading:pmGrading,result:pmResult}[step];
+  const keep=(resume&&(step==='R'||step==='W'||(step==='S'&&sub==='p2speak')))?PM.deadline:0;
+  pmHideTimer(); pmFoot('');
+  if(keep){ PM.deadline=keep; const t=document.getElementById('pm-timer'); if(t)t.style.display=''; pmTick(); }
+  if(fn)fn(resume);
+}
+
+// ---- opening screens ----
+function pmIntro(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>IELTS Academic · Premium Mock Test 1</h2>
+  <p>This is a full exam-day simulation. It follows the real structure and timing as closely as possible.</p>
+  <ul><li><b>Listening</b>: four recordings, each played <b>once</b>. You get 30 seconds to read the questions before each recording and 30 seconds to check your answers after it.</li>
+  <li><b>Reading</b>: 60 minutes, three passages, 40 questions.</li>
+  <li><b>Writing</b>: 60 minutes, Task 1 (about 20 minutes) and Task 2 (about 40 minutes).</li>
+  <li><b>Speaking</b>: an interview in three parts, about 11 to 14 minutes. You will speak your answers (or type them if your device cannot take dictation).</li></ul>
+  <p><b>Rules:</b> no dictionary, no notes, no phone. Answers are saved as you go. When time is up, a section closes automatically.</p>
+  <button class="pm-btn go" onclick="pmGo('check')">Continue</button></div></div>`);
+}
+function pmCheck(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Equipment check</h2>
+  <p>Put on your headphones and press the button. You should hear a short tone.</p>
+  <button class="pm-btn alt" onclick="pmTone()">🔊 Play test tone</button>
+  <p style="margin-top:14px">For Speaking, your browser may ask to use the microphone. You can press the button below to check it. If dictation is not available on your device, you can type your Speaking answers.</p>
+  <button class="pm-btn alt" onclick="pmMicTest()">🎤 Test microphone</button> <span id="pm-micmsg" style="font-size:13px;margin-left:8px"></span>
+  <p style="margin-top:14px">Make sure you are somewhere quiet and will not be interrupted for about 2 hours 30 minutes.</p>
+  <button class="pm-btn go" onclick="pmGo('lins')">I am ready: begin the test</button></div></div>`);
+}
+function pmTone(){ try{ const C=new (window.AudioContext||window.webkitAudioContext)(); const o=C.createOscillator(),g=C.createGain(); o.frequency.value=440; g.gain.value=.15; o.connect(g); g.connect(C.destination); o.start(); setTimeout(()=>{o.stop();C.close();},800); }catch(e){} }
+async function pmMicTest(){
+  const m=document.getElementById('pm-micmsg');
+  try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); if(m)m.textContent='✓ Microphone works'; }
+  catch(e){ if(m)m.textContent='Microphone not available. You can type your Speaking answers.'; }
+}
+function pmLIns(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Listening</h2><p>You will hear four recordings. Each is played <b>once only</b>.</p>
+  <ul><li>Before each recording you have <b>30 seconds</b> to read the questions. The recording starts by itself.</li><li>You can write your answers while you listen.</li><li>After each recording you have <b>30 seconds</b> to check your answers.</li><li>You cannot go back to an earlier section.</li><li>Spelling counts. Write numbers as digits or words.</li></ul>
+  <p>Answer all the questions. Wrong answers do not lose marks.</p>
+  <button class="pm-btn go" onclick="pmStartListening()">Start Listening</button></div></div>`);
+}
+function pmStartListening(){
+  PM.audio=new Audio(); PM.audio.preload='auto';
+  // unlock audio inside this tap so later recordings can start by themselves
+  try{ PM.audio.muted=true; const p=PM.audio.play(); if(p&&p.catch)p.catch(()=>{}); PM.audio.pause(); PM.audio.muted=false; }catch(e){}
+  PM.secIdx=0; pmGo('L','read');
+}
+
+// ---- question rendering ----
+function pmQ(it,g,sk){
+  const v=(PM.ans[sk][it.n]||''); const done=String(v).trim()!==''?' done':'';
+  let body='';
+  if(g.type==='gap'||g.type==='short'){
+    const parts=esc(it.prompt).split('____');
+    body=parts.map((p,i)=>p+(i<parts.length-1?`<input class="pm-gap" data-sk="${sk}" data-n="${it.n}" value="${pmE(v)}" autocomplete="off" spellcheck="false">`:'')).join('');
+    if(parts.length===1) body+=` <input class="pm-gap" data-sk="${sk}" data-n="${it.n}" value="${pmE(v)}" autocomplete="off" spellcheck="false">`;
+  } else if(g.type==='mcq'){
+    body=`<div>${esc(it.prompt)}${Object.entries(it.options||{}).map(([k,t])=>`<label class="pm-opt"><input type="radio" name="pm-${sk}-${it.n}" data-sk="${sk}" data-n="${it.n}" value="${k}" ${v===k?'checked':''}><b>${k}</b> ${esc(t)}</label>`).join('')}</div>`;
+  } else {
+    let opts;
+    if(g.type==='tfng')opts=['TRUE','FALSE','NOT GIVEN']; else if(g.type==='ynng')opts=['YES','NO','NOT GIVEN']; else opts=Object.keys(g.options||{});
+    body=`${esc(it.prompt)} <select class="pm-sel" data-sk="${sk}" data-n="${it.n}"><option value="">Choose…</option>${opts.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  }
+  return `<div class="pm-q${done}" id="pm-q-${sk}-${it.n}"><b class="n">${it.n}</b><div style="flex:1">${body}</div></div>`;
+}
+function pmGroups(groups,sk){
+  return groups.map(g=>`<div class="pm-g"><h4>${esc(g.title)}</h4><p class="ins">${esc(g.instruction)}</p>
+    ${g.heading&&g.type==='gap'?`<p><b>${esc(g.heading)}</b></p>`:''}
+    ${g.options&&['match','headings','endings'].includes(g.type)?`<div class="pm-box">${g.heading?`<b>${esc(g.heading)}</b>`:''}${Object.entries(g.options).map(([k,t])=>`<div><b>${esc(k)}</b>&nbsp; ${esc(t)}</div>`).join('')}</div>`:''}
+    ${g.items.map(it=>pmQ(it,g,sk)).join('')}</div>`).join('');
+}
+function pmCount(groups){ let a=1e9,b=0; groups.forEach(g=>g.items.forEach(i=>{a=Math.min(a,i.n);b=Math.max(b,i.n);})); return [a,b]; }
+
+// ---- Listening ----
+function pmListening(resume){
+  const L=PM.c.listening, sec=L.sections[PM.secIdx], [a,b]=pmCount(sec.groups);
+  const sub=PM.sub||'read';
+  const banner={read:`<div class="pm-banner read">📖 Read the questions. The recording starts in <span id="pm-cd">${L.readSeconds}</span> seconds.</div>`,
+    play:`<div class="pm-banner play"><span class="pm-bars"><i></i><i></i><i></i><i></i></span> Recording playing. You will hear it once only.</div>`,
+    chk:`<div class="pm-banner chk">✓ Check your answers. The next section starts in <span id="pm-cd">${L.checkSeconds}</span> seconds.</div>`}[sub];
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Listening · ${esc(sec.title)} <span style="font-size:14px;color:#667">(Questions ${a}-${b})</span></h2><p style="margin:0 0 10px;font-size:13.5px;color:#445">${esc(sec.context)}</p>${banner}<div id="pm-aerr"></div>${pmGroups(sec.groups,'L')}</div></div>`);
+  pmFoot('');
+  if(sub==='read'){
+    if(resume&&PM.played[sec.no]){ PM.sub='chk'; pmGo('L','chk',true); return; }
+    PM.subEnd=pmNow()+(resume&&PM.subEnd>pmNow()?PM.subEnd-pmNow():L.readSeconds*1000); pmSave();
+  } else if(sub==='play'){
+    if(resume||PM.played[sec.no]){ PM.sub='chk'; pmGo('L','chk',true); return; }
+    pmPlayAudio(sec);
+  } else if(sub==='chk'){
+    PM.subEnd=pmNow()+(resume&&PM.subEnd>pmNow()?PM.subEnd-pmNow():L.checkSeconds*1000); pmSave();
+  }
+}
+function pmPlayAudio(sec){
+  const a=PM.audio||(PM.audio=new Audio()); PM.played[sec.no]=true; pmSave();
+  a.onended=()=>{ if(PM&&PM.step==='L'&&PM.sub==='play')pmGo('L','chk'); };
+  a.onerror=()=>{ const e=document.getElementById('pm-aerr'); if(e)e.innerHTML=`<div class="pm-banner" style="background:#FDECEA;color:#8c1d18">The recording could not be loaded. Check your internet connection and that the audio folder is uploaded. <button class="pm-btn" onclick="pmRetryAudio()">Try again</button></div>`; };
+  a.src=PM_BASE+sec.audio; a.currentTime=0;
+  const p=a.play();
+  if(p&&p.catch)p.catch(()=>{ const e=document.getElementById('pm-aerr'); if(e)e.innerHTML=`<div class="pm-banner" style="background:#FFF4E5;color:#8a4b00">Your browser blocked automatic sound. <button class="pm-btn go" onclick="pmRetryAudio()">▶ Start the recording</button></div>`; });
+}
+function pmRetryAudio(){ const sec=PM.c.listening.sections[PM.secIdx]; const e=document.getElementById('pm-aerr'); if(e)e.innerHTML=''; PM.audio.src=PM_BASE+sec.audio; const p=PM.audio.play(); if(p&&p.catch)p.catch(()=>{}); }
+function pmSubDone(){
+  if(PM.step==='L'){
+    if(PM.sub==='read'){ PM.sub='play'; pmGo('L','play'); }
+    else if(PM.sub==='chk'){
+      if(PM.secIdx<PM.c.listening.sections.length-1){ PM.secIdx++; pmGo('L','read'); }
+      else pmSubmitListening();
+    }
+  } else if(PM.step==='S'&&PM.sub==='p2prep'){ pmP2Speak(); }
+}
+async function pmSubmitListening(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Listening complete</h2><p>Saving your answers…</p></div></div>`);
+  const r=await pmSubmitObj('Listening',PM.ans.L); PM.res.listening=r; pmSave();
+  pmGo('rins');
+}
+async function pmSubmitObj(skill,answers){
+  for(let i=0;i<3;i++){
+    try{ const{data,error}=await sb.rpc('submit_premium_objective',{p_take:PM.take,p_skill:skill,p_answers:answers}); if(!error&&data)return data; }catch(e){}
+    await new Promise(r=>setTimeout(r,900));
+  }
+  return null;
+}
+
+// ---- Reading ----
+function pmRIns(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Reading</h2><p>You have <b>60 minutes</b> to read three passages and answer 40 questions. There is no extra time at the end, so manage your time. You can move between passages and change answers at any time.</p><button class="pm-btn go" onclick="pmStartReading()">Start Reading</button></div></div>`);
+}
+function pmStartReading(){ PM.tab=0; pmGo('R',null,false); pmSetTimer(PM.c.reading.minutes*60); }
+function pmReading(resume){
+  const R=PM.c.reading;
+  if(resume&&!PM.deadline){ PM.deadline=pmNow()+R.minutes*60*1000; }
+  const t=document.getElementById('pm-timer'); if(t)t.style.display='';
+  const p=R.passages[PM.tab];
+  pmMain(`<div class="pm-wrap" style="max-width:1200px"><div class="pm-tabs">${R.passages.map((x,i)=>`<button class="pm-tab ${i===PM.tab?'on':''}" onclick="PM.tab=${i};pmReading()">Passage ${x.no}</button>`).join('')}</div>
+  <div class="pm-split"><div class="pm-left"><h3 style="margin:0 0 8px;color:#1E3A6B">${esc(p.title)}</h3><h2 style="margin:0 0 12px;font-size:19px">${esc(p.heading)}</h2>${p.paragraphs.map(([l,tx])=>`<p>${l?`<b>${esc(l)}</b>`:''}${esc(tx)}</p>`).join('')}</div>
+  <div class="pm-right">${pmGroups(p.groups,'R')}</div></div></div>`);
+  pmFoot(`<div class="pm-foot"><div class="pm-pal" id="pm-pal"></div><button class="pm-btn go" onclick="pmAskSubmit('R')">Finish Reading</button></div>`);
+  pmPalette();
+}
+function pmPalette(){
+  const el=document.getElementById('pm-pal'); if(!el||!PM)return;
+  const R=PM.c.reading; let h='';
+  R.passages.forEach((p,pi)=>p.groups.forEach(g=>g.items.forEach(it=>{ const a=String(PM.ans.R[it.n]||'').trim()!==''; h+=`<button class="${a?'a':''}" onclick="pmJump(${pi},${it.n})">${it.n}</button>`; })));
+  el.innerHTML=h;
+}
+function pmJump(pi,n){ if(PM.tab!==pi){ PM.tab=pi; pmReading(); } setTimeout(()=>{ const e=document.getElementById('pm-q-R-'+n); if(e)e.scrollIntoView({block:'center'}); },30); }
+function pmAskSubmit(kind){
+  let un=0, label=kind==='R'?'Reading':'Writing';
+  if(kind==='R'){ PM.c.reading.passages.forEach(p=>p.groups.forEach(g=>g.items.forEach(it=>{ if(!String(PM.ans.R[it.n]||'').trim())un++; }))); }
+  const m=document.createElement('div'); m.className='pm-modal'; m.id='pm-sub';
+  m.innerHTML=`<div><h3 style="margin:0 0 8px;color:#1E3A6B">Finish ${label}?</h3><p style="font-size:14px;line-height:1.6">${kind==='R'?(un?`You have <b>${un}</b> unanswered question${un===1?'':'s'}. `:'All questions are answered. '):''}After you finish, you cannot come back to this section.</p>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="pm-btn go" onclick="document.getElementById('pm-sub').remove();${kind==='R'?'pmSubmitReading()':'pmSubmitWriting()'}">Finish ${label}</button><button class="pm-btn alt" onclick="document.getElementById('pm-sub').remove()">Go back</button></div></div>`;
+  document.body.appendChild(m);
+}
+async function pmSubmitReading(timeUp){
+  if(PM.sub==='submitting')return; PM.sub='submitting'; pmHideTimer(); pmFoot('');
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>${timeUp?'Time is up. ':''}Reading complete</h2><p>Saving your answers…</p></div></div>`);
+  const r=await pmSubmitObj('Reading',PM.ans.R); PM.res.reading=r; pmSave();
+  PM.sub=null; pmGo('wins');
+}
+
+// ---- Writing ----
+function pmWIns(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Writing</h2><p>You have <b>60 minutes</b> for two tasks. Task 2 carries more marks than Task 1, so spend about <b>20 minutes on Task 1</b> and <b>40 minutes on Task 2</b>. The clock does not stop between tasks. Write at least 150 words for Task 1 and at least 250 words for Task 2.</p><button class="pm-btn go" onclick="pmStartWriting()">Start Writing</button></div></div>`);
+}
+function pmStartWriting(){ PM.tab=0; pmGo('W',null,false); pmSetTimer(PM.c.writing.minutes*60); }
+function pmWriting(resume){
+  const W=PM.c.writing, t=W.tasks[PM.tab];
+  if(resume&&!PM.deadline)PM.deadline=pmNow()+W.minutes*60*1000;
+  const tm=document.getElementById('pm-timer'); if(tm)tm.style.display='';
+  pmMain(`<div class="pm-wrap" style="max-width:1200px"><div class="pm-tabs">${W.tasks.map((x,i)=>`<button class="pm-tab ${i===PM.tab?'on':''}" onclick="PM.tab=${i};pmWriting()">Task ${x.no}</button>`).join('')}</div>
+  <div class="pm-split"><div class="pm-left"><h3 style="margin:0 0 6px;color:#1E3A6B">Writing Task ${t.no}</h3><p style="font-size:13px;color:#667">You should spend about ${t.minutes} minutes on this task. Write at least ${t.min_words} words.</p>
+  ${t.prompt.split('\n\n').map(p=>`<p>${esc(p)}</p>`).join('')}${t.image?`<img src="${PM_BASE}${t.image}" alt="Task 1 line graph" style="max-width:100%;border:1px solid #d9dfea;border-radius:8px;margin-top:6px">`:''}</div>
+  <div class="pm-right"><textarea class="pm-ta" data-sk="W" data-n="${t.no}" placeholder="Type your answer here" spellcheck="false" autocomplete="off">${esc(PM.ans.W[t.no]||'')}</textarea><div class="pm-wc" id="pm-wc">0 words</div></div></div></div>`);
+  pmFoot(`<div class="pm-foot"><div style="flex:1;font-size:13px;color:#556">Spell-check and autocomplete are off, as in the exam.</div><button class="pm-btn go" onclick="pmAskSubmit('W')">Finish Writing</button></div>`);
+  pmWc();
+}
+function pmSubmitWriting(timeUp){
+  if(PM.sub==='submitting')return; PM.sub='submitting'; pmHideTimer(); pmFoot('');
+  PM.w1={timeUp:!!timeUp}; PM.sub=null; pmSave(); pmGo('sins');
+}
+
+// ---- Speaking ----
+function pmSIns(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Speaking</h2><p>The Speaking test has three parts and takes 11 to 14 minutes.</p>
+  <ul><li><b>Part 1</b>: short questions about familiar topics.</li><li><b>Part 2</b>: you get a topic card, one minute to prepare (you can make notes), then speak for one to two minutes.</li><li><b>Part 3</b>: a longer discussion on related ideas.</li></ul>
+  <p>Press <b>Start speaking</b> for each question and talk naturally. Your words are written down as you speak, and you can fix them before moving on. If dictation does not work on your device, type your answer. The examiner's question is read aloud if your device has a voice.</p>
+  <button class="pm-btn go" onclick="pmStartSpeaking()">Start Speaking</button></div></div>`);
+}
+function pmSpkList(){
+  const S=PM.c.speaking, out=[];
+  S.part1.topics.forEach(t=>t[1].forEach(q=>out.push({part:1,topic:t[0],q})));
+  out.push({part:2,topic:'',q:S.part2.card});
+  S.part3.questions.forEach(q=>out.push({part:3,topic:S.part3.theme,q}));
+  return out;
+}
+function pmStartSpeaking(){ PM.spk={i:0,phase:'q'}; PM.sub='q'; pmGo('S','q'); }
+function pmSay(text){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. ')); const v=speechSynthesis.getVoices().find(x=>/en-GB/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^en/i.test(x.lang)); if(v)u.voice=v; u.rate=.95; speechSynthesis.speak(u); }catch(e){} }
+function pmSpeaking(resume){
+  const list=pmSpkList(), it=list[PM.spk.i]; if(!it){ pmEndSpeaking(); return; }
+  const key='S'+PM.spk.i; const cur=PM.ans.S[PM.spk.i]||'';
+  const partTitle={1:'Part 1: Interview',2:'Part 2: Long turn',3:'Part 3: Discussion'}[it.part];
+  if(it.part===2){
+    if(PM.sub==='p2prep'||(!PM.sub||PM.sub==='q')){
+      pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>${partTitle}</h2><p>I'm going to give you a topic and I'd like you to talk about it for one to two minutes. You have one minute to think about what you are going to say. You can make some notes if you wish.</p>
+      <div class="pm-box" style="font-size:15px;line-height:1.7">${esc(it.q).replace(/\n/g,'<br>')}</div><textarea class="pm-ta" style="min-height:120px" placeholder="Your notes (not marked)"></textarea>
+      <p style="margin-top:10px"><b>Preparation time: <span id="pm-cd">60</span> seconds</b></p><button class="pm-btn alt" onclick="PM.subEnd=0;pmP2Speak()">I'm ready: start speaking</button></div></div>`);
+      PM.sub='p2prep'; PM.subEnd=pmNow()+(resume&&PM.subEnd>pmNow()?PM.subEnd-pmNow():PM.c.speaking.part2.prep_seconds*1000); pmSave(); pmSay("Here is your topic card. You have one minute to prepare.");
+      return;
+    }
+    if(PM.sub==='p2speak'){ pmSpeakCard(it,partTitle,cur); return; }
+  }
+  pmSpeakCard(it,partTitle,cur);
+}
+function pmP2Speak(){ PM.sub='p2speak'; pmSave(); pmGo('S','p2speak'); pmSetTimer(PM.c.speaking.part2.speak_seconds); }
+function pmSpeakCard(it,partTitle,cur){
+  const list=pmSpkList();
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>${partTitle} <span style="font-size:13px;color:#667">(question ${PM.spk.i+1} of ${list.length})</span></h2>
+  ${it.topic&&it.part===1?`<p style="color:#667;font-size:13px">Topic: ${esc(it.topic)}</p>`:''}
+  <div class="pm-box" style="font-size:17px;line-height:1.6">${esc(it.q).replace(/\n/g,'<br>')}</div>
+  <button class="pm-btn alt" onclick="pmSay(${JSON.stringify(it.q).replace(/"/g,'&quot;')})">🔊 Hear the question</button>
+  <div style="margin:12px 0"><button class="pm-btn go" id="pm-mic" onclick="pmDictate()">🎤 Start speaking</button> <span id="pm-micst" style="font-size:13px;color:#556;margin-left:8px"></span></div>
+  <textarea class="pm-ta" id="pm-spk" style="min-height:140px" placeholder="Your spoken answer appears here. You can also type." data-sk="S" data-n="${PM.spk.i}">${esc(cur)}</textarea>
+  <div style="margin-top:12px"><button class="pm-btn" onclick="pmSpeakNext()">${PM.spk.i===list.length-1?'Finish Speaking':'Next question'}</button></div></div></div>`);
+  if(!(it.part===2))pmSay(it.q);
+}
+function pmDictate(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition, b=document.getElementById('pm-mic'), st=document.getElementById('pm-micst');
+  if(PM.rec){ try{PM.rec.stop();}catch(e){} PM.rec=null; if(b)b.textContent='🎤 Start speaking'; return; }
+  if(!SR){ if(st)st.textContent='Dictation is not available on this device. Please type your answer.'; return; }
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const r=new SR(); r.lang='en-GB'; r.continuous=true; r.interimResults=false;
+  r.onresult=e=>{ let add=''; for(let k=e.resultIndex;k<e.results.length;k++){ if(e.results[k].isFinal)add+=e.results[k][0].transcript+' '; } const ta=document.getElementById('pm-spk'); if(ta&&add){ ta.value=(ta.value?ta.value.trim()+' ':'')+add.trim(); PM.ans.S[PM.spk.i]=ta.value; pmSave(); } };
+  r.onend=()=>{ PM.rec=null; const bb=document.getElementById('pm-mic'); if(bb)bb.textContent='🎤 Start speaking'; const s=document.getElementById('pm-micst'); if(s)s.textContent=''; };
+  r.onerror=()=>{ const s=document.getElementById('pm-micst'); if(s)s.textContent='Could not hear you. Check microphone permission, or type your answer.'; };
+  PM.rec=r; r.start(); if(b)b.textContent='⏹ Stop'; if(st)st.textContent='Listening… speak now';
+}
+function pmSpeakNext(){
+  try{ if(PM.rec){ PM.rec.stop(); PM.rec=null; } speechSynthesis.cancel(); }catch(e){}
+  pmHideTimer(); PM.subEnd=0;
+  const list=pmSpkList(); PM.spk.i++; PM.sub='q';
+  if(PM.spk.i>=list.length){ pmEndSpeaking(); return; }
+  pmGo('S','q');
+}
+function pmEndSpeaking(){ pmGo('grading'); }
+
+// ---- grading and result ----
+async function pmGradeCall(kind,prompt,answer,skill){
+  for(let i=0;i<2;i++){
+    try{
+      const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer:String(answer).slice(0,5800),testName:'IELTS Academic',takeId:PM.take,skill})});
+      const d=await res.json(); if(res.ok&&typeof d.band==='number')return d;
+    }catch(e){}
+  }
+  return null;
+}
+async function pmGrading(){
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Test complete</h2><p>Well done. Your answers are being marked. This takes about a minute. Please keep this page open.</p><p id="pm-gst" style="color:#667">Marking Writing…</p></div></div>`);
+  const W=PM.c.writing, st=document.getElementById('pm-gst');
+  const wt=[];
+  for(const t of W.tasks){ const ans=PM.ans.W[t.no]||''; const g=ans.trim().length>=3?await pmGradeCall(t.kind,t.prompt,ans,'Writing'):null; wt.push({no:t.no,g,ans,words:ans.trim().split(/\s+/).filter(Boolean).length}); }
+  let wb=null; if(wt[0].g&&wt[1].g)wb=fmRoundBand((wt[0].g.band+2*wt[1].g.band)/3); else { const bs=wt.map(x=>x.g&&x.g.band).filter(x=>typeof x==='number'); if(bs.length)wb=fmRoundBand(bs.reduce((a,b)=>a+b,0)/bs.length); }
+  PM.res.writing={band:wb,tasks:wt}; pmSave();
+  if(st)st.textContent='Marking Speaking…';
+  const list=pmSpkList();
+  const qa=list.map((it,i)=>`Part ${it.part} Q: ${it.q.replace(/\n/g,' ')}\nA: ${(PM.ans.S[i]||'(no answer)').trim()}`).join('\n\n');
+  const anyS=Object.values(PM.ans.S).some(v=>String(v).trim().length>3);
+  const sg=anyS?await pmGradeCall('speaking','IELTS Speaking test, Parts 1 to 3. Questions and the candidate\'s answers (spoken, written down by dictation or typed):',qa,'Speaking'):null;
+  PM.res.speaking={band:sg?sg.band:null,g:sg,qa}; pmSave();
+  const lb=PM.res.listening?fmBandFromRaw('Listening',PM.res.listening.correct,PM.res.listening.total):null;
+  const rb=PM.res.reading?fmBandFromRaw('Reading',PM.res.reading.correct,PM.res.reading.total):null;
+  const bands=[lb,rb,wb,PM.res.speaking.band]; const all=bands.every(b=>typeof b==='number');
+  PM.res.overall=all?fmRoundBand(bands.reduce((a,b)=>a+b,0)/4):null; PM.res.lb=lb; PM.res.rb=rb;
+  try{
+    await sb.rpc('save_premium_part',{p_take:PM.take,p_key:'writing',p_value:PM.res.writing});
+    await sb.rpc('save_premium_part',{p_take:PM.take,p_key:'speaking',p_value:PM.res.speaking});
+    await sb.rpc('save_premium_part',{p_take:PM.take,p_key:'overall',p_value:{overall:PM.res.overall,listening:lb,reading:rb,writing:wb,speaking:PM.res.speaking.band}});
+    await sb.rpc('save_premium_part',{p_take:PM.take,p_key:'done',p_value:true});
+  }catch(e){}
+  try{ localStorage.removeItem('pm_state_'+PM.take); }catch(e){}
+  pmGo('result');
+}
+async function pmViewSaved(){
+  if(!requireRealLogin())return;
+  const{data,error}=await sb.from('premium_results').select('*').eq('mock_id',PM_ID).order('updated_at',{ascending:false}).limit(1);
+  if(error||!data||!data.length){ alert('Could not load your result.'); return; }
+  const row=data[0]; const r=row.results||{};
+  const o=r.overall||{};
+  PM={take:row.take_id,c:null,ans:{L:{},R:{},W:{},S:{}},res:Object.assign({},r,{overall:o.overall,lb:o.listening,rb:o.reading}),step:'result',sub:null,view:true,tick:null};
+  if(r.writing&&r.writing.tasks)PM.res.writing=r.writing;
+  pmOpen();
+}
+function pmReviewTable(r,label){
+  if(!r||!r.detail)return '';
+  return `<div class="pm-card"><h3>${label} answers (${r.correct} of ${r.total} correct)</h3><div style="overflow:auto"><table class="pm-rev" style="width:100%;border-collapse:collapse"><tr><th>#</th><th>Your answer</th><th>Correct answer</th><th></th></tr>${r.detail.map(d=>`<tr><td>${d.n}</td><td>${esc(d.given||'(blank)')}</td><td>${esc(d.answer)}</td><td class="${d.ok?'pm-ok':'pm-no'}">${d.ok?'✓':'✗'}</td></tr>`).join('')}</table></div></div>`;
+}
+function pmResult(){
+  const r=PM.res, o=r.overall, bs=(b)=>(typeof b==='number')?fmBandStr(b):'–';
+  const lb=r.lb, rb=r.rb, wb=r.writing&&r.writing.band, sb_=r.speaking&&r.speaking.band;
+  const secs=[['Listening','🎧',lb,r.listening?`${r.listening.correct}/${r.listening.total} correct`:''],['Reading','📖',rb,r.reading?`${r.reading.correct}/${r.reading.total} correct`:''],['Writing','✍️',wb,''],['Speaking','🗣️',sb_,'']];
+  const scored=secs.filter(s=>typeof s[2]==='number').sort((a,b)=>a[2]-b[2]);
+  let h=`<div class="pm-wrap"><div class="pm-card" style="text-align:center"><div style="font-size:42px">${o&&o>=6.5?'🎉':'💪'}</div>
+   ${typeof o==='number'?`<div class="pm-bignum">Overall Band ${fmBandStr(o)}</div>`:`<div class="pm-bignum" style="font-size:28px">Result</div><p>Some sections could not be marked, so an overall band is not shown.</p>`}
+   <p style="color:#667;font-size:13px">An estimate based on this practice test. It is not an official IELTS score.</p></div>
+   <div class="pm-grid">${secs.map(s=>`<div class="pm-tile"><div style="font-size:22px">${s[1]}</div><div style="font-weight:700">${s[0]}</div><div class="b">${bs(s[2])}</div><div style="font-size:12px;color:#667">${esc(s[3])}</div></div>`).join('')}</div>`;
+  if(scored.length>1)h+=`<div class="pm-card" style="margin-top:14px"><h3>Where to focus next</h3><p>Your lowest section was <b>${scored[0][0]}</b> (Band ${bs(scored[0][2])}). Your counsellor can suggest lessons and practice for it.</p></div>`;
+  if(r.writing&&r.writing.tasks)r.writing.tasks.forEach(t=>{ h+=`<div style="margin-top:14px">${fmFeedbackCard('Writing Task '+t.no+' ('+t.words+' words)',t.g,t.ans,null)}</div>`; });
+  if(r.speaking)h+=`<div style="margin-top:14px">${fmFeedbackCard('Speaking',r.speaking.g,r.speaking.qa,null)}</div>`;
+  h+=pmReviewTable(r.listening,'Listening')+pmReviewTable(r.reading,'Reading');
+  h+=`<div style="text-align:center;margin:18px 0 30px"><button class="pm-btn" onclick="pmClose()">Close</button></div></div>`;
+  pmMain(h); pmFoot(''); const t=document.getElementById('pm-timer'); if(t)t.style.display='none';
 }
 
 // ── Full-length mocks (IELTS first) ─────────────────────────────────
