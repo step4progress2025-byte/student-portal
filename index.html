@@ -13631,7 +13631,7 @@ function renderMockAccessCard(testKey){
 // ═════════════ PREMIUM FULL MOCK: exam-day simulation (IELTS Academic Premium Mock 1) ═════════════
 // Content and answer key live in the database (0031_premium_mock.sql). The page only ever receives questions.
 // Audio and the Task 1 chart sit in the folder premium/ next to index.html.
-const PM_BASE='premium/', PM_ID='prem_ielts_1';
+const PM_BASE='', PM_ID='prem_ielts_1';   // audio and chart sit next to index.html (set 'premium/' if you keep them in a folder)
 let PM=null;
 const PM_STEPS=['intro','check','lins','L','rins','R','wins','W','sins','S','grading','result'];
 function pmCss(){
