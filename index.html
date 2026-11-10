@@ -52,6 +52,18 @@
   .brand-sub{font-size:13px;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
   .brand-signout{margin-left:auto;font-size:14px;color:var(--ink3);cursor:pointer;text-decoration:underline}
 
+  .nbell{margin-left:auto;position:relative;cursor:pointer;width:38px;height:38px;border-radius:99px;border:1px solid var(--line2);background:var(--paper);display:inline-flex;align-items:center;justify-content:center;color:var(--pine);font-size:19px}
+  .nbell:hover{background:var(--cream)}
+  .nbell b{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#D93025;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-style:normal}
+  .sn-row{display:flex;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .sn-row.unread{background:rgba(224,132,41,.07)}
+  .sn-dot{width:9px;height:9px;border-radius:99px;background:var(--saffron,#E08429);margin-top:7px;flex:none}
+  .sn-row:not(.unread) .sn-dot{background:transparent}
+  .sn-t{font-size:15px;font-weight:600;color:var(--ink)}
+  .sn-b{font-size:13.5px;color:var(--ink3);margin-top:2px}
+  .sn-w{font-size:12px;color:var(--ink3);margin-top:3px}
+  #snToast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--pine);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.25);display:none;max-width:90vw;cursor:pointer}
+
   .card{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--rl);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
   .ff{margin-bottom:14px}
   .ff label{display:block;font-size:13px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
@@ -470,7 +482,8 @@ html.native #install-banner,html.native .install-banner{display:none!important}
       <div class="brand-name">Step4Progress Ascend</div>
       <div class="brand-sub">Your Learning Journey</div>
     </div>
-    <span class="brand-signout" id="signOutBtn" style="display:none" onclick="signOut()">Sign out</span>
+    <span class="nbell" id="notifBell" style="display:none" onclick="openNotifications()" title="Notifications" aria-label="Notifications"><i class="ti ti-bell"></i><b id="notifBadge" style="display:none">0</b></span>
+    <span class="brand-signout" id="signOutBtn" style="display:none;margin-left:10px" onclick="signOut()">Sign out</span>
   </div>
 
   <!-- AUTH: branded hero + sign-in / OTP / set-password / name screens -->
@@ -703,6 +716,20 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
     <div id="statusContent"><div class="empty">Loading…</div></div>
   </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="screen" id="screen-notifications">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">
+        <h2 style="font-size:17px;margin:0;color:var(--pine)">Notifications</h2>
+        <span style="font-size:13px;color:var(--pine);text-decoration:underline;cursor:pointer" onclick="snMarkAll()">Mark all read</span>
+      </div>
+      <p style="font-size:14px;color:var(--ink3);margin-bottom:8px">Updates from your counsellor about your documents.</p>
+      <div id="snList"></div>
+    </div>
+  </div>
+  <div id="snToast" onclick="openNotifications()"></div>
 
   <!-- DOCUMENTS -->
   <div class="screen" id="screen-documents">
@@ -1529,6 +1556,7 @@ async function afterLogin(){
   renderWeeklyChallengeCard();
   renderCounsellorCard();
   try{ renderAcademyCard(); }catch(e){}
+  try{ snStart(); }catch(e){}
 }
 function renderDashStats(student){
   if(!student)return;
@@ -1907,6 +1935,7 @@ async function openProgressTimeline(){
   }).join('');
 }
 async function signOut(){
+  try{ snStop(); }catch(e){}
   if(!isPreviewMode) await sb.auth.signOut();
   currentSession=null;
   isPreviewMode=false;
@@ -2505,6 +2534,81 @@ async function uploadAndSync(docName,file){
   } else {
     alert(docName+' uploaded successfully. It will sync to your counsellor once your application is linked.');
   }
+}
+
+/* ============================================================
+   STUDENT NOTIFICATIONS (documents added / replaced / removed by the counsellor)
+   ============================================================ */
+let snItems=[],snChannel=null,snTimer=null,snToastTimer=null;
+function snUnread(){return snItems.filter(n=>!n.read_at).length;}
+function snBadge(){
+  const b=document.getElementById('notifBadge');if(!b)return;
+  const n=snUnread();b.textContent=n>99?'99+':n;b.style.display=n?'flex':'none';
+}
+function snWhen(iso){
+  const d=new Date(iso),diff=(Date.now()-d.getTime())/60000;
+  if(diff<1)return 'just now';if(diff<60)return Math.floor(diff)+' min ago';
+  if(diff<1440)return Math.floor(diff/60)+' h ago';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+function snToast(msg){
+  const t=document.getElementById('snToast');if(!t)return;
+  t.textContent='🔔 '+msg;t.style.display='block';
+  clearTimeout(snToastTimer);snToastTimer=setTimeout(()=>{t.style.display='none';},5000);
+}
+function snAdd(rows,announce){
+  const fresh=[];
+  rows.forEach(r=>{if(!snItems.some(x=>x.id===r.id)){snItems.push(r);fresh.push(r);}});
+  snItems.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  snItems=snItems.slice(0,60);
+  snBadge();
+  const scr=document.getElementById('screen-notifications');
+  if(scr&&scr.classList.contains('active'))snRender();
+  if(announce&&fresh.length)snToast(fresh.length===1?fresh[0].title:fresh.length+' new notifications');
+}
+async function snLoad(announce){
+  if(!currentSession||isPreviewMode)return;
+  try{
+    const{data,error}=await sb.from('student_notifications').select('*').eq('student_id',currentSession.user.id).order('created_at',{ascending:false}).limit(60);
+    if(error||!data)return;
+    snAdd(data,announce);
+  }catch(e){}
+}
+function snStart(){
+  if(!currentSession||isPreviewMode)return;
+  const bell=document.getElementById('notifBell');if(bell)bell.style.display='inline-flex';
+  snStop(true);
+  snItems=[];snLoad(false);
+  try{
+    snChannel=sb.channel('sn-'+currentSession.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'student_notifications',filter:'student_id=eq.'+currentSession.user.id},p=>{if(p.new)snAdd([p.new],true);}).subscribe();
+  }catch(e){}
+  snTimer=setInterval(()=>snLoad(true),60000);   // fallback if live updates are unavailable
+}
+function snStop(keepBell){
+  try{if(snChannel){sb.removeChannel(snChannel);snChannel=null;}}catch(e){}
+  if(snTimer){clearInterval(snTimer);snTimer=null;}
+  if(!keepBell){snItems=[];snBadge();const bell=document.getElementById('notifBell');if(bell)bell.style.display='none';}
+}
+function openNotifications(){
+  if(!requireRealLogin())return;
+  showScreen('screen-notifications');
+  document.getElementById('snToast').style.display='none';
+  snRender();snLoad(false);
+}
+function snRender(){
+  const el=document.getElementById('snList');if(!el)return;
+  if(!snItems.length){el.innerHTML='<div class="empty">No notifications yet. When your counsellor adds, updates or removes a document, you will see it here.</div>';return;}
+  el.innerHTML=snItems.map(n=>`<div class="sn-row ${n.read_at?'':'unread'}" onclick="snOpen(${n.id})"><div class="sn-dot"></div><div style="flex:1;min-width:0"><div class="sn-t">${esc(n.title)}</div>${n.body?`<div class="sn-b">${esc(n.body)}</div>`:''}<div class="sn-w">${snWhen(n.created_at)}</div></div></div>`).join('');
+}
+async function snOpen(id){
+  const n=snItems.find(x=>x.id===id);
+  if(n&&!n.read_at){n.read_at=new Date().toISOString();snBadge();snRender();try{await sb.from('student_notifications').update({read_at:n.read_at}).eq('id',id);}catch(e){}}
+  openDocuments();
+}
+async function snMarkAll(){
+  const ids=snItems.filter(n=>!n.read_at).map(n=>n.id);if(!ids.length)return;
+  const now=new Date().toISOString();snItems.forEach(n=>{if(!n.read_at)n.read_at=now;});snBadge();snRender();
+  try{await sb.from('student_notifications').update({read_at:now}).in('id',ids);}catch(e){}
 }
 
 /* ============================================================
