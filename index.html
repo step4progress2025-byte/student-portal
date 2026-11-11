@@ -673,6 +673,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
       <h3>My application</h3>
       <div class="nav-grid">
         <div class="nav-tile" onclick="openStatus()"><div class="ico"><i class="ti ti-map-pin"></i></div><div class="label">My Status<span class="lsub">Where your application stands</span></div><i class="ti ti-chevron-right chev"></i></div>
+        <div class="nav-tile" onclick="openApplications()"><div class="ico"><i class="ti ti-school"></i></div><div class="label">My Applications<span class="lsub">Universities, status &amp; offer letters</span></div><i class="ti ti-chevron-right chev"></i></div>
         <div class="nav-tile" onclick="openDocuments()"><div class="ico"><i class="ti ti-files"></i></div><div class="label">My Documents<span class="lsub">Upload and track your checklist</span></div><i class="ti ti-chevron-right chev"></i></div>
         <div class="nav-tile" onclick="openVisaPrep()"><div class="ico"><i class="ti ti-plane"></i></div><div class="label">Visa Assistance<span class="lsub">Guidance for your visa</span></div><i class="ti ti-chevron-right chev"></i></div>
         <div class="nav-tile" onclick="openProgressTimeline()"><div class="ico"><i class="ti ti-route"></i></div><div class="label">My Journey<span class="lsub">Your progress, step by step</span></div><i class="ti ti-chevron-right chev"></i></div>
@@ -717,6 +718,12 @@ html.native #install-banner,html.native .install-banner{display:none!important}
   <div class="screen" id="screen-status">
     <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
     <div id="statusContent"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div class="screen" id="screen-applications">
+    <span class="back-link" onclick="showScreen('screen-dashboard')">← Back</span>
+    <div id="applicationsContent"><div class="empty">Loading…</div></div>
   </div>
 
   <!-- NOTIFICATIONS -->
@@ -1291,6 +1298,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const PRIVACY_URL = 'https://step4progress2025-byte.github.io/student-portal/privacy.html';
 const TERMS_URL = 'https://step4progress2025-byte.github.io/student-portal/terms.html';
 const GET_STATUS_URL = SUPABASE_URL + "/functions/v1/get-my-status";
+const GET_APPS_URL = SUPABASE_URL + "/functions/v1/get-my-applications";
 const SYNC_DOC_URL = SUPABASE_URL + "/functions/v1/sync-my-document";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2013,6 +2021,41 @@ async function renderCounsellorCard(){
     // that should show an error state on the main dashboard.
   }
 }
+async function openApplications(){
+  if(!requireRealLogin())return;
+  showScreen('screen-applications');
+  const el=document.getElementById('applicationsContent');
+  el.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const res=await fetch(GET_APPS_URL,{headers:{Authorization:'Bearer '+currentSession.access_token}});
+    const d=await res.json();
+    if(!res.ok||!d.found){
+      el.innerHTML='<div class="card"><p style="font-size:15.5px;color:var(--ink3);line-height:1.6">Your university applications will appear here once your counsellor adds them.</p></div>';
+      return;
+    }
+    const fmt=t=>{try{return new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}};
+    const apps=d.applications||[], offers=d.offers||[];
+    let h='<div class="card"><h2 style="font-size:17px;margin:0 0 4px;color:var(--pine)">My Applications</h2><p style="font-size:14px;color:var(--ink3);margin:0">Updated automatically by your counsellor.</p></div>';
+    if(!apps.length)h+='<div class="card"><p style="font-size:15px;color:var(--ink3)">No universities added yet.</p></div>';
+    h+=apps.map(a=>{
+      const offer=offers.filter(o=>(o.university||'').trim().toLowerCase()===(a.university||'').trim().toLowerCase());
+      const hist=(a.history||[]).slice().reverse().map(x=>`<div style="font-size:13px;color:var(--ink3);padding:2px 0">${esc(x.label||x.status||'')} · ${fmt(x.at)}</div>`).join('');
+      return `<div class="card"><div style="font-weight:600;font-size:16px">${esc(a.university||'University')}</div>
+        ${a.program?`<div style="font-size:14px;color:var(--ink3);margin-top:2px">${esc(a.program)}${a.course_year?' · '+esc(a.course_year):''}</div>`:''}
+        <div style="margin:10px 0"><span class="status-pill">${esc(a.status_label||a.status||'In progress')}</span></div>
+        ${a.offer_expiry_date?`<div style="font-size:13px;color:var(--ink3);margin-bottom:6px">Offer valid until ${fmt(a.offer_expiry_date)}</div>`:''}
+        ${hist?`<div style="margin-top:6px"><div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px">Status history</div>${hist}</div>`:''}
+        ${offer.map(o=>`<a href="${esc(o.link||'#')}" target="_blank" rel="noopener" class="btn" style="display:inline-block;margin-top:10px;text-decoration:none">View offer letter</a>`).join(' ')}
+      </div>`;
+    }).join('');
+    const matched=new Set(apps.map(a=>(a.university||'').trim().toLowerCase()));
+    const other=offers.filter(o=>!matched.has((o.university||'').trim().toLowerCase()));
+    if(other.length)h+='<div class="card"><div style="font-weight:600;margin-bottom:6px">Offer letters</div>'+other.map(o=>`<div style="margin:6px 0"><a href="${esc(o.link||'#')}" target="_blank" rel="noopener">${esc(o.university||o.filename||'Offer letter')}</a></div>`).join('')+'</div>';
+    el.innerHTML=h;
+  }catch(err){
+    el.innerHTML='<div class="empty">Could not load your applications right now. Please try again shortly.</div>';
+  }
+}
 async function openStatus(){
   if(!requireRealLogin())return;
   showScreen('screen-status');
@@ -2605,7 +2648,7 @@ function snRender(){
 async function snOpen(id){
   const n=snItems.find(x=>x.id===id);
   if(n&&!n.read_at){n.read_at=new Date().toISOString();snBadge();snRender();try{await sb.from('student_notifications').update({read_at:n.read_at}).eq('id',id);}catch(e){}}
-  openDocuments();
+  if(n&&(n.kind==='application'||n.kind==='offer'))openApplications();else openDocuments();
 }
 async function snMarkAll(){
   const ids=snItems.filter(n=>!n.read_at).map(n=>n.id);if(!ids.length)return;
