@@ -639,6 +639,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     </div>
 
     <div class="dash-top">
+      <div id="dash-mock-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--gold,#C9631A)"></div>
       <div id="dash-status-card" class="dsc" style="display:none" onclick="openStatus()">
         <div class="dt-eyebrow">My application</div>
         <div class="dsc-title" id="dsc-title">—</div>
@@ -1565,6 +1566,7 @@ async function afterLogin(){
   renderTodayCard(student);
   renderWeeklyChallengeCard();
   renderCounsellorCard();
+  try{ renderDashMocks(); }catch(e){}
   try{ renderAcademyCard(); }catch(e){}
   try{ snStart(); }catch(e){}
 }
@@ -13666,6 +13668,7 @@ async function webCheckout(code,plan,done){
           const d=await r.json().catch(()=>({}));
           if(!r.ok||!d.ok)throw new Error(d.error||'confirm failed');
           try{await loadMockAccess(true);}catch(e){}
+          try{renderDashMocks();}catch(e){}
           done(`<div class="tp-info-card"><h4>✅ Payment received</h4><p>Thank you! <b>${esc((plan&&plan.name)||'Your plan')}</b> is now active on your account.</p></div>`);
         }catch(e){
           done(`<div class="tp-info-card"><h4>We received your payment, but your plan isn't showing yet</h4><p>Don't pay again. It usually appears within a minute — reopen this page. If it doesn't, contact your Step4Progress counsellor with this payment id: <b>${esc(resp.razorpay_payment_id||'')}</b></p></div>`);
@@ -13741,6 +13744,40 @@ async function choosePlan(code){
     return r;
   };
 })();
+// ── Welcome-screen "My Mock Tests" card: plan, credits, details and direct buttons ──
+async function renderDashMocks(){
+  const el=document.getElementById('dash-mock-card');
+  if(!el||isPreviewMode||!currentSession)return;
+  let a=null,st=null;
+  try{ a=await loadMockAccess(true); }catch(e){}
+  try{ const r=await sb.rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===PM_ID); }catch(e){}
+  if(!a&&!st){el.style.display='none';return;}
+  const btn=(label,fn,solid)=>`<button class="${solid===false?'btn-outline ':''}btn" style="width:auto;padding:8px 16px;font-size:13px;margin:6px 8px 0 0" onclick="${fn}">${label}</button>`;
+  const rows=[];
+  // IELTS full mock (free / unlocked / credits)
+  if(a){
+    let line='',b='';
+    if(a.admin){ line='Administrator account: unlimited mocks.'; b=btn((a.take&&a.take.status==='open')?'Resume full mock':'Start full mock',"fmStart('IELTS')"); }
+    else if(a.take&&a.take.status==='open'){ line=a.take.unlocked_all?'Your full mock is in progress.':'Your free mock is in progress.'; b=btn('Resume mock',"fmStart('IELTS')"); }
+    else if(a.take&&a.take.status==='locked'){ const ok=(a.unlock_credits>0||a.credits>0); line='Free Listening done. '+(ok?'Your payment is received: unlock the rest now.':'Unlock Reading, Writing and Speaking for ₹99.'); b=btn(ok?'Unlock the rest now':'Unlock the rest · ₹99',"fmUnlockFree('IELTS')"); }
+    else if(!a.free_used){ line='Your first mock is free: start with Listening.'; b=btn('Start free mock',"fmStart('IELTS')"); }
+    else if(a.credits>0){ line=`You have <b>${a.credits}</b> full mock${a.credits===1?'':'s'} left${a.next_expiry?' · valid till '+fmtDay(a.next_expiry):''}.`; b=btn('Start a full mock',"fmStart('IELTS')"); }
+    else { line='No mocks left. Pick a plan to take your next full mock.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
+    rows.push(`<div style="margin-top:10px"><div style="font-weight:600;font-size:14px">🏁 IELTS Academic — Full-Length Mock</div><div style="font-size:13.5px;color:var(--ink3);margin-top:2px">${line}</div>${b}</div>`);
+    if(a.unlock_credits>0&&!(a.take&&a.take.status==='locked'))rows.push(`<div style="font-size:12.5px;color:var(--ink3);margin-top:8px">✅ Your ₹99 payment is saved: it unlocks Reading, Writing and Speaking of your free mock${a.next_expiry?' (valid till '+fmtDay(a.next_expiry)+')':''}.</div>`);
+  }
+  // Premium mock
+  if(st){
+    let line,b;
+    if(st.taken){ line='You have taken this mock. Your result is saved.'; b=btn('View my result','pmViewSaved()'); }
+    else if(st.in_progress){ line='In progress: you can resume it.'; b=btn('Resume premium mock','pmStart()'); }
+    else if(st.admin||st.credits>0){ line=st.admin?'Administrator: start any time.':`Uses 1 of your ${st.credits} mock credit${st.credits===1?'':'s'}. About 2 h 30 min in one sitting.`; b=btn('Start premium mock','pmIntroConfirm()'); }
+    else { line='Needs a mock plan (3 mocks or more). The ₹99 plan covers the free mock only.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
+    rows.push(`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><div style="font-weight:600;font-size:14px">⭐ ${esc(st.title||'IELTS Academic Premium Mock 1')}</div><div style="font-size:13.5px;color:var(--ink3);margin-top:2px">${line}</div>${b}</div>`);
+  }
+  el.innerHTML=`<div class="dt-eyebrow">My mock tests</div>${rows.join('')}<div style="margin-top:8px"><a href="javascript:openPlansDialog()" style="font-size:13px;color:var(--pine3)">See plans and prices</a></div>`;
+  el.style.display='block';
+}
 function renderMockAccessCard(testKey){
   const def=FULL_MOCKS[testKey]; if(!def)return '';
   const a=MOCK_ACCESS;
