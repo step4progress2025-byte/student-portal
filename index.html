@@ -507,16 +507,16 @@ html.native #install-banner,html.native .install-banner{display:none!important}
   <div class="screen active" id="screen-phone">
     <div class="auth-card">
       <h1 class="auth-h">Welcome</h1>
-      <p class="auth-sub">Sign in to continue. New here? Enter your mobile number and we'll set up your account.</p>
-      <div class="seg"><button type="button" id="seg-otp" class="on" onclick="setAuthMode('otp')">Sign in with OTP</button><button type="button" id="seg-pw" onclick="setAuthMode('password')">Use password</button><button type="button" id="seg-email" onclick="setAuthMode('email')">Email</button></div>
+      <p class="auth-sub" id="authSub">New here, or forgot your password? Enter your email and mobile number. We email you a code, then you set a password.</p>
+      <div class="seg"><button type="button" id="seg-otp" class="on" onclick="setAuthMode('otp')">Get a code</button><button type="button" id="seg-pw" onclick="setAuthMode('password')">Use password</button></div>
       <form id="phoneForm" onsubmit="return submitPhoneForm(event)" autocomplete="on" novalidate>
-        <div class="ff" id="emailField" style="display:none">
+        <div class="ff" id="emailField">
           <label for="emailLoginInput">Email address</label>
-          <input type="email" id="emailLoginInput" autocomplete="email" placeholder="you@example.com" inputmode="email">
-          <div style="font-size:12px;color:var(--ink3);margin-top:6px">We'll email you a code. Works from any country.</div>
+          <input type="email" id="emailLoginInput" name="email" autocomplete="username email" placeholder="you@example.com" inputmode="email">
+          <div style="font-size:12px;color:var(--ink3);margin-top:6px" id="emailHint">The code is sent to this email only. It is free.</div>
         </div>
         <div class="ff" id="phoneField">
-          <label for="phoneInput">Mobile number</label>
+          <label for="phoneInput" id="phoneLabel">Mobile number</label>
           <div class="phone-row">
             <select id="countryCode" aria-label="Country code">
               <option value="+91">🇮🇳 +91</option>
@@ -524,7 +524,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
               <option value="+92">🇵🇰 +92</option>
               <option value="+880">🇧🇩 +880</option>
             </select>
-            <input type="tel" id="phoneInput" name="username" autocomplete="username" placeholder="98765 43210" inputmode="numeric">
+            <input type="tel" id="phoneInput" name="tel" autocomplete="tel-national" placeholder="98765 43210" inputmode="numeric">
           </div>
         </div>
         <div class="ff" id="pwField" style="display:none">
@@ -532,10 +532,10 @@ html.native #install-banner,html.native .install-banner{display:none!important}
           <div class="pw-wrap"><input type="password" id="pwInput" name="password" autocomplete="current-password" placeholder="Your password"><button type="button" class="pw-eye" onclick="togglePw('pwInput',this)" aria-label="Show password"><i class="ti ti-eye"></i></button></div>
         </div>
         <label class="check"><input type="checkbox" id="keepSignedIn" checked> Keep me signed in on this device</label>
-        <button class="btn" id="sendOtpBtn" type="submit">Send OTP</button>
+        <button class="btn" id="sendOtpBtn" type="submit">Email me a code</button>
         <div class="err" id="phoneErr" style="display:none"></div>
       </form>
-      <div class="auth-alt" id="pwAlt" style="display:none">Forgot your password, or haven't set one yet? <span onclick="setAuthMode('otp')">Sign in with OTP</span></div>
+      <div class="auth-alt" id="pwAlt" style="display:none">Forgot your password, or haven't set one yet? <span onclick="setAuthMode('otp')">Get a code by email</span></div>
       <div class="hint" style="margin-top:14px"><span onclick="browsePreview()" class="auth-link">Just browse Test Prep content for now →</span></div>
       <div class="auth-trust"><i class="ti ti-shield-check"></i> Your details are kept private.</div>
     </div>
@@ -561,7 +561,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
   <div class="screen" id="screen-set-password">
     <div class="auth-card">
       <h1 class="auth-h">Create a password</h1>
-      <p class="auth-sub">Next time you can sign in with your mobile number and password, no code needed. <span id="spPhoneLabel" style="font-weight:700;color:var(--ink)"></span></p>
+      <p class="auth-sub">Next time you can sign in with your email and password, no code needed. <span id="spPhoneLabel" style="font-weight:700;color:var(--ink)"></span></p>
       <form id="pwSetForm" onsubmit="return savePasswordForm(event)" autocomplete="on" novalidate>
         <input type="text" id="spUsername" name="username" autocomplete="username" readonly tabindex="-1" aria-hidden="true" style="position:absolute;opacity:0;height:0;width:0;pointer-events:none">
         <div class="ff">
@@ -1313,6 +1313,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const DEFAULT_DOCS = ['Passport Copy','Academic Transcripts','English Test Scores','MOI (Medium of Instruction)','Bank Statements','SOP Draft','References / LOR','Photo'];
 
 let currentSession=null;
+let pendingContactPhone=null; // mobile number given at sign-up (contact only; the code goes to email)
 let pendingEmail=null; // set while an EMAIL code is pending (phone flow keeps pendingPhone)
 let pendingPhone=null; // full E.164 number, set after sendOtp, used by verifyOtp
 let isPreviewMode=false; // true when browsing without a real login — read-only, no saving
@@ -1368,20 +1369,21 @@ const CUSTOM_OTP_BASE_URL = 'https://jfrtleleblsphyztyhaf.supabase.co/functions/
 /* ---------- Password sign-in, password creation, remember-this-device ---------- */
 let authMode='otp';
 function setAuthMode(mode){
+  if(mode!=='password')mode='otp';
   authMode=mode;
   document.getElementById('seg-otp').classList.toggle('on',mode==='otp');
   document.getElementById('seg-pw').classList.toggle('on',mode==='password');
-  document.getElementById('seg-email').classList.toggle('on',mode==='email');
   document.getElementById('pwField').style.display=mode==='password'?'block':'none';
   document.getElementById('pwAlt').style.display=mode==='password'?'block':'none';
-  document.getElementById('emailField').style.display=mode==='email'?'block':'none';
-  document.getElementById('phoneField').style.display=mode==='email'?'none':'block';
-  document.getElementById('sendOtpBtn').textContent=mode==='password'?'Sign in':(mode==='email'?'Email me a code':'Send OTP');
+  document.getElementById('emailField').style.display='block';
+  document.getElementById('phoneField').style.display=mode==='password'?'none':'block';
+  document.getElementById('sendOtpBtn').textContent=mode==='password'?'Sign in':'Email me a code';
+  document.getElementById('emailHint').textContent=mode==='password'?'The email you signed up with.':'The code is sent to this email only. It is free.';
   document.getElementById('phoneErr').style.display='none';
 }
 function submitPhoneForm(ev){
   if(ev&&ev.preventDefault)ev.preventDefault();
-  if(authMode==='password')pwSignIn(); else if(authMode==='email')sendEmailOtp(); else sendOtp();
+  if(authMode==='password')pwSignIn(); else sendEmailOtp();
   return false;
 }
 function togglePw(id,btn){
@@ -1408,31 +1410,29 @@ async function offerSavePassword(phone,password){
   }catch(e){}
 }
 async function pwSignIn(){
-  const code=document.getElementById('countryCode').value;
-  const raw=document.getElementById('phoneInput').value.trim().replace(/\D/g,'');
+  const email=document.getElementById('emailLoginInput').value.trim().toLowerCase();
   const pw=document.getElementById('pwInput').value;
   const errEl=document.getElementById('phoneErr');
   errEl.style.display='none';
-  if(raw.length<7){errEl.textContent='Please enter a valid mobile number.';errEl.style.display='block';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){errEl.textContent='Please enter the email you signed up with.';errEl.style.display='block';return;}
   if(!pw){errEl.textContent='Please enter your password.';errEl.style.display='block';return;}
   const btn=document.getElementById('sendOtpBtn');
   btn.disabled=true;btn.textContent='Signing in…';
-  const phone=code+raw;
-  const{data,error}=await sb.auth.signInWithPassword({phone,password:pw});
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pw});
   btn.disabled=false;btn.textContent='Sign in';
   if(error||!data||!data.session){
-    errEl.textContent='That number and password don\'t match. If you signed in with an OTP since you last set your password, use "Sign in with OTP" and create it again.';
+    errEl.textContent='That email and password don\'t match. Tap "Get a code" to sign in with a code and set a new password.';
     errEl.style.display='block';return;
   }
-  pendingPhone=phone;
+  pendingEmail=email;
   applyKeepSignedIn();
-  offerSavePassword(phone,pw);
+  offerSavePassword(email,pw);
   currentSession=data.session;
   await afterLogin();
 }
 function openSetPassword(){
-  document.getElementById('spUsername').value=pendingPhone||'';
-  document.getElementById('spPhoneLabel').textContent=pendingPhone?('('+pendingPhone+')'):'';
+  document.getElementById('spUsername').value=pendingEmail||pendingPhone||'';
+  document.getElementById('spPhoneLabel').textContent=(pendingEmail||pendingPhone)?('('+(pendingEmail||pendingPhone)+')'):'';
   document.getElementById('spPw1').value='';document.getElementById('spPw2').value='';
   document.getElementById('spErr').style.display='none';
   showScreen('screen-set-password');
@@ -1447,7 +1447,7 @@ async function savePassword(){
   const{error}=await sb.auth.updateUser({password:p1});
   btn.disabled=false;btn.textContent='Save password & continue';
   if(error){errEl.textContent=error.message||'Could not save the password. Please try again.';errEl.style.display='block';return;}
-  offerSavePassword(pendingPhone,p1);
+  offerSavePassword(pendingEmail||pendingPhone,p1);
   await afterLogin();
 }
 async function skipPassword(){await afterLogin();}
@@ -1459,6 +1459,9 @@ async function sendEmailOtp(isResend){
   const errEl=document.getElementById('phoneErr');errEl.style.display='none';
   const email=(pendingEmail&&isResend===true?pendingEmail:document.getElementById('emailLoginInput').value).trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return;}
+  const rawPh=document.getElementById('phoneInput').value.trim().replace(/\D/g,'');
+  if(isResend!==true&&rawPh.length<7){errEl.textContent='Please also enter your mobile number.';errEl.style.display='block';return;}
+  if(isResend!==true)pendingContactPhone=document.getElementById('countryCode').value+rawPh;
   const btn=document.getElementById('sendOtpBtn');btn.disabled=true;btn.textContent='Sending…';
   const{error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
   btn.disabled=false;btn.textContent='Email me a code';
@@ -1478,8 +1481,9 @@ async function verifyEmailOtp(token,errEl){
   if(error||!data||!data.session){errEl.textContent='That code is wrong or has expired. Please request a new one.';errEl.style.display='block';return;}
   currentSession=data.session;
   applyKeepSignedIn();
-  // Email accounts have no phone password to set — go straight in.
-  await afterLogin();
+  // keep the mobile number with the account (contact only), then let the student set a password
+  try{ if(pendingContactPhone)await sb.auth.updateUser({data:{contact_phone:pendingContactPhone}}); }catch(e){}
+  openSetPassword();
 }
 
 async function sendOtp(){
@@ -1819,7 +1823,7 @@ async function saveName(){
   // if that assumption turns out to be wrong.
   const{error}=await sb.from('students').upsert({
     id:currentSession.user.id,
-    phone:currentSession.user.phone||null,
+    phone:currentSession.user.phone||(currentSession.user.user_metadata&&currentSession.user.user_metadata.contact_phone)||pendingContactPhone||null,
     full_name:name,
     email:emailVal,
     referral_code:generateReferralCode(),
@@ -14388,6 +14392,8 @@ async function fmStart(testKey,setId){
   const saved=fmLoadSaved(take.id);
   FM={testKey,def,mode:'full',take,order,pos:0,results:saved,cur:null,curBySkill:{}};
   while(FM.pos<order.length&&FM.results[order[FM.pos]])FM.pos++;
+  // started from the home dashboard (or anywhere else): open the test screen first, otherwise the mock runs hidden behind the home page
+  try{ currentTpTest=testKey; showScreen('screen-testprep'); document.getElementById('tp-select-view').style.display='none'; document.getElementById('tp-detail-view').style.display='block'; document.getElementById('tp-detail-title').textContent=(TEST_DATA[testKey]||{}).name||testKey; }catch(e){}
   fmShowShell();
   if(FM.pos>=order.length){ fmSummary(); } else { fmRunSection(); }
 }
