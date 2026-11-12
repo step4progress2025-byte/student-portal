@@ -17114,10 +17114,10 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   const sbn=()=>sb;
   let D=null; // state
   const rep=(n,o)=>Array.from({length:n},()=>Object.assign({},o));
-  const SEQ=[{t:'intro'},{t:'check'}]
+  const SEQ=[{t:'intro'},{t:'check'},{t:'warm'}]
     .concat(rep(6,{t:'rs'}),rep(4,{t:'fib'}),rep(5,{t:'lt'}),rep(2,{t:'ir'}))
     .concat([{t:'wp',i:0},{t:'wp',i:1},{t:'rtw',i:0},{t:'ra',i:0},{t:'ra',i:1},{t:'sp',i:0},{t:'rts',i:0},{t:'lts',i:0},{t:'wsample'},{t:'ssample'},{t:'grading'},{t:'result'}]);
-  const PARTS={rs:'Part 1 of 6 · Read and Select',fib:'Part 1 of 6 · Read and Complete',lt:'Part 2 of 6 · Listen and Type',ir:'Part 3 of 6 · Interactive Reading',wp:'Part 4 of 6 · Write About the Photo',rtw:'Part 4 of 6 · Read, Then Write',ra:'Part 5 of 6 · Read Aloud',sp:'Part 5 of 6 · Speak About the Photo',rts:'Part 5 of 6 · Read, Then Speak',lts:'Part 5 of 6 · Listen, Then Speak',wsample:'Part 6 of 6 · Writing Sample (not scored)',ssample:'Part 6 of 6 · Speaking Sample (not scored)'};
+  const PARTS={warm:'Practice recording (not scored)',rs:'Part 1 of 6 · Read and Select',fib:'Part 1 of 6 · Read and Complete',lt:'Part 2 of 6 · Listen and Type',ir:'Part 3 of 6 · Interactive Reading',wp:'Part 4 of 6 · Write About the Photo',rtw:'Part 4 of 6 · Read, Then Write',ra:'Part 5 of 6 · Read Aloud',sp:'Part 5 of 6 · Speak About the Photo',rts:'Part 5 of 6 · Read, Then Speak',lts:'Part 5 of 6 · Listen, Then Speak',wsample:'Part 6 of 6 · Writing Sample (not scored)',ssample:'Part 6 of 6 · Speaking Sample (not scored)'};
   const SECS={rs:60,fib:180,lt:75,ir:210,wp:180,rtw:300,ra:40,sp:110,rts:120,lts:150,wsample:300,ssample:180};
   const css=`#det-root{position:fixed;inset:0;z-index:10060;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
 #det-root *{box-sizing:border-box}
@@ -17151,7 +17151,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
 .dt-mic{display:inline-block;margin:6px 0}`;
   function injectCss(){ if(document.getElementById('det-css'))return; const s=document.createElement('style'); s.id='det-css'; s.textContent=css; document.head.appendChild(s); }
   const key=()=>'det_state_'+D.take;
-  const save=()=>{ if(!D||D.pos>=SEQ.length-2&&D.view)return; try{ localStorage.setItem(key(),JSON.stringify({pos:D.pos,tier:D.tier,used:D.used,cur:D.cur,prod:D.prod,deadline:D.deadline})); }catch(e){} };
+  const save=()=>{ if(!D||D.pos>=SEQ.length-2&&D.view)return; try{ localStorage.setItem(key(),JSON.stringify({pos:D.pos,tier:D.tier,used:D.used,cur:D.cur,prod:D.prod,deadline:D.deadline,rm:D.rm})); }catch(e){} };
   const load=id=>{ try{ return JSON.parse(localStorage.getItem('det_state_'+id)||'null'); }catch(e){ return null; } };
   const root=()=>document.getElementById('det-root');
   const main=h=>{ const m=document.getElementById('det-main'); if(m){ m.innerHTML=h; m.scrollTop=0; } };
@@ -17198,6 +17198,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     D={take:data.take_id,c:data.content,res:data.results||{},pos:0,tier:{rs:1,fib:1,lt:1,ir:1},used:{},cur:{},prod:{},deadline:0,tick:null,plays:0,rec:null,sel:{}};
     if(sv&&data.resumed){ D.pos=sv.pos||0; D.tier=sv.tier||D.tier; D.used=sv.used||{}; D.cur=sv.cur||{}; D.prod=sv.prod||{}; D.deadline=sv.deadline||0; }
     if(sv&&data.resumed&&sv.deadline&&sv.deadline>Date.now())D.pendingDeadline=sv.deadline;
+    if(sv&&data.resumed&&sv.rm&&sv.rm!=='none'&&D.pos>2){ try{ await openStream(sv.rm); }catch(e){ D.rm='none'; } }
     open();
   };
   function open(){
@@ -17212,7 +17213,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   function beforeUnload(e){ if(D&&D.pos<SEQ.length-1&&!D.view){ e.preventDefault(); e.returnValue=''; } }
   window.detExit=function(){
     if(D&&!D.view&&D.pos<SEQ.length-2&&!confirm('Leave the simulation? You can resume within 5 hours from the Mocks tab. The timer keeps running.'))return;
-    stopMedia(); if(D&&D.tick)clearInterval(D.tick); window.removeEventListener('beforeunload',beforeUnload);
+    stopMedia(); closeStream(); if(D&&D.tick)clearInterval(D.tick); window.removeEventListener('beforeunload',beforeUnload);
     const o=root(); if(o)o.remove(); D=null;
     try{ loadMockAccess(true); renderDashMocks(); }catch(e){}
     try{ if(document.getElementById('det-card'))detHydrate(); }catch(e){}
@@ -17239,14 +17240,16 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const step=SEQ[D.pos]; const pl=document.getElementById('det-part'); if(pl)pl.textContent=PARTS[step.t]||({intro:'Instructions',check:'Device check',grading:'Marking',result:'Your result'})[step.t]||'';
     const pr=document.getElementById('det-prog'); if(pr)pr.style.width=Math.round(D.pos/(SEQ.length-2)*100)+'%';
     D.plays=0; D.sel={}; hideTimer();
-    const f={intro,check,rs,fib,lt,ir,wp:photo,sp:photo,rtw,ra,rts,lts,wsample:sample,ssample:sample,grading,result}[step.t];
+    const f={intro,check,warm,rs,fib,lt,ir,wp:photo,sp:photo,rtw,ra,rts,lts,wsample:sample,ssample:sample,grading,result}[step.t];
     f(step);
+    if(D.rm&&D.rm!=='none'&&D.stream&&!D.view&&SPEAK_TASKS.includes(tkey(step)))startSeg(tkey(step));
     if(SECS[step.t]&&!(D.view)){ const resume=D.resumeDeadline; if(D.pendingDeadline){ D.deadline=D.pendingDeadline; D.pendingDeadline=0; setTimer((D.deadline-Date.now())/1000); } else setTimer(SECS[step.t]); }
     save();
   }
   async function next(timeUp){
     if(!D)return; const step=SEQ[D.pos];
     try{ await commit(step,timeUp); }catch(e){ console.warn('commit',e); }
+    try{ if(D.seg)await finishSeg(step); }catch(e){ console.warn('rec',e); }
     D.pos++; D.deadline=0; save(); render();
   }
   window.detNext=()=>next(false);
@@ -17273,7 +17276,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       <p style="font-size:13px;color:#667">The score is an estimate on the 10 to 160 scale and not an official result. The real test is adaptive and uses a larger question bank.</p></div></div>`);
     foot('<button class="dt-btn" onclick="detNext()">I understand, continue</button>');
   }
-  function check(){
+  function checkOld(){
     main(`<div class="dt-wrap"><div class="dt-card"><h3>Device check</h3><p style="line-height:1.7">Put on headphones and sit in a quiet room. You will need sound for the listening tasks and a microphone for the speaking tasks (if your device cannot record, you can type your speaking answers).</p>
       <p><button class="dt-btn alt" onclick="detDeviceCheck()">Run device check</button></p><p style="font-size:13px;color:#667">You can skip this and continue.</p></div></div>`);
     foot('<button class="dt-btn" onclick="detNext()">Start the test</button>');
@@ -17377,6 +17380,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   }
   async function grading(){
     main(`<div class="dt-wrap"><div class="dt-card" style="text-align:center"><div style="font-size:40px">📝</div><h3>Marking your test</h3><p style="color:#667">Your writing and speaking are being assessed. This can take up to a minute. Please keep this page open.</p></div></div>`); foot('');
+    closeStream();
     const P=D.prod, c=D.c;
     const phs=i=>c.photos[i];
     const W=[['wp0','Write about the photo 1','Describe this picture in writing: '+phs(0).caption],['wp1','Write about the photo 2','Describe this picture in writing: '+phs(1).caption],['rtw0','Read, then write',c.rtw[0].p]];
@@ -17393,6 +17397,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       await sbn().rpc('save_premium_part',{p_take:D.take,p_key:'speaking',p_value:{score:ssc,tasks:D.tasks.speaking.map(t=>({title:t.title,answer:t.answer,score:t.res.score,g:t.res.g})),ra:D.tasks.ra}});
       const f=await sbn().rpc('finish_det',{p_take:D.take}); D.final=f.error?null:f.data;
     }catch(e){ D.final=null; }
+    try{ await Promise.race([Promise.allSettled(D.uploads||[]),new Promise(r=>setTimeout(r,25000))]); await loadRecs(); }catch(e){}
     D.pos=SEQ.length-1; D.deadline=0; D.finished=true; try{ localStorage.removeItem(key()); }catch(e){} render();
   }
   // ---------- result ----------
@@ -17415,6 +17420,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(D.tier)h+=lv;
     if(D.tasks){ h+=D.tasks.writing.map(g_card).join('')+D.tasks.speaking.map(g_card).join('');
       h+=`<div class="dt-card"><h3 style="font-size:16px">Read aloud</h3>${D.tasks.ra.map(x=>`<p style="font-size:13.5px"><b>Target:</b> ${E(x.target)}<br><b>You said:</b> ${E(x.said||'(blank)')}<br>Match ${Math.round(x.sim*100)}% · ${x.score}/160</p>`).join('')}</div>`; }
+    h+=deliveryCard();
     h+=`<p style="font-size:12.5px;color:#667">Scores are estimates. Reading and listening are marked by a fixed answer key; writing and speaking are marked by AI and speaking is judged from the text of what you said, so pronunciation is not measured.</p></div>`;
     main(h); foot(`<button class="dt-btn" onclick="detPdf()">⬇ Download result PDF</button><button class="dt-btn alt" onclick="detExit()">Close</button>`);
     const pr=document.getElementById('det-prog'); if(pr)pr.style.width='100%';
@@ -17428,6 +17434,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(low)rp.blocks.push({h:'Where to focus next',lines:['Your lowest skill in this simulation was '+low[0]+' ('+low[1]+' / 160). Practise it in short daily sessions, then take another full practice to measure the change.']});
     if(D.tasks){ D.tasks.writing.concat(D.tasks.speaking).forEach(t=>rp.blocks.push({h:t.title,lines:g(t)})); }
     rp.note='Scores are estimates from a practice simulation, not official Duolingo English Test results. Reading and listening are marked against a fixed key. Writing and speaking are AI-assisted, and speaking is judged from text, so pronunciation is not measured.';
+    deliveryPdf(rp);
     s4pMakePdf(rp,'Step4Progress-Duolingo-simulation-result.pdf');
   };
   window.detViewSaved=async function(){
@@ -17436,11 +17443,212 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(error||!data||!data.length){ alert('Could not load your result.'); return; }
     const r=data[0].results||{};
     D={take:data[0].take_id,c:null,final:r.det_final||null,view:true,pos:SEQ.length-1,tier:null,tasks:r.writing&&r.speaking?{writing:(r.writing.tasks||[]).map(t=>({title:t.title,answer:t.answer,res:{score:t.score,g:t.g}})),speaking:(r.speaking.tasks||[]).map(t=>({title:t.title,answer:t.answer,res:{score:t.score,g:t.g}})),ra:(r.speaking.ra||[])}:null,prod:{},deadline:0,tick:null};
+    await loadRecs();
     injectCss(); const o=root(); if(o)o.remove();
     const el=document.createElement('div'); el.id='det-root';
     el.innerHTML=`<div class="dt-top"><div class="dt-logo">Duolingo<span>·</span>Simulation</div><div class="dt-part">Your saved result</div><div class="dt-timer" id="det-timer" style="display:none"></div><button class="dt-btn alt" style="padding:5px 12px;font-size:12px;background:transparent;color:#fff;border-color:#fff" onclick="detExit()">Close</button></div><div class="dt-bar"><i id="det-prog"></i></div><div class="dt-main" id="det-main"></div><div class="dt-foot" id="det-foot"></div>`;
     document.body.appendChild(el); result();
   };
+  // ================= RECORDING LAYER (consent, camera, delivery stats, replay) =================
+  const SPEAK_TASKS=['ra0','ra1','sp0','rts0','lts0','ssample'];       // recorded when the student agreed
+  const GAZE_TASKS=['sp0','lts0','ssample'];                            // eye contact is only measured when speaking freely
+  const TASK_NAME={ra0:'Read aloud 1',ra1:'Read aloud 2',sp0:'Speak about the photo',rts0:'Read, then speak',lts0:'Listen, then speak',ssample:'Speaking sample'};
+  const BUCKET='sim-recordings';
+  const tkey=step=>step.t+(step.i!=null?step.i:'');
+  function pickMime(video){ const c=video?['video/webm;codecs=vp8,opus','video/webm','video/mp4']:['audio/webm;codecs=opus','audio/webm','audio/mp4']; try{ for(const m of c){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; } }catch(e){} return ''; }
+  const baseMime=m=>String(m||'').split(';')[0]||'video/webm';
+  const extOf=m=>/mp4/.test(m)?'mp4':'webm';
+  function ensureRec(){ if(D&&!D.recs)D.recs={}; if(D&&!D.uploads)D.uploads=[]; }
+
+  // ---------- gaze (eye-contact estimate), loaded only if the student chose video ----------
+  async function loadGaze(){
+    if(D.fl||D.flTried)return; D.flTried=true;
+    try{
+      const V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+      const mod=await import(V+'/vision_bundle.mjs');
+      const fs=await mod.FilesetResolver.forVisionTasks(V+'/wasm');
+      D.fl=await mod.FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
+    }catch(e){ console.warn('gaze unavailable',e); D.fl=null; }
+  }
+  function lookingAtCamera(res){
+    if(!res||!res.faceLandmarks||!res.faceLandmarks.length)return {face:false,look:false};
+    let yaw=0,pitch=0; try{ const m=res.facialTransformationMatrixes[0].data; yaw=Math.atan2(m[8],m[10])*180/Math.PI; pitch=Math.asin(Math.max(-1,Math.min(1,-m[9])))*180/Math.PI; }catch(e){}
+    let eye=0; try{ const bs={}; res.faceBlendshapes[0].categories.forEach(c=>bs[c.categoryName]=c.score); const k=['eyeLookInLeft','eyeLookInRight','eyeLookOutLeft','eyeLookOutRight','eyeLookUpLeft','eyeLookUpRight','eyeLookDownLeft','eyeLookDownRight']; eye=Math.max.apply(null,k.map(n=>bs[n]||0)); }catch(e){}
+    return {face:true,look:Math.abs(yaw)<=20&&Math.abs(pitch)<=18&&eye<0.45};
+  }
+
+  // ---------- camera / mic ----------
+  async function openStream(mode){
+    const c={audio:{echoCancellation:true,noiseSuppression:true}}; if(mode==='video')c.video={width:{ideal:640},height:{ideal:480},frameRate:{ideal:15},facingMode:'user'};
+    D.stream=await navigator.mediaDevices.getUserMedia(c); D.rm=mode; ensureRec();
+    if(mode==='video')loadGaze();
+    return D.stream;
+  }
+  function closeStream(){ try{ if(D&&D.seg)abortSeg(); }catch(e){} try{ if(D&&D.stream){ D.stream.getTracks().forEach(t=>t.stop()); D.stream=null; } }catch(e){} const v=document.getElementById('det-cam'); if(v)v.remove(); }
+  function camEl(){
+    let v=document.getElementById('det-cam');
+    if(!v){ v=document.createElement('video'); v.id='det-cam'; v.muted=true; v.playsInline=true; v.autoplay=true; v.style.cssText='position:fixed;right:12px;bottom:76px;width:132px;height:99px;object-fit:cover;border-radius:10px;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35);background:#000;z-index:10070;transform:scaleX(-1)'; const r=root(); if(r)r.appendChild(v); }
+    if(D.stream&&v.srcObject!==D.stream){ v.srcObject=D.stream; try{ v.play(); }catch(e){} }
+    return v;
+  }
+
+  // ---------- one recording segment per speaking task ----------
+  function startSeg(task){
+    if(!D||!D.stream||D.rm==='none'||D.seg)return;
+    ensureRec();
+    const video=D.rm==='video'; const mime=pickMime(video);
+    const seg={task,chunks:[],t0:Date.now(),mime,speechMs:0,silentRun:0,pauses:0,longest:0,first:null,last:null,speaking:false,face:0,look:0,frames:0,timers:[]};
+    try{ seg.rec=new MediaRecorder(D.stream,Object.assign({},mime?{mimeType:mime}:{},{videoBitsPerSecond:400000,audioBitsPerSecond:48000})); }
+    catch(e){ try{ seg.rec=new MediaRecorder(D.stream); }catch(e2){ return; } }
+    seg.rec.ondataavailable=e=>{ if(e.data&&e.data.size)seg.chunks.push(e.data); };
+    seg.stopped=new Promise(res=>{ seg.rec.onstop=res; });
+    try{ seg.rec.start(1000); }catch(e){ return; }
+    if(video)camEl();
+    // audio level -> speech / pause statistics
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); const src=ctx.createMediaStreamSource(new MediaStream(D.stream.getAudioTracks()));
+      const an=ctx.createAnalyser(); an.fftSize=1024; src.connect(an); const buf=new Uint8Array(an.fftSize); seg.ctx=ctx;
+      seg.timers.push(setInterval(()=>{
+        an.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; s+=v*v; } const rms=Math.sqrt(s/buf.length); const now=Date.now()-seg.t0;
+        if(rms>0.02){ seg.speaking=true; seg.speechMs+=100; if(seg.first==null)seg.first=now; if(seg.silentRun>=1500&&seg.first!=null&&seg.last!=null){ seg.pauses++; } if(seg.silentRun>seg.longest&&seg.last!=null)seg.longest=seg.silentRun; seg.silentRun=0; seg.last=now; }
+        else{ seg.silentRun+=100; if(seg.silentRun>400)seg.speaking=false; }
+      },100));
+    }catch(e){}
+    // gaze sampling (video + free speaking tasks only)
+    if(video&&GAZE_TASKS.includes(task)&&D.fl){
+      const v=camEl();
+      seg.timers.push(setInterval(()=>{ if(!seg.speaking||v.readyState<2)return; try{ const r=lookingAtCamera(D.fl.detectForVideo(v,performance.now())); seg.frames++; if(r.face)seg.face++; if(r.look)seg.look++; }catch(e){} },250));
+    }
+    D.seg=seg;
+  }
+  function clearSegTimers(seg){ (seg.timers||[]).forEach(clearInterval); seg.timers=[]; try{ seg.ctx&&seg.ctx.close(); }catch(e){} }
+  function abortSeg(){ const s=D.seg; if(!s)return; clearSegTimers(s); try{ s.rec.onstop=null; s.rec.stop(); }catch(e){} D.seg=null; const v=document.getElementById('det-cam'); if(v)v.remove(); }
+  async function endSeg(step){
+    const seg=D.seg; if(!seg)return null; D.seg=null; clearSegTimers(seg);
+    try{ if(seg.rec.state!=='inactive')seg.rec.stop(); await Promise.race([seg.stopped,new Promise(r=>setTimeout(r,3000))]); }catch(e){}
+    const v=document.getElementById('det-cam'); if(v)v.remove();
+    const blob=new Blob(seg.chunks,{type:baseMime(seg.mime)}); if(!blob.size)return null;
+    return {task:seg.task,blob,mime:baseMime(seg.mime),dur:(Date.now()-seg.t0)/1000,seg};
+  }
+  function buildStats(r,words){
+    const s=r.seg; const st={dur:Math.round(r.dur)};
+    const talk=(s.first!=null&&s.last!=null)?(s.last-s.first)/60000:0;
+    st.speech=Math.round(s.speechMs/1000);
+    if(words>=5&&talk>0.05)st.wpm=Math.round(words/talk);
+    if(s.first!=null)st.start=Math.round(s.first/100)/10;
+    st.pauses=s.pauses; st.longest=Math.round(s.longest/100)/10;
+    if(s.frames>=8){ st.face=Math.round(100*s.face/s.frames); st.eye=Math.round(100*s.look/s.frames); }
+    return st;
+  }
+  async function finishSeg(step){
+    const r=await endSeg(step); if(!r)return; ensureRec();
+    const words=((D.prod[r.task]||'').trim().split(/\s+/).filter(Boolean)).length; const stats=buildStats(r,words);
+    const rec={task:r.task,stats,dur:r.dur,mime:r.mime,blob:r.blob,url:URL.createObjectURL(r.blob),ok:false}; D.recs[r.task]=rec;
+    D.uploads.push((async()=>{
+      try{
+        const uid=currentSession.user.id; const path=uid+'/'+D.take+'/'+r.task+'.'+extOf(r.mime);
+        const up=await sbn().storage.from(BUCKET).upload(path,r.blob,{contentType:r.mime,upsert:true}); if(up.error)throw up.error;
+        const rg=await sbn().rpc('register_sim_recording',{p_take:D.take,p_task:r.task,p_path:path,p_mime:r.mime,p_duration:Math.round(r.dur),p_size:r.blob.size,p_stats:stats}); if(rg.error)throw rg.error;
+        rec.path=path; rec.ok=true;
+      }catch(e){ console.warn('recording upload failed',e); rec.err=String((e&&e.message)||e).slice(0,80); }
+    })());
+  }
+
+  // ---------- plain-language delivery tips (no AI cost) ----------
+  function tipsFor(task,st){
+    const L=[]; if(!st)return L;
+    if(st.wpm!=null){ if(st.wpm<95)L.push('Your pace was slow ('+st.wpm+' words per minute). Aim for about 110 to 150.'); else if(st.wpm>175)L.push('Your pace was fast ('+st.wpm+' words per minute). Slow down a little so each word is clear.'); else L.push('Good pace: '+st.wpm+' words per minute.'); }
+    if(st.start!=null&&st.start>5)L.push('You waited about '+st.start+' seconds before speaking. Start within 2 to 3 seconds, even with a simple first sentence.');
+    if(st.longest>=4)L.push('Your longest pause was '+st.longest+' seconds. If you lose a word, say "let me put it another way" and keep going.');
+    else if(st.pauses>=3)L.push('You paused for more than 1.5 seconds '+st.pauses+' times. Try to keep the flow going.');
+    if(st.eye!=null){ if(st.eye<40)L.push('You looked at the camera about '+st.eye+'% of the time while speaking. Practise looking at the camera lens, not the screen.'); else if(st.eye<70)L.push('You looked at the camera about '+st.eye+'% of the time while speaking. A little more eye contact will help.'); else L.push('Good eye contact: about '+st.eye+'% of the time while speaking.'); }
+    return L;
+  }
+  const statLine=st=>st?[st.wpm!=null?st.wpm+' words/min':null,st.start!=null?'started after '+st.start+'s':null,'longest pause '+(st.longest||0)+'s',st.eye!=null?'looked at camera '+st.eye+'%':null].filter(Boolean).join(' · '):'';
+
+  // ---------- consent + camera screen (replaces the old device check) ----------
+  function check(){
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Device check and recording</h3><p style="line-height:1.7">Put on headphones and sit in a quiet room. You need sound for the listening tasks and a microphone for the speaking tasks (if your device cannot record, you can type your speaking answers).</p>
+      <p><button class="dt-btn alt" onclick="detDeviceCheck()">Run device check</button></p></div>
+      <div class="dt-card"><h3>Record my speaking (recommended)</h3>
+      <p style="line-height:1.7;font-size:14.5px">Like the real test, you can record your speaking tasks. Afterwards you can watch yourself, see your speaking speed, pauses and eye contact, and get tips. This is how students notice habits they cannot hear in the moment.</p>
+      <label class="dt-opt"><input type="radio" name="detrm" value="video" checked> Record video and sound (shows eye contact)</label>
+      <label class="dt-opt"><input type="radio" name="detrm" value="audio"> Record sound only</label>
+      <label class="dt-opt"><input type="radio" name="detrm" value="none"> Do not record</label>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can watch your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself any time from your result page.</li><li>They are used only to show you your own delivery. Nothing is shared or used for marketing.</li><li>Eye contact is an estimate from your camera and works best in good light.</li></ul>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="det-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
+      <p id="det-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
+    foot('<button class="dt-btn" onclick="detCheckGo()">Continue</button>');
+  }
+  window.detCheckGo=async function(){
+    const sel=(document.querySelector('input[name="detrm"]:checked')||{}).value||'none'; const msg=document.getElementById('det-recmsg');
+    if(sel!=='none'){
+      if(!document.getElementById('det-guard').checked){ if(msg)msg.textContent='Please tick the box to record, or choose "Do not record".'; return; }
+      try{ await openStream(sel); }
+      catch(e){ if(sel==='video'){ try{ await openStream('audio'); if(msg)msg.textContent='Camera not available, so sound only will be recorded.'; }catch(e2){ D.rm='none'; } } else D.rm='none'; }
+      if(D.rm!=='none'){
+        let ok=false; try{ const r=await sbn().rpc('record_recording_consent',{p_take:D.take,p_mode:D.rm,p_guardian:true}); ok=!r.error; }catch(e){}
+        if(!ok){ closeStream(); D.rm='none'; if(msg)msg.textContent='Recording could not be switched on, so this test will continue without it.'; await new Promise(r=>setTimeout(r,1800)); }
+      } else if(msg){ msg.textContent='We could not use your microphone or camera, so this test will continue without recording.'; await new Promise(r=>setTimeout(r,1800)); }
+    } else D.rm='none';
+    detNext();
+  };
+
+  // ---------- practice recording (not scored, not saved) ----------
+  function warm(){
+    if(!D.rm||D.rm==='none'||!D.stream){ D.pos++; save(); render(); return; }
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Practice with Asha (not scored)</h3>
+      <p style="line-height:1.7">Before the test, try a quick practice. Asha says: <i>"Hi, I am Asha. Tell me about your hometown, or a place you like, in about 30 seconds."</i></p>
+      <p style="font-size:13.5px;color:#445">This is only for you to get comfortable. It is not scored and not saved. Look at the camera lens as you speak.</p>
+      <video id="det-wv" playsinline muted autoplay style="width:100%;max-width:340px;border-radius:12px;background:#000;display:block;transform:scaleX(-1)"></video>
+      <p><button class="dt-btn alt" id="det-wbtn" onclick="detWarmRec()">● Record practice</button></p>
+      <div id="det-wplay"></div></div></div>`);
+    const v=document.getElementById('det-wv'); if(D.rm==='video'){ v.srcObject=D.stream; try{ v.play(); }catch(e){} } else v.style.display='none';
+    foot('<button class="dt-btn" onclick="detNext()">Continue to the test</button>');
+  }
+  window.detWarmRec=function(){
+    const b=document.getElementById('det-wbtn'); if(!b)return;
+    if(D.wr){ try{ D.wr.stop(); }catch(e){} return; }
+    const ch=[]; let rec; try{ rec=new MediaRecorder(D.stream); }catch(e){ b.textContent='Recording not available on this device'; b.disabled=true; return; }
+    rec.ondataavailable=e=>{ if(e.data&&e.data.size)ch.push(e.data); };
+    rec.onstop=()=>{ D.wr=null; b.textContent='● Record again'; const blob=new Blob(ch,{type:baseMime(rec.mimeType)}); const url=URL.createObjectURL(blob); const w=document.getElementById('det-wplay'); if(w)w.innerHTML=(D.rm==='video'?'<video':'<audio')+' controls playsinline src="'+url+'" style="width:100%;max-width:340px;border-radius:10px;margin-top:6px"></'+(D.rm==='video'?'video':'audio')+'><p style="font-size:12.5px;color:#667">Watch yourself. Did you look at the camera? Was your speed comfortable?</p>'; };
+    D.wr=rec; rec.start(); b.textContent='⏹ Stop';
+  };
+
+  // ---------- results: delivery report and replay ----------
+  async function loadRecs(){
+    ensureRec();
+    try{ const r=await sbn().from('sim_recordings').select('task,path,mime,duration_s,stats').eq('take_id',D.take); if(!r.error)(r.data||[]).forEach(x=>{ if(!D.recs[x.task])D.recs[x.task]={task:x.task,stats:x.stats||{},dur:x.duration_s,mime:x.mime,path:x.path,ok:true}; }); }catch(e){}
+  }
+  function deliveryCard(){
+    const tasks=SPEAK_TASKS.filter(t=>D.recs&&D.recs[t]); if(!tasks.length)return '';
+    let h=`<div class="dt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can watch these. They are deleted after 100 days.</p>`;
+    tasks.forEach(t=>{ const r=D.recs[t]; const tips=tipsFor(t,r.stats);
+      h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>${E(TASK_NAME[t]||t)}</b> <span style="font-size:12.5px;color:#667">${E(statLine(r.stats))}</span>
+        <div id="det-rp-${t}" style="margin:6px 0"><button class="dt-btn alt" style="padding:6px 12px;font-size:13px" onclick="detWatch('${t}')">▶ Watch</button></div>
+        ${tips.length?`<ul style="margin:4px 0 0;padding-left:20px;font-size:13px">${tips.map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:''}</div>`; });
+    h+=`<p style="margin:10px 0 0"><button class="dt-btn alt" style="padding:6px 12px;font-size:13px" onclick="detDelRecs()">Delete my recordings</button></p><p style="font-size:12px;color:#667;margin:8px 0 0">Eye contact and speed are estimates from your device. They help you notice habits; they are not part of your score.</p></div>`;
+    return h;
+  }
+  window.detWatch=async function(t){
+    const box=document.getElementById('det-rp-'+t); const r=D.recs&&D.recs[t]; if(!box||!r)return;
+    const tag=/^audio/.test(r.mime||'')?'audio':'video'; let url=r.url;
+    if(!url){ try{ const s=await sbn().storage.from(BUCKET).createSignedUrl(r.path,900); if(s.error)throw s.error; url=s.data.signedUrl; }catch(e){ box.innerHTML='<span style="font-size:13px;color:#B3261E">Could not load this recording.</span>'; return; } }
+    box.innerHTML='<'+tag+' controls playsinline src="'+url+'" style="width:100%;max-width:380px;border-radius:10px"></'+tag+'>';
+  };
+  window.detDelRecs=async function(){
+    if(!confirm('Delete all your recordings for this simulation? This cannot be undone. Your scores stay.'))return;
+    try{ const r=await sbn().rpc('delete_my_sim_recordings',{p_take:D.take}); if(r.error)throw r.error; const paths=r.data||[]; if(paths.length)await sbn().storage.from(BUCKET).remove(paths); }
+    catch(e){ alert('Could not delete the recordings right now. Please try again.'); return; }
+    D.recs={}; if(D.view)result();
+  };
+  function deliveryPdf(rp){
+    const tasks=SPEAK_TASKS.filter(t=>D.recs&&D.recs[t]&&D.recs[t].stats); if(!tasks.length)return;
+    const lines=[]; tasks.forEach(t=>{ lines.push(TASK_NAME[t]+': '+statLine(D.recs[t].stats)); tipsFor(t,D.recs[t].stats).forEach(x=>lines.push('- '+x)); });
+    lines.push('These are estimates from your device (speed from the text of what you said, pauses from the sound level, eye contact from the camera). They help you notice habits and are not part of the score.');
+    rp.blocks.push({h:'Speaking delivery',lines});
+  }
+
   // show the card on the Duolingo Mocks tab
   try{
     const _rm=window.renderMocksTab||renderMocksTab;
