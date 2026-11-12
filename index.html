@@ -641,6 +641,11 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     <div class="dash-top">
       <div id="dash-mock-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--gold,#C9631A)"></div>
       <div id="dash-plan-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--pine3,#2D5A94)"></div>
+      <div id="dash-sponsor-card" class="dtile" style="cursor:pointer" onclick="s4pOpenSponsors()">
+        <div class="dt-eyebrow"><i class="ti ti-briefcase"></i> Work in the UK</div>
+        <div class="dt-msg">Find UK employers licensed to sponsor a work visa, save your shortlist and track your visa steps.</div>
+        <div class="dt-cta">Find sponsors →</div>
+      </div>
       <div id="dash-status-card" class="dsc" style="display:none" onclick="openStatus()">
         <div class="dt-eyebrow">My application</div>
         <div class="dsc-title" id="dsc-title">—</div>
@@ -17654,6 +17659,173 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const _rm=window.renderMocksTab||renderMocksTab;
     window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='Duolingo'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('det-card')){ el.insertAdjacentHTML('afterbegin','<div id="det-card" style="margin-bottom:12px"></div>'); detHydrate(); } } }catch(e){} return r; };
   }catch(e){ console.warn('det tab hook skipped',e); }
+})();
+</script>
+
+<script>
+/* ============================================================
+   UK SPONSORS (student view): search the Home Office register of licensed sponsors, save employers,
+   keep a personal UK work-visa checklist. Needs 0039_uk_sponsors.sql.
+   ============================================================ */
+(function(){
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const sbn=()=>sb;
+  const SECTORS=[['Care and health','care|health|nurs|medical|clinic|dental|pharmac|hospital|homecare|healthcare|physio|surgery'],['IT and software','tech|software|digital|systems|data|cyber|cloud|solutions|computing|infotech|labs'],['Engineering and construction','engineer|construct|build|civil|electrical|mechanical|contracting|surveying|architect'],['Hospitality and food','restaurant|hotel|cafe|kitchen|food|catering|takeaway|pizza|grill|pub|bistro|curry|tandoori'],['Education','school|college|academy|university|education|training|nursery|tutor'],['Finance and consulting','account|financ|capital|audit|bank|invest|consult|insurance|advisory|legal|solicitor|law'],['Retail and logistics','logistic|transport|freight|retail|stores|supermarket|wholesale|delivery|warehouse']];
+  const STAGES=['Exploring','Searching for a job','Interviewing','Job offer received','CoS received','Visa application ready','Visa submitted','Decision awaited','Visa granted'];
+  const STATUS=['Saved','Applied','Interview','Offer','Not suitable'];
+  const CHECK=[['The job',[['offer','A job offer from a licensed sponsor'],['licence','I checked the employer is still licensed on GOV.UK'],['soc','The job is an eligible occupation (checked on GOV.UK)'],['salary','The salary meets the minimum for the job (checked on GOV.UK)']]],['Sponsorship',[['cos','I received a Certificate of Sponsorship (CoS) number'],['cosok','The CoS details match my job offer']]],['Documents',[['passport','Valid passport'],['english','English language evidence (degree or approved test)'],['quals','Degree or qualification evidence'],['tb','TB test certificate, if required for my country'],['funds','Savings evidence, if required'],['crc','Criminal record certificate, if required']]],['Application',[['form','Online application submitted'],['ihs','Immigration Health Surcharge paid'],['fee','Application fee paid'],['bio','Biometrics / identity check done']]],['Outcome',[['decision','Decision received'],['evisa','eVisa confirmed']]]];
+  let S=null; // state
+  const css=`.sp-note{background:#FFF6E5;border:1px solid #F0D9A6;border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.6;color:#5a4410;margin-bottom:12px}
+.sp-tabs{display:flex;gap:4px;margin:6px 0 12px;border-bottom:2px solid var(--line);overflow-x:auto}
+.sp-tab{padding:9px 14px;border:none;border-bottom:3px solid transparent;background:none;color:var(--ink3);font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.sp-tab.on{color:var(--pine);border-bottom-color:var(--pine)}
+.sp-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.sp-bar input,.sp-bar select,.sp-in{padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;font:inherit;font-size:14px;background:#fff;max-width:100%}
+.sp-chip{font-size:12px;padding:5px 11px;border-radius:99px;background:#E8EEF6;color:var(--pine);border:none;cursor:pointer}
+.sp-chip.on{background:var(--pine);color:#fff}
+.sp-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;background:#E8EEF6;color:var(--pine);font-weight:700;margin:2px 4px 2px 0}
+.sp-tag.a{background:#E5EEE2;color:#357A2D}.sp-tag.bad{background:#F6E0DE;color:#8C3F3A}
+.sp-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.sp-row .nm{font-weight:700;color:var(--pine);font-size:15px}.sp-row .sub{font-size:12.5px;color:var(--ink3)}
+.sp-g{flex:1;min-width:200px}
+.sp-lk{font-size:12.5px;color:var(--pine3,#2D5A94);margin-right:12px}
+.sp-st{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.sp-stg{font-size:12px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.sp-stg.on{background:var(--gold,#C9631A);color:#fff;border-color:var(--gold,#C9631A)}.sp-stg.past{background:#E5EEE2}
+.sp-prog{height:8px;background:#E6DDCC;border-radius:99px;overflow:hidden;margin:6px 0 10px}.sp-prog i{display:block;height:100%;background:#357A2D}
+.sp-ck{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:13.5px}
+#sp-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#132B4D;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;display:none;z-index:10200}`;
+  function injectCss(){ if(document.getElementById('sp-css'))return; const s=document.createElement('style'); s.id='sp-css'; s.textContent=css; document.head.appendChild(s); }
+  const q=id=>document.getElementById(id);
+  function toast(m){ let t=q('sp-toast'); if(!t){ t=document.createElement('div'); t.id='sp-toast'; document.body.appendChild(t); } t.textContent=m; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none',3000); }
+
+  window.s4pOpenSponsors=async function(){
+    try{ if(!requireRealLogin())return; }catch(e){}
+    injectCss();
+    if(!q('screen-sponsors')){
+      const d=document.createElement('div'); d.className='screen'; d.id='screen-sponsors';
+      d.innerHTML='<span class="back-link" onclick="showScreen(\'screen-dashboard\')">← Back</span><div id="sp-body"></div>';
+      q('screen-dashboard').parentNode.appendChild(d);
+    }
+    showScreen('screen-sponsors');
+    S=S||{f:{name:'',town:'',route:'Skilled Worker'},tab:'find',off:0,size:30,total:0,rows:[],sector:'',saved:[],case:null,admin:false,loaded:false,meta:null};
+    q('sp-body').innerHTML='<div class="empty">Loading…</div>';
+    try{ const a=await sbn().rpc('is_platform_admin'); S.admin=!!a.data; }catch(e){}
+    try{ const m=await sbn().from('sponsor_register_meta').select('*').eq('id',1).maybeSingle(); S.meta=m.data||null; }catch(e){}
+    try{ const r=await sbn().rpc('sponsor_routes'); S.routes=r.data||[]; }catch(e){ S.routes=[]; }
+    await loadMine();
+    shell(); paintTab(); if(S.tab==='find')search(S.off||0);
+  };
+  async function loadMine(){
+    try{ const r=await sbn().from('student_sponsor_shortlist').select('*').order('created_at'); S.saved=r.data||[]; }catch(e){ S.saved=[]; }
+    try{ const r=await sbn().from('student_sponsor_case').select('*').maybeSingle(); S.case=r.data||null; }catch(e){ S.case=null; }
+    if(S.saved.length){ try{ const k=await sbn().rpc('sponsor_still_listed',{p_keys:S.saved.map(x=>[x.org_key,x.town_key||''])}); S.still={}; (k.data||[]).forEach(x=>S.still[x.org_key+'|'+x.town_key]=x.listed); }catch(e){ S.still={}; } } else S.still={};
+  }
+  function shell(){
+    const m=S.meta;
+    q('sp-body').innerHTML=`<div class="card"><h2 style="font-size:18px;margin:0 0 4px;color:var(--pine)">UK employers that can sponsor a work visa</h2>
+      <p style="font-size:13.5px;color:var(--ink3);margin:0">Find licensed UK sponsors, save the ones you like, and keep track of your visa steps.</p>
+      <div class="sp-note" style="margin:12px 0 0"><b>Please read.</b> This is the Home Office list of employers <i>licensed</i> to sponsor workers. Being on the list does <b>not</b> mean an employer is hiring, will sponsor you, or that the job and salary qualify. Licences can be suspended or removed. Always check the job, its occupation code and the salary rules on GOV.UK. No one can promise you a job or a visa.</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:8px">${m&&m.register_date?'Register dated '+E(m.register_date)+' · '+Number(m.row_count).toLocaleString()+' entries':'The register has not been loaded yet.'}</div></div>
+      <div class="sp-tabs"><button class="sp-tab" id="sptab-find" onclick="spTab('find')">Find employers</button><button class="sp-tab" id="sptab-saved" onclick="spTab('saved')">My shortlist</button><button class="sp-tab" id="sptab-visa" onclick="spTab('visa')">My visa checklist</button>${S.admin?'<button class="sp-tab" id="sptab-import" onclick="spTab(\'import\')">Update register</button>':''}</div><div id="sp-pane"></div>`;
+    S.tab=S.tab||'find'; ['find','saved','visa','import'].forEach(t=>{ const b=q('sptab-'+t); if(b)b.classList.toggle('on',t===S.tab); });
+  }
+  window.spTab=function(t){ S.tab=t; ['find','saved','visa','import'].forEach(x=>{ const b=q('sptab-'+x); if(b)b.classList.toggle('on',x===t); }); paintTab(); if(t==='find')search(S.off); };
+  function paintTab(){ const p=q('sp-pane'); if(!p)return; if(S.tab==='find')paintFind(); else if(S.tab==='saved')paintSaved(); else if(S.tab==='visa')paintVisa(); else paintImport(); }
+
+  /* ---------- find ---------- */
+  function paintFind(){
+    const ro='<option value="">All routes</option>'+(S.routes||[]).map(r=>`<option${r===(S.f&&S.f.route)?' selected':''}>${E(r)}</option>`).join('');
+    q('sp-pane').innerHTML=`<div class="sp-bar"><input id="sp-name" placeholder="Company name" style="width:190px" onkeydown="if(event.key==='Enter')spGo()"><input id="sp-town" placeholder="Town or city" style="width:150px" onkeydown="if(event.key==='Enter')spGo()"><select id="sp-route">${ro}</select><button class="btn" style="width:auto;padding:9px 16px;font-size:13.5px;margin:0" onclick="spGo()">Search</button><button class="btn-outline btn" style="width:auto;padding:9px 14px;font-size:13px;margin:0" onclick="spClear()">Clear</button></div>
+      <div class="sp-bar">${SECTORS.map((x,i)=>`<button class="sp-chip${S.sector===x[1]?' on':''}" onclick="spSector(${i})">${E(x[0])}</button>`).join('')}</div>
+      <div style="font-size:12px;color:var(--ink3);margin:-4px 0 10px">The sector buttons match words in the company name, so they are only a rough guide.</div><div id="sp-res"></div><div class="sp-bar" id="sp-pager" style="justify-content:center"></div>`;
+    if(S.f){ q('sp-name').value=S.f.name||''; q('sp-town').value=S.f.town||''; q('sp-route').value=S.f.route||''; }
+  }
+  window.spGo=function(){ S.f={name:q('sp-name').value,town:q('sp-town').value,route:q('sp-route').value}; search(0); };
+  window.spClear=function(){ S.f={name:'',town:'',route:''}; S.sector=''; paintFind(); search(0); };
+  window.spSector=function(i){ S.f={name:q('sp-name').value,town:q('sp-town').value,route:q('sp-route').value}; S.sector=S.sector===SECTORS[i][1]?'':SECTORS[i][1]; paintFind(); search(0); };
+  async function search(off){
+    S.off=off; const box=q('sp-res'); if(!box)return; box.innerHTML='<div class="empty">Searching…</div>';
+    if(!S.f)S.f={name:'',town:'',route:'Skilled Worker'};
+    const r=await sbn().rpc('sponsor_search',{p_name:S.f.name||null,p_town:S.f.town||null,p_route:S.f.route||null,p_rating:null,p_limit:S.size,p_offset:off,p_regex:S.sector||null});
+    if(r.error){ box.innerHTML='<div class="empty">Could not search right now. Please try again in a moment.</div>'; return; }
+    S.rows=r.data||[]; S.total=S.rows.length?Number(S.rows[0].total):0;
+    if(!S.rows.length){ box.innerHTML='<div class="empty">No employers found. Try fewer filters or a shorter name.</div>'; q('sp-pager').innerHTML=''; return; }
+    const savedKeys=new Set(S.saved.map(x=>x.org_key+'|'+(x.town_key||'')));
+    box.innerHTML=S.rows.map((x,i)=>{ const key=x.org_key+'|'+(x.town_key||''); const on=savedKeys.has(key); const qs=encodeURIComponent(x.org_name+' '+(x.town||''));
+      return `<div class="sp-row"><div class="sp-g"><div class="nm">${E(x.org_name)}</div><div class="sub">${E([x.town,x.county].filter(Boolean).join(', '))}</div>
+        <div>${x.routes.map(t=>`<span class="sp-tag">${E(t)}</span>`).join('')}${x.ratings.map(t=>`<span class="sp-tag ${/\(A/.test(t)?'a':''}">${E(t)}</span>`).join('')}</div>
+        <div style="margin-top:4px"><a class="sp-lk" target="_blank" rel="noopener" href="https://www.google.com/search?q=${qs}+careers">Look for jobs</a><a class="sp-lk" target="_blank" rel="noopener" href="https://find-and-update.company-information.service.gov.uk/search?q=${encodeURIComponent(x.org_name)}">Company details</a></div></div>
+        <button class="btn${on?' btn-outline':''}" style="width:auto;padding:8px 14px;font-size:13px;margin:0" ${on?'disabled':''} onclick="spSave(${i})">${on?'Saved ✓':'Save'}</button></div>`; }).join('');
+    const from=off+1,to=off+S.rows.length;
+    q('sp-pager').innerHTML=`<button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:13px;margin:0" ${off<=0?'disabled':''} onclick="spPage(${Math.max(0,off-S.size)})">← Previous</button><span style="font-size:13px;color:var(--ink3)">${from.toLocaleString()} to ${to.toLocaleString()} of ${S.total.toLocaleString()}</span><button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:13px;margin:0" ${to>=S.total?'disabled':''} onclick="spPage(${off+S.size})">Next →</button>`;
+  }
+  window.spPage=function(o){ search(o); const b=q('screen-sponsors'); if(b)b.scrollTop=0; window.scrollTo(0,0); };
+  window.spSave=async function(i){
+    const x=S.rows[i]; if(!x)return;
+    const row={org_name:x.org_name,org_key:x.org_key,town:x.town,town_key:x.town_key||'',route:(x.routes||[]).join(', ')};
+    const r=await sbn().from('student_sponsor_shortlist').upsert(row,{onConflict:'student_id,org_key,town_key'});
+    if(r.error){ toast('Could not save. Please try again.'); return; }
+    await loadMine(); toast('Saved to My shortlist ✓'); if(S.tab==='find')search(S.off);
+  };
+
+  /* ---------- shortlist ---------- */
+  function paintSaved(){
+    const p=q('sp-pane');
+    if(!S.saved.length){ p.innerHTML='<div class="card"><p style="font-size:14px;color:var(--ink3);margin:0">You have not saved any employers yet. Use "Find employers" and press Save.</p></div>'; return; }
+    p.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><h3 style="font-size:15.5px;margin:0;color:var(--pine)">My shortlist (${S.saved.length})</h3><button class="btn btn-outline" style="width:auto;padding:7px 12px;font-size:12.5px;margin:0" onclick="spExport()">Download as CSV</button></div>`+
+      S.saved.map((x,i)=>{ const listed=S.still[x.org_key+'|'+(x.town_key||'')]; const warn=listed===false?'<div><span class="sp-tag bad">Not on the latest register. Check on GOV.UK before going further.</span></div>':'';
+        return `<div style="border-top:1px solid var(--line);padding:10px 0"><div style="display:flex;gap:8px;justify-content:space-between;align-items:flex-start"><div><b style="color:var(--pine)">${E(x.org_name)}</b><div style="font-size:12.5px;color:var(--ink3)">${E(x.town||'')}</div>${warn}</div><button class="btn-outline btn" style="width:auto;padding:4px 10px;font-size:12px;margin:0;color:#8C3F3A" onclick="spDel(${i})">Remove</button></div>
+        <div class="sp-bar" style="margin:8px 0 0"><select class="sp-in" onchange="spUpd(${i},'status',this.value)">${STATUS.map(s=>`<option${s===x.status?' selected':''}>${s}</option>`).join('')}</select><input class="sp-in" placeholder="Job you are looking at" value="${E(x.role_title||'')}" style="flex:1;min-width:160px" onchange="spUpd(${i},'role_title',this.value)"></div>
+        <textarea class="sp-in" rows="2" placeholder="Notes (who you spoke to, closing date…)" style="width:100%;margin-top:6px" onchange="spUpd(${i},'notes',this.value)">${E(x.notes||'')}</textarea></div>`; }).join('')+'</div>';
+  }
+  window.spUpd=async function(i,f,v){ const x=S.saved[i]; x[f]=v||null; const u={updated_at:new Date().toISOString()}; u[f]=v||null; const r=await sbn().from('student_sponsor_shortlist').update(u).eq('id',x.id); toast(r.error?'Could not save.':'Saved ✓'); };
+  window.spDel=async function(i){ const x=S.saved[i]; if(!confirm('Remove '+x.org_name+' from your shortlist?'))return; const r=await sbn().from('student_sponsor_shortlist').delete().eq('id',x.id); if(r.error){ toast('Could not remove.'); return; } S.saved.splice(i,1); paintSaved(); };
+  window.spExport=function(){ const rows=[['Employer','Town','Routes','Status','Job','Notes']].concat(S.saved.map(x=>[x.org_name,x.town,x.route,x.status,x.role_title,x.notes])); const csv=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'})); a.download='my-uk-employer-shortlist.csv'; a.click(); };
+
+  /* ---------- visa checklist ---------- */
+  function paintVisa(){
+    const c=S.case||{stage:'Exploring',checklist:{}}; const ck=c.checklist||{}; let total=0,done=0; CHECK.forEach(g=>g[1].forEach(i=>{ total++; if(ck[i[0]]&&ck[i[0]].done)done++; }));
+    const si=STAGES.indexOf(c.stage);
+    q('sp-pane').innerHTML=`<div class="card"><h3 style="font-size:15.5px;margin:0 0 4px;color:var(--pine)">Where you are</h3><div class="sp-st">${STAGES.map((s,i)=>`<span class="sp-stg ${i===si?'on':(i<si?'past':'')}" onclick="spStage('${s}')">${E(s)}</span>`).join('')}</div>
+      <div class="sp-bar"><input class="sp-in" id="sp-trole" placeholder="Job or field you want" value="${E(c.target_role||'')}" style="width:220px" onchange="spCaseSave()"><input class="sp-in" id="sp-tcity" placeholder="City you want" value="${E(c.target_city||'')}" style="width:160px" onchange="spCaseSave()"></div></div>
+      <div class="card"><h3 style="font-size:15.5px;margin:0 0 4px;color:var(--pine)">My visa checklist <span style="font-size:12.5px;color:var(--ink3);font-weight:400">(${done} of ${total} done)</span></h3><div class="sp-prog"><i style="width:${Math.round(100*done/total)}%"></i></div>
+      <p style="font-size:12.5px;color:var(--ink3);margin:0 0 6px">A working guide for the Skilled Worker route. Rules and fees change, so confirm each item on GOV.UK or with your counsellor.</p>
+      ${CHECK.map(g=>`<div style="margin-top:8px"><b style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)">${g[0]}</b>${g[1].map(i=>{ const v=ck[i[0]]||{}; return `<label class="sp-ck"><input type="checkbox" ${v.done?'checked':''} onchange="spTick('${i[0]}',this.checked)"><span>${E(i[1])}</span></label>`; }).join('')}</div>`).join('')}</div>`;
+  }
+  async function persistCase(){ const c=S.case; const r=await sbn().from('student_sponsor_case').upsert({stage:c.stage,target_role:c.target_role||null,target_city:c.target_city||null,checklist:c.checklist||{},updated_at:new Date().toISOString()},{onConflict:'student_id'}); toast(r.error?'Could not save.':'Saved ✓'); }
+  function ensureCase(){ if(!S.case)S.case={stage:'Exploring',checklist:{}}; return S.case; }
+  window.spStage=async function(s){ ensureCase().stage=s; await persistCase(); paintVisa(); };
+  window.spCaseSave=async function(){ const c=ensureCase(); c.target_role=q('sp-trole').value.trim(); c.target_city=q('sp-tcity').value.trim(); await persistCase(); };
+  window.spTick=async function(k,v){ const c=ensureCase(); c.checklist=c.checklist||{}; c.checklist[k]={done:v,date:new Date().toISOString().slice(0,10)}; await persistCase(); paintVisa(); };
+
+  /* ---------- import (portal administrators only) ---------- */
+  function paintImport(){
+    q('sp-pane').innerHTML=`<div class="card"><h3 style="font-size:15.5px;margin:0 0 6px;color:var(--pine)">Update the register</h3><p style="font-size:13.5px;line-height:1.7;margin:0 0 10px">Download the latest CSV from <a class="sp-lk" href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener">GOV.UK</a>, choose it here and press Import. Employers no longer in the file are removed.</p>
+      <div class="sp-bar"><input type="file" id="sp-file" accept=".csv"><label style="font-size:13px">Register date <input type="date" class="sp-in" id="sp-date" value="${new Date().toISOString().slice(0,10)}"></label><button class="btn" id="sp-imp" style="width:auto;padding:9px 16px;font-size:13.5px;margin:0" onclick="spImport()">Import</button></div>
+      <div class="sp-prog" style="display:none" id="sp-ip"><i id="sp-ib" style="width:0"></i></div><p id="sp-im" style="font-size:13px;line-height:1.6"></p></div>`;
+  }
+  function parseCsv(t){ const out=[]; let row=[],f='',inq=false; for(let i=0;i<t.length;i++){ const c=t[i]; if(inq){ if(c==='"'){ if(t[i+1]==='"'){ f+='"'; i++; } else inq=false; } else f+=c; } else if(c==='"')inq=true; else if(c===','){ row.push(f); f=''; } else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n')i++; row.push(f); f=''; out.push(row); row=[]; } else f+=c; } if(f!==''||row.length){ row.push(f); out.push(row); } return out; }
+  window.spImport=async function(){
+    const f=q('sp-file').files[0],date=q('sp-date').value,msg=q('sp-im'),bar=q('sp-ib'); if(!f){ toast('Choose the CSV file first.'); return; } if(!date){ toast('Enter the register date.'); return; }
+    q('sp-imp').disabled=true; q('sp-ip').style.display=''; bar.style.width='0'; msg.textContent='Reading the file…';
+    try{
+      let t=await f.text(); if(t.charCodeAt(0)===0xFEFF)t=t.slice(1); let rows=parseCsv(t);
+      const h=(rows[0]||[]).map(x=>String(x).trim().toLowerCase()); const want=['organisation name','town/city','county','type & rating','route'];
+      if(want.some((w,i)=>h[i]!==w))throw new Error('This does not look like the register file. The first row should be: Organisation Name, Town/City, County, Type & Rating, Route.');
+      rows=rows.slice(1).filter(r=>String(r[0]||'').trim());
+      if(rows.length<100000&&!confirm('This file has only '+rows.length.toLocaleString()+' rows. The full register has about 140,000. Continue anyway? Employers missing from this file will be removed.'))throw new Error('Import cancelled.');
+      const size=2000; let n=0;
+      for(let i=0;i<rows.length;i+=size){
+        const chunk=rows.slice(i,i+size).map(r=>[r[0],r[1],r[2],r[3],r[4]].map(v=>String(v==null?'':v)));
+        const r=await sbn().rpc('sponsor_import_chunk',{p_batch:date,p_rows:chunk}); if(r.error)throw new Error(r.error.message);
+        n=Math.min(rows.length,i+size); bar.style.width=Math.round(100*n/rows.length)+'%'; msg.textContent='Imported '+n.toLocaleString()+' of '+rows.length.toLocaleString()+'…';
+      }
+      const fin=await sbn().rpc('sponsor_import_finish',{p_batch:date}); if(fin.error)throw new Error(fin.error.message);
+      msg.textContent='Done. The register now has '+Number(fin.data.total).toLocaleString()+' entries. '+Number(fin.data.removed).toLocaleString()+' entries no longer listed were removed.';
+      const m=await sbn().from('sponsor_register_meta').select('*').eq('id',1).maybeSingle(); S.meta=m.data||null;
+    }catch(e){ msg.textContent='Import stopped: '+e.message+' The old register is still in place; you can try again.'; }
+    q('sp-imp').disabled=false;
+  };
 })();
 </script>
 
