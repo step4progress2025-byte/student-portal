@@ -640,6 +640,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
 
     <div class="dash-top">
       <div id="dash-mock-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--gold,#C9631A)"></div>
+      <div id="dash-plan-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--pine3,#2D5A94)"></div>
       <div id="dash-status-card" class="dsc" style="display:none" onclick="openStatus()">
         <div class="dt-eyebrow">My application</div>
         <div class="dsc-title" id="dsc-title">—</div>
@@ -10164,6 +10165,7 @@ window.s4pOpenNext=function(test,id){
     else openLessonView('level',x.lvl,x.mod,x.l.id);
   }catch(e){ console.warn('open next failed',e); }
 };
+window.trackLessons=trackLessons;
 let cardBusy=false;
 window.renderAcademyCard=async function(){
   if(cardBusy)return;
@@ -12040,7 +12042,7 @@ window.guideRevert=async function(){
     set('dc-spk',dcState.spk,dcState.spk?'Sound works':null);
     set('dc-mic',dcState.mic,dcState.mic?'Microphone works':null);
     set('dc-net',navigator.onLine!==false,navigator.onLine!==false?'You are online':'No internet connection');
-    const ready=dcState.spk&&(!dcState.needMic||dcState.mic)&&navigator.onLine!==false;
+    const ready=dcState.spk&&(!dcState.needMic||dcState.mic||dcState.micFailed)&&navigator.onLine!==false;
     const b=$('dc-go');if(b){b.disabled=!ready;b.style.opacity=ready?'1':'.5';}
   }
   window.s4pDeviceCheck=function(opts){
@@ -12048,7 +12050,7 @@ window.guideRevert=async function(){
     // remembered for this browser session, so students are not asked again and again
     try{if(!opts.force&&sessionStorage.getItem('s4p_dc_ok')==='1'&&(!opts.mic||sessionStorage.getItem('s4p_dc_mic')==='1'))return Promise.resolve(true);}catch(e){}
     return new Promise(res=>{
-      dcClose(null);dcDone=res;dcState={spk:false,mic:false,needMic:!!opts.mic,micTried:false};
+      dcClose(null);dcDone=res;dcState={spk:false,mic:false,needMic:!!opts.mic,micTried:false,micFailed:false};
       const o=document.createElement('div');o.id='s4p-dc';
       o.innerHTML=`<div class="dc-card" role="dialog" aria-label="Device check">
         <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:var(--font-h);font-weight:800;font-size:18px;color:var(--pine)">Device check</div><button onclick="s4pDC.cancel()" aria-label="Close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button></div>
@@ -12086,7 +12088,7 @@ window.guideRevert=async function(){
           dcRaf=requestAnimationFrame(tick);};
         tick();
       }catch(e){
-        const st=document.querySelector('#dc-mic .dc-state');if(st)st.textContent='We cannot use the microphone. Allow microphone access in your browser settings, then test again.';
+        const st=document.querySelector('#dc-mic .dc-state');if(st)st.textContent='We cannot use the microphone. Allow microphone access in your phone or browser settings and test again, or tap Start to continue and type your speaking answers.';dcState.micFailed=true;dcRefresh();
         if(btn)btn.textContent='🎙 Try again';
       }
     },
@@ -13501,10 +13503,10 @@ function markMockSelf(i,gotItRight){
 // (my_mock_access / begin_mock / unlock_free_take); this page only displays it.
 const PAYMENT_MODE='manual'; // becomes 'gateway' once online payment is connected
 const PLAN_FALLBACK=[
-  {code:'continue',name:'Unlock your free mock',price_inr:99,mocks:1,spark:false,valid_days:100,description:'Finish your free mock: Reading, Writing and Speaking, with your overall band. Spark: 25 messages a day.'},
-  {code:'starter',name:'3 Mocks',price_inr:200,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 40 messages a day and 1 IELTS speaking exam a day.'},
-  {code:'plus',name:'5 Mocks + Spark',price_inr:500,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 100 messages a day and 2 IELTS speaking exams a day.'},
-  {code:'pro',name:'10 Mocks + Spark',price_inr:1000,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 200 messages a day and 3 IELTS speaking exams a day.'}
+  {code:'continue',name:'Mock Pass',price_inr:99,mocks:1,spark:false,valid_days:100,description:'1 full-length mock for any exam, valid 100 days. Spark: 40 messages and 4 feedback reports in total.'},
+  {code:'starter',name:'3 Mocks',price_inr:249,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 60 messages, 8 feedback reports and 1 IELTS speaking exam in total.'},
+  {code:'plus',name:'5 Mocks + Spark',price_inr:599,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 300 messages, 30 feedback reports and 6 IELTS speaking exams in total.'},
+  {code:'pro',name:'10 Mocks + Spark',price_inr:1199,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 800 messages, 80 feedback reports and 15 IELTS speaking exams in total.'}
 ];
 let MOCK_ACCESS=null, MOCK_PLANS=null;
 async function loadMockAccess(force){
@@ -13522,9 +13524,9 @@ async function loadMockAccess(force){
 function fmtDay(d){return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
 function planCardsHtml(highlight){
   const plans=MOCK_PLANS||PLAN_FALLBACK;
-  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>All lessons, your first mock (Listening section) and Spark: 15 messages a day. ${highlight==='unlock'?'':''}</p></div>`;
+  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>All lessons, your first full mock (all four sections, with your overall band) and Spark: 15 messages a day. ${highlight==='unlock'?'':''}</p></div>`;
   return free+plans.map(p=>{
-    const note=p.code==='continue'?'<p style="font-size:12px;color:var(--ink3);margin-top:4px">Applies to your free mock only.</p>':'';
+    const note='';
     return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter')?'border:2px solid var(--pine3,#2D5A94)':''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
       <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">${esc(STORE_PRICES[p.code]||('₹'+p.price_inr))}</div>
@@ -13533,7 +13535,7 @@ function planCardsHtml(highlight){
 }
 function openPlansDialog(reason){
   closePlansDialog();
-  const msg={mock:'You have no mocks left. Pick a plan to continue.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'Plans give you more Spark messages every day, plus the full IELTS speaking exam.'}[reason]||'Choose the plan that suits you.';
+  const msg={mock:'You have used your free mock. Pick a plan to take your next full mock.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'Plans give you more Spark messages every day, plus the full IELTS speaking exam.'}[reason]||'Choose the plan that suits you.';
   const o=document.createElement('div');o.id='plans-overlay';
   o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0';
   o.innerHTML=`<div style="background:var(--cream,#fff);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 22px">
@@ -13759,12 +13761,12 @@ async function renderDashMocks(){
     let line='',b='';
     if(a.admin){ line='Administrator account: unlimited mocks.'; b=btn((a.take&&a.take.status==='open')?'Resume full mock':'Start full mock',"fmStart('IELTS')"); }
     else if(a.take&&a.take.status==='open'){ line=a.take.unlocked_all?'Your full mock is in progress.':'Your free mock is in progress.'; b=btn('Resume mock',"fmStart('IELTS')"); }
-    else if(a.take&&a.take.status==='locked'){ const ok=(a.unlock_credits>0||a.credits>0); line='Free Listening done. '+(ok?'Your payment is received: unlock the rest now.':'Unlock Reading, Writing and Speaking for ₹99.'); b=btn(ok?'Unlock the rest now':'Unlock the rest · ₹99',"fmUnlockFree('IELTS')"); }
-    else if(!a.free_used){ line='Your first mock is free: start with Listening.'; b=btn('Start free mock',"fmStart('IELTS')"); }
+    else if(a.take&&a.take.status==='locked'){ const ok=(a.unlock_credits>0||a.credits>0); line='Free Listening done. '+(ok?'Your payment is received: unlock the rest now.':'Unlock Reading, Writing and Speaking with a plan.'); b=btn(ok?'Unlock the rest now':'Unlock the rest',"fmUnlockFree('IELTS')"); }
+    else if(!a.free_used){ line='Your first full mock is free: all four sections, with your overall band and a progress report.'; b=btn('Start free mock',"fmStart('IELTS')"); }
     else if(a.credits>0){ line=`You have <b>${a.credits}</b> full mock${a.credits===1?'':'s'} left${a.next_expiry?' · valid till '+fmtDay(a.next_expiry):''}.`; b=btn('Start a full mock',"fmStart('IELTS')"); }
-    else { line='No mocks left. Pick a plan to take your next full mock.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
+    else { line='Your free mock is used. Pick a plan to take your next full mock.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
     rows.push(`<div style="margin-top:10px"><div style="font-weight:600;font-size:14px">🏁 IELTS Academic — Full-Length Mock</div><div style="font-size:13.5px;color:var(--ink3);margin-top:2px">${line}</div>${b}</div>`);
-    if(a.unlock_credits>0&&!(a.take&&a.take.status==='locked'))rows.push(`<div style="font-size:12.5px;color:var(--ink3);margin-top:8px">✅ Your ₹99 payment is saved: it unlocks Reading, Writing and Speaking of your free mock${a.next_expiry?' (valid till '+fmtDay(a.next_expiry)+')':''}.</div>`);
+    if(a.unlock_credits>0&&!(a.take&&a.take.status==='locked'))rows.push(`<div style="font-size:12.5px;color:var(--ink3);margin-top:8px">✅ Your payment is saved: it unlocks Reading, Writing and Speaking of your free mock${a.next_expiry?' (valid till '+fmtDay(a.next_expiry)+')':''}.</div>`);
   }
   // Premium mock
   if(st){
@@ -13772,7 +13774,7 @@ async function renderDashMocks(){
     if(st.taken){ line='You have taken this mock. Your result is saved.'; b=btn('View my result','pmViewSaved()'); }
     else if(st.in_progress){ line='In progress: you can resume it.'; b=btn('Resume premium mock','pmStart()'); }
     else if(st.admin||st.credits>0){ line=st.admin?'Administrator: start any time.':`Uses 1 of your ${st.credits} mock credit${st.credits===1?'':'s'}. About 2 h 30 min in one sitting.`; b=btn('Start premium mock','pmIntroConfirm()'); }
-    else { line='Needs a mock plan (3 mocks or more). The ₹99 plan covers the free mock only.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
+    else { line='Needs a mock plan.'; b=btn('Choose a plan',"openPlansDialog('mock')"); }
     rows.push(`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><div style="font-weight:600;font-size:14px">⭐ ${esc(st.title||'IELTS Academic Premium Mock 1')}</div><div style="font-size:13.5px;color:var(--ink3);margin-top:2px">${line}</div>${b}</div>`);
   }
   el.innerHTML=`<div class="dt-eyebrow">My mock tests</div>${rows.join('')}<div style="margin-top:8px"><a href="javascript:openPlansDialog()" style="font-size:13px;color:var(--pine3)">See plans and prices</a></div>`;
@@ -13794,15 +13796,15 @@ function renderMockAccessCard(testKey){
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Resume mock</button>`;
   } else if(a.take&&a.take.status==='locked'){
     status='Your free Listening is done. Unlock Reading, Writing and Speaking to get your overall band.';
-    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmUnlockFree('${testKey}')">${(a.unlock_credits>0||a.credits>0)?'Unlock the rest now':'Unlock the rest · ₹99'}</button>`;
+    btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmUnlockFree('${testKey}')">${(a.unlock_credits>0||a.credits>0)?'Unlock the rest now':'Unlock the rest'}</button>`;
   } else if(!a.free_used){
-    status='🎁 Your first mock is free: start with the Listening section.';
+    status='🎁 Your first full mock is free: all four sections, with your overall band and a progress report. Your next mock needs a plan.';
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start free mock</button>`;
   } else if(a.credits>0){
     status=`You have <b>${a.credits}</b> mock${a.credits===1?'':'s'} left${a.next_expiry?' · valid till '+fmtDay(a.next_expiry):''}.`;
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('${testKey}')">Start a full mock</button>`;
   } else {
-    status='You have no mocks left. Pick a plan to take your next full mock.';
+    status='You have used your free mock. Pick a plan to take your next full mock and see your progress.';
     btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="openPlansDialog('mock')">Choose a plan</button>`;
   }
   const spark=a&&a.spark?'<span style="background:var(--sage-l);padding:3px 10px;border-radius:20px;font-size:12px;margin-left:6px">⚡ Spark active</span>':'';
@@ -14374,7 +14376,7 @@ async function fmStart(testKey,setId){
   if(error){
     if(/NO_CREDIT/.test(error.message)){ await loadMockAccess(true); openPlansDialog('mock'); }
     else if(/NO_SET/.test(error.message)){ alert('Your next mock is being prepared. Your credit has not been used. Please try again soon.'); }
-    else alert('Could not start the mock. Please try again in a moment.');
+    else { try{console.warn('begin_mock failed',error);}catch(e){} alert('Could not start the mock. Please try again in a moment. If it keeps happening, tell your counsellor this code: '+String((error&&(error.code||error.message))||'unknown').slice(0,80)); }
     return;
   }
   const order=take.unlocked_all?def.sections.map(s=>s.skill):['Listening'];
@@ -16705,5 +16707,288 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   });
 }
 </script>
+<script>
+/* ============================================================
+   PROGRESS, WEEKLY PLAN AND LESSON LINKS
+   - every finished full mock is saved (save_mock_result) and compared with earlier ones
+   - a goal (target band, exam date) + the latest mock decide this week's plan
+   - weak areas link straight to matching lessons
+   Needs 0035_free_full_mock_progress.sql
+   ============================================================ */
+(function(){
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const LS=(k,v)=>{ try{ if(v===undefined){const r=localStorage.getItem(k);return r?JSON.parse(r):null;} localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } };
+  const trackLessons=(...a)=>window.trackLessons(...a);
+  const SK=['Listening','Reading','Writing','Speaking'];
+  const ICON={Listening:'🎧',Reading:'📖',Writing:'✍️',Speaking:'🎤'};
+  const bs=b=>b==null?'–':(Number(b)%1===0?Number(b).toFixed(1):String(Number(b)));
+  const uidNow=()=>currentSession&&currentSession.user&&currentSession.user.id;
+  const field={Listening:'listening',Reading:'reading',Writing:'writing',Speaking:'speaking'};
+  let HIST=null, GOAL=null;
+
+  async function loadHistory(force){
+    if(HIST&&!force)return HIST;
+    try{
+      const r=await sb.from('mock_results').select('*').eq('student_id',uidNow()).order('created_at',{ascending:true});
+      HIST=r.error?[]:(r.data||[]);
+    }catch(e){HIST=[];}
+    return HIST;
+  }
+  async function loadGoal(force){
+    if(GOAL!==null&&!force)return GOAL;
+    try{
+      const r=await sb.from('student_goals').select('*').eq('student_id',uidNow()).maybeSingle();
+      GOAL=(r&&r.data)||{};
+    }catch(e){GOAL={};}
+    return GOAL;
+  }
+  function lvlForBand(b){ return b==null?'foundation':b<4.75?'foundation':b<5.75?'developing':b<6.75?'intermediate':'advanced'; }
+  function isDone(x){ return !!(tpProgressCache['IELTS']||{})[x.l.id]; }
+  function ieltsLessons(skill){ return trackLessons('IELTS').filter(x=>x.mod===skill); }
+
+  // ---- lesson suggestions: words from the feedback matched to lesson titles ----
+  const STOP=new Set('your with that this from have more should would could their there which when what about into than then them they will also very make been were these those some such only other using used uses makes much many most each over just like need needs want sure better good well'.split(' '));
+  const toks=t=>(t||'').toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>=4&&!STOP.has(w)).map(w=>w.replace(/(ing|es|s)$/,''));
+  function suggest(skill,texts,band,n){
+    n=n||2;
+    const T=new Set(toks((texts||[]).join(' ')));
+    let pool=ieltsLessons(skill).map(x=>Object.assign({test:'IELTS'},x));
+    if(skill==='Writing'||skill==='Speaking'){
+      try{ trackLessons('Grammar').forEach(x=>pool.push(Object.assign({test:'Grammar'},x))); }catch(e){}
+    }
+    const scored=pool.filter(x=>!(tpProgressCache[x.test]||{})[x.l.id]).map(x=>{
+      const title=toks(x.l.title), body=toks((x.l.objectives||[]).join(' '));
+      let s=0; title.forEach(w=>{if(T.has(w))s+=3;}); body.forEach(w=>{if(T.has(w))s+=1;});
+      if(s>0&&x.lvl===lvlForBand(band))s+=2;
+      return {x,s};
+    }).filter(o=>o.s>0).sort((a,b)=>b.s-a.s);
+    const out=scored.slice(0,n).map(o=>o.x);
+    if(out.length<n){
+      const lv=lvlForBand(band);
+      const fb=ieltsLessons(skill).filter(x=>!isDone(x)&&(x.lvl===lv||!x.lvl));
+      const rest=ieltsLessons(skill).filter(x=>!isDone(x));
+      [...fb,...rest].forEach(x=>{ if(out.length<n&&!out.find(o=>o.l.id===x.l.id))out.push(Object.assign({test:'IELTS'},x)); });
+    }
+    return out;
+  }
+  const lessonLink=x=>`<div class="tp-module-row" onclick="s4pGoLesson('${x.test}','${x.l.id}')" style="cursor:pointer"><div class="tp-module-check ${(tpProgressCache[x.test]||{})[x.l.id]?'done':''}"></div><div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:600">${E(x.l.title)}</div><div style="font-size:12.5px;color:var(--ink3)">${E(x.test==='Grammar'?'Grammar':(x.mod||'IELTS'))} · ${E(x.l.time||'')}</div></div><div style="color:var(--ink3);font-size:16px">›</div></div>`;
+  window.s4pGoLesson=function(test,id){
+    try{ if(typeof fmStopMedia==='function')fmStopMedia(); }catch(e){}
+    try{ FM=null; }catch(e){}
+    try{ document.getElementById('tp-lesson-view').style.display='none'; }catch(e){}
+    s4pOpenNext(test,id);
+  };
+
+  // ---- compare mocks ----
+  function deltaHtml(cur,prev,label){
+    if(cur==null||prev==null)return `<span style="color:var(--ink3)">${label} ${bs(cur)}</span>`;
+    const d=Math.round((cur-prev)*2)/2;
+    const col=d>0?'#357A2D':d<0?'#B3261E':'var(--ink3)';
+    return `<span>${label} <b>${bs(cur)}</b> <span style="color:${col}">${d>0?'▲ +'+bs(d):d<0?'▼ '+bs(d):'= same'}</span></span>`;
+  }
+  function seriesText(h){
+    if(h.length<2)return '';
+    const f=h[0], l=h[h.length-1];
+    const best=Math.max(...h.map(x=>Number(x.overall)||0));
+    const gain=Math.round(((Number(l.overall)||0)-(Number(f.overall)||0))*2)/2;
+    let t=`Over your ${h.length} mocks your overall band went from <b>${bs(f.overall)}</b> to <b>${bs(l.overall)}</b> (best ${bs(best)}).`;
+    const moves=SK.map(s=>({s,d:Math.round(((Number(l[field[s]])||0)-(Number(f[field[s]])||0))*2)/2})).filter(o=>!isNaN(o.d));
+    const up=moves.slice().sort((a,b)=>b.d-a.d)[0], dn=moves.slice().sort((a,b)=>a.d-b.d)[0];
+    if(up&&up.d>0)t+=` Biggest gain: <b>${up.s}</b> (+${bs(up.d)}).`;
+    if(dn&&dn.d<=0&&h.length>=3)t+=` Needs attention: <b>${dn.s}</b> (${dn.d===0?'no change':bs(dn.d)}).`;
+    if(gain<=0&&h.length>=3)t+=' Your overall has not moved yet. Follow the weekly plan, then try again.';
+    return t;
+  }
+  function weakest(r,target){
+    const arr=SK.map(s=>({s,b:r&&r[field[s]]!=null?Number(r[field[s]]):null})).filter(o=>o.b!=null);
+    arr.sort((a,b)=>a.b-b.b);
+    return arr;
+  }
+
+  // ---- after each mock ----
+  async function saveResult(){
+    if(!FM||FM.__saved||!FM.take)return;
+    const order=FM.def.sections.map(s=>s.skill);
+    const b=s=>{const r=FM.results[s];return r&&r.band!=null?r.band:null;};
+    if(!(FM.take.unlocked_all&&order.every(s=>FM.results[s]&&b(s)!=null)))return;
+    const overall=fmRoundBand(order.map(b).reduce((a,x)=>a+x,0)/order.length);
+    FM.__saved=true;
+    try{ await sb.rpc('save_mock_result',{p_take:FM.take.id,p_test:FM.testKey||'IELTS',p_overall:overall,p_l:b('Listening'),p_r:b('Reading'),p_w:b('Writing'),p_s:b('Speaking')}); }catch(e){ FM.__saved=false; }
+  }
+  async function afterMock(){
+    if(!FM||!FM.take)return;
+    const host=fmEl(); if(!host)return;
+    const box=document.createElement('div'); box.id='s4p-after'; box.className='tp-info-card';
+    box.style.cssText='border:2px solid var(--pine3,#2D5A94);margin-bottom:16px';
+    box.innerHTML='<h4>📈 Your progress</h4><p style="color:var(--ink3);font-size:13.5px">Saving your result…</p>';
+    const anchor=host.children[1]||host.firstChild;
+    if(anchor&&anchor.insertAdjacentElement)anchor.insertAdjacentElement('afterend',box); else host.prepend(box);
+    await saveResult();
+    try{ await loadAllTpProgress(); }catch(e){}
+    const [h,g]=await Promise.all([loadHistory(true),loadGoal()]);
+    const cur=h.find(x=>x.take_id===FM.take.id)||h[h.length-1];
+    if(!cur){
+      box.innerHTML='<h4>📈 Your progress</h4><p style="font-size:13.5px">Finish all four sections to get an overall band and a progress report. Your skill bands so far are shown above.</p>';
+      return;
+    }
+    const idx=h.indexOf(cur), prev=idx>0?h[idx-1]:null;
+    const wk=weakest(cur,g.target_band);
+    let html=`<h4>📈 Your progress report</h4>`;
+    if(prev){
+      html+=`<p style="font-size:14px;margin:4px 0 8px">Mock ${idx+1} compared with mock ${idx}:</p><div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px">${deltaHtml(Number(cur.overall),Number(prev.overall),'Overall')}${SK.map(s=>deltaHtml(cur[field[s]]!=null?Number(cur[field[s]]):null,prev[field[s]]!=null?Number(prev[field[s]]):null,ICON[s]+' '+s)).join('')}</div>`;
+    } else {
+      html+=`<p style="font-size:14px;margin:4px 0 8px">This is your starting point. Your next mocks will be compared with it, so you can see real progress.</p>`;
+    }
+    if(h.length>=3)html+=`<p style="font-size:13.5px;margin-top:10px"><b>Series report.</b> ${seriesText(h)}</p>`;
+    else if(h.length===2)html+=`<p style="font-size:13.5px;margin-top:10px">${seriesText(h)}</p>`;
+    if(g&&g.target_band){
+      const gap=Math.round((Number(g.target_band)-Number(cur.overall))*2)/2;
+      html+=`<p style="font-size:13.5px;margin-top:10px">${gap>0?`You are <b>${bs(gap)}</b> band${gap===1?'':'s'} below your target of <b>${bs(g.target_band)}</b>.`:`You have reached your target of <b>${bs(g.target_band)}</b> in this mock. Keep it steady across mocks.`}</p>`;
+    }
+    if(wk.length){
+      const w=wk[0].s;
+      const texts=[];
+      try{
+        const R=FM.results;
+        if(R.Writing&&R.Writing.tasks)R.Writing.tasks.forEach(t=>{ if(t){ (t.improvements||[]).forEach(x=>texts.push(x)); (t.criteria||[]).forEach(k=>{ if(k.band<=wk[0].b+0.5)texts.push(k.name+' '+(k.comment||'')); }); } });
+        if(R.Speaking&&R.Speaking.tasks)R.Speaking.tasks.forEach(t=>{ if(t){ (t.improvements||[]).forEach(x=>texts.push(x)); (t.criteria||[]).forEach(k=>{ if(k.band<=wk[0].b+0.5)texts.push(k.name+' '+(k.comment||'')); }); } });
+      }catch(e){}
+      const sg=suggest(w,w==='Writing'||w==='Speaking'?texts:[],wk[0].b,3);
+      html+=`<p style="font-size:14px;margin:12px 0 4px"><b>Start here: ${ICON[w]} ${w}</b> (Band ${bs(wk[0].b)}, your lowest). Lessons chosen from your results:</p>${sg.map(lessonLink).join('')||'<p style="font-size:13px;color:var(--ink3)">You have finished the lessons for this skill. Retake a mock to measure the change.</p>'}`;
+    }
+    html+=`<div style="margin-top:10px"><button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="s4pOpenProgress()">See my plan and full progress</button></div><p style="font-size:12px;color:var(--ink3);margin-top:8px">Bands are estimates from a practice mock, not official scores. Writing and speaking marking is AI-assisted.</p>`;
+    box.innerHTML=html;
+    try{ s4pRenderPlanCard(); }catch(e){}
+  }
+  try{
+    const _fs=window.fmSummary||fmSummary;
+    window.fmSummary=function(){ const r=_fs.apply(this,arguments); try{ afterMock(); }catch(e){ console.warn('progress',e); } return r; };
+  }catch(e){ console.warn('summary hook skipped',e); }
+
+  // ---- weekly plan ----
+  function weekKey(){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); return d.toISOString().slice(0,10); }
+  const tickKey=()=>'s4p_plan_v1_'+uidNow()+'_'+weekKey();
+  const ticks=()=>LS(tickKey())||{};
+  window.s4pTick=function(k){ const t=ticks(); t[k]=!t[k]; LS(tickKey(),t); s4pRenderPlanCard(); const p=document.getElementById('s4p-plan-full'); if(p)p.innerHTML=planHtml(window.__s4pPlan); };
+  function daysTo(d){ if(!d)return null; const x=Math.ceil((new Date(d+'T00:00:00')-new Date())/86400000); return x; }
+  function buildPlan(g,h,access){
+    const last=h.length?h[h.length-1]:null;
+    const plan={items:[],note:'',last};
+    const dt=daysTo(g&&g.exam_date);
+    if(!last){
+      plan.note=access&&access.free_used&&!(access.take)?'Take a mock to set your starting level.':'Your free mock is your starting point. It shows your level in all four skills.';
+      plan.items.push({k:'firstmock',label:'Take your first full mock',sub:'Listening, Reading, Writing and Speaking. About 2 hours.',done:false,action:"fmStart('IELTS')",btn:'Start'});
+      return plan;
+    }
+    const target=Number(g&&g.target_band)||null;
+    const wk=weakest(last,target);
+    const nLessons=dt!=null&&dt>=0&&dt<=14?7:dt!=null&&dt>90?4:5;
+    const w1=wk[0], w2=wk[1];
+    const take=(skill,n,band)=>{
+      const lv=lvlForBand(band);
+      const all=ieltsLessons(skill);
+      const pick=[...all.filter(x=>x.lvl===lv),...all.filter(x=>x.lvl!==lv)].filter(x=>!isDone(x)||plan.items.some(i=>i.id===x.l.id));
+      return pick.slice(0,n);
+    };
+    const n1=Math.ceil(nLessons*0.6), n2=nLessons-n1;
+    [[w1,n1],[w2,n2]].forEach(([w,n])=>{ if(!w)return; take(w.s,n,w.b).forEach(x=>plan.items.push({k:'l_'+x.l.id,id:x.l.id,label:x.l.title,sub:w.s+' · '+(x.l.time||''),done:isDone(x),action:"s4pGoLesson('IELTS','"+x.l.id+"')",btn:'Open',skill:w.s})); });
+    // finished lessons of this week also stay visible
+    plan.items.push({k:'spark',label:'One Spark speaking session',sub:'Talk for 10 minutes and ask for feedback.',manual:true,done:!!ticks().spark,action:'openSpeakingPartner()',btn:'Open Spark'});
+    const sinceLast=Math.floor((Date.now()-new Date(last.created_at))/86400000);
+    if(access&&(access.admin||access.credits>0)){
+      plan.items.push({k:'mock',label:'Take your next full mock',sub:sinceLast>=5?'It has been '+sinceLast+' days. Time to measure your progress.':'Best after you finish the lessons above.',done:false,action:"fmStart('IELTS')",btn:'Start'});
+    } else {
+      plan.items.push({k:'mock',label:'Take your next full mock',sub:'Needs a plan. Your free mock is used.',done:false,action:"openPlansDialog('mock')",btn:'See plans'});
+    }
+    plan.note=(w1?`Focus this week: ${ICON[w1.s]} ${w1.s} (Band ${bs(w1.b)})${w2?` and ${ICON[w2.s]} ${w2.s} (Band ${bs(w2.b)})`:''}.`:'')+(dt!=null&&dt>=0?` ${dt} day${dt===1?'':'s'} to your exam.`:'');
+    return plan;
+  }
+  function planHtml(plan){
+    if(!plan)return '';
+    return `<p style="font-size:13.5px;color:var(--ink3);margin:0 0 8px">${E(plan.note)}</p>`+plan.items.map(i=>`<div class="tp-module-row" style="cursor:default">
+      <div class="tp-module-check ${i.done?'done':''}" ${i.manual?`onclick="s4pTick('${i.k}')" style="cursor:pointer"`:''}>${i.done?'✓':''}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:600">${E(i.label)}</div><div style="font-size:12.5px;color:var(--ink3)">${E(i.sub||'')}</div></div>
+      <button class="btn-outline btn" style="width:auto;padding:6px 12px;font-size:12.5px;margin:0" onclick="${i.action}">${E(i.btn||'Open')}</button></div>`).join('');
+  }
+  window.s4pRenderPlanCard=async function(){
+    const el=document.getElementById('dash-plan-card');
+    if(!el||isPreviewMode||!currentSession)return;
+    try{
+      try{ await loadAllTpProgress(); }catch(e){}
+      const [h,g]=await Promise.all([loadHistory(true),loadGoal(true)]);
+      const access=MOCK_ACCESS||await loadMockAccess();
+      const plan=buildPlan(g,h,access); window.__s4pPlan=plan;
+      const done=plan.items.filter(i=>i.done).length;
+      el.innerHTML=`<div class="dt-eyebrow">This week's plan</div>
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:6px">${done} of ${plan.items.length} done</div>
+        ${planHtml(plan)}
+        <div style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap"><a href="javascript:s4pOpenProgress()" style="font-size:13px;color:var(--pine3)">My progress and goal →</a></div>`;
+      el.style.display='block';
+    }catch(e){ el.style.display='none'; }
+  };
+  try{
+    const _rdm=window.renderDashMocks||renderDashMocks;
+    window.renderDashMocks=async function(){ try{ await _rdm.apply(this,arguments); }finally{ try{ s4pRenderPlanCard(); }catch(e){} } };
+  }catch(e){ console.warn('dash hook skipped',e); }
+
+  // ---- progress screen ----
+  function bars(h){
+    if(!h.length)return '';
+    const max=9;
+    return `<div style="display:flex;align-items:flex-end;gap:8px;height:110px;margin:10px 0 4px;overflow-x:auto">${h.map((x,i)=>{
+      const v=Number(x.overall)||0;
+      return `<div style="flex:none;width:44px;text-align:center"><div style="font-size:12px;font-weight:700;color:var(--pine)">${bs(x.overall)}</div><div style="height:${Math.max(6,Math.round(v/max*80))}px;background:var(--pine3,#2D5A94);border-radius:6px 6px 0 0"></div><div style="font-size:11px;color:var(--ink3)">#${i+1}</div></div>`;
+    }).join('')}</div>`;
+  }
+  window.s4pSaveGoal=async function(){
+    const t=parseFloat(document.getElementById('goal-target').value)||null;
+    const d=document.getElementById('goal-date').value||null;
+    const msg=document.getElementById('goal-msg');
+    try{
+      const r=await sb.rpc('set_my_goal',{p_exam:'IELTS',p_target:t,p_date:d});
+      if(r.error)throw r.error;
+      GOAL=null; await loadGoal(true);
+      if(msg)msg.textContent='Saved. Your plan has been updated.';
+      s4pRenderPlanCard(); s4pOpenProgress(true);
+    }catch(e){ if(msg)msg.textContent='Could not save. Please try again.'; }
+  };
+  window.s4pOpenProgress=async function(silent){
+    try{ if(!requireRealLogin())return; }catch(e){}
+    if(!document.getElementById('screen-progress')){
+      const d=document.createElement('div'); d.className='screen'; d.id='screen-progress';
+      d.innerHTML='<span class="back-link" onclick="showScreen(\'screen-dashboard\')">← Back</span><div id="progress-body"></div>';
+      document.getElementById('screen-dashboard').parentNode.appendChild(d);
+    }
+    try{ if(typeof fmStopMedia==='function'&&FM){ fmStopMedia(); FM=null; } }catch(e){}
+    showScreen('screen-progress');
+    const el=document.getElementById('progress-body');
+    if(!silent)el.innerHTML='<div class="empty">Loading…</div>';
+    try{ await loadAllTpProgress(); }catch(e){}
+    const [h,g]=await Promise.all([loadHistory(true),loadGoal(true)]);
+    const access=MOCK_ACCESS||await loadMockAccess();
+    const plan=buildPlan(g,h,access); window.__s4pPlan=plan;
+    const last=h.length?h[h.length-1]:null;
+    const tb=[4.5,5,5.5,6,6.5,7,7.5,8].map(v=>`<option value="${v}" ${Number(g.target_band)===v?'selected':''}>${bs(v)}</option>`).join('');
+    let html=`<div class="card"><h2 style="font-size:17px;margin:0 0 4px;color:var(--pine)">My progress</h2>
+      <p style="font-size:13.5px;color:var(--ink3);margin:0">Bands are estimates from practice mocks, not official scores.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px">
+        <label style="font-size:13px">Target IELTS band<br><select id="goal-target" style="padding:8px;border:1.5px solid var(--line);border-radius:8px"><option value="">Choose</option>${tb}</select></label>
+        <label style="font-size:13px">Exam date (optional)<br><input type="date" id="goal-date" value="${E(g.exam_date||'')}" style="padding:7px;border:1.5px solid var(--line);border-radius:8px"></label>
+        <button class="btn" style="width:auto;padding:9px 16px;font-size:13px;margin:0" onclick="s4pSaveGoal()">Save goal</button></div>
+      <div id="goal-msg" style="font-size:12.5px;color:var(--ink3);margin-top:6px"></div></div>`;
+    html+=`<div class="card"><h3 style="font-size:15.5px;margin:0 0 6px;color:var(--pine)">Your mocks</h3>`;
+    if(!h.length){
+      html+=`<p style="font-size:14px;color:var(--ink3)">No finished full mock yet. Your first mock is your starting point.</p><button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="fmStart('IELTS')">${access&&access.free_used&&!(access.take)?'Choose a plan':'Start your free mock'}</button>`;
+    } else {
+      html+=bars(h)+`<div style="overflow-x:auto"><table class="tp-data-table"><tr><td><b>#</b></td><td><b>Date</b></td><td><b>Overall</b></td><td>🎧</td><td>📖</td><td>✍️</td><td>🎤</td></tr>${h.map((x,i)=>`<tr><td>${i+1}</td><td>${E(new Date(x.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))}</td><td><b>${bs(x.overall)}</b></td><td>${bs(x.listening)}</td><td>${bs(x.reading)}</td><td>${bs(x.writing)}</td><td>${bs(x.speaking)}</td></tr>`).join('')}</table></div>`;
+      if(h.length>=2)html+=`<p style="font-size:13.5px;margin-top:10px"><b>${h.length>=3?'Series report':'Progress'}.</b> ${seriesText(h)}</p>`;
+      if(g.target_band&&last){ const gap=Math.round((Number(g.target_band)-Number(last.overall))*2)/2; html+=`<p style="font-size:13.5px">${gap>0?`Gap to your target: <b>${bs(gap)}</b> band${gap===1?'':'s'}.`:'You are at or above your target in your latest mock.'}</p>`; }
+    }
+    html+=`</div><div class="card"><h3 style="font-size:15.5px;margin:0 0 6px;color:var(--pine)">This week's plan</h3><div id="s4p-plan-full">${planHtml(plan)}</div></div>`;
+    el.innerHTML=html;
+  };
+})();
+</script>
+
 </body>
 </html>
