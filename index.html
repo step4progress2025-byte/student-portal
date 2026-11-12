@@ -17102,5 +17102,352 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
 })();
 </script>
 
+<script>
+/* ============================================================
+   DUOLINGO ENGLISH TEST: final simulation (prem_det_1)
+   Easy to hard: each question type starts easy and gets harder after correct answers (and easier after wrong ones),
+   like the real adaptive test. Scores are estimates on the 10-160 scale. Needs 0037_det_simulation.sql.
+   ============================================================ */
+(function(){
+  const DET_ID='prem_det_1';
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sbn=()=>sb;
+  let D=null; // state
+  const rep=(n,o)=>Array.from({length:n},()=>Object.assign({},o));
+  const SEQ=[{t:'intro'},{t:'check'}]
+    .concat(rep(6,{t:'rs'}),rep(4,{t:'fib'}),rep(5,{t:'lt'}),rep(2,{t:'ir'}))
+    .concat([{t:'wp',i:0},{t:'wp',i:1},{t:'rtw',i:0},{t:'ra',i:0},{t:'ra',i:1},{t:'sp',i:0},{t:'rts',i:0},{t:'lts',i:0},{t:'wsample'},{t:'ssample'},{t:'grading'},{t:'result'}]);
+  const PARTS={rs:'Part 1 of 6 · Read and Select',fib:'Part 1 of 6 · Read and Complete',lt:'Part 2 of 6 · Listen and Type',ir:'Part 3 of 6 · Interactive Reading',wp:'Part 4 of 6 · Write About the Photo',rtw:'Part 4 of 6 · Read, Then Write',ra:'Part 5 of 6 · Read Aloud',sp:'Part 5 of 6 · Speak About the Photo',rts:'Part 5 of 6 · Read, Then Speak',lts:'Part 5 of 6 · Listen, Then Speak',wsample:'Part 6 of 6 · Writing Sample (not scored)',ssample:'Part 6 of 6 · Speaking Sample (not scored)'};
+  const SECS={rs:60,fib:180,lt:75,ir:210,wp:180,rtw:300,ra:40,sp:110,rts:120,lts:150,wsample:300,ssample:180};
+  const css=`#det-root{position:fixed;inset:0;z-index:10060;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
+#det-root *{box-sizing:border-box}
+.dt-top{background:#1E3A6B;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 16px;flex:none}
+.dt-logo{font-weight:800;font-size:16px}.dt-logo span{color:#8fe388}
+.dt-part{flex:1;font-size:12.5px;opacity:.9;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt-timer{font-weight:800;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:8px}
+.dt-timer.low{background:#B3261E}
+.dt-bar{height:4px;background:#d6dcea;flex:none}.dt-bar i{display:block;height:100%;background:#2e9d4f;width:0}
+.dt-main{flex:1;overflow:auto;padding:18px 16px 24px}
+.dt-wrap{max-width:760px;margin:0 auto}
+.dt-card{background:#fff;border:1px solid #dde3ee;border-radius:14px;padding:18px;margin-bottom:14px}
+.dt-card h3{margin:0 0 8px;color:#1E3A6B;font-size:18px}
+.dt-btn{background:#1E3A6B;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer}
+.dt-btn.alt{background:#fff;color:#1E3A6B;border:1.5px solid #1E3A6B}
+.dt-btn:disabled{opacity:.45;cursor:default}
+.dt-foot{flex:none;background:#fff;border-top:1px solid #dde3ee;padding:10px 16px;display:flex;justify-content:center;gap:10px}
+.dt-words{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.dt-w{border:2px solid #cdd6e6;background:#fff;border-radius:12px;padding:14px 8px;font-size:17px;font-weight:600;cursor:pointer;text-align:center}
+.dt-w.on{border-color:#2e9d4f;background:#e8f6ec}
+.dt-blank{width:auto;border:none;border-bottom:2px solid #1E3A6B;background:#eef3fb;font:inherit;font-weight:700;color:#1E3A6B;text-align:left;padding:0 2px;margin:0 2px}
+.dt-text{font-size:17px;line-height:2}
+.dt-ta{width:100%;min-height:150px;padding:12px;border:1.5px solid #cdd6e6;border-radius:10px;font:inherit;font-size:16px;resize:vertical}
+.dt-scene{font-size:46px;line-height:1.5;text-align:center;background:linear-gradient(180deg,#eaf3ff,#fff7e8);border-radius:14px;padding:22px 10px;margin-bottom:12px}
+.dt-opt{display:block;border:1.5px solid #cdd6e6;border-radius:10px;padding:10px 12px;margin:6px 0;cursor:pointer}
+.dt-opt input{margin-right:8px}
+.dt-score{font-size:44px;font-weight:800;color:#C9631A}
+.dt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.dt-tile{background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:12px;text-align:center}
+.dt-tile b{display:block;font-size:26px;color:#1E3A6B}
+.dt-mic{display:inline-block;margin:6px 0}`;
+  function injectCss(){ if(document.getElementById('det-css'))return; const s=document.createElement('style'); s.id='det-css'; s.textContent=css; document.head.appendChild(s); }
+  const key=()=>'det_state_'+D.take;
+  const save=()=>{ if(!D||D.pos>=SEQ.length-2&&D.view)return; try{ localStorage.setItem(key(),JSON.stringify({pos:D.pos,tier:D.tier,used:D.used,cur:D.cur,prod:D.prod,deadline:D.deadline})); }catch(e){} };
+  const load=id=>{ try{ return JSON.parse(localStorage.getItem('det_state_'+id)||'null'); }catch(e){ return null; } };
+  const root=()=>document.getElementById('det-root');
+  const main=h=>{ const m=document.getElementById('det-main'); if(m){ m.innerHTML=h; m.scrollTop=0; } };
+  const foot=h=>{ const f=document.getElementById('det-foot'); if(f)f.innerHTML=h||''; };
+  const fmt=s=>{ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+  const r5=x=>Math.round(x/5)*5;
+  function cand(){ try{ const m=currentSession.user.user_metadata||{}; return m.full_name||m.name||currentSession.user.email||'Candidate'; }catch(e){ return 'Candidate'; } }
+
+  // ---------- card on the Duolingo Mocks tab ----------
+  window.detHydrate=async function(){
+    const el=document.getElementById('det-card'); if(!el||isPreviewMode||!currentSession)return;
+    let st=null; try{ const r=await sbn().rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===DET_ID); }catch(e){}
+    if(!st){ el.innerHTML=''; return; }
+    let status,btn;
+    const b=(l,f)=>`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="${f}">${l}</button>`;
+    if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','detViewSaved()'); }
+    else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','detStart()'); }
+    else if(st.admin||st.credits>0){ status=st.admin?'Administrator: start as often as you like.':`This uses <b>1 of your ${st.credits}</b> mock credit${st.credits===1?'':'s'}. It can be taken once.`; btn=b('Start simulation','detConfirm()'); }
+    else { status='Available with any paid plan. It uses one mock credit.'; btn=b('Choose a plan',"openPlansDialog('mock')"); }
+    el.innerHTML=`<div class="tp-info-card" style="border:2px solid #C9631A;background:linear-gradient(180deg,#FFF8F0,#fff)"><h4>⭐ ${E(st.title)}</h4>
+      <p>A full practice of the Duolingo English Test: it starts easy and gets harder as you answer correctly, like the real adaptive test. Reading, listening, writing and speaking tasks, then an estimated score out of 160 with a PDF report. Original questions, not real test items.</p>
+      <p style="margin-top:8px">${status}</p>${btn}
+      <div style="font-size:12px;color:var(--ink3);margin-top:8px">About 60 minutes in one sitting. Use a laptop or tablet, headphones, a microphone and a quiet room. No lessons are needed first.</div></div>`;
+  };
+  window.detConfirm=function(){
+    const m=document.createElement('div'); m.id='det-confirm'; m.style.cssText='position:fixed;inset:0;z-index:10100;background:rgba(15,25,45,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+    m.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:420px;padding:20px"><h3 style="margin:0 0 8px;color:#1E3A6B">Start the Duolingo simulation?</h3><p style="font-size:14px;line-height:1.6">It uses <b>one mock credit</b> and can be taken <b>once</b>. Set aside about 60 minutes. If you leave, you can resume within 5 hours.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="dt-btn" onclick="document.getElementById('det-confirm').remove();detStart()">Start now</button><button class="dt-btn alt" onclick="document.getElementById('det-confirm').remove()">Not now</button></div></div>`;
+    document.body.appendChild(m);
+  };
+
+  // ---------- start / resume ----------
+  window.detStart=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().rpc('begin_premium_mock',{p_mock:DET_ID});
+    if(error){
+      const msg=error.message||'';
+      if(/NO_CREDIT/.test(msg)){ await loadMockAccess(true); openPlansDialog('mock'); }
+      else if(/ALREADY_TAKEN/.test(msg)){ detViewSaved(); }
+      else if(/EXPIRED/.test(msg)){ alert('This simulation was started more than 5 hours ago and can no longer be resumed. Please contact your Step4Progress counsellor.'); }
+      else alert('Could not start the simulation. Please try again in a moment. Code: '+String(msg).slice(0,60));
+      return;
+    }
+    const sv=load(data.take_id);
+    D={take:data.take_id,c:data.content,res:data.results||{},pos:0,tier:{rs:1,fib:1,lt:1,ir:1},used:{},cur:{},prod:{},deadline:0,tick:null,plays:0,rec:null,sel:{}};
+    if(sv&&data.resumed){ D.pos=sv.pos||0; D.tier=sv.tier||D.tier; D.used=sv.used||{}; D.cur=sv.cur||{}; D.prod=sv.prod||{}; D.deadline=sv.deadline||0; }
+    if(sv&&data.resumed&&sv.deadline&&sv.deadline>Date.now())D.pendingDeadline=sv.deadline;
+    open();
+  };
+  function open(){
+    injectCss(); const o=root(); if(o)o.remove();
+    const r=document.createElement('div'); r.id='det-root';
+    r.innerHTML=`<div class="dt-top"><div class="dt-logo">Duolingo<span>·</span>Simulation</div><div class="dt-part" id="det-part"></div><div class="dt-timer" id="det-timer" style="display:none"></div><button class="dt-btn alt" style="padding:5px 12px;font-size:12px;background:transparent;color:#fff;border-color:#fff" onclick="detExit()">Exit</button></div><div class="dt-bar"><i id="det-prog"></i></div><div class="dt-main" id="det-main"></div><div class="dt-foot" id="det-foot"></div>`;
+    document.body.appendChild(r);
+    window.addEventListener('beforeunload',beforeUnload);
+    if(D.tick)clearInterval(D.tick); D.tick=setInterval(tick,500);
+    render();
+  }
+  function beforeUnload(e){ if(D&&D.pos<SEQ.length-1&&!D.view){ e.preventDefault(); e.returnValue=''; } }
+  window.detExit=function(){
+    if(D&&!D.view&&D.pos<SEQ.length-2&&!confirm('Leave the simulation? You can resume within 5 hours from the Mocks tab. The timer keeps running.'))return;
+    stopMedia(); if(D&&D.tick)clearInterval(D.tick); window.removeEventListener('beforeunload',beforeUnload);
+    const o=root(); if(o)o.remove(); D=null;
+    try{ loadMockAccess(true); renderDashMocks(); }catch(e){}
+    try{ if(document.getElementById('det-card'))detHydrate(); }catch(e){}
+  };
+  function stopMedia(){ try{ speechSynthesis.cancel(); }catch(e){} try{ if(D&&D.audio){ D.audio.pause(); D.audio=null; } }catch(e){} try{ if(D&&D.rec){ D.rec.stop(); D.rec=null; } }catch(e){} }
+  // ---------- timer ----------
+  function setTimer(sec){ D.deadline=Date.now()+sec*1000; save(); const t=document.getElementById('det-timer'); if(t)t.style.display=''; tick(); }
+  function hideTimer(){ D.deadline=0; const t=document.getElementById('det-timer'); if(t)t.style.display='none'; }
+  function tick(){
+    if(!D||!D.deadline)return; const left=(D.deadline-Date.now())/1000; const t=document.getElementById('det-timer');
+    if(t){ t.textContent='⏱ '+fmt(left); t.classList.toggle('low',left<=15); }
+    if(left<=0){ D.deadline=0; next(true); }
+  }
+  // ---------- adaptive pick ----------
+  function pick(type){
+    const items=D.c.items[type]; const used=D.used[type]||[]; let t=D.tier[type]||1;
+    for(const tt of [t,t-1,t+1,t-2,t+2]){ if(tt<1||tt>3)continue; const pool=items.filter(x=>x.tier===tt&&!used.includes(x.id)); if(pool.length)return pool[Math.floor(Math.random()*pool.length)]; }
+    return items.find(x=>!used.includes(x.id))||items[0];
+  }
+  function curItem(step){ const type=step.t; if(!D.cur[D.pos]){ const it=pick(type); D.cur[D.pos]=it.id; (D.used[type]=D.used[type]||[]).push(it.id); save(); } return D.c.items[type].find(x=>x.id===D.cur[D.pos]); }
+  // ---------- navigation ----------
+  function render(){
+    stopMedia();
+    const step=SEQ[D.pos]; const pl=document.getElementById('det-part'); if(pl)pl.textContent=PARTS[step.t]||({intro:'Instructions',check:'Device check',grading:'Marking',result:'Your result'})[step.t]||'';
+    const pr=document.getElementById('det-prog'); if(pr)pr.style.width=Math.round(D.pos/(SEQ.length-2)*100)+'%';
+    D.plays=0; D.sel={}; hideTimer();
+    const f={intro,check,rs,fib,lt,ir,wp:photo,sp:photo,rtw,ra,rts,lts,wsample:sample,ssample:sample,grading,result}[step.t];
+    f(step);
+    if(SECS[step.t]&&!(D.view)){ const resume=D.resumeDeadline; if(D.pendingDeadline){ D.deadline=D.pendingDeadline; D.pendingDeadline=0; setTimer((D.deadline-Date.now())/1000); } else setTimer(SECS[step.t]); }
+    save();
+  }
+  async function next(timeUp){
+    if(!D)return; const step=SEQ[D.pos];
+    try{ await commit(step,timeUp); }catch(e){ console.warn('commit',e); }
+    D.pos++; D.deadline=0; save(); render();
+  }
+  window.detNext=()=>next(false);
+  // ---------- committing an answer ----------
+  async function commit(step,timeUp){
+    const t=step.t;
+    if(t==='rs'){ const it=D.c.items.rs.find(x=>x.id===D.cur[D.pos]); const ans=Object.keys(D.sel).filter(k=>D.sel[k]); await submitItem(t,it,ans); }
+    else if(t==='fib'){ const it=D.c.items.fib.find(x=>x.id===D.cur[D.pos]); const ans=[...document.querySelectorAll('.dt-blank')].map(i=>(i.dataset.p||'')+(i.value||'').trim()); await submitItem(t,it,ans); }
+    else if(t==='lt'){ const it=D.c.items.lt.find(x=>x.id===D.cur[D.pos]); const ta=document.getElementById('det-ta'); await submitItem(t,it,ta?ta.value:''); }
+    else if(t==='ir'){ const it=D.c.items.ir.find(x=>x.id===D.cur[D.pos]); const a=[0,1].map(k=>{ const c=document.querySelector('input[name="irq'+k+'"]:checked'); return c?parseInt(c.value,10):-1; }); await submitItem(t,it,a); }
+    else if(['wp','rtw','sp','rts','lts','ra','wsample','ssample'].includes(t)){ const ta=document.getElementById('det-ta'); D.prod[t+(step.i!=null?step.i:'')]=ta?ta.value:''; }
+  }
+  async function submitItem(type,it,ans){
+    let ok=false;
+    try{ const r=await sbn().rpc('submit_det_item',{p_take:D.take,p_item:it.id,p_answer:ans}); if(!r.error&&r.data)ok=!!r.data.ok; }catch(e){}
+    const t=D.tier[type]||1; D.tier[type]=ok?Math.min(3,t+1):Math.max(1,t-1);
+  }
+  // ---------- screens ----------
+  function intro(){
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Duolingo English Test: final simulation</h3>
+      <p style="line-height:1.7">This practice follows the structure of the real test. It starts with easy questions. If you answer correctly, the next questions get harder; if you struggle, they get easier. There are six parts:</p>
+      <ol style="line-height:1.9;font-size:15px;margin:6px 0 10px 18px"><li>Read and Select, Read and Complete</li><li>Listen and Type</li><li>Interactive Reading</li><li>Write About the Photo, Read Then Write</li><li>Read Aloud and the Speaking tasks</li><li>Writing and Speaking Samples (not scored)</li></ol>
+      <p style="line-height:1.7"><b>Rules.</b> Each question has a timer. You cannot go back. Do not use dictionaries, translators or help from anyone. Your answers are saved on this device if you lose connection, and you can resume within 5 hours.</p>
+      <p style="font-size:13px;color:#667">The score is an estimate on the 10 to 160 scale and not an official result. The real test is adaptive and uses a larger question bank.</p></div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">I understand, continue</button>');
+  }
+  function check(){
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Device check</h3><p style="line-height:1.7">Put on headphones and sit in a quiet room. You will need sound for the listening tasks and a microphone for the speaking tasks (if your device cannot record, you can type your speaking answers).</p>
+      <p><button class="dt-btn alt" onclick="detDeviceCheck()">Run device check</button></p><p style="font-size:13px;color:#667">You can skip this and continue.</p></div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Start the test</button>');
+  }
+  window.detDeviceCheck=async function(){ try{ await window.s4pDeviceCheck({mic:true,force:true}); }catch(e){} };
+  function rs(){
+    const it=curItem(SEQ[D.pos]);
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Select the real English words</h3><p style="color:#667;margin:0 0 12px">Tap every word that is a real English word. Some words are not real.</p>
+      <div class="dt-words">${it.words.map(w=>`<div class="dt-w" data-w="${E(w)}" onclick="detTog(this)">${E(w)}</div>`).join('')}</div></div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  window.detTog=function(el){ const w=el.dataset.w; D.sel[w]=!D.sel[w]; el.classList.toggle('on',!!D.sel[w]); };
+  function fib(){
+    const it=curItem(SEQ[D.pos]);
+    const html=E(it.text).replace(/«([^|«»]+)\|(\d+)»/g,(m,p,n)=>`<b>${p}</b><input class="dt-blank" data-p="${p}" maxlength="${n}" size="${Math.max(2,+n)}" autocomplete="off" autocapitalize="off" spellcheck="false">`);
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Complete the text</h3><p style="color:#667;margin:0 0 10px">Type the missing letters to complete each word.</p><div class="dt-text">${html}</div></div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  async function playItem(id,kind){
+    if(D.plays>=3){ return; }
+    D.plays++; const b=document.getElementById('det-play'); if(b)b.textContent='▶ Play again ('+(3-D.plays)+' left)'; if(D.plays>=3&&b)b.disabled=true;
+    stopMedia();
+    const speakText=async()=>{
+      let txt=''; try{ const r=await sbn().rpc('det_audio_text',{p_take:D.take,p_item:id}); if(!r.error)txt=r.data||''; }catch(e){}
+      if(!txt){ alert('Could not load the audio. Please try again.'); return; }
+      try{ const u=new SpeechSynthesisUtterance(txt); const v=speechSynthesis.getVoices().find(x=>/en-(GB|US)/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^en/i.test(x.lang)); if(v)u.voice=v; u.rate=.92; speechSynthesis.speak(u); }catch(e){}
+    };
+    // real recording if the file exists (det/<id>.mp3), otherwise the browser voice
+    let fell=false; const fb=()=>{ if(fell)return; fell=true; D.audio=null; speakText(); }; try{ const a=new Audio('det/'+id+'.mp3'); D.audio=a; a.onerror=fb; const p=a.play(); if(p&&p.catch)p.catch(fb); }catch(e){ fb(); }
+  }
+  window.detPlay=function(){ const step=SEQ[D.pos]; const id=step.t==='lts'?(D.c.lts[step.i].id):D.cur[D.pos]; playItem(id); };
+  function lt(){
+    const it=curItem(SEQ[D.pos]);
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Type what you hear</h3><p style="color:#667;margin:0 0 12px">Listen to the sentence and type it exactly. You can play it 3 times.</p>
+      <p><button class="dt-btn alt" id="det-play" onclick="detPlay()">▶ Play</button></p><textarea class="dt-ta" id="det-ta" style="min-height:90px" placeholder="Type the sentence here" autocomplete="off" spellcheck="false"></textarea></div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function ir(){
+    const it=curItem(SEQ[D.pos]);
+    const q=(k,qq,oo)=>`<div style="margin-top:14px"><b>${E(qq)}</b>${oo.map((o,i)=>`<label class="dt-opt"><input type="radio" name="irq${k}" value="${i}">${E(o)}</label>`).join('')}</div>`;
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Read and answer</h3><p style="line-height:1.8;font-size:16px;background:#f6f8fc;border-radius:10px;padding:12px">${E(it.p)}</p>${q(0,it.q1,it.o1)}${q(1,it.q2,it.o2)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  const wc=t=>(t||'').trim().split(/\s+/).filter(Boolean).length;
+  function textArea(ph,min){ return `<textarea class="dt-ta" id="det-ta" placeholder="${E(ph)}" oninput="detWc(${min||0})"></textarea><div id="det-wc" style="font-size:12.5px;color:#667;margin-top:4px">0 words${min?' · aim for at least '+min:''}</div>`; }
+  window.detWc=function(min){ const ta=document.getElementById('det-ta'); const el=document.getElementById('det-wc'); if(ta&&el)el.textContent=wc(ta.value)+' words'+(min?' · aim for at least '+min:''); };
+  function photo(step){
+    const ph=D.c.photos[step.t==='wp'?step.i:2+step.i]||D.c.photos[0];
+    const speak=step.t==='sp';
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>${speak?'Speak about the photo':'Write about the photo'}</h3>
+      <div class="dt-scene" role="img" aria-label="${E(ph.alt)}">${E(ph.scene)}</div>
+      <p style="color:#667;margin:0 0 8px">${speak?'Describe what you see. Say as much as you can, using full sentences.':'Write at least one sentence describing the picture. Write as much as you can.'}</p>
+      ${speak?micBlock():''}${textArea(speak?'Your spoken answer appears here (or type it)':'Write your description here',speak?0:30)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function rtw(step){
+    const p=D.c.rtw[step.i];
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Read, then write</h3><p style="line-height:1.7;background:#f6f8fc;border-radius:10px;padding:12px">${E(p.p)}</p>${textArea('Write your answer here',p.min)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function micBlock(){ return `<p class="dt-mic"><button class="dt-btn alt" id="det-mic" onclick="detDictate()">🎙 Start speaking</button> <span style="font-size:12.5px;color:#667">If your device cannot record, type your answer below.</span></p>`; }
+  window.detDictate=function(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const b=document.getElementById('det-mic');
+    if(!SR){ if(b){ b.disabled=true; b.textContent='Recording not available: please type'; } return; }
+    if(D.rec){ try{ D.rec.stop(); }catch(e){} D.rec=null; if(b)b.textContent='🎙 Start speaking'; return; }
+    const r=new SR(); r.lang='en-US'; r.continuous=true; r.interimResults=false;
+    r.onresult=e=>{ let add=''; for(let k=e.resultIndex;k<e.results.length;k++){ if(e.results[k].isFinal)add+=e.results[k][0].transcript+' '; } const ta=document.getElementById('det-ta'); if(ta&&add){ ta.value=(ta.value?ta.value.trim()+' ':'')+add.trim(); detWc(0); } };
+    r.onend=()=>{ D.rec=null; if(b)b.textContent='🎙 Start speaking'; }; r.onerror=r.onend;
+    D.rec=r; try{ r.start(); if(b)b.textContent='⏹ Stop'; }catch(e){}
+  };
+  function ra(step){
+    const s=D.c.ra[step.i];
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Read aloud</h3><p style="color:#667;margin:0 0 10px">Read this sentence aloud, clearly and at a natural speed.</p><p style="font-size:20px;line-height:1.7;background:#f6f8fc;border-radius:10px;padding:14px">${E(s)}</p>${micBlock()}${textArea('What you said appears here (or type it)',0)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function rts(step){
+    const p=D.c.rts[step.i];
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Read, then speak</h3><p style="line-height:1.7;background:#f6f8fc;border-radius:10px;padding:12px">${E(p.p)}</p>${micBlock()}${textArea('Your spoken answer appears here (or type it)',0)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function lts(step){
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>Listen, then speak</h3><p style="color:#667;margin:0 0 10px">Listen to the recording once or twice. Then summarise it in your own words and say what you think about it.</p><p><button class="dt-btn alt" id="det-play" onclick="detPlay()">▶ Play</button></p>${micBlock()}${textArea('Your spoken answer appears here (or type it)',0)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">Next</button>');
+  }
+  function sample(step){
+    const w=step.t==='wsample';
+    main(`<div class="dt-wrap"><div class="dt-card"><h3>${w?'Writing sample':'Speaking sample'}</h3><p style="color:#667">This part is not scored. In the real test, institutions can read or watch it.</p><p style="line-height:1.7;background:#f6f8fc;border-radius:10px;padding:12px">${E(w?D.c.ws:D.c.ss)}</p>${w?'':micBlock()}${textArea(w?'Write here':'Your spoken answer appears here (or type it)',0)}</div></div>`);
+    foot('<button class="dt-btn" onclick="detNext()">'+(step.t==='ssample'?'Finish and get my result':'Next')+'</button>');
+  }
+  // ---------- marking ----------
+  function sim(said,target){
+    const n=t=>(t||'').toLowerCase().replace(/[^a-z0-9' ]/g,'').split(/\s+/).filter(Boolean); const a=n(said), k=n(target); if(!k.length||!a.length)return 0;
+    const used=new Array(a.length).fill(false); let m=0; k.forEach(w=>{ for(let j=0;j<a.length;j++){ if(!used[j]&&a[j]===w){ used[j]=true; m++; break; } } }); return m/k.length;
+  }
+  async function aiGrade(kind,prompt,answer,skill){
+    if(!answer||wc(answer)<2)return {score:10,g:null,blank:true};
+    try{
+      const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer,testName:'Duolingo English Test',takeId:D.take,skill})});
+      const d=await res.json(); if(res.ok&&typeof d.band==='number')return {score:Math.max(10,Math.min(160,r5(d.band))),g:d};
+    }catch(e){} return {score:null,g:null};
+  }
+  async function grading(){
+    main(`<div class="dt-wrap"><div class="dt-card" style="text-align:center"><div style="font-size:40px">📝</div><h3>Marking your test</h3><p style="color:#667">Your writing and speaking are being assessed. This can take up to a minute. Please keep this page open.</p></div></div>`); foot('');
+    const P=D.prod, c=D.c;
+    const phs=i=>c.photos[i];
+    const W=[['wp0','Write about the photo 1','Describe this picture in writing: '+phs(0).caption],['wp1','Write about the photo 2','Describe this picture in writing: '+phs(1).caption],['rtw0','Read, then write',c.rtw[0].p]];
+    const Sp=[['sp0','Speak about the photo','Describe this picture aloud: '+phs(2).caption],['rts0','Read, then speak',c.rts[0].p],['lts0','Listen, then speak','The student listened to a recording and had to summarise it and give an opinion.']];
+    const wres=await Promise.all(W.map(w=>aiGrade('det_write',w[2],P[w[0]],'Writing')));
+    const sres=await Promise.all(Sp.map(w=>aiGrade('det_speak',w[2],P[w[0]],'Speaking')));
+    const raScores=[0,1].map(i=>{ const s=sim(P['ra'+i],c.ra[i]); return {sim:s,score:r5(10+150*s)}; });
+    const wv=wres.map(x=>x.score).filter(x=>x!=null), sv=sres.map(x=>x.score).filter(x=>x!=null).concat(raScores.map(x=>x.score));
+    const wsc=wv.length===wres.length?r5(wv.reduce((a,b)=>a+b,0)/wv.length):null;
+    const ssc=sres.every(x=>x.score!=null)?r5(sv.reduce((a,b)=>a+b,0)/sv.length):null;
+    D.tasks={writing:W.map((w,i)=>({title:w[1],answer:P[w[0]],res:wres[i]})),speaking:Sp.map((w,i)=>({title:w[1],answer:P[w[0]],res:sres[i]})),ra:raScores.map((x,i)=>({target:c.ra[i],said:P['ra'+i],sim:x.sim,score:x.score}))};
+    try{
+      await sbn().rpc('save_premium_part',{p_take:D.take,p_key:'writing',p_value:{score:wsc,tasks:D.tasks.writing.map(t=>({title:t.title,answer:t.answer,score:t.res.score,g:t.res.g}))}});
+      await sbn().rpc('save_premium_part',{p_take:D.take,p_key:'speaking',p_value:{score:ssc,tasks:D.tasks.speaking.map(t=>({title:t.title,answer:t.answer,score:t.res.score,g:t.res.g})),ra:D.tasks.ra}});
+      const f=await sbn().rpc('finish_det',{p_take:D.take}); D.final=f.error?null:f.data;
+    }catch(e){ D.final=null; }
+    D.pos=SEQ.length-1; D.deadline=0; D.finished=true; try{ localStorage.removeItem(key()); }catch(e){} render();
+  }
+  // ---------- result ----------
+  function g_card(t){
+    const g=t.res&&t.res.g;
+    return `<div class="dt-card"><h3 style="font-size:16px">${E(t.title)}${t.res&&t.res.score!=null?' · estimated '+t.res.score+'/160':''}</h3>
+      <details><summary style="cursor:pointer;color:#1E3A6B;font-size:13px">Your answer</summary><p style="white-space:pre-wrap;font-size:14px">${E(t.answer||'(blank)')}</p></details>
+      ${g?`${(g.criteria||[]).map(k=>`<p style="font-size:13px;margin:3px 0"><b>${E(k.name)}</b> ${k.band}: ${E(k.comment||'')}</p>`).join('')}
+      ${(g.strengths||[]).length?`<p style="margin:8px 0 2px"><b>What worked</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.strengths.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}
+      ${(g.improvements||[]).length?`<p style="margin:8px 0 2px"><b>To improve</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.improvements.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}`:`<p style="font-size:13px;color:#667">${t.res&&t.res.blank?'No answer was given.':'Detailed marking was not available for this answer.'}</p>`}</div>`;
+  }
+  function result(){
+    hideTimer(); const f=D.final||{}; D.view=true;
+    const tile=(n,v)=>`<div class="dt-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b></div>`;
+    let h=`<div class="dt-wrap"><div class="dt-card" style="text-align:center"><div style="font-size:42px">${f.overall&&f.overall>=120?'🎉':'💪'}</div>
+      ${f.overall!=null?`<div class="dt-score">${f.overall}<span style="font-size:20px;color:#667"> / 160</span></div><div style="color:#667;font-size:13px">Estimated Duolingo English Test score. Not an official result.</div>`:`<h3>Result</h3><p>Some parts could not be marked, so an overall score is not shown.</p>`}</div>
+      <div class="dt-grid">${tile('Reading',f.reading)}${tile('Listening',f.listening)}${tile('Writing',f.writing)}${tile('Speaking',f.speaking)}</div>
+      <div class="dt-grid" style="margin-top:10px">${tile('Literacy',f.literacy)}${tile('Comprehension',f.comprehension)}${tile('Conversation',f.conversation)}${tile('Production',f.production)}</div>`;
+    const lv=D.tier?`<div class="dt-card" style="margin-top:14px"><h3 style="font-size:16px">How far you climbed</h3><p style="font-size:14px;line-height:1.7">The test gets harder when you answer correctly. By the end you were working at: Read and Select level ${D.tier.rs||'-'}, Read and Complete level ${D.tier.fib||'-'}, Listen and Type level ${D.tier.lt||'-'}, Interactive Reading level ${D.tier.ir||'-'} (1 = easiest, 3 = hardest).</p></div>`:'';
+    if(D.tier)h+=lv;
+    if(D.tasks){ h+=D.tasks.writing.map(g_card).join('')+D.tasks.speaking.map(g_card).join('');
+      h+=`<div class="dt-card"><h3 style="font-size:16px">Read aloud</h3>${D.tasks.ra.map(x=>`<p style="font-size:13.5px"><b>Target:</b> ${E(x.target)}<br><b>You said:</b> ${E(x.said||'(blank)')}<br>Match ${Math.round(x.sim*100)}% · ${x.score}/160</p>`).join('')}</div>`; }
+    h+=`<p style="font-size:12.5px;color:#667">Scores are estimates. Reading and listening are marked by a fixed answer key; writing and speaking are marked by AI and speaking is judged from the text of what you said, so pronunciation is not measured.</p></div>`;
+    main(h); foot(`<button class="dt-btn" onclick="detPdf()">⬇ Download result PDF</button><button class="dt-btn alt" onclick="detExit()">Close</button>`);
+    const pr=document.getElementById('det-prog'); if(pr)pr.style.width='100%';
+  }
+  window.detPdf=function(){
+    const f=D.final||{}; const g=t=>{ const L=[]; const x=t.res&&t.res.g; if(t.res&&t.res.score!=null)L.push('Estimated score: '+t.res.score+' / 160'); if(x){ (x.criteria||[]).forEach(k=>L.push(k.name+' '+k.band+': '+(k.comment||''))); if((x.strengths||[]).length){ L.push('What worked:'); x.strengths.forEach(s=>L.push('- '+s)); } if((x.improvements||[]).length){ L.push('To improve:'); x.improvements.forEach(s=>L.push('- '+s)); } } else L.push(t.res&&t.res.blank?'No answer was given.':'Detailed marking was not available.'); return L; };
+    const rp={title:'Duolingo English Test - Final Simulation',candidate:cand(),date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+      overall:f.overall!=null?f.overall+' / 160':null,overallLabel:'Overall score (estimate)',
+      sections:[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking],['Literacy (reading + writing)',f.literacy],['Comprehension (reading + listening)',f.comprehension],['Conversation (listening + speaking)',f.conversation],['Production (writing + speaking)',f.production]].map(x=>({name:x[0],band:x[1]!=null?String(x[1]):'-',note:''})),blocks:[]};
+    const low=[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking]].filter(x=>x[1]!=null).sort((a,b)=>a[1]-b[1])[0];
+    if(low)rp.blocks.push({h:'Where to focus next',lines:['Your lowest skill in this simulation was '+low[0]+' ('+low[1]+' / 160). Practise it in short daily sessions, then take another full practice to measure the change.']});
+    if(D.tasks){ D.tasks.writing.concat(D.tasks.speaking).forEach(t=>rp.blocks.push({h:t.title,lines:g(t)})); }
+    rp.note='Scores are estimates from a practice simulation, not official Duolingo English Test results. Reading and listening are marked against a fixed key. Writing and speaking are AI-assisted, and speaking is judged from text, so pronunciation is not measured.';
+    s4pMakePdf(rp,'Step4Progress-Duolingo-simulation-result.pdf');
+  };
+  window.detViewSaved=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().from('premium_results').select('*').eq('mock_id',DET_ID).order('updated_at',{ascending:false}).limit(1);
+    if(error||!data||!data.length){ alert('Could not load your result.'); return; }
+    const r=data[0].results||{};
+    D={take:data[0].take_id,c:null,final:r.det_final||null,view:true,pos:SEQ.length-1,tier:null,tasks:r.writing&&r.speaking?{writing:(r.writing.tasks||[]).map(t=>({title:t.title,answer:t.answer,res:{score:t.score,g:t.g}})),speaking:(r.speaking.tasks||[]).map(t=>({title:t.title,answer:t.answer,res:{score:t.score,g:t.g}})),ra:(r.speaking.ra||[])}:null,prod:{},deadline:0,tick:null};
+    injectCss(); const o=root(); if(o)o.remove();
+    const el=document.createElement('div'); el.id='det-root';
+    el.innerHTML=`<div class="dt-top"><div class="dt-logo">Duolingo<span>·</span>Simulation</div><div class="dt-part">Your saved result</div><div class="dt-timer" id="det-timer" style="display:none"></div><button class="dt-btn alt" style="padding:5px 12px;font-size:12px;background:transparent;color:#fff;border-color:#fff" onclick="detExit()">Close</button></div><div class="dt-bar"><i id="det-prog"></i></div><div class="dt-main" id="det-main"></div><div class="dt-foot" id="det-foot"></div>`;
+    document.body.appendChild(el); result();
+  };
+  // show the card on the Duolingo Mocks tab
+  try{
+    const _rm=window.renderMocksTab||renderMocksTab;
+    window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='Duolingo'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('det-card')){ el.insertAdjacentHTML('afterbegin','<div id="det-card" style="margin-bottom:12px"></div>'); detHydrate(); } } }catch(e){} return r; };
+  }catch(e){ console.warn('det tab hook skipped',e); }
+})();
+</script>
+
 </body>
 </html>
