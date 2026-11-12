@@ -14279,7 +14279,7 @@ function pmResult(){
   if(r.writing&&r.writing.tasks)r.writing.tasks.forEach(t=>{ h+=`<div style="margin-top:14px">${fmFeedbackCard('Writing Task '+t.no+' ('+t.words+' words)',t.g,t.ans,null)}</div>`; });
   if(r.speaking)h+=`<div style="margin-top:14px">${fmFeedbackCard('Speaking',r.speaking.g,r.speaking.qa,null)}</div>`;
   h+=pmReviewTable(r.listening,'Listening')+pmReviewTable(r.reading,'Reading');
-  h+=`<div style="text-align:center;margin:18px 0 30px"><button class="pm-btn" onclick="pmClose()">Close</button></div></div>`;
+  h+=`<div style="text-align:center;margin:18px 0 30px"><button class="pm-btn" onclick="s4pPdfFromPM()">⬇ Download result PDF</button> <button class="pm-btn" onclick="pmClose()">Close</button></div></div>`;
   pmMain(h); pmFoot(''); const t=document.getElementById('pm-timer'); if(t)t.style.display='none';
 }
 
@@ -16856,7 +16856,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       const sg=suggest(w,w==='Writing'||w==='Speaking'?texts:[],wk[0].b,3);
       html+=`<p style="font-size:14px;margin:12px 0 4px"><b>Start here: ${ICON[w]} ${w}</b> (Band ${bs(wk[0].b)}, your lowest). Lessons chosen from your results:</p>${sg.map(lessonLink).join('')||'<p style="font-size:13px;color:var(--ink3)">You have finished the lessons for this skill. Retake a mock to measure the change.</p>'}`;
     }
-    html+=`<div style="margin-top:10px"><button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="s4pOpenProgress()">See my plan and full progress</button></div><p style="font-size:12px;color:var(--ink3);margin-top:8px">Bands are estimates from a practice mock, not official scores. Writing and speaking marking is AI-assisted.</p>`;
+    html+=`<div style="margin-top:10px"><button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="s4pOpenProgress()">See my plan and full progress</button> <button class="btn-outline btn" style="width:auto;padding:9px 18px;font-size:13px;margin-left:6px" onclick="s4pPdfFromFM()">⬇ Download result PDF</button></div><p style="font-size:12px;color:var(--ink3);margin-top:8px">Bands are estimates from a practice mock, not official scores. Writing and speaking marking is AI-assisted.</p>`;
     box.innerHTML=html;
     try{ s4pRenderPlanCard(); }catch(e){}
   }
@@ -16986,6 +16986,118 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     }
     html+=`</div><div class="card"><h3 style="font-size:15.5px;margin:0 0 6px;color:var(--pine)">This week's plan</h3><div id="s4p-plan-full">${planHtml(plan)}</div></div>`;
     el.innerHTML=html;
+  };
+})();
+</script>
+
+<script>
+/* ============================================================
+   RESULT PDF: a downloadable report for every finished mock
+   (full mock summary and premium mock result). Uses jsPDF, loaded only when asked.
+   ============================================================ */
+(function(){
+  const JS_URL='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+  const bs=b=>(typeof b==='number'||(b!=null&&b!==''&&!isNaN(b)))?(Number(b)%1===0?Number(b).toFixed(1):String(Number(b))):'–';
+  function loadJsPdf(){
+    return new Promise((res,rej)=>{
+      if(window.jspdf&&window.jspdf.jsPDF)return res(window.jspdf.jsPDF);
+      const s=document.createElement('script'); s.src=JS_URL; s.onload=()=>res(window.jspdf.jsPDF); s.onerror=()=>rej(new Error('load')); document.head.appendChild(s);
+    });
+  }
+  const clean=t=>String(t==null?'':t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[^\x09\x0A\x0D\x20-\x7E -ÿ]/g,'');
+  // rep = {title, exam, candidate, date, overall, overallLabel, sections:[{name,band,note}], blocks:[{h, lines:[...]}], note}
+  window.s4pMakePdf=async function(rep,filename){
+    let JsPDF;
+    try{ JsPDF=await loadJsPdf(); }catch(e){ alert('Could not prepare the PDF. Please check your internet connection and try again.'); return; }
+    const doc=new JsPDF({unit:'pt',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=44;
+    let y=0;
+    const navy=[28,63,110], gold=[201,99,26], grey=[100,110,125];
+    const need=h=>{ if(y+h>H-50){ doc.addPage(); y=M; } };
+    const text=(t,x,size,style,color,maxW)=>{ doc.setFont('helvetica',style||'normal'); doc.setFontSize(size); doc.setTextColor(...(color||[30,35,45])); const lines=doc.splitTextToSize(clean(t),maxW||(W-2*M)); lines.forEach(l=>{ need(size*1.35); doc.text(l,x,y); y+=size*1.35; }); };
+    // header band
+    doc.setFillColor(...navy); doc.rect(0,0,W,78,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.text('Step4Progress Ascend',M,38);
+    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text('Practice test result report',M,58);
+    y=108;
+    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(...navy);
+    y=106; doc.text(clean(rep.title||'Practice mock'),M,y); y+=20;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...grey);
+    doc.text(clean('Candidate: '+(rep.candidate||'')+'     Date: '+(rep.date||'')),M,y); y+=24;
+    // overall
+    doc.setDrawColor(220,224,232); doc.setFillColor(246,243,236); doc.roundedRect(M,y,W-2*M,64,8,8,'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...grey); doc.text(clean(rep.overallLabel||'Overall (estimate)'),M+16,y+22);
+    doc.setFontSize(30); doc.setTextColor(...gold); doc.text(clean(rep.overall!=null?String(rep.overall):'Not available'),M+16,y+53);
+    y+=84;
+    // sections table
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...navy); doc.text('Section results',M,y); y+=14;
+    (rep.sections||[]).forEach((s,i)=>{
+      need(26);
+      if(i%2===0){ doc.setFillColor(246,248,251); doc.rect(M,y-12,W-2*M,24,'F'); }
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(30,35,45); doc.text(clean(s.name),M+8,y+3);
+      doc.setTextColor(...gold); doc.text(clean(String(s.band!=null?s.band:'-')),M+190,y+3);
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text(clean(s.note||''),M+250,y+3);
+      y+=24;
+    });
+    y+=14;
+    (rep.blocks||[]).forEach(b=>{
+      need(40);
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...navy); doc.text(clean(b.h),M,y); y+=16;
+      (b.lines||[]).forEach(l=>{ text(l.startsWith('- ')?'- '+l.slice(2):l,M+(l.startsWith('- ')?8:0),10.5,'normal',[40,45,55],W-2*M-(l.startsWith('- ')?8:0)); y+=2; });
+      y+=10;
+    });
+    need(60);
+    doc.setDrawColor(220,224,232); doc.line(M,y,W-M,y); y+=14;
+    text(rep.note||'Bands and scores are estimates from a practice test, not official results. Writing and speaking marking is AI-assisted and can differ from an examiner by half a band or more. Use this report to plan your preparation.',M,9,'italic',grey);
+    const n=doc.internal.getNumberOfPages();
+    for(let i=1;i<=n;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...grey); doc.text('Step4Progress Ascend  -  page '+i+' of '+n,W/2,H-24,{align:'center'}); }
+    const name=filename||'Step4Progress-result.pdf';
+    try{
+      if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){
+        const url=doc.output('bloburl'); window.open(url,'_blank'); return;
+      }
+      doc.save(name);
+    }catch(e){ try{ window.open(doc.output('bloburl'),'_blank'); }catch(e2){ alert('Could not open the PDF on this device.'); } }
+  };
+  const today=()=>new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const cand=()=>{ try{ const m=currentSession.user.user_metadata||{}; return m.full_name||m.name||currentSession.user.email||'Candidate'; }catch(e){ return 'Candidate'; } };
+  function fbLines(g){
+    const L=[];
+    if(!g)return ['Detailed marking was not available for this answer.'];
+    if(g.band!=null)L.push('Estimated band: '+bs(g.band));
+    (g.criteria||[]).forEach(k=>L.push(k.name+' '+bs(k.band)+': '+(k.comment||'')));
+    if((g.strengths||[]).length){ L.push('What worked:'); g.strengths.forEach(s=>L.push('- '+s)); }
+    if((g.improvements||[]).length){ L.push('To raise your band:'); g.improvements.forEach(s=>L.push('- '+s)); }
+    return L;
+  }
+  window.s4pPdfFromFM=function(){
+    try{
+      const order=FM.def.sections.map(s=>s.skill);
+      const bands=order.map(s=>FM.results[s]&&FM.results[s].band).filter(b=>b!=null);
+      const overall=bands.length===order.length?fmRoundBand(bands.reduce((a,b)=>a+b,0)/bands.length):null;
+      const rep={title:FM.def.title,candidate:cand(),date:today(),overall:overall!=null?'Band '+bs(overall):null,overallLabel:'Overall band (estimate)',
+        sections:order.map(s=>{const r=FM.results[s]||{};return {name:s,band:r.band!=null?bs(r.band):'-',note:r.total?(r.correct+' of '+r.total+' correct'):''};}),blocks:[]};
+      const low=order.filter(s=>FM.results[s]&&FM.results[s].band!=null).sort((a,b)=>FM.results[a].band-FM.results[b].band)[0];
+      if(low)rep.blocks.push({h:'Where to focus next',lines:['Your lowest section was '+low+' (Band '+bs(FM.results[low].band)+'). Work through the '+low+' lessons for your level, then retake a mock to measure the change.']});
+      const W=FM.results.Writing; if(W&&W.tasks)W.tasks.forEach((t,i)=>rep.blocks.push({h:'Writing Task '+(i+1),lines:fbLines(t)}));
+      const S=FM.results.Speaking; if(S&&S.tasks&&S.tasks[0])rep.blocks.push({h:'Speaking',lines:fbLines(S.tasks[0])});
+      s4pMakePdf(rep,'Step4Progress-IELTS-mock-result.pdf');
+    }catch(e){ alert('Could not create the PDF. Please try again.'); }
+  };
+  window.s4pPdfFromPM=function(){
+    try{
+      const r=PM.res, o=r.overall;
+      const rep={title:'IELTS Academic Premium Mock - Exam Simulation',candidate:cand(),date:today(),overall:typeof o==='number'?'Band '+bs(o):null,overallLabel:'Overall band (estimate)',
+        sections:[
+          {name:'Listening',band:bs(r.lb),note:r.listening?r.listening.correct+' of '+r.listening.total+' correct':''},
+          {name:'Reading',band:bs(r.rb),note:r.reading?r.reading.correct+' of '+r.reading.total+' correct':''},
+          {name:'Writing',band:bs(r.writing&&r.writing.band),note:''},
+          {name:'Speaking',band:bs(r.speaking&&r.speaking.band),note:''}],blocks:[]};
+      if(r.writing&&r.writing.tasks)r.writing.tasks.forEach(t=>rep.blocks.push({h:'Writing Task '+t.no+' ('+t.words+' words)',lines:fbLines(t.g)}));
+      if(r.speaking&&r.speaking.g)rep.blocks.push({h:'Speaking',lines:fbLines(r.speaking.g)});
+      ['listening','reading'].forEach(k=>{ const x=r[k]; if(x&&x.detail){ const wrong=x.detail.map((d,i)=>({d,i})).filter(o=>o.d&&o.d.ok===false||o.d===false); } });
+      s4pMakePdf(rep,'Step4Progress-IELTS-premium-mock-result.pdf');
+    }catch(e){ alert('Could not create the PDF. Please try again.'); }
   };
 })();
 </script>
