@@ -17835,5 +17835,458 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
 })();
 </script>
 
+<script>
+/* ============================================================
+   TOEFL iBT: final simulation (prem_toefl_1). Current format: Reading and Listening are adaptive in two stages
+   (a medium first module, then an easier or harder second module), Writing (Build a Sentence, Write an Email,
+   Academic Discussion) and Speaking (Listen and Repeat, Take an Interview). Bands 1-6 in half steps.
+   Needs 0040_toefl_simulation.sql, 0038 (recordings) and the grade-response function with toefl_ kinds.
+   ============================================================ */
+(function(){
+  const TF_ID='prem_toefl_1', BUCKET='sim-recordings';
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sbn=()=>sb;
+  let T=null;
+  const css=`#tf-root{position:fixed;inset:0;z-index:10060;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
+#tf-root *{box-sizing:border-box}
+.tf-top{background:#14365f;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 16px;flex:none}
+.tf-logo{font-weight:800;font-size:16px}.tf-logo span{color:#8fe388}
+.tf-part{flex:1;font-size:12.5px;opacity:.9;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tf-timer{font-weight:800;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:8px}
+.tf-timer.low{background:#B3261E}
+.tf-bar{height:4px;background:#d6dcea;flex:none}.tf-bar i{display:block;height:100%;background:#2e9d4f;width:0}
+.tf-main{flex:1;overflow:auto;padding:18px 16px 24px}
+.tf-wrap{max-width:820px;margin:0 auto}
+.tf-card{background:#fff;border:1px solid #dde3ee;border-radius:14px;padding:18px;margin-bottom:14px}
+.tf-card h3{margin:0 0 8px;color:#14365f;font-size:18px}
+.tf-btn{background:#14365f;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer}
+.tf-btn.alt{background:#fff;color:#14365f;border:1.5px solid #14365f}
+.tf-btn:disabled{opacity:.45;cursor:default}
+.tf-foot{flex:none;background:#fff;border-top:1px solid #dde3ee;padding:10px 16px;display:flex;justify-content:center;gap:10px}
+.tf-pass{background:#f9fafc;border:1px solid #e1e6ef;border-radius:10px;padding:14px;white-space:pre-wrap;line-height:1.7;font-size:15.5px;margin:8px 0}
+.tf-q{margin:14px 0 4px;font-weight:700}
+.tf-opt{display:block;border:1.5px solid #cdd6e6;border-radius:10px;padding:9px 12px;margin:6px 0;cursor:pointer;line-height:1.5}
+.tf-opt input{margin-right:8px}
+.tf-blank{border:none;border-bottom:2px solid #14365f;background:#eef3fb;font:inherit;font-weight:700;color:#14365f;padding:0 2px;margin:0 2px;text-align:left}
+.tf-ctw{font-size:16.5px;line-height:2.2}
+.tf-ta{width:100%;min-height:200px;padding:12px;border:1.5px solid #cdd6e6;border-radius:10px;font:inherit;font-size:16px;resize:vertical}
+.tf-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+.tf-chip{border:2px solid #cdd6e6;background:#fff;border-radius:10px;padding:9px 14px;font-size:17px;font-weight:600;cursor:pointer}
+.tf-slot{background:#eef3fb;border:2px dashed #9db3d6;border-radius:12px;padding:8px;min-height:64px}
+.tf-score{font-size:44px;font-weight:800;color:#C9631A}
+.tf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.tf-tile{background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:12px;text-align:center}
+.tf-tile b{display:block;font-size:26px;color:#14365f}
+.tf-post{background:#f6f8fc;border-left:4px solid #14365f;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:14.5px;line-height:1.6}
+.tf-rec{display:inline-block;width:11px;height:11px;border-radius:50%;background:#B3261E;margin-right:6px;animation:tfp 1s infinite}@keyframes tfp{50%{opacity:.25}}`;
+  function injectCss(){ if(document.getElementById('tf-css'))return; const s=document.createElement('style'); s.id='tf-css'; s.textContent=css; document.head.appendChild(s); }
+  const root=()=>document.getElementById('tf-root');
+  const main=h=>{ const m=document.getElementById('tf-main'); if(m){ m.innerHTML=h; m.scrollTop=0; } };
+  const foot=h=>{ const f=document.getElementById('tf-foot'); if(f)f.innerHTML=h||''; };
+  const fmt=s=>{ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+  const wc=t=>(t||'').trim().split(/\s+/).filter(Boolean).length;
+  const r05=x=>Math.max(1,Math.min(6,Math.round(x*2)/2));
+  const key=()=>'tf_state_'+T.take;
+  const save=()=>{ if(!T||T.view)return; try{ localStorage.setItem(key(),JSON.stringify({pos:T.pos,steps:T.steps,prod:T.prod,deadline:T.deadline,rm:T.rm,cache:T.cache})); }catch(e){} };
+  function cand(){ try{ const m=currentSession.user.user_metadata||{}; return m.full_name||m.name||currentSession.user.email||'Candidate'; }catch(e){ return 'Candidate'; } }
+  const CEFR=b=>b>=6?'C2':b>=5?'C1':b>=4?'B2':b>=3?'B1':b>=2?'A2':'A1';
+  const OLD=b=>b>=6?'114 to 120':b>=5.5?'107 to 113':b>=5?'95 to 106':b>=4.5?'86 to 94':b>=4?'72 to 85':b>=3.5?'58 to 71':b>=3?'44 to 57':b>=2.5?'34 to 43':'0 to 33';
+
+  // ---------- card on the TOEFL Mocks tab ----------
+  window.tfHydrate=async function(){
+    const el=document.getElementById('toefl-card'); if(!el||isPreviewMode||!currentSession)return;
+    let st=null; try{ const r=await sbn().rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===TF_ID); }catch(e){}
+    if(!st){ el.innerHTML=''; return; }
+    let status,btn;
+    const b=(l,f)=>`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="${f}">${l}</button>`;
+    if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','tfViewSaved()'); }
+    else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','tfStart()'); }
+    else if(st.admin||st.credits>0){ status=st.admin?'Administrator: start as often as you like.':`This uses <b>1 of your ${st.credits}</b> mock credit${st.credits===1?'':'s'}. It can be taken once.`; btn=b('Start simulation','tfConfirm()'); }
+    else { status='Available with any paid plan. It uses one mock credit.'; btn=b('Choose a plan',"openPlansDialog('mock')"); }
+    el.innerHTML=`<div class="tp-info-card" style="border:2px solid #C9631A;background:linear-gradient(180deg,#FFF8F0,#fff)"><h4>⭐ ${E(st.title)}</h4>
+      <p>A full practice of the current TOEFL iBT. Reading and Listening start in the middle and become easier or harder depending on how you do, like the real test. Then Writing and Speaking. You get your estimated 1 to 6 bands, the comparable 0 to 120 range and a PDF report. Original questions, written for practice.</p>
+      <p style="margin-top:8px">${status}</p>${btn}
+      <div style="font-size:12px;color:var(--ink3);margin-top:8px">About 1 hour 30 minutes in one sitting. Use a laptop or tablet, headphones, a microphone and a quiet room. No lessons are needed first.</div></div>`;
+  };
+  window.tfConfirm=function(){
+    const m=document.createElement('div'); m.id='tf-confirm'; m.style.cssText='position:fixed;inset:0;z-index:10100;background:rgba(15,25,45,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+    m.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:420px;padding:20px"><h3 style="margin:0 0 8px;color:#14365f">Start the TOEFL simulation?</h3><p style="font-size:14px;line-height:1.6">It uses <b>one mock credit</b> and can be taken <b>once</b>. Set aside about 1 hour 30 minutes. If you leave, you can resume within 5 hours. Recordings cannot be replayed.</p>
+    <div style="display:flex;gap:8px;margin-top:12px"><button class="tf-btn" onclick="document.getElementById('tf-confirm').remove();tfStart()">Start now</button><button class="tf-btn alt" onclick="document.getElementById('tf-confirm').remove()">Not yet</button></div></div>`;
+    document.body.appendChild(m);
+  };
+
+  // ---------- start / resume ----------
+  window.tfStart=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().rpc('begin_premium_mock',{p_mock:TF_ID});
+    if(error){
+      const msg=error.message||'';
+      if(/NO_CREDIT/.test(msg)){ await loadMockAccess(true); openPlansDialog('mock'); }
+      else if(/ALREADY_TAKEN/.test(msg)){ tfViewSaved(); }
+      else if(/EXPIRED/.test(msg)){ alert('This simulation was started more than 5 hours ago and can no longer be resumed. Please contact your Step4Progress counsellor.'); }
+      else alert('Could not start the simulation. Please try again in a moment. Code: '+String(msg).slice(0,60));
+      return;
+    }
+    let sv=null; try{ sv=JSON.parse(localStorage.getItem('tf_state_'+data.take_id)||'null'); }catch(e){}
+    T={take:data.take_id,c:data.content,steps:[{t:'intro'},{t:'check'},{t:'rd',s:1,mod:'m'},{t:'ls',s:1,mod:'m',i:0}],pos:0,prod:{},cache:{},deadline:0,tick:null,rm:'none',recs:{},uploads:[],played:{}};
+    T.steps=buildSteps();
+    if(sv&&data.resumed){ T.steps=sv.steps||T.steps; T.pos=sv.pos||0; T.prod=sv.prod||{}; T.cache=sv.cache||{}; if(sv.deadline&&sv.deadline>Date.now())T.pendingDeadline=sv.deadline; if(sv.rm&&sv.rm!=='none'&&T.pos>1){ try{ await openStream(); }catch(e){ T.rm='none'; } } }
+    open();
+  };
+  function buildSteps(){ // steps known at the start; stage 2 steps are inserted after the route is decided
+    const L=[{t:'intro'},{t:'check'},{t:'rd',s:1,mod:'m'}];
+    return L.concat(lisSteps(1,'m'));
+  }
+  function lisSteps(s,mod){ const m=T.c.listening.mods[mod]; const out=[]; (m.lcr||[]).forEach((x,i)=>out.push({t:'ls',s,mod,k:'lcr',i})); ['conv','ann','talk'].forEach(k=>{ if(m[k])out.push({t:'ls',s,mod,k,i:0}); }); return out; }
+  function tail(){ const L=[]; for(let i=0;i<T.c.writing.bas.length;i++)L.push({t:'bas',i}); L.push({t:'em'},{t:'di'}); T.c.speaking.lr.forEach((x,i)=>L.push({t:'lr',i})); T.c.speaking.interview.qs.forEach((x,i)=>L.push({t:'iv',i})); L.push({t:'grading'},{t:'result'}); return L; }
+  function open(){
+    injectCss(); const o=root(); if(o)o.remove();
+    const r=document.createElement('div'); r.id='tf-root';
+    r.innerHTML=`<div class="tf-top"><div class="tf-logo">TOEFL<span>·</span>Simulation</div><div class="tf-part" id="tf-part"></div><div class="tf-timer" id="tf-timer" style="display:none"></div><button class="tf-btn alt" style="padding:5px 12px;font-size:12px;background:transparent;color:#fff;border-color:#fff" onclick="tfExit()">Exit</button></div><div class="tf-bar"><i id="tf-prog"></i></div><div class="tf-main" id="tf-main"></div><div class="tf-foot" id="tf-foot"></div>`;
+    document.body.appendChild(r);
+    window.addEventListener('beforeunload',beforeUnload);
+    if(T.tick)clearInterval(T.tick); T.tick=setInterval(tick,500);
+    render();
+  }
+  function beforeUnload(e){ if(T&&!T.view&&SEQ_LIVE()){ e.preventDefault(); e.returnValue=''; } }
+  const SEQ_LIVE=()=>T.pos<T.steps.length-2;
+  window.tfExit=function(){
+    if(T&&!T.view&&SEQ_LIVE()&&!confirm('Leave the simulation? You can resume within 5 hours from the Mocks tab. The timer keeps running.'))return;
+    stopMedia(); closeStream(); if(T&&T.tick)clearInterval(T.tick); window.removeEventListener('beforeunload',beforeUnload);
+    const o=root(); if(o)o.remove(); T=null;
+    try{ loadMockAccess(true); renderDashMocks(); }catch(e){}
+    try{ if(document.getElementById('toefl-card'))tfHydrate(); }catch(e){}
+  };
+  function stopMedia(){ try{ speechSynthesis.cancel(); }catch(e){} try{ if(T&&T.sr){ T.sr.onend=null; T.sr.stop(); T.sr=null; } }catch(e){} }
+
+  // ---------- timer ----------
+  const SECS={rd:1080,bas:45,em:420,di:600};
+  function setTimer(sec){ T.deadline=Date.now()+sec*1000; save(); const t=document.getElementById('tf-timer'); if(t)t.style.display=''; tick(); }
+  function hideTimer(){ if(T)T.deadline=0; const t=document.getElementById('tf-timer'); if(t)t.style.display='none'; }
+  function tick(){
+    if(!T||!T.deadline)return; const left=(T.deadline-Date.now())/1000; const t=document.getElementById('tf-timer');
+    if(t){ t.textContent='⏱ '+fmt(left); t.classList.toggle('low',left<=20); }
+    if(left<=0){ T.deadline=0; next(true); }
+  }
+
+  // ---------- navigation ----------
+  const PARTS={rd:'Reading',ls:'Listening',bas:'Writing · Build a Sentence',em:'Writing · Write an Email',di:'Writing · Academic Discussion',lr:'Speaking · Listen and Repeat',iv:'Speaking · Take an Interview'};
+  function render(){
+    stopMedia(); try{ clearInterval(T.sIv); }catch(e){} const step=T.steps[T.pos];
+    const pl=document.getElementById('tf-part'); if(pl)pl.textContent=(PARTS[step.t]||({intro:'Instructions',check:'Device check',grading:'Marking',result:'Your result'})[step.t]||'')+(step.t==='rd'||step.t==='ls'?' · Module '+step.s+' of 2':'');
+    const pr=document.getElementById('tf-prog'); if(pr)pr.style.width=Math.round(T.pos/(T.steps.length-1)*100)+'%';
+    hideTimer(); T.cur=null;
+    ({intro,check,rd,ls,bas,em:wr,di:wr,lr:speak,iv:speak,grading,result})[step.t](step);
+    if(SECS[step.t]&&!T.view){ if(T.pendingDeadline){ T.deadline=T.pendingDeadline; T.pendingDeadline=0; setTimer((T.deadline-Date.now())/1000); } else setTimer(SECS[step.t]); }
+    save();
+  }
+  let busy=false;
+  async function next(timeUp){
+    if(!T||busy)return; busy=true; const step=T.steps[T.pos];
+    try{ await commit(step,timeUp); }catch(e){ console.warn('commit',e); }
+    try{ await afterStep(step); }catch(e){ console.warn('route',e); }
+    busy=false; T.pos++; save(); render();
+  }
+  window.tfNext=()=>next(false);
+  async function route(sec){ try{ const r=await sbn().rpc('toefl_route',{p_take:T.take,p_sec:sec}); if(!r.error&&(r.data==='h'||r.data==='e'))return r.data; }catch(e){} return 'e'; }
+  async function afterStep(step){
+    const at=T.pos+1;
+    if(step.t==='rd'&&step.s===1){ const m=await route('r'); T.steps.splice(at,0,{t:'rd',s:2,mod:m}); }
+    else if(step.t==='ls'&&step.s===1&&step.k==='talk'){ const m=await route('l'); T.steps.splice(at,0,...lisSteps(2,m)); }
+    else if(step.t==='ls'&&step.s===2&&step.k==='talk'){ T.steps.splice(at,T.steps.length-at,...tail()); }
+    // after reading stage 2 the listening steps already follow; nothing to insert
+  }
+  async function submit(id,ans){ try{ await sbn().rpc('submit_toefl_item',{p_take:T.take,p_item:id,p_answer:ans}); }catch(e){} }
+
+  // ---------- screens ----------
+  function intro(){
+    main(`<div class="tf-wrap"><div class="tf-card"><h3>TOEFL iBT: final simulation</h3>
+      <p style="line-height:1.7">This practice follows the current TOEFL iBT. Reading and Listening have two modules each. The first module is medium. If you do well, the second module is harder; if you struggle, it is easier. Then you write and speak.</p>
+      <ol style="line-height:1.9;font-size:15px;margin:6px 0 10px 18px"><li><b>Reading:</b> Complete the Words, Read in Daily Life, Read an Academic Passage</li><li><b>Listening:</b> Listen and Choose a Response, Conversation, Announcement, Academic Talk</li><li><b>Writing:</b> Build a Sentence, Write an Email, Academic Discussion</li><li><b>Speaking:</b> Listen and Repeat, Take an Interview</li></ol>
+      <p style="line-height:1.7"><b>Rules.</b> You cannot go back. Each recording plays once. Do not use dictionaries, translators or help from anyone. Your progress is kept on this device if you lose connection, and you can resume within 5 hours.</p>
+      <p style="font-size:13px;color:#667">Scores are estimates on the 1 to 6 band scale, with the comparable 0 to 120 range. They are not official results. The real test uses a larger question bank and its own adaptive rules.</p></div></div>`);
+    foot('<button class="tf-btn" onclick="tfNext()">I understand, continue</button>');
+  }
+  function check(){
+    main(`<div class="tf-wrap"><div class="tf-card"><h3>Device check and recording</h3><p style="line-height:1.7">Put on headphones and sit in a quiet room. You need sound for Listening and a microphone for Speaking (if your device cannot record, you can type your speaking answers).</p>
+      <p><button class="tf-btn alt" onclick="window.s4pDeviceCheck&&window.s4pDeviceCheck({mic:true,force:true})">Run device check</button></p></div>
+      <div class="tf-card"><h3>Record my speaking (recommended)</h3>
+      <p style="line-height:1.7;font-size:14.5px">You can record your voice during the Speaking tasks. Afterwards you can listen to yourself, see your speaking speed and pauses, and get tips.</p>
+      <label class="tf-opt"><input type="radio" name="tfrm" value="audio" checked> Record sound only</label>
+      <label class="tf-opt"><input type="radio" name="tfrm" value="none"> Do not record</label>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="tf-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
+      <p id="tf-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
+    foot('<button class="tf-btn" onclick="tfCheckGo()">Continue</button>');
+  }
+  window.tfCheckGo=async function(){
+    const sel=(document.querySelector('input[name="tfrm"]:checked')||{}).value||'none'; const msg=document.getElementById('tf-recmsg');
+    if(sel==='audio'){
+      if(!document.getElementById('tf-guard').checked){ if(msg)msg.textContent='Please tick the box to record, or choose "Do not record".'; return; }
+      let ok=false; try{ await openStream(); const r=await sbn().rpc('record_recording_consent',{p_take:T.take,p_mode:'audio',p_guardian:true}); ok=!r.error; }catch(e){}
+      if(!ok){ closeStream(); T.rm='none'; if(msg)msg.textContent='Recording could not be switched on, so this test will continue without it.'; await new Promise(r=>setTimeout(r,1500)); }
+    } else T.rm='none';
+    tfNext();
+  };
+
+  // ---------- Reading ----------
+  function rd(step){
+    const m=T.c.reading.mods[step.mod]; const ctw=m.ctw;
+    let h=`<div class="tf-wrap"><div class="tf-card"><h3>Complete the Words</h3><p style="font-size:13.5px;color:#667">Type the missing letters to finish each word.</p><div class="tf-ctw">${E(ctw.text).replace(/«([^|»]*)\|(\d+)»/g,(x,p,n)=>`<b>${p}</b><input class="tf-blank" data-p="${p}" maxlength="${n}" size="${+n+1}" autocomplete="off" autocapitalize="off" spellcheck="false">`)}</div></div>`;
+    (m.daily||[]).forEach(d=>{ h+=`<div class="tf-card"><h3>Read in Daily Life · ${E(d.kind||'')}</h3><b>${E(d.title||'')}</b><div class="tf-pass">${E(d.text)}</div>${qsHtml(d.qs)}</div>`; });
+    const a=m.acad; if(a)h+=`<div class="tf-card"><h3>Read an Academic Passage</h3><b>${E(a.title||'')}</b><div class="tf-pass">${E(a.text)}</div>${qsHtml(a.qs)}</div>`;
+    main(h+'</div>'); foot('<button class="tf-btn" onclick="tfNext()">Submit this module</button>');
+  }
+  function qsHtml(qs){ return (qs||[]).map(q=>`<div class="tf-q">${E(q.q)}</div>`+q.o.map((o,i)=>`<label class="tf-opt"><input type="radio" name="${q.id}" value="${i}"> ${E(o)}</label>`).join('')).join(''); }
+  function readQs(qs){ return Promise.all((qs||[]).map(q=>{ const c=document.querySelector('input[name="'+q.id+'"]:checked'); return submit(q.id,c?parseInt(c.value,10):-1); })); }
+
+  // ---------- Listening ----------
+  function voices(){ const v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; const en=v.filter(x=>/^en/i.test(x.lang)); const f=en.find(x=>/female|samantha|zira|helen|susan|libby|aria|jenny/i.test(x.name)); const m=en.find(x=>/\bmale\b|daniel|david|george|mark|ryan|guy|james/i.test(x.name)); return {F:f||en[0],M:m||en[1]||en[0]}; }
+  async function turnsFor(id){
+    if(T.cache[id])return T.cache[id];
+    const r=await sbn().rpc('toefl_audio_text',{p_take:T.take,p_item:id}); if(r.error)throw r.error;
+    T.cache[id]=r.data; save(); return r.data;
+  }
+  function playTurns(turns,onEnd,rate){
+    try{
+      speechSynthesis.cancel(); const V=voices(); let i=0;
+      const go=()=>{ if(!T||i>=turns.length){ if(onEnd)onEnd(); return; } const [who,txt]=turns[i++]; const u=new SpeechSynthesisUtterance(String(txt)); u.lang='en-US'; u.rate=rate||0.95; const v=V[who]; if(v)u.voice=v; if(!v)u.pitch=who==='M'?0.8:1.1; u.onend=go; u.onerror=go; speechSynthesis.speak(u); };
+      go();
+    }catch(e){ if(onEnd)onEnd(); }
+  }
+  function ls(step){
+    const m=T.c.listening.mods[step.mod]; let id,title,qs,lcr=false;
+    if(step.k==='lcr'){ const x=m.lcr[step.i]; id=x.id; lcr=true; qs=[{id:x.id,q:'Choose the best response.',o:x.o}]; title='Listen and Choose a Response'; }
+    else { const x=m[step.k]; id=step.k==='conv'?x.id:x.id; qs=x.qs; title=({conv:'Listen to a Conversation',ann:'Listen to an Announcement',talk:'Listen to an Academic Talk'})[step.k]+' · '+(x.title||''); }
+    const done=T.played[id];
+    main(`<div class="tf-wrap"><div class="tf-card"><h3>${E(title)}</h3><p style="font-size:13.5px;color:#667">The recording plays <b>once</b>. Listen carefully, then answer.</p>
+      <p><button class="tf-btn" id="tf-play" ${done?'disabled':''} onclick="tfPlay('${id}')">${done?'Played':'▶ Play recording'}</button> <span id="tf-pmsg" style="font-size:13px;color:#667"></span></p>
+      <div id="tf-qs" style="${done?'':'opacity:.55'}">${qs.map((q,qi)=>`${lcr?'':`<div class="tf-q">${qi+1}. ${E(q.q)}</div>`}`+q.o.map((o,i)=>`<label class="tf-opt"><input type="radio" name="${q.id}" value="${i}"> ${E(o)}</label>`).join('')).join('')}</div></div></div>`);
+    T.cur={qs};
+    foot('<button class="tf-btn" id="tf-nx" onclick="tfNext()" '+(done?'':'disabled')+'>Next</button>');
+  }
+  window.tfPlay=async function(id){
+    const b=document.getElementById('tf-play'); if(!b||T.played[id])return; T.played[id]=1; b.disabled=true; b.textContent='Playing…';
+    let turns; try{ turns=await turnsFor(id); }catch(e){ b.textContent='Could not load the recording'; const n=document.getElementById('tf-nx'); if(n)n.disabled=false; return; }
+    const fin=()=>{ b.textContent='Played'; const q=document.getElementById('tf-qs'); if(q)q.style.opacity=1; const n=document.getElementById('tf-nx'); if(n)n.disabled=false; };
+    if(!window.speechSynthesis){ b.textContent='Audio is not available on this device'; const pm=document.getElementById('tf-pmsg'); if(pm)pm.innerHTML='<a href="#" onclick="return tfShowText(\''+id+'\')">Show the text instead</a>'; fin(); return; }
+    playTurns(turns,fin);
+  };
+  window.tfShowText=function(id){ const t=T.cache[id]||[]; const pm=document.getElementById('tf-pmsg'); if(pm)pm.innerHTML='<div class="tf-pass">'+E(t.map(x=>x[1]).join('\n'))+'</div>'; return false; };
+
+  // ---------- Writing ----------
+  function bas(step){
+    const b=T.c.writing.bas[step.i]; T.cur={idx:[]};
+    main(`<div class="tf-wrap"><div class="tf-card"><h3>Build a Sentence · ${step.i+1} of ${T.c.writing.bas.length}</h3><p style="font-size:13.5px;color:#667">Put the words in the right order to answer. Tap a word to place it; tap it again to remove it.</p>
+      <div class="tf-post"><b>${E(b.ctx)}</b></div><div class="tf-slot tf-chips" id="tf-slot"></div><div class="tf-chips" id="tf-bank"></div></div></div>`);
+    basPaint(b); foot('<button class="tf-btn" onclick="tfNext()">Next</button>');
+  }
+  function basPaint(b){
+    const slot=document.getElementById('tf-slot'), bank=document.getElementById('tf-bank'); if(!slot)return; const idx=T.cur.idx;
+    slot.innerHTML=idx.map((k,p)=>`<button class="tf-chip" onclick="tfBas(${k},false)">${E(b.chunks[k])}</button>`).join('')||'<span style="color:#889;font-size:13px">Your sentence appears here</span>';
+    bank.innerHTML=b.chunks.map((c,k)=>idx.includes(k)?'':`<button class="tf-chip" onclick="tfBas(${k},true)">${E(c)}</button>`).join('');
+  }
+  window.tfBas=function(k,add){ const b=T.c.writing.bas[T.steps[T.pos].i]; const i=T.cur.idx; if(add)i.push(k); else T.cur.idx=i.filter(x=>x!==k); basPaint(b); };
+  const wobj=step=>step.t==='em'?T.c.writing.email:T.c.writing.disc;
+  function wr(step){
+    const w=wobj(step); const id=w.id; const have=T.prod[id]||'';
+    let top;
+    if(step.t==='em')top=`<div class="tf-card"><h3>Write an Email</h3><p style="line-height:1.7">${E(w.scenario)}</p><p style="margin:6px 0 2px"><b>In your email, you should:</b></p><ul style="line-height:1.8;margin:0 0 0 18px">${w.points.map(p=>`<li>${E(p)}</li>`).join('')}</ul></div>`;
+    else top=`<div class="tf-card"><h3>Academic Discussion</h3><div class="tf-post"><b>${E(w.prof.name)}</b><br>${E(w.prof.text)}</div>${w.students.map(s=>`<div class="tf-post"><b>${E(s.name)}</b><br>${E(s.text)}</div>`).join('')}<p style="font-size:13.5px;color:#667">Add your own post to the discussion. Aim for at least ${w.min} words.</p></div>`;
+    main(`<div class="tf-wrap">${top}<div class="tf-card"><textarea class="tf-ta" id="tf-ta" placeholder="Write here" oninput="tfWc()" spellcheck="true">${E(have)}</textarea><div id="tf-wc" style="font-size:13px;color:#667;margin-top:6px"></div></div></div>`);
+    tfWc(); foot('<button class="tf-btn" onclick="tfNext()">Submit and continue</button>');
+  }
+  window.tfWc=function(){ const t=document.getElementById('tf-ta'),o=document.getElementById('tf-wc'); if(t&&o)o.textContent=wc(t.value)+' words'; };
+
+  // ---------- Speaking ----------
+  async function openStream(){ T.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); T.rm='audio'; }
+  function closeStream(){ try{ if(T&&T.seg){ T.seg.rec.onstop=null; T.seg.rec.stop(); T.seg=null; } }catch(e){} try{ if(T&&T.stream){ T.stream.getTracks().forEach(t=>t.stop()); T.stream=null; } }catch(e){} }
+  function pickMime(){ for(const m of ['audio/webm;codecs=opus','audio/webm','audio/mp4']){ try{ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; }catch(e){} } return ''; }
+  const baseMime=m=>String(m||'').split(';')[0]||'audio/webm';
+  function startRec(task){
+    T.heard=''; T.t0=Date.now();
+    if(T.stream&&T.rm==='audio'){
+      const mime=pickMime(); const seg={task,chunks:[],mime,t0:Date.now(),first:null,last:null,silent:0,longest:0,pauses:0,timers:[]};
+      try{ seg.rec=new MediaRecorder(T.stream,Object.assign({},mime?{mimeType:mime}:{},{audioBitsPerSecond:48000})); }catch(e){ try{ seg.rec=new MediaRecorder(T.stream); }catch(e2){ seg.rec=null; } }
+      if(seg.rec){
+        seg.rec.ondataavailable=e=>{ if(e.data&&e.data.size)seg.chunks.push(e.data); }; seg.stopped=new Promise(r=>{ seg.rec.onstop=r; }); try{ seg.rec.start(1000); }catch(e){ seg.rec=null; }
+        try{ const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); const an=ctx.createAnalyser(); an.fftSize=1024; ctx.createMediaStreamSource(T.stream).connect(an); const buf=new Uint8Array(an.fftSize); seg.ctx=ctx;
+          seg.timers.push(setInterval(()=>{ an.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; s+=v*v; } const now=Date.now()-seg.t0;
+            if(Math.sqrt(s/buf.length)>0.02){ if(seg.first==null)seg.first=now; if(seg.silent>=1500&&seg.last!=null)seg.pauses++; if(seg.silent>seg.longest&&seg.last!=null)seg.longest=seg.silent; seg.silent=0; seg.last=now; } else seg.silent+=100; },100)); }catch(e){}
+      }
+      T.seg=seg;
+    }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){ try{ const sr=new SR(); sr.lang='en-US'; sr.continuous=true; sr.interimResults=true; let fin='';
+      sr.onresult=e=>{ let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } T.heard=(fin+interim).trim(); const el=document.getElementById('tf-heard'); if(el)el.textContent=T.heard; };
+      sr.onend=()=>{ if(T&&T.sr===sr&&T.recording){ try{ sr.start(); }catch(e){} } };
+      T.sr=sr; sr.start(); }catch(e){ T.sr=null; } }
+  }
+  async function stopRec(task){
+    T.recording=false; try{ if(T.sr){ T.sr.onend=null; T.sr.stop(); T.sr=null; } }catch(e){}
+    const seg=T.seg; T.seg=null; if(!seg||!seg.rec)return;
+    (seg.timers||[]).forEach(clearInterval); try{ seg.ctx&&seg.ctx.close(); }catch(e){}
+    try{ if(seg.rec.state!=='inactive')seg.rec.stop(); await Promise.race([seg.stopped,new Promise(r=>setTimeout(r,3000))]); }catch(e){}
+    const blob=new Blob(seg.chunks,{type:baseMime(seg.mime)}); if(!blob.size)return;
+    const dur=(Date.now()-seg.t0)/1000; const words=wc(T.prod[task]||T.heard||''); const stats={dur:Math.round(dur)};
+    const talk=(seg.first!=null&&seg.last!=null)?(seg.last-seg.first)/60000:0; if(words>=5&&talk>0.05)stats.wpm=Math.round(words/talk); if(seg.first!=null)stats.start=Math.round(seg.first/100)/10; stats.pauses=seg.pauses; stats.longest=Math.round(seg.longest/100)/10;
+    const rec={task,stats,dur,mime:baseMime(seg.mime),blob,url:URL.createObjectURL(blob),ok:false}; T.recs[task]=rec;
+    T.uploads.push((async()=>{ try{ const path=currentSession.user.id+'/'+T.take+'/'+task+'.'+(/mp4/.test(rec.mime)?'mp4':'webm'); const up=await sbn().storage.from(BUCKET).upload(path,blob,{contentType:rec.mime,upsert:true}); if(up.error)throw up.error;
+      const rg=await sbn().rpc('register_sim_recording',{p_take:T.take,p_task:task,p_path:path,p_mime:rec.mime,p_duration:Math.round(dur),p_size:blob.size,p_stats:stats}); if(rg.error)throw rg.error; rec.path=path; rec.ok=true; }catch(e){ rec.err=1; } })());
+  }
+  function speak(step){
+    const iv=step.t==='iv'; const id=iv?T.c.speaking.interview.qs[step.i].id:T.c.speaking.lr[step.i].id; const task=iv?'iv'+(step.i+1):'lr'+(step.i+1);
+    T.cur={id,task,iv}; const secs=iv?T.c.speaking.interview.secs:12; const played=!!T.played['sp_'+id];
+    main(`<div class="tf-wrap"><div class="tf-card"><h3>${iv?'Take an Interview · question '+(step.i+1)+' of '+T.c.speaking.interview.qs.length:'Listen and Repeat · '+(step.i+1)+' of '+T.c.speaking.lr.length}</h3>
+      <p style="font-size:13.5px;color:#667;line-height:1.6">${iv?'Topic: '+E(T.c.speaking.interview.topic)+'. The interviewer asks a question. Then you have '+secs+' seconds to answer.':'Listen to the sentence once. Then repeat it exactly as you heard it.'} The audio plays <b>once</b>.</p>
+      <p><button class="tf-btn" id="tf-sp" onclick="tfSpeak()" ${played?'disabled':''}>${played?'Done':'▶ Play, then speak'}</button></p>
+      <div id="tf-st" style="font-size:14px;color:#445;min-height:22px"></div>
+      <p style="font-size:13px;color:#667;margin:10px 0 2px">What we heard (you can fix it, or type your answer if the microphone does not work):</p>
+      <textarea class="tf-ta" id="tf-sp-ta" style="min-height:${iv?110:60}px" placeholder="Your spoken answer appears here" oninput="T_prodSet(this.value)">${E(T.prod[task]||'')}</textarea><div id="tf-heard" style="display:none"></div></div></div>`);
+    foot('<button class="tf-btn" id="tf-sp-n" onclick="tfNext()" '+(played?'':'disabled')+'>Next</button>');
+  }
+  window.T_prodSet=v=>{ if(T&&T.cur)T.prod[T.cur.task]=v; };
+  window.tfSpeak=async function(){
+    const c=T.cur; const b=document.getElementById('tf-sp'); if(!b||T.played['sp_'+c.id])return; T.played['sp_'+c.id]=1; b.disabled=true; b.textContent='Listen…';
+    const st=document.getElementById('tf-st'); let turns; try{ turns=await turnsFor(c.id); }catch(e){ if(st)st.textContent='Could not load the audio. Type your answer below.'; const n=document.getElementById('tf-sp-n'); if(n)n.disabled=false; return; }
+    const secs=c.iv?T.c.speaking.interview.secs:12;
+    const go=()=>{
+      if(!T||T.cur!==c)return; b.textContent='Speak now'; T.recording=true; startRec(c.task); let left=secs;
+      const upd=()=>{ if(st)st.innerHTML='<span class="tf-rec"></span>Recording… '+left+' s left'; }; upd();
+      const iv=setInterval(()=>{ left--; upd(); if(left<=0){ clearInterval(iv); fin(); } },1000); T.sIv=iv;
+      const stopBtn=document.getElementById('tf-sp-n'); if(stopBtn)stopBtn.disabled=true;
+      c.fin=fin;
+    };
+    const fin=async()=>{ if(c.done)return; c.done=true; clearInterval(T.sIv); if(!T||T.cur!==c)return; await stopRec(c.task); const ta=document.getElementById('tf-sp-ta'); const said=T.heard&&T.heard.length>=(ta&&ta.value.length||0)?T.heard:(ta?ta.value:''); T.prod[c.task]=ta&&ta.value.length>said.length?ta.value:said; if(ta)ta.value=T.prod[c.task]; if(st)st.textContent='Finished. Check the text below, then continue.'; b.textContent='Done'; const n=document.getElementById('tf-sp-n'); if(n)n.disabled=false; };
+    if(!window.speechSynthesis){ go(); return; }
+    playTurns(turns,go,c.iv?0.95:0.9);
+  };
+
+  // ---------- commit ----------
+  async function commit(step,timeUp){
+    if(step.t==='rd'){ const m=T.c.reading.mods[step.mod];
+      const w=[...document.querySelectorAll('.tf-blank')].map(i=>(i.dataset.p||'')+(i.value||'').trim()); await submit(m.ctw.id,w);
+      await Promise.all((m.daily||[]).map(d=>readQs(d.qs)).concat([m.acad?readQs(m.acad.qs):null].filter(Boolean))); }
+    else if(step.t==='ls'){ if(T.cur&&T.cur.qs)await readQs(T.cur.qs); }
+    else if(step.t==='bas'){ const b=T.c.writing.bas[step.i]; const ans=(T.cur&&T.cur.idx||[]).map(k=>b.chunks[k]); T.prod[b.id]=ans; try{ await sbn().rpc('submit_toefl_bas',{p_take:T.take,p_item:b.id,p_answer:ans}); }catch(e){} }
+    else if(step.t==='em'||step.t==='di'){ const ta=document.getElementById('tf-ta'); const wo=wobj(step); T.prod[wo.id]=ta?ta.value:(T.prod[wo.id]||''); }
+    else if(step.t==='lr'||step.t==='iv'){ if(T.cur){ if(T.cur.fin&&!T.cur.done&&T.recording)await T.cur.fin(); clearInterval(T.sIv); const ta=document.getElementById('tf-sp-ta'); if(ta)T.prod[T.cur.task]=ta.value; } }
+    if(step.t==='ls'||step.t==='lr'||step.t==='iv')stopMedia();
+  }
+
+  // ---------- marking ----------
+  function sim(said,target){
+    const n=t=>(t||'').toLowerCase().replace(/[^a-z0-9' ]/g,'').split(/\s+/).filter(Boolean); const a=n(said), k=n(target); if(!k.length||!a.length)return 0;
+    const used=new Array(a.length).fill(false); let m=0; k.forEach(w=>{ for(let j=0;j<a.length;j++){ if(!used[j]&&a[j]===w){ used[j]=true; m++; break; } } }); return m/k.length;
+  }
+  async function aiGrade(kind,prompt,answer,skill){
+    if(!answer||wc(answer)<2)return {band:1,g:null,blank:true};
+    try{
+      const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer:String(answer).slice(0,5800),testName:'TOEFL iBT',takeId:T.take,skill})});
+      const d=await res.json(); if(res.ok&&typeof d.band==='number')return {band:r05(d.band),g:d};
+    }catch(e){} return {band:null,g:null};
+  }
+  async function grading(){
+    main(`<div class="tf-wrap"><div class="tf-card" style="text-align:center"><div style="font-size:40px">📝</div><h3>Marking your test</h3><p style="color:#667">Your writing and speaking are being assessed. This can take up to a minute. Please keep this page open.</p></div></div>`); foot('');
+    closeStream(); const W=T.c.writing, P=T.prod;
+    const qText=id=>((T.cache[id]||[]).map(x=>x[1]).join(' '))||'(question audio)';
+    const em=aiGrade('toefl_email',W.email.scenario+' Points: '+W.email.points.join(' '),P[W.email.id],'Writing');
+    const di=aiGrade('toefl_disc','Professor '+W.disc.prof.text+' '+W.disc.students.map(s=>s.name+': '+s.text).join(' '),P[W.disc.id],'Writing');
+    const ivs=T.c.speaking.interview.qs.map((q,i)=>aiGrade('toefl_speak','Interview question (spoken to the student): '+qText(q.id),P['iv'+(i+1)],'Speaking'));
+    const [emR,diR,...ivR]=await Promise.all([em,di,...ivs]);
+    const lrD=T.c.speaking.lr.map((q,i)=>{ const target=qText(q.id); const s=sim(P['lr'+(i+1)],target); return {target,said:P['lr'+(i+1)]||'',sim:s,band:r05(1+5*s)}; });
+    const lrB=r05(lrD.reduce((a,x)=>a+x.band,0)/lrD.length);
+    const ivB=ivR.every(x=>x.band!=null)?r05(ivR.reduce((a,x)=>a+x.band,0)/ivR.length):null;
+    T.tasks={email:{title:'Write an Email',answer:P[W.email.id],res:emR},disc:{title:'Academic Discussion',answer:P[W.disc.id],res:diR},iv:ivR.map((r,i)=>({title:'Interview question '+(i+1),prompt:qText(T.c.speaking.interview.qs[i].id),answer:P['iv'+(i+1)],res:r})),lr:lrD};
+    const slim=t=>({title:t.title,answer:t.answer,band:t.res.band,g:t.res.g,prompt:t.prompt});
+    try{
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'writing',p_value:{email:emR.band,disc:diR.band,tasks:[slim(T.tasks.email),slim(T.tasks.disc)]}});
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'speaking',p_value:{lr:lrB,interview:ivB,tasks:T.tasks.iv.map(slim),lrd:lrD}});
+      const f=await sbn().rpc('finish_toefl',{p_take:T.take}); T.final=f.error?null:f.data;
+    }catch(e){ T.final=null; }
+    try{ await Promise.race([Promise.allSettled(T.uploads||[]),new Promise(r=>setTimeout(r,25000))]); }catch(e){}
+    T.pos=T.steps.length-1; T.deadline=0; T.finished=true; try{ localStorage.removeItem(key()); }catch(e){} render();
+  }
+
+  // ---------- result ----------
+  function gCard(t){
+    const g=t.res&&t.res.g, b=t.res?t.res.band:null;
+    return `<div class="tf-card"><h3 style="font-size:16px">${E(t.title)}${b!=null?' · estimated band '+b:''}</h3>
+      <details><summary style="cursor:pointer;color:#14365f;font-size:13px">Your answer</summary><p style="white-space:pre-wrap;font-size:14px">${E(t.answer||'(blank)')}</p></details>
+      ${g?`${(g.criteria||[]).map(k=>`<p style="font-size:13px;margin:3px 0"><b>${E(k.name)}</b> ${k.band}: ${E(k.comment||'')}</p>`).join('')}
+      ${(g.strengths||[]).length?`<p style="margin:8px 0 2px"><b>What worked</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.strengths.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}
+      ${(g.improvements||[]).length?`<p style="margin:8px 0 2px"><b>To improve</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.improvements.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}`:`<p style="font-size:13px;color:#667">${t.res&&t.res.blank?'No answer was given.':'Detailed marking was not available for this answer.'}</p>`}</div>`;
+  }
+  const tips=st=>{ const L=[]; if(!st)return L;
+    if(st.wpm!=null)L.push(st.wpm<95?'Your pace was slow ('+st.wpm+' words per minute). Aim for about 110 to 150.':st.wpm>175?'Your pace was fast ('+st.wpm+' words per minute). Slow down a little.':'Good pace: '+st.wpm+' words per minute.');
+    if(st.start!=null&&st.start>5)L.push('You waited about '+st.start+' seconds before speaking. Start within 2 to 3 seconds.');
+    if(st.longest>=4)L.push('Your longest pause was '+st.longest+' seconds. Keep going with a simple sentence if you lose a word.'); else if(st.pauses>=3)L.push('You paused for more than 1.5 seconds '+st.pauses+' times.');
+    return L; };
+  function deliveryCard(){
+    const ks=Object.keys(T.recs||{}).filter(k=>/^iv/.test(k)).sort(); if(!ks.length)return '';
+    let h=`<div class="tf-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 100 days.</p>`;
+    ks.forEach(k=>{ const r=T.recs[k]; h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>Interview question ${k.slice(2)}</b> <span style="font-size:12.5px;color:#667">${E([r.stats.wpm!=null?r.stats.wpm+' words/min':null,r.stats.start!=null?'started after '+r.stats.start+'s':null,'longest pause '+(r.stats.longest||0)+'s'].filter(Boolean).join(' · '))}</span>
+      <div id="tf-rp-${k}" style="margin:6px 0"><button class="tf-btn alt" style="padding:6px 12px;font-size:13px" onclick="tfWatch('${k}')">▶ Listen</button></div>${tips(r.stats).length?`<ul style="margin:4px 0 0;padding-left:20px;font-size:13px">${tips(r.stats).map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:''}</div>`; });
+    return h+`<p style="margin:10px 0 0"><button class="tf-btn alt" style="padding:6px 12px;font-size:13px" onclick="tfDelRecs()">Delete my recordings</button></p></div>`;
+  }
+  window.tfWatch=async function(k){
+    const box=document.getElementById('tf-rp-'+k), r=T.recs&&T.recs[k]; if(!box||!r)return; let url=r.url;
+    if(!url){ try{ const s=await sbn().storage.from(BUCKET).createSignedUrl(r.path,900); if(s.error)throw s.error; url=s.data.signedUrl; }catch(e){ box.innerHTML='<span style="font-size:13px;color:#B3261E">Could not load this recording.</span>'; return; } }
+    box.innerHTML='<audio controls playsinline src="'+url+'" style="width:100%;max-width:380px"></audio>';
+  };
+  window.tfDelRecs=async function(){
+    if(!confirm('Delete all your recordings for this simulation? This cannot be undone. Your scores stay.'))return;
+    try{ const r=await sbn().rpc('delete_my_sim_recordings',{p_take:T.take}); if(r.error)throw r.error; const paths=r.data||[]; if(paths.length)await sbn().storage.from(BUCKET).remove(paths); }catch(e){ alert('Could not delete the recordings right now. Please try again.'); return; }
+    T.recs={}; if(T.view)result();
+  };
+  function result(){
+    hideTimer(); const f=T.final||{}; T.view=true;
+    const tile=(n,v)=>`<div class="tf-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b>${v!=null?`<div style="font-size:11.5px;color:#667">${CEFR(v)} · old scale ${OLD(v)}</div>`:''}</div>`;
+    let h=`<div class="tf-wrap"><div class="tf-card" style="text-align:center"><div style="font-size:42px">${f.overall&&f.overall>=5?'🎉':'💪'}</div>
+      ${f.overall!=null?`<div class="tf-score">${f.overall}<span style="font-size:20px;color:#667"> / 6</span></div><div style="color:#14365f;font-weight:700">${CEFR(f.overall)} · comparable to ${OLD(f.overall)} on the old 0 to 120 scale</div><div style="color:#667;font-size:13px;margin-top:4px">Estimated TOEFL iBT score. Not an official result.</div>`:`<h3>Result</h3><p>Some parts could not be marked, so an overall band is not shown.</p>`}</div>
+      <div class="tf-grid">${tile('Reading',f.reading)}${tile('Listening',f.listening)}${tile('Writing',f.writing)}${tile('Speaking',f.speaking)}</div>`;
+    if(f.route){ const nm={h:'harder',e:'easier'}; h+=`<div class="tf-card" style="margin-top:14px"><h3 style="font-size:16px">How the test adapted to you</h3><p style="font-size:14px;line-height:1.7">Reading: your second module was the <b>${nm[f.route.r]||'-'}</b> one. Listening: your second module was the <b>${nm[f.route.l]||'-'}</b> one. Doing well in the first module sends you to the harder one, where higher bands are possible. Build a Sentence: ${f.bas!=null?f.bas:'-'} of 10 correct. Listen and Repeat: ${f.lr!=null?'band '+f.lr:'-'}.</p></div>`; }
+    if(T.tasks){ h+=gCard(T.tasks.email)+gCard(T.tasks.disc)+T.tasks.iv.map(gCard).join('');
+      h+=`<div class="tf-card"><h3 style="font-size:16px">Listen and Repeat</h3>${T.tasks.lr.map((x,i)=>`<p style="font-size:13.5px"><b>${i+1}. Target:</b> ${E(x.target)}<br><b>You said:</b> ${E(x.said||'(blank)')}<br>Match ${Math.round(x.sim*100)}% · band ${x.band}</p>`).join('')}</div>`; }
+    h+=deliveryCard();
+    h+=`<p style="font-size:12.5px;color:#667">Scores are estimates. Reading and Listening are marked by a fixed answer key; the route to the harder or easier module follows a simple rule of ours, not ETS's. Writing and speaking are marked by AI, and speaking is judged from the text of what you said, so pronunciation is not measured. The 0 to 120 range is the published comparison table.</p></div>`;
+    main(h); foot(`<button class="tf-btn" onclick="tfPdf()">⬇ Download result PDF</button><button class="tf-btn alt" onclick="tfExit()">Close</button>`);
+    const pr=document.getElementById('tf-prog'); if(pr)pr.style.width='100%';
+  }
+  window.tfPdf=function(){
+    const f=T.final||{}; const g=t=>{ const L=[]; const x=t.res&&t.res.g; if(t.res&&t.res.band!=null)L.push('Estimated band: '+t.res.band+' / 6'); if(x){ (x.criteria||[]).forEach(k=>L.push(k.name+' '+k.band+': '+(k.comment||''))); (x.strengths||[]).forEach(s=>L.push('+ '+s)); (x.improvements||[]).forEach(s=>L.push('- '+s)); if(x.upgrade)L.push('Stronger version: '+x.upgrade); } else L.push(t.res&&t.res.blank?'No answer was given.':'Detailed marking was not available.'); return L; };
+    const rp={title:'TOEFL iBT - Final Simulation',candidate:cand(),date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+      overall:f.overall!=null?f.overall+' / 6 ('+CEFR(f.overall)+', comparable to '+OLD(f.overall)+')':null,overallLabel:'Overall band (estimate)',
+      sections:[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking]].map(x=>({name:x[0],band:x[1]!=null?x[1]+' ('+CEFR(x[1])+')':'-',note:x[1]!=null?'old scale '+OLD(x[1]):''})),blocks:[]};
+    const low=[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking]].filter(x=>x[1]!=null).sort((a,b)=>a[1]-b[1])[0];
+    if(low)rp.blocks.push({h:'Where to focus next',lines:['Your lowest skill in this simulation was '+low[0]+' (band '+low[1]+'). Practise it in short daily sessions, then take another full practice to measure the change.']});
+    if(f.route)rp.blocks.push({h:'How the test adapted',lines:['Reading second module: '+(f.route.r==='h'?'harder':'easier')+'. Listening second module: '+(f.route.l==='h'?'harder':'easier')+'. Build a Sentence: '+f.bas+' of 10 correct.']});
+    if(T.tasks){ [T.tasks.email,T.tasks.disc].concat(T.tasks.iv).forEach(t=>rp.blocks.push({h:t.title,lines:g(t)})); rp.blocks.push({h:'Listen and Repeat',lines:T.tasks.lr.map((x,i)=>(i+1)+'. Match '+Math.round(x.sim*100)+'% - band '+x.band)}); }
+    const rs=Object.keys(T.recs||{}).filter(k=>/^iv/.test(k)&&T.recs[k].stats); if(rs.length){ const lines=[]; rs.sort().forEach(k=>{ const st=T.recs[k].stats; lines.push('Interview '+k.slice(2)+': '+[st.wpm!=null?st.wpm+' words/min':null,st.start!=null?'started after '+st.start+'s':null,'longest pause '+(st.longest||0)+'s'].filter(Boolean).join(', ')); tips(st).forEach(x=>lines.push('- '+x)); }); rp.blocks.push({h:'Speaking delivery',lines}); }
+    rp.note='Scores are estimates from a practice simulation, not official TOEFL results. Reading and Listening are marked against a fixed key. Writing and speaking are AI-assisted, and speaking is judged from text, so pronunciation is not measured. The 0 to 120 range is the published comparison table.';
+    s4pMakePdf(rp,'Step4Progress-TOEFL-simulation-result.pdf');
+  };
+  window.tfViewSaved=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().from('premium_results').select('*').eq('mock_id',TF_ID).order('updated_at',{ascending:false}).limit(1);
+    if(error||!data||!data.length){ alert('Could not load your result.'); return; }
+    const r=data[0].results||{}; const wt=(r.writing&&r.writing.tasks)||[], st=(r.speaking&&r.speaking.tasks)||[]; const mk=t=>({title:t.title,answer:t.answer,prompt:t.prompt,res:{band:t.band,g:t.g}});
+    T={take:data[0].take_id,c:null,final:r.toefl_final||null,view:true,steps:[{t:'result'}],pos:0,prod:{},cache:{},recs:{},uploads:[],deadline:0,tick:null,
+      tasks:wt.length?{email:mk(wt[0]),disc:mk(wt[1]||{}),iv:st.map(mk),lr:(r.speaking&&r.speaking.lrd)||[]}:null};
+    try{ const q=await sbn().from('sim_recordings').select('task,path,mime,duration_s,stats').eq('take_id',T.take); (q.data||[]).forEach(x=>{ T.recs[x.task]={task:x.task,stats:x.stats||{},path:x.path,mime:x.mime,ok:true}; }); }catch(e){}
+    injectCss(); const o=root(); if(o)o.remove();
+    const el=document.createElement('div'); el.id='tf-root';
+    el.innerHTML=`<div class="tf-top"><div class="tf-logo">TOEFL<span>·</span>Simulation</div><div class="tf-part">Your saved result</div><div class="tf-timer" id="tf-timer" style="display:none"></div><button class="tf-btn alt" style="padding:5px 12px;font-size:12px;background:transparent;color:#fff;border-color:#fff" onclick="tfExit()">Close</button></div><div class="tf-bar"><i id="tf-prog"></i></div><div class="tf-main" id="tf-main"></div><div class="tf-foot" id="tf-foot"></div>`;
+    document.body.appendChild(el); result();
+  };
+
+  // show the card on the TOEFL Mocks tab
+  try{
+    const _rm=window.renderMocksTab||renderMocksTab;
+    window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='TOEFL'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('toefl-card')){ el.insertAdjacentHTML('afterbegin','<div id="toefl-card" style="margin-bottom:12px"></div>'); tfHydrate(); } } }catch(e){} return r; };
+  }catch(e){ console.warn('toefl tab hook skipped',e); }
+})();
+</script>
+
 </body>
 </html>
