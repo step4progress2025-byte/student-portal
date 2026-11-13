@@ -12106,7 +12106,7 @@ window.guideRevert=async function(){
         <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:var(--font-h);font-weight:800;font-size:18px;color:var(--pine)">Device check</div><button onclick="s4pDC.cancel()" aria-label="Close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button></div>
         ${bubble('think','devcheck',64)}
         <div class="dc-row" id="dc-spk"><div class="dc-ico">🔊</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Speakers or headphones</div><div class="dc-state">Tap play. Can you hear it?</div>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.play()">▶ Play test sound</button><button class="btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.heard()">I can hear it</button></div></div></div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn-outline btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.play()">▶ Play test sound</button><button class="btn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.heard()">I heard the beep and the voice</button></div><div id="dc-voice-msg" style="font-size:13px;line-height:1.5;margin-top:8px"></div></div></div>
         ${opts.mic?`<div class="dc-row" id="dc-mic"><div class="dc-ico">🎤</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Microphone</div><div class="dc-state">Tap test, then say “hello” in a normal voice.</div>
           <div class="dc-meter"><i id="dc-lvl"></i></div>
           <div style="margin-top:8px"><button class="btn-outline btn" id="dc-micbtn" style="width:auto;padding:7px 14px;font-size:13px;margin:0" onclick="s4pDC.mic()">🎙 Test microphone</button></div></div></div>`:''}
@@ -12122,7 +12122,7 @@ window.guideRevert=async function(){
       setTimeout(()=>{o.frequency.value=880;},250);setTimeout(()=>{o.stop();C.close();},550);}catch(e){}
   }
   window.s4pDC={
-    play(){beep();try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('If you can hear this voice, your sound is working.');u.lang='en-US';setTimeout(()=>speechSynthesis.speak(u),650);}catch(e){}},
+    play(){beep();const m=$('dc-voice-msg');if(m)m.innerHTML='';setTimeout(()=>window.s4pSpeakTurns([['F','If you can hear this voice, your sound is working.']],{onProblem:()=>{ if(m)m.innerHTML='<b style="color:#8c1d18">We heard no voice from this device.</b> Turn the media volume up, switch off silent mode, reconnect headphones, then press Play again. On Android: Settings &gt; Languages &gt; Text-to-speech &gt; Speech Services by Google. On a computer use Chrome or Edge. Do not press the green button unless you really heard the voice.'; }}),650);},
     heard(){dcState.spk=true;dcRefresh();},
     async mic(){
       const btn=$('dc-micbtn');dcStop();dcState.micTried=true;
@@ -17375,7 +17375,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const speakText=async()=>{
       let txt=''; try{ const r=await sbn().rpc('det_audio_text',{p_take:D.take,p_item:id}); if(!r.error)txt=r.data||''; }catch(e){}
       if(!txt){ alert('Could not load the audio. Please try again.'); return; }
-      try{ const u=new SpeechSynthesisUtterance(txt); const v=speechSynthesis.getVoices().find(x=>/en-(GB|US)/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^en/i.test(x.lang)); if(v)u.voice=v; u.rate=.92; speechSynthesis.speak(u); }catch(e){}
+      window.s4pSpeakTurns([['F',txt]],{rate:.92,noPitch:true,voiceFor:function(){ const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; return vs.find(x=>/en-(GB|US)/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang))||null; }});
     };
     // real recording if the file exists (det/<id>.mp3), otherwise the browser voice
     let fell=false; const fb=()=>{ if(fell)return; fell=true; D.audio=null; speakText(); }; try{ const a=new Audio('det/'+id+'.mp3'); D.audio=a; a.onerror=fb; const p=a.play(); if(p&&p.catch)p.catch(fb); }catch(e){ fb(); }
@@ -18110,11 +18110,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     T.cache[id]=r.data; save(); return r.data;
   }
   function playTurns(turns,onEnd,rate){
-    try{
-      speechSynthesis.cancel(); const V=voices(); let i=0;
-      const go=()=>{ if(!T||i>=turns.length){ if(onEnd)onEnd(); return; } const [who,txt]=turns[i++]; const u=new SpeechSynthesisUtterance(String(txt)); u.lang='en-US'; u.rate=rate||0.95; const v=V[who]; if(v)u.voice=v; if(!v)u.pitch=who==='M'?0.8:1.1; u.onend=go; u.onerror=go; speechSynthesis.speak(u); };
-      go();
-    }catch(e){ if(onEnd)onEnd(); }
+    window.s4pSpeakTurns(turns,{onEnd:onEnd,rate:rate,alive:function(){return !!T;},voiceFor:function(who){return voices()[who];}});
   }
   function ls(step){
     const m=T.c.listening.mods[step.mod]; let id,title,qs,lcr=false;
@@ -18998,11 +18994,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     T.cache[id]=r.data; save(); return r.data;
   }
   function playTurns(turns,onEnd,rate){
-    try{
-      speechSynthesis.cancel(); const V=voices(); let i=0;
-      const go=()=>{ if(!T||i>=turns.length){ if(onEnd)onEnd(); return; } const [who,txt]=turns[i++]; const u=new SpeechSynthesisUtterance(String(txt)); u.lang='en-US'; u.rate=rate||0.95; const v=V[who]; if(v)u.voice=v; if(!v)u.pitch=who==='M'?0.8:1.1; u.onend=go; u.onerror=go; speechSynthesis.speak(u); };
-      go();
-    }catch(e){ if(onEnd)onEnd(); }
+    window.s4pSpeakTurns(turns,{onEnd:onEnd,rate:rate,alive:function(){return !!T;},voiceFor:function(who){return voices()[who];}});
   }
 
   const SP={pi:{prep:25,rec:30},ra:{prep:35,rec:40},rs:{audio:1,rec:15},di:{prep:25,rec:40},rl:{audio:1,prep:10,rec:40},asq:{audio:1,rec:10},sgd:{audio:1,prep:10,rec:120},rts:{audio:1,prep:20,rec:40}};
@@ -19196,6 +19188,65 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const _rm=window.renderMocksTab||renderMocksTab;
     window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='PTE'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('pte-card')){ el.insertAdjacentHTML('afterbegin','<div id="pte-card" style="margin-bottom:12px"></div>'); ptHydrate(); } } }catch(e){} return r; };
   }catch(e){ console.warn('pte tab hook skipped',e); }
+})();
+</script>
+
+<script>
+/* ===== Listening audio helper (browser voice): speaks in short chunks, waits for voices, and notices when a device
+   "plays" without making any sound, instead of silently moving on. Used by the TOEFL, PTE and DET listening screens
+   and the sound check. ===== */
+(function(){
+  var ST={tok:0};
+  function waitVoices(ms){ return new Promise(function(res){ var S=window.speechSynthesis; if(!S)return res([]); var v=[]; try{v=S.getVoices();}catch(e){} if(v.length)return res(v);
+    var done=false; var f=function(){ if(done)return; done=true; var x=[]; try{x=S.getVoices();}catch(e){} res(x); };
+    try{ S.addEventListener('voiceschanged',f,{once:true}); }catch(e){} setTimeout(f,ms); }); }
+  function chunks(text){ var t=String(text||'').replace(/\s+/g,' ').trim(); if(!t)return []; var parts=t.match(/[^.!?;:]+[.!?;:]*\s*/g)||[t]; var out=[],cur='';
+    parts.forEach(function(p){ if(cur&&(cur+p).length>170){ out.push(cur.trim()); cur=p; } else cur+=p; }); if(cur.trim())out.push(cur.trim()); return out; }
+  function problemBox(retry,skip){
+    var old=document.getElementById('s4p-audio-problem'); if(old)old.remove();
+    var d=document.createElement('div'); d.id='s4p-audio-problem';
+    d.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(10,25,50,.72);display:flex;align-items:center;justify-content:center;padding:18px';
+    d.innerHTML='<div style="background:#fff;max-width:440px;width:100%;border-radius:16px;padding:22px 22px 18px;font-family:Inter,system-ui,sans-serif;color:#14365f;box-shadow:0 20px 60px rgba(0,0,0,.35)">'
+      +'<div style="font-size:19px;font-weight:800;margin-bottom:8px">We could not get any sound</div>'
+      +'<p style="font-size:14.5px;line-height:1.55;margin:0 0 10px">This recording is read aloud by your device\'s own voice, and it did not make any sound.</p>'
+      +'<ol style="font-size:14px;line-height:1.6;margin:0 0 12px;padding-left:20px"><li>Turn the <b>media volume</b> up and switch off silent mode.</li><li>Unplug or reconnect headphones or Bluetooth.</li><li>Press <b>Try again</b>.</li></ol>'
+      +'<p style="font-size:13px;line-height:1.5;color:#556;margin:0 0 14px">Still silent? On Android open <b>Settings &gt; Languages &gt; Text-to-speech</b> and choose <b>Speech Services by Google</b>, then reopen the app. On a computer, use <b>Google Chrome</b> or <b>Microsoft Edge</b>.</p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap"><button id="s4p-ap-retry" style="flex:1;min-width:130px;padding:11px 14px;border:0;border-radius:10px;background:#1c3f6e;color:#fff;font-weight:700;font-size:14.5px;cursor:pointer">Try again</button>'
+      +'<button id="s4p-ap-skip" style="flex:1;min-width:130px;padding:11px 14px;border:1.5px solid #c8d3e3;border-radius:10px;background:#fff;color:#14365f;font-weight:700;font-size:14.5px;cursor:pointer">Skip this recording</button></div></div>';
+    document.body.appendChild(d);
+    document.getElementById('s4p-ap-retry').onclick=function(){ d.remove(); retry(); };
+    document.getElementById('s4p-ap-skip').onclick=function(){ d.remove(); skip(); };
+  }
+  window.s4pSpeakTurns=async function(turns,opts){
+    opts=opts||{}; var S=window.speechSynthesis; var tok=++ST.tok;
+    var fail=function(why){ if(tok!==ST.tok)return; ST.tok++; try{S.cancel();}catch(e){}
+      if(opts.onProblem){ opts.onProblem(why); return; }
+      problemBox(function(){ window.s4pSpeakTurns(turns,opts); },function(){ if(opts.onEnd)opts.onEnd(); }); };
+    if(!S||typeof SpeechSynthesisUtterance==='undefined')return fail('nosupport');
+    try{S.cancel();}catch(e){}
+    var V=await waitVoices(1500); if(tok!==ST.tok)return;
+    var q=[]; (turns||[]).forEach(function(t){ chunks(t[1]).forEach(function(c){ q.push([t[0],c]); }); });
+    var i=0;
+    var next=function(){
+      if(tok!==ST.tok)return;
+      if(opts.alive&&!opts.alive())return;
+      if(i>=q.length){ if(opts.onEnd)opts.onEnd(); return; }
+      var who=q[i][0], txt=q[i][1]; i++;
+      var u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; u.rate=opts.rate||0.95; u.volume=1;
+      var v=null; try{ v=opts.voiceFor?opts.voiceFor(who):null; }catch(e){}
+      if(v)u.voice=v; else if(!opts.noPitch)u.pitch=who==='M'?0.8:1.1;
+      var words=txt.split(/\s+/).length, expect=Math.max(0.6,words/3.2/(u.rate||1));
+      var t0=Date.now(), started=false, finished=false, startT, wd;
+      var done=function(){ finished=true; clearTimeout(startT); clearTimeout(wd); };
+      startT=setTimeout(function(){ if(!started&&!finished){ done(); fail('nostart'); } },4500);
+      wd=setTimeout(function(){ if(!finished){ done(); next(); } },(expect*2.5+6)*1000);
+      u.onstart=function(){ started=true; };
+      u.onend=function(){ if(finished)return; done(); var el=(Date.now()-t0)/1000; if(words>=3&&el<expect*0.35)return fail('silent'); next(); };
+      u.onerror=function(e){ if(finished)return; done(); if(e&&(e.error==='interrupted'||e.error==='canceled'))return; fail('error'); };
+      try{ S.speak(u); }catch(e){ done(); fail('error'); }
+    };
+    next();
+  };
 })();
 </script>
 
