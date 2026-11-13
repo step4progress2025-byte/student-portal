@@ -18662,5 +18662,539 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
 })();
 </script>
 
+<script>
+/* ============================================================
+   PTE Academic: final simulation (prem_pte_1). Current format: Part 1 Speaking and Writing, Part 2 Reading,
+   Part 3 Listening, 22 task types, scored 10 to 90. Needs 0043_pte_simulation.sql, 0038 (recordings) and the
+   grade-response function with pte_ kinds.
+   ============================================================ */
+(function(){
+  const PT_ID='prem_pte_1', BUCKET='sim-recordings';
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sbn=()=>sb;
+  let T=null;
+  const css=`#pt-root{position:fixed;inset:0;z-index:10060;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
+#pt-root *{box-sizing:border-box}
+.pt-top{background:#14365f;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 16px;flex:none}
+.pt-logo{font-weight:800;font-size:16px}.pt-logo span{color:#8fe388}
+.pt-part{flex:1;font-size:12.5px;opacity:.9;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-timer{font-weight:800;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:8px}
+.pt-timer.low{background:#B3261E}
+.pt-bar{height:4px;background:#d6dcea;flex:none}.pt-bar i{display:block;height:100%;background:#2e9d4f;width:0}
+.pt-main{flex:1;overflow:auto;padding:18px 16px 24px}
+.pt-wrap{max-width:820px;margin:0 auto}
+.pt-card{background:#fff;border:1px solid #dde3ee;border-radius:14px;padding:18px;margin-bottom:14px}
+.pt-card h3{margin:0 0 8px;color:#14365f;font-size:18px}
+.pt-btn{background:#14365f;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer}
+.pt-btn.alt{background:#fff;color:#14365f;border:1.5px solid #14365f}
+.pt-btn:disabled{opacity:.45;cursor:default}
+.pt-foot{flex:none;background:#fff;border-top:1px solid #dde3ee;padding:10px 16px;display:flex;justify-content:center;gap:10px}
+.pt-pass{background:#f9fafc;border:1px solid #e1e6ef;border-radius:10px;padding:14px;white-space:pre-wrap;line-height:1.7;font-size:15.5px;margin:8px 0}
+.pt-q{margin:14px 0 4px;font-weight:700}
+.pt-opt{display:block;border:1.5px solid #cdd6e6;border-radius:10px;padding:9px 12px;margin:6px 0;cursor:pointer;line-height:1.5}
+.pt-opt input{margin-right:8px}
+.pt-blank{border:none;border-bottom:2px solid #14365f;background:#eef3fb;font:inherit;font-weight:700;color:#14365f;padding:0 2px;margin:0 2px;text-align:left}
+.pt-ctw{font-size:16.5px;line-height:2.2}
+.pt-ta{width:100%;min-height:200px;padding:12px;border:1.5px solid #cdd6e6;border-radius:10px;font:inherit;font-size:16px;resize:vertical}
+.pt-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+.pt-chip{border:2px solid #cdd6e6;background:#fff;border-radius:10px;padding:9px 14px;font-size:17px;font-weight:600;cursor:pointer}
+.pt-slot{background:#eef3fb;border:2px dashed #9db3d6;border-radius:12px;padding:8px;min-height:64px}
+.pt-score{font-size:44px;font-weight:800;color:#C9631A}
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.pt-tile{background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:12px;text-align:center}
+.pt-tile b{display:block;font-size:26px;color:#14365f}
+.pt-post{background:#f6f8fc;border-left:4px solid #14365f;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:14.5px;line-height:1.6}
+.pt-rec{display:inline-block;width:11px;height:11px;border-radius:50%;background:#B3261E;margin-right:6px;animation:tfp 1s infinite}@keyframes tfp{50%{opacity:.25}}`+`
+.pt-dd{font:inherit;font-weight:700;color:#14365f;background:#eef3fb;border:1.5px solid #9db3d6;border-radius:8px;padding:3px 4px;margin:0 3px;max-width:190px}
+.pt-in{font:inherit;font-weight:700;color:#14365f;background:#eef3fb;border:none;border-bottom:2px solid #14365f;width:120px;padding:2px 4px;margin:0 3px}
+.pt-gap{display:inline-block;min-width:92px;border-bottom:2px solid #14365f;background:#eef3fb;font-weight:700;color:#14365f;text-align:center;padding:0 6px;margin:0 3px;cursor:pointer}
+.pt-w{display:inline-block;padding:2px 3px;margin:1px;border-radius:5px;cursor:pointer;line-height:1.9}.pt-w.on{background:#ffe08a;outline:1.5px solid #C9631A}
+.pt-ro{border:1.5px solid #cdd6e6;border-radius:10px;padding:9px 12px;margin:6px 0;cursor:pointer;line-height:1.55;background:#fff}
+.pt-lv{height:8px;background:#e1e6ef;border-radius:5px;overflow:hidden;margin:8px 0}.pt-lv i{display:block;height:100%;width:0;background:#2e9d4f;transition:width .1s}
+.pt-img{border:1px solid #dde3ee;border-radius:10px;padding:6px;background:#fff;max-width:660px;margin:8px auto}
+.pt-tt{width:100%;border-collapse:collapse;font-size:13.5px}.pt-tt td,.pt-tt th{border-bottom:1px solid #e3e8f2;padding:6px 8px;text-align:left}`;
+  function injectCss(){ if(document.getElementById('pt-css'))return; const s=document.createElement('style'); s.id='pt-css'; s.textContent=css; document.head.appendChild(s); }
+  const root=()=>document.getElementById('pt-root');
+  const main=h=>{ const m=document.getElementById('pt-main'); if(m){ m.innerHTML=h; m.scrollTop=0; } };
+  const foot=h=>{ const f=document.getElementById('pt-foot'); if(f)f.innerHTML=h||''; };
+  const fmt=s=>{ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+  const wc=t=>(t||'').trim().split(/\s+/).filter(Boolean).length;
+  const r05=x=>Math.max(1,Math.min(6,Math.round(x*2)/2));
+  const key=()=>'pt_state_'+T.take;
+  const save=()=>{ if(!T||T.view)return; try{ localStorage.setItem(key(),JSON.stringify({pos:T.pos,prod:T.prod,deadline:T.deadline,pd:T.pd,rm:T.rm,cache:T.cache,played:T.played})); }catch(e){} };
+  function cand(){ try{ const m=currentSession.user.user_metadata||{}; return m.full_name||m.name||currentSession.user.email||'Candidate'; }catch(e){ return 'Candidate'; } }
+  const CEFR=s=>s>=85?'C2':s>=76?'C1':s>=59?'B2':s>=43?'B1':s>=30?'A2':'A1';
+  const TYPE_NAMES={fibd:'Reading & Writing: Fill in the Blanks',mcma:'Multiple Choice, Multiple Answers',ro:'Re-order Paragraphs',rfib:'Reading: Fill in the Blanks',mcsa:'Multiple Choice, Single Answer',fibt:'Listening: Fill in the Blanks',hcs:'Highlight Correct Summary',smw:'Select Missing Word',hiw:'Highlight Incorrect Words',wfd:'Write from Dictation',asq:'Answer Short Question'};
+
+  // ---------- card on the PTE Mocks tab ----------
+  window.ptHydrate=async function(){
+    const el=document.getElementById('pte-card'); if(!el||isPreviewMode||!currentSession)return;
+    let st=null; try{ const r=await sbn().rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===PT_ID); }catch(e){}
+    if(!st){ el.innerHTML=''; return; }
+    let status,btn;
+    const b=(l,f)=>`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="${f}">${l}</button>`;
+    if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','ptViewSaved()'); }
+    else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','ptStart()'); }
+    else if(st.admin||st.credits>0){ status=st.admin?'Administrator: start as often as you like.':`This uses <b>1 of your ${st.credits}</b> mock credit${st.credits===1?'':'s'}. It can be taken once.`; btn=b('Start simulation','ptConfirm()'); }
+    else { status='Available with any paid plan. It uses one mock credit.'; btn=b('Choose a plan',"openPlansDialog('mock')"); }
+    el.innerHTML=`<div class="tp-info-card" style="border:2px solid #C9631A;background:linear-gradient(180deg,#FFF8F0,#fff)"><h4>⭐ ${E(st.title)}</h4>
+      <p>A full practice of the current PTE Academic: Speaking and Writing, then Reading, then Listening, in the real order, with the real task types. You get your estimated 10 to 90 scores, a task-by-task breakdown and a PDF report.</p>
+      <p style="margin-top:8px">${status}</p>${btn}
+      <div style="font-size:12.5px;color:var(--ink3);margin-top:8px">About 2 hours 15 minutes in one sitting. Use a laptop or tablet, headphones, a microphone and a quiet room. No lessons are needed first.</div></div>`;
+  };
+  window.ptConfirm=function(){
+    const m=document.createElement('div'); m.id='pt-confirm'; m.style.cssText='position:fixed;inset:0;z-index:10100;background:rgba(15,25,45,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+    m.innerHTML=`<div style="background:#fff;border-radius:14px;max-width:420px;padding:20px"><h3 style="margin:0 0 8px;color:#14365f">Start the PTE simulation?</h3><p style="font-size:14px;line-height:1.6">It uses <b>one mock credit</b> and can be taken <b>once</b>. It takes about 2 hours 15 minutes. If you leave, you can resume within 5 hours, but the timers keep running. Sit in a quiet room with headphones and a microphone.</p>
+    <div style="display:flex;gap:8px;margin-top:12px"><button class="pt-btn" onclick="document.getElementById('pt-confirm').remove();ptStart()">Start now</button><button class="pt-btn alt" onclick="document.getElementById('pt-confirm').remove()">Not now</button></div></div>`;
+    document.body.appendChild(m);
+  };
+
+  // ---------- steps ----------
+  function buildSteps(){
+    const c=T.c, L=[{t:'intro'},{t:'check'},{t:'pi'}];
+    const add=(t,arr)=>(arr||[]).forEach((x,i)=>L.push({t,i}));
+    add('ra',c.ra); add('rs',c.rs); add('di',c.di); add('rl',c.rl); add('asq',c.asq); add('sgd',c.sgd); add('rts',c.rts); add('swt',c.swt); L.push({t:'es',i:0});
+    const r=c.reading; add('rd_fibd',r.fibd); add('rd_mcma',r.mcma); add('rd_ro',r.ro); add('rd_rfib',r.rfib); add('rd_mcsa',r.mcsa);
+    const l=c.listening; add('ls_sst',l.sst); L.push({t:'ls_mcma',i:0}); add('ls_fibt',l.fibt); L.push({t:'ls_hcs',i:0},{t:'ls_mcsa',i:0}); add('ls_smw',l.smw); add('ls_hiw',l.hiw); add('ls_wfd',l.wfd);
+    L.push({t:'grading'},{t:'result'}); return L;
+  }
+  const partOf=s=>/^(intro|check)$/.test(s.t)?0:/^(grading|result)$/.test(s.t)?4:/^rd_/.test(s.t)?2:/^ls_/.test(s.t)?3:1;
+  const PARTSEC={2:1620,3:2100};
+  const NAMES={pi:'Personal Introduction',ra:'Read Aloud',rs:'Repeat Sentence',di:'Describe Image',rl:'Re-tell Lecture',asq:'Answer Short Question',sgd:'Summarize Group Discussion',rts:'Respond to a Situation',swt:'Summarize Written Text',es:'Write Essay',
+    rd_fibd:'Reading & Writing: Fill in the Blanks',rd_mcma:'Multiple Choice, Multiple Answers',rd_ro:'Re-order Paragraphs',rd_rfib:'Reading: Fill in the Blanks',rd_mcsa:'Multiple Choice, Single Answer',
+    ls_sst:'Summarize Spoken Text',ls_mcma:'Multiple Choice, Multiple Answers',ls_fibt:'Fill in the Blanks',ls_hcs:'Highlight Correct Summary',ls_mcsa:'Multiple Choice, Single Answer',ls_smw:'Select Missing Word',ls_hiw:'Highlight Incorrect Words',ls_wfd:'Write from Dictation'};
+  const itemOf=s=>{ const c=T.c; switch(s.t){
+    case 'ra':return c.ra[s.i]; case 'rs':return c.rs[s.i]; case 'di':return c.di[s.i]; case 'rl':return c.rl[s.i]; case 'asq':return c.asq[s.i]; case 'sgd':return c.sgd[s.i]; case 'rts':return c.rts[s.i]; case 'swt':return c.swt[s.i]; case 'es':return c.essay;
+    case 'rd_fibd':return c.reading.fibd[s.i]; case 'rd_mcma':return c.reading.mcma[s.i]; case 'rd_ro':return c.reading.ro[s.i]; case 'rd_rfib':return c.reading.rfib[s.i]; case 'rd_mcsa':return c.reading.mcsa[s.i];
+    case 'ls_sst':return c.listening.sst[s.i]; case 'ls_mcma':return c.listening.mcma; case 'ls_fibt':return c.listening.fibt[s.i]; case 'ls_hcs':return c.listening.hcs; case 'ls_mcsa':return c.listening.mcsa; case 'ls_smw':return c.listening.smw[s.i]; case 'ls_hiw':return c.listening.hiw[s.i]; case 'ls_wfd':return c.listening.wfd[s.i];
+  } return null; };
+  const countOf=s=>{ const n=T.steps.filter(x=>x.t===s.t).length; return n>1?' · '+(s.i+1)+' of '+n:''; };
+
+  // ---------- start / resume ----------
+  window.ptStart=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().rpc('begin_premium_mock',{p_mock:PT_ID});
+    if(error){
+      const msg=error.message||'';
+      if(/NO_CREDIT/.test(msg)){ await loadMockAccess(true); openPlansDialog('mock'); }
+      else if(/ALREADY_TAKEN/.test(msg)){ ptViewSaved(); }
+      else if(/EXPIRED/.test(msg)){ alert('This simulation was started more than 5 hours ago and can no longer be resumed. Please contact your Step4Progress counsellor.'); }
+      else alert('Could not start the simulation. Please try again in a moment. Code: '+String(msg).slice(0,60));
+      return;
+    }
+    let sv=null; try{ sv=JSON.parse(localStorage.getItem('pt_state_'+data.take_id)||'null'); }catch(e){}
+    T={take:data.take_id,c:data.content,steps:[],pos:0,prod:{},cache:{},deadline:0,pd:{},tick:null,rm:'none',recs:{},uploads:[],played:{}};
+    T.steps=buildSteps();
+    if(sv&&data.resumed){ T.pos=Math.min(sv.pos||0,T.steps.length-1); T.prod=sv.prod||{}; T.cache=sv.cache||{}; T.played=sv.played||{}; T.pd=sv.pd||{}; if(sv.deadline&&sv.deadline>Date.now())T.pendingDeadline=sv.deadline; if(sv.rm&&sv.rm!=='none'&&T.pos>1){ try{ await openStream(); }catch(e){ T.rm='none'; } } }
+    open();
+  };
+  function open(){
+    injectCss(); const o=root(); if(o)o.remove();
+    const r=document.createElement('div'); r.id='pt-root';
+    r.innerHTML=`<div class="pt-top"><div class="pt-logo">PTE<span>·</span>Simulation</div><div class="pt-part" id="pt-part"></div><div class="pt-timer" id="pt-timer" style="display:none"></div><button class="pt-btn alt" style="padding:5px 12px;font-size:12.5px" onclick="ptExit()">Exit</button></div><div class="pt-bar"><i id="pt-prog"></i></div><div class="pt-main" id="pt-main"></div><div class="pt-foot" id="pt-foot"></div>`;
+    document.body.appendChild(r);
+    window.addEventListener('beforeunload',beforeUnload);
+    if(T.tick)clearInterval(T.tick); T.tick=setInterval(tick,500);
+    render();
+  }
+  function beforeUnload(e){ if(T&&!T.view&&T.pos<T.steps.length-2){ e.preventDefault(); e.returnValue=''; } }
+  window.ptExit=function(){
+    if(T&&!T.view&&T.pos<T.steps.length-2&&!confirm('Leave the simulation? You can resume within 5 hours from the Mocks tab. The timers keep running.'))return;
+    stopMedia(); closeStream(); if(T&&T.tick)clearInterval(T.tick); window.removeEventListener('beforeunload',beforeUnload);
+    const o=root(); if(o)o.remove(); T=null;
+    try{ loadMockAccess(true); renderDashMocks(); }catch(e){}
+    try{ if(document.getElementById('pte-card'))ptHydrate(); }catch(e){}
+  };
+  function stopMedia(){ try{ speechSynthesis.cancel(); }catch(e){} try{ if(T&&T.sr){ T.sr.onend=null; T.sr.stop(); T.sr=null; } }catch(e){} }
+
+  // ---------- timers ----------
+  const SECS={swt:600,es:1200};
+  function setTimer(sec){ T.deadline=Date.now()+sec*1000; save(); const t=document.getElementById('pt-timer'); if(t)t.style.display=''; tick(); }
+  function hideTimer(){ if(T)T.deadline=0; const t=document.getElementById('pt-timer'); if(t)t.style.display='none'; }
+  function tick(){
+    if(!T||T.view)return; const step=T.steps[T.pos]; const p=partOf(step);
+    if(PARTSEC[p]&&T.pd[p]){ const left=(T.pd[p]-Date.now())/1000; const t=document.getElementById('pt-timer'); if(t){ t.style.display=''; t.textContent='⏱ '+fmt(left)+(p===2?' · Reading':' · Listening'); t.classList.toggle('low',left<=60); } if(left<=0){ skipPart(p); return; } }
+    if(!T.deadline)return; const left=(T.deadline-Date.now())/1000; const t=document.getElementById('pt-timer');
+    if(t){ t.textContent='⏱ '+fmt(left); t.classList.toggle('low',left<=20); }
+    if(left<=0){ T.deadline=0; next(true); }
+  }
+  async function skipPart(p){
+    if(busy)return; busy=true; const step=T.steps[T.pos];
+    try{ await commit(step); }catch(e){}
+    let j=T.pos+1; while(j<T.steps.length&&partOf(T.steps[j])===p)j++;
+    T.pos=j; busy=false; save(); render();
+  }
+
+  // ---------- navigation ----------
+  function render(){
+    stopMedia(); try{ clearInterval(T.sIv); }catch(e){} const step=T.steps[T.pos]; const p=partOf(step);
+    const pl=document.getElementById('pt-part'); if(pl)pl.textContent=({0:'',1:'Part 1 · Speaking & Writing',2:'Part 2 · Reading',3:'Part 3 · Listening',4:''})[p]+((NAMES[step.t])?' · '+NAMES[step.t]:'')+(NAMES[step.t]?countOf(step):'')||({intro:'Instructions',check:'Device check',grading:'Marking',result:'Your result'})[step.t]||'';
+    if(pl&&!pl.textContent)pl.textContent=({intro:'Instructions',check:'Device check',grading:'Marking',result:'Your result'})[step.t]||'';
+    const pr=document.getElementById('pt-prog'); if(pr)pr.style.width=Math.round(T.pos/(T.steps.length-1)*100)+'%';
+    hideTimer(); T.cur=null;
+    if(PARTSEC[p]&&!T.pd[p]&&!T.view){ T.pd[p]=Date.now()+PARTSEC[p]*1000; }
+    const fn=({intro,check,pi:speak,ra:speak,rs:speak,di:speak,rl:speak,asq:speak,sgd:speak,rts:speak,swt:writing,es:writing,rd_fibd:r_fibd,rd_mcma:r_mcma,rd_ro:r_ro,rd_rfib:r_rfib,rd_mcsa:r_mcsa,ls_sst:l_sst,ls_mcma:l_mc,ls_mcsa:l_mc,ls_hcs:l_hcs,ls_smw:l_smw,ls_fibt:l_fibt,ls_hiw:l_hiw,ls_wfd:l_wfd,grading,result})[step.t];
+    fn(step);
+    if(SECS[step.t]&&!T.view){ if(T.pendingDeadline){ T.deadline=T.pendingDeadline; T.pendingDeadline=0; setTimer((T.deadline-Date.now())/1000); } else setTimer(SECS[step.t]); }
+    save(); tick();
+  }
+  let busy=false;
+  async function next(timeUp){
+    if(!T||busy)return; busy=true; const step=T.steps[T.pos];
+    try{ await commit(step,timeUp); }catch(e){ console.warn('commit',e); }
+    busy=false; T.pos++; save(); render();
+  }
+  window.ptNext=()=>next(false);
+  async function submit(id,ans){ try{ await sbn().rpc('submit_pte_item',{p_take:T.take,p_item:id,p_answer:ans}); }catch(e){} }
+
+  // ---------- intro and device check ----------
+  function intro(){
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>PTE Academic: final simulation</h3>
+      <p style="line-height:1.7">This practice follows the current PTE Academic: three parts taken in one sitting, in this order. It is not adaptive, so every student sees the same questions.</p>
+      <ol style="line-height:1.9;font-size:15px;margin:6px 0 10px 18px"><li><b>Part 1 · Speaking &amp; Writing:</b> Personal Introduction, Read Aloud, Repeat Sentence, Describe Image, Re-tell Lecture, Answer Short Question, Summarize Group Discussion, Respond to a Situation, Summarize Written Text and Write Essay.</li><li><b>Part 2 · Reading</b> (27 minutes for the whole part): fill in the blanks (two kinds), multiple choice (two kinds) and re-order paragraphs.</li><li><b>Part 3 · Listening</b> (35 minutes for the whole part): Summarize Spoken Text, multiple choice, fill in the blanks, Highlight Correct Summary, Select Missing Word, Highlight Incorrect Words and Write from Dictation.</li></ol>
+      <p style="line-height:1.7"><b>Rules.</b> You cannot go back. Each recording plays once. In speaking tasks you start the question yourself, then the preparation time and the recording time run on a countdown. Do not use dictionaries, translators or help from anyone. Your progress is kept on this device if you lose connection, and you can resume within 5 hours.</p>
+      <p style="font-size:13px;color:#667">Scores are estimates on the 10 to 90 scale. They are not official results. The real test uses a larger question bank and its own automated scoring.</p></div></div>`);
+    foot('<button class="pt-btn" onclick="ptNext()">I understand, continue</button>');
+  }
+    function check(){
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Device check and recording</h3><p style="line-height:1.7">Put on headphones and sit in a quiet room. You need sound for Listening and a microphone for Speaking (if your device cannot record, you can type your speaking answers).</p>
+      <p><button class="pt-btn alt" onclick="window.s4pDeviceCheck&&window.s4pDeviceCheck({mic:true,force:true})">Run device check</button></p></div>
+      <div class="pt-card"><h3>Record my speaking (recommended)</h3>
+      <p style="line-height:1.7;font-size:14.5px">You can record your voice during the Speaking tasks. Afterwards you can listen to yourself, see your speaking speed and pauses, and get tips.</p>
+      <label class="pt-opt"><input type="radio" name="ptrm" value="audio" checked> Record sound only</label>
+      <label class="pt-opt"><input type="radio" name="ptrm" value="none"> Do not record</label>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="pt-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
+      <p id="pt-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
+    foot('<button class="pt-btn" onclick="ptCheckGo()">Continue</button>');
+  }
+  window.ptCheckGo=async function(){
+    const sel=(document.querySelector('input[name="ptrm"]:checked')||{}).value||'none'; const msg=document.getElementById('pt-recmsg');
+    if(sel==='audio'){
+      if(!document.getElementById('pt-guard').checked){ if(msg)msg.textContent='Please tick the box to record, or choose "Do not record".'; return; }
+      let ok=false; try{ await openStream(); const r=await sbn().rpc('record_recording_consent',{p_take:T.take,p_mode:'audio',p_guardian:true}); ok=!r.error; }catch(e){}
+      if(!ok){ closeStream(); T.rm='none'; if(msg)msg.textContent='Recording could not be switched on, so this test will continue without it.'; await new Promise(r=>setTimeout(r,1500)); }
+    } else T.rm='none';
+    ptNext();
+  };
+
+
+
+  // ---------- Reading ----------
+  const radios=(name,opts)=>opts.map((o,i)=>`<label class="pt-opt"><input type="radio" name="${name}" value="${i}"> ${E(o)}</label>`).join('');
+  const checks=(name,opts)=>opts.map((o,i)=>`<label class="pt-opt"><input type="checkbox" name="${name}" value="${i}"> ${E(o)}</label>`).join('');
+  function r_fibd(step){
+    const x=itemOf(step); let h=E(x.text).replace(/«(\d+)»/g,(m,n)=>{ const o=x.opts[n-1]; return `<select class="pt-dd" data-i="${n-1}"><option value="-1">–</option>${o.map((t,i)=>`<option value="${i}">${E(t)}</option>`).join('')}</select>`; });
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Reading &amp; Writing: Fill in the Blanks</h3><p style="font-size:13.5px;color:#667">Choose the best word for each blank.</p><div class="pt-ctw" style="font-size:16.5px;line-height:2.3">${h}</div></div></div>`);
+    foot('<button class="pt-btn" onclick="ptNext()">Next</button>');
+  }
+  function r_mcma(step){ const x=itemOf(step);
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Multiple Choice, Multiple Answers</h3><div class="pt-pass">${E(x.text)}</div><div class="pt-q">${E(x.q)}</div><p style="font-size:12.5px;color:#667;margin:2px 0">Each wrong choice takes away a mark.</p>${checks(x.id,x.o)}</div></div>`);
+    foot('<button class="pt-btn" onclick="ptNext()">Next</button>'); }
+  function r_mcsa(step){ const x=itemOf(step);
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Multiple Choice, Single Answer</h3><div class="pt-pass">${E(x.text)}</div><div class="pt-q">${E(x.q)}</div>${radios(x.id,x.o)}</div></div>`);
+    foot('<button class="pt-btn" onclick="ptNext()">Next</button>'); }
+  function r_ro(step){ const x=itemOf(step); T.cur={idx:[]}; roPaint();
+    foot('<button class="pt-btn" onclick="ptNext()">Next</button>'); }
+  function roPaint(){
+    const step=T.steps[T.pos], x=itemOf(step), idx=T.cur.idx;
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Re-order Paragraphs</h3><p style="font-size:13.5px;color:#667">Tap the sentences in the order that makes the best text. Tap a sentence in your order to remove it.</p>
+      <b style="font-size:13px">Source</b>${x.s.map((t,k)=>idx.includes(k)?'':`<div class="pt-ro" onclick="ptRo(${k},true)">${E(t)}</div>`).join('')||'<div style="color:#889;font-size:13px">All sentences are placed</div>'}
+      <b style="font-size:13px;display:block;margin-top:12px">Your order</b>${idx.map((k,p)=>`<div class="pt-ro" style="background:#eef3fb" onclick="ptRo(${k},false)"><b>${p+1}.</b> ${E(x.s[k])}</div>`).join('')||'<div style="color:#889;font-size:13px">Nothing placed yet</div>'}</div></div>`);
+  }
+  window.ptRo=function(k,add){ const i=T.cur.idx; if(add)i.push(k); else T.cur.idx=i.filter(v=>v!==k); roPaint(); };
+  function r_rfib(step){ const x=itemOf(step); const n=(x.text.match(/«\d+»/g)||[]).length; T.cur={fill:new Array(n).fill(null)}; rfPaint(); foot('<button class="pt-btn" onclick="ptNext()">Next</button>'); }
+  function rfPaint(){
+    const step=T.steps[T.pos], x=itemOf(step), f=T.cur.fill;
+    const h=E(x.text).replace(/«(\d+)»/g,(m,n)=>{ const v=f[n-1]; return `<span class="pt-gap" onclick="ptRf(${n-1},-1)">${v!=null?E(x.bank[v]):'&nbsp;'}</span>`; });
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>Reading: Fill in the Blanks</h3><p style="font-size:13.5px;color:#667">Tap a word below to put it in the next empty blank. Tap a filled blank to take the word back. Some words are not needed.</p>
+      <div class="pt-ctw" style="font-size:16.5px;line-height:2.3">${h}</div><div class="pt-chips">${x.bank.map((w,k)=>f.includes(k)?'':`<button class="pt-chip" onclick="ptRf(${k},0)">${E(w)}</button>`).join('')}</div></div></div>`);
+  }
+  window.ptRf=function(a,mode){ const f=T.cur.fill; if(mode===-1){ f[a]=null; } else { const e=f.indexOf(null); if(e>=0)f[e]=a; } rfPaint(); };
+  const val=n=>{ const c=document.querySelector('input[name="'+n+'"]:checked'); return c?parseInt(c.value,10):-1; };
+  const vals=n=>[...document.querySelectorAll('input[name="'+n+'"]:checked')].map(c=>parseInt(c.value,10));
+
+  // ---------- Listening ----------
+  function lis(step,title,bodyHtml,hint){
+    const x=itemOf(step), id=x.id, done=T.played[id];
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>${E(title)}</h3><p style="font-size:13.5px;color:#667">${hint||'The recording plays <b>once</b>. Listen carefully, then answer.'}</p>
+      <p><button class="pt-btn" id="pt-play" ${done?'disabled':''} onclick="ptPlay('${id}')">${done?'Played':'▶ Play recording'}</button> <span id="pt-pmsg" style="font-size:13px;color:#667"></span></p>
+      <div id="pt-qs" style="${done?'':'opacity:.55;pointer-events:none'}">${bodyHtml}</div></div></div>`);
+    foot('<button class="pt-btn" id="pt-nx" onclick="ptNext()" '+(done?'':'disabled')+'>Next</button>');
+  }
+  window.ptPlay=async function(id){
+    const b=document.getElementById('pt-play'); if(!b||T.played[id])return; T.played[id]=1; b.disabled=true; b.textContent='Playing…'; save();
+    let turns; try{ turns=await turnsFor(id); }catch(e){ b.textContent='Could not load the recording'; unlock(); return; }
+    const fin=()=>{ b.textContent='Played'; unlock(); };
+    if(!window.speechSynthesis){ b.textContent='Audio is not available on this device'; const pm=document.getElementById('pt-pmsg'); if(pm)pm.innerHTML='<a href="#" onclick="return ptShowText(\''+id+'\')">Show the text instead</a>'; unlock(); return; }
+    playTurns(turns,fin,0.95);
+  };
+  function unlock(){ const q=document.getElementById('pt-qs'); if(q){ q.style.opacity=1; q.style.pointerEvents=''; } const n=document.getElementById('pt-nx'); if(n)n.disabled=false; }
+  window.ptShowText=function(id){ const t=T.cache[id]||[]; const pm=document.getElementById('pt-pmsg'); if(pm)pm.innerHTML='<div class="pt-pass">'+E(t.map(x=>x[1]).join('\n'))+'</div>'; return false; };
+  window.ptWc=function(){ const t=document.getElementById('pt-ta'),o=document.getElementById('pt-wc'); if(t&&o)o.textContent=wc(t.value)+' words'; };
+  function l_sst(step){ const x=itemOf(step); lis(step,'Summarize Spoken Text',`<p style="font-size:13.5px;color:#445">Write a summary of 50 to 70 words.</p><textarea class="pt-ta" id="pt-ta" style="min-height:160px" oninput="ptWc()">${E(T.prod[x.id]||'')}</textarea><div id="pt-wc" style="font-size:13px;color:#667"></div>`,'The recording plays <b>once</b>. You may take notes on paper.'); ptWc(); }
+  function l_mc(step){ const x=itemOf(step); const multi=step.t==='ls_mcma'; lis(step,multi?'Multiple Choice, Multiple Answers':'Multiple Choice, Single Answer',`<div class="pt-q">${E(x.q)}</div>${multi?checks(x.id,x.o):radios(x.id,x.o)}`); }
+  function l_hcs(step){ const x=itemOf(step); lis(step,'Highlight Correct Summary',`<div class="pt-q">Which summary best matches the recording?</div>${radios(x.id,x.o)}`); }
+  function l_smw(step){ const x=itemOf(step); lis(step,'Select Missing Word',`<div class="pt-q">The recording stops before its last word. Choose the word that completes it.</div>${radios(x.id,x.o)}`); }
+  function l_fibt(step){ const x=itemOf(step); const h=E(x.text).replace(/«(\d+)»/g,(m,n)=>`<input class="pt-in" data-i="${n-1}" autocomplete="off" spellcheck="false">`); lis(step,'Listening: Fill in the Blanks',`<div style="font-size:16px;line-height:2.4">${h}</div>`,'Type the missing words as you listen. The recording plays <b>once</b>.'); }
+  function l_hiw(step){ const x=itemOf(step); T.cur={sel:[]}; lis(step,'Highlight Incorrect Words',`<p style="font-size:13.5px;color:#445">Tap the words in the text that are different from what the speaker says. Each wrong tap takes away a mark.</p><div class="pt-pass" style="line-height:2" id="pt-hiw">${x.words.map((w,i)=>`<span class="pt-w" data-i="${i}" onclick="ptHiw(${i},this)">${E(w)}</span>`).join(' ')}</div>`,'Read the text while the recording plays <b>once</b>.'); }
+  window.ptHiw=function(i,el){ const s=T.cur.sel; const p=s.indexOf(i); if(p>=0){ s.splice(p,1); el.classList.remove('on'); } else { s.push(i); el.classList.add('on'); } };
+  function l_wfd(step){ const x=itemOf(step); lis(step,'Write from Dictation',`<div class="pt-q">Type the sentence exactly as you hear it.</div><textarea class="pt-ta" id="pt-ta" style="min-height:70px" autocomplete="off" spellcheck="false">${E(T.prod[x.id]||'')}</textarea>`); }
+
+  // ---------- Writing ----------
+  function writing(step){
+    const x=itemOf(step); const have=T.prod[x.id]||''; const es=step.t==='es';
+    const top=es?`<div class="pt-card"><h3>Write Essay</h3><p style="line-height:1.7">${E(x.prompt)}</p><p style="font-size:13px;color:#667">You have 20 minutes.</p></div>`
+      :`<div class="pt-card"><h3>Summarize Written Text · ${E(x.title)}</h3><p style="font-size:13.5px;color:#667">Read the passage and write <b>one sentence</b> (5 to 75 words) that sums it up. You have 10 minutes.</p><div class="pt-pass">${E(x.text)}</div></div>`;
+    main(`<div class="pt-wrap">${top}<div class="pt-card"><textarea class="pt-ta" id="pt-ta" placeholder="Write here" oninput="ptWc()" spellcheck="true" style="min-height:${es?300:110}px">${E(have)}</textarea><div id="pt-wc" style="font-size:13px;color:#667;margin-top:4px"></div></div></div>`);
+    ptWc(); foot('<button class="pt-btn" onclick="ptNext()">Submit and continue</button>');
+  }
+
+  // ---------- Speaking ----------
+    // ---------- Speaking ----------
+  async function openStream(){ T.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); T.rm='audio'; }
+  function closeStream(){ try{ if(T&&T.seg){ T.seg.rec.onstop=null; T.seg.rec.stop(); T.seg=null; } }catch(e){} try{ if(T&&T.stream){ T.stream.getTracks().forEach(t=>t.stop()); T.stream=null; } }catch(e){} }
+  function pickMime(){ for(const m of ['audio/webm;codecs=opus','audio/webm','audio/mp4']){ try{ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; }catch(e){} } return ''; }
+  const baseMime=m=>String(m||'').split(';')[0]||'audio/webm';
+  function startRec(task){
+    T.heard=''; T.t0=Date.now();
+    if(T.stream&&T.rm==='audio'){
+      const mime=pickMime(); const seg={task,chunks:[],mime,t0:Date.now(),first:null,last:null,silent:0,longest:0,pauses:0,timers:[]};
+      try{ seg.rec=new MediaRecorder(T.stream,Object.assign({},mime?{mimeType:mime}:{},{audioBitsPerSecond:48000})); }catch(e){ try{ seg.rec=new MediaRecorder(T.stream); }catch(e2){ seg.rec=null; } }
+      if(seg.rec){
+        seg.rec.ondataavailable=e=>{ if(e.data&&e.data.size)seg.chunks.push(e.data); }; seg.stopped=new Promise(r=>{ seg.rec.onstop=r; }); try{ seg.rec.start(1000); }catch(e){ seg.rec=null; }
+        try{ const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); const an=ctx.createAnalyser(); an.fftSize=1024; ctx.createMediaStreamSource(T.stream).connect(an); const buf=new Uint8Array(an.fftSize); seg.ctx=ctx;
+          seg.timers.push(setInterval(()=>{ an.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; s+=v*v; } const now=Date.now()-seg.t0;
+            if(Math.sqrt(s/buf.length)>0.02){ if(seg.first==null)seg.first=now; if(seg.silent>=1500&&seg.last!=null)seg.pauses++; if(seg.silent>seg.longest&&seg.last!=null)seg.longest=seg.silent; seg.silent=0; seg.last=now; } else seg.silent+=100; },100)); }catch(e){}
+      }
+      T.seg=seg;
+    }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){ try{ const sr=new SR(); sr.lang='en-US'; sr.continuous=true; sr.interimResults=true; let fin='';
+      sr.onresult=e=>{ let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } T.heard=(fin+interim).trim(); const el=document.getElementById('pt-heard'); if(el)el.textContent=T.heard; };
+      sr.onend=()=>{ if(T&&T.sr===sr&&T.recording){ try{ sr.start(); }catch(e){} } };
+      T.sr=sr; sr.start(); }catch(e){ T.sr=null; } }
+  }
+  async function stopRec(task){
+    T.recording=false; try{ if(T.sr){ T.sr.onend=null; T.sr.stop(); T.sr=null; } }catch(e){}
+    const seg=T.seg; T.seg=null; if(!seg||!seg.rec)return;
+    (seg.timers||[]).forEach(clearInterval); try{ seg.ctx&&seg.ctx.close(); }catch(e){}
+    try{ if(seg.rec.state!=='inactive')seg.rec.stop(); await Promise.race([seg.stopped,new Promise(r=>setTimeout(r,3000))]); }catch(e){}
+    const blob=new Blob(seg.chunks,{type:baseMime(seg.mime)}); if(!blob.size)return;
+    const dur=(Date.now()-seg.t0)/1000; const words=wc(T.prod[task]||T.heard||''); const stats={dur:Math.round(dur)};
+    const talk=(seg.first!=null&&seg.last!=null)?(seg.last-seg.first)/60000:0; if(words>=5&&talk>0.05)stats.wpm=Math.round(words/talk); if(seg.first!=null)stats.start=Math.round(seg.first/100)/10; stats.pauses=seg.pauses; stats.longest=Math.round(seg.longest/100)/10;
+    const rec={task,stats,dur,mime:baseMime(seg.mime),blob,url:URL.createObjectURL(blob),ok:false}; T.recs[task]=rec;
+    T.uploads.push((async()=>{ try{ const path=currentSession.user.id+'/'+T.take+'/'+task+'.'+(/mp4/.test(rec.mime)?'mp4':'webm'); const up=await sbn().storage.from(BUCKET).upload(path,blob,{contentType:rec.mime,upsert:true}); if(up.error)throw up.error;
+      const rg=await sbn().rpc('register_sim_recording',{p_take:T.take,p_task:task,p_path:path,p_mime:rec.mime,p_duration:Math.round(dur),p_size:blob.size,p_stats:stats}); if(rg.error)throw rg.error; rec.path=path; rec.ok=true; }catch(e){ rec.err=1; } })());
+  }
+
+    function voices(){ const v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; const en=v.filter(x=>/^en/i.test(x.lang)); const f=en.find(x=>/female|samantha|zira|helen|susan|libby|aria|jenny/i.test(x.name)); const m=en.find(x=>/\bmale\b|daniel|david|george|mark|ryan|guy|james/i.test(x.name)); return {F:f||en[0],M:m||en[1]||en[0]}; }
+  async function turnsFor(id){
+    if(T.cache[id])return T.cache[id];
+    const r=await sbn().rpc('pte_audio_text',{p_take:T.take,p_item:id}); if(r.error)throw r.error;
+    T.cache[id]=r.data; save(); return r.data;
+  }
+  function playTurns(turns,onEnd,rate){
+    try{
+      speechSynthesis.cancel(); const V=voices(); let i=0;
+      const go=()=>{ if(!T||i>=turns.length){ if(onEnd)onEnd(); return; } const [who,txt]=turns[i++]; const u=new SpeechSynthesisUtterance(String(txt)); u.lang='en-US'; u.rate=rate||0.95; const v=V[who]; if(v)u.voice=v; if(!v)u.pitch=who==='M'?0.8:1.1; u.onend=go; u.onerror=go; speechSynthesis.speak(u); };
+      go();
+    }catch(e){ if(onEnd)onEnd(); }
+  }
+
+  const SP={pi:{prep:25,rec:30},ra:{prep:35,rec:40},rs:{audio:1,rec:15},di:{prep:25,rec:40},rl:{audio:1,prep:10,rec:40},asq:{audio:1,rec:10},sgd:{audio:1,prep:10,rec:120},rts:{audio:1,prep:20,rec:40}};
+  function speakBody(step,x){
+    if(step.t==='pi')return `<p style="line-height:1.7">${E(T.c.intro.text)}</p>`;
+    if(step.t==='ra')return `<p style="font-size:13.5px;color:#667">Look at the text below. In 35 seconds you must read this text aloud as naturally and clearly as possible.</p><div class="pt-pass" style="font-size:17px">${E(x.text)}</div>`;
+    if(step.t==='di')return `<p style="font-size:13.5px;color:#667">Look at the image below. In 25 seconds, please speak into the microphone and describe in detail what the image is showing. You will have 40 seconds to give your response.</p><div class="pt-img">${x.svg}</div>`;
+    if(step.t==='rs')return `<p style="font-size:13.5px;color:#667">You will hear a sentence. Please repeat the sentence exactly as you hear it. You will hear it only once.</p>`;
+    if(step.t==='rl')return `<p style="font-size:13.5px;color:#667">You will hear a lecture. After listening to the lecture, in 10 seconds, please speak into the microphone and retell what you have just heard from the lecture in your own words. You will have 40 seconds.</p>`;
+    if(step.t==='asq')return `<p style="font-size:13.5px;color:#667">You will hear a question. Please give a simple and short answer. Often just one or a few words is enough.</p>`;
+    if(step.t==='sgd')return `<p style="font-size:13.5px;color:#667">You will hear three people having a discussion. When the discussion ends, you will have 10 seconds to prepare and 2 minutes to summarize the different opinions the speakers expressed.</p><p><b>Topic:</b> ${E(x.topic)}</p>`;
+    if(step.t==='rts')return `<p style="font-size:13.5px;color:#667">Read the situation. You will hear it once. After 20 seconds of preparation, speak for up to 40 seconds as if you were talking to the person.</p><div class="pt-post">${E(x.text)}</div>`;
+    return '';
+  }
+  function speak(step){
+    const x=itemOf(step)||{id:'pi'}; const id=x.id||'pi'; const cfg=SP[step.t]; const task=step.t==='pi'?'pi':id.replace(/^sp_/,'');
+    T.cur={id,task,cfg,step,phase:'idle'}; const done=T.played['sp_'+id];
+    main(`<div class="pt-wrap"><div class="pt-card"><h3>${E(NAMES[step.t])}${step.t==='pi'?'':countOf(step)}</h3>${speakBody(step,x)}
+      <p><button class="pt-btn" id="pt-sp" onclick="ptSpeak()" ${done?'disabled':''}>${done?'Done':'▶ Begin'}</button></p>
+      <div id="pt-st" style="font-size:14.5px;color:#14365f;font-weight:700;min-height:24px"></div><div class="pt-lv" id="pt-lv" style="display:none"><i></i></div>
+      <p style="font-size:13px;color:#667;margin:10px 0 2px">What we heard (you can fix it, or type your answer if the microphone does not work):</p>
+      <textarea class="pt-ta" id="pt-sp-ta" style="min-height:${/^(ra|rs|asq)$/.test(step.t)?60:110}px" placeholder="Your spoken answer appears here" oninput="ptProd(this.value)">${E(T.prod[task]||'')}</textarea></div></div>`);
+    foot('<button class="pt-btn alt" id="pt-sp-f" style="display:none" onclick="ptFinishRec()">Finish recording</button><button class="pt-btn" id="pt-sp-n" onclick="ptNext()" '+(done?'':'disabled')+'>Next</button>');
+  }
+  window.ptProd=v=>{ if(T&&T.cur)T.prod[T.cur.task]=v; };
+  window.ptSpeak=async function(){
+    const c=T.cur; const b=document.getElementById('pt-sp'); if(!b||T.played['sp_'+c.id])return; T.played['sp_'+c.id]=1; save(); b.disabled=true; const st=document.getElementById('pt-st');
+    const stage=async()=>{
+      if(c.cfg.prep){ await countdown(c,c.cfg.prep,'Prepare: '); if(!T||T.cur!==c)return; }
+      record(c);
+    };
+    if(c.cfg.audio){
+      b.textContent='Listen…'; let turns; try{ turns=await turnsFor(c.id); }catch(e){ if(st)st.textContent='Could not load the audio. Type your answer below.'; const n=document.getElementById('pt-sp-n'); if(n)n.disabled=false; return; }
+      if(!window.speechSynthesis){ stage(); return; }
+      playTurns(turns,()=>{ if(T&&T.cur===c)stage(); },c.step.t==='rs'?0.9:0.95);
+    } else stage();
+  };
+  function countdown(c,secs,label){ return new Promise(res=>{ let left=secs; const st=document.getElementById('pt-st'); const upd=()=>{ if(st)st.textContent=label+left+' s'; }; upd(); const iv=setInterval(()=>{ if(!T||T.cur!==c){ clearInterval(iv); res(); return; } left--; upd(); if(left<=0){ clearInterval(iv); res(); } },1000); T.sIv=iv; }); }
+  function record(c){
+    const b=document.getElementById('pt-sp'); if(b)b.textContent='Speak now'; T.recording=true; startRec(c.task); let left=c.cfg.rec; const st=document.getElementById('pt-st');
+    const f=document.getElementById('pt-sp-f'); if(f)f.style.display=''; const lv=document.getElementById('pt-lv'); if(lv)lv.style.display='';
+    const upd=()=>{ if(st)st.innerHTML='<span class="pt-rec"></span>Recording… '+left+' s left'; }; upd();
+    const iv=setInterval(()=>{ left--; upd(); if(left<=0){ clearInterval(iv); fin(); } },1000); T.sIv=iv;
+    const fin=async()=>{ if(c.done)return; c.done=true; clearInterval(T.sIv); if(!T||T.cur!==c)return; await stopRec(c.task); const ta=document.getElementById('pt-sp-ta'); const said=T.heard&&T.heard.length>=(ta&&ta.value.length||0)?T.heard:(ta?ta.value:''); T.prod[c.task]=said; if(ta)ta.value=said; if(st)st.textContent='Recording finished.'; if(f)f.style.display='none'; if(lv)lv.style.display='none'; const n=document.getElementById('pt-sp-n'); if(n)n.disabled=false; save(); };
+    c.fin=fin;
+  }
+  window.ptFinishRec=function(){ const c=T&&T.cur; if(c&&c.fin&&!c.done)c.fin(); };
+
+  // ---------- commit ----------
+  async function commit(step,timeUp){
+    const t=step.t, x=itemOf(step);
+    if(t==='rd_fibd'){ const a=[...document.querySelectorAll('.pt-dd')].map(s=>parseInt(s.value,10)); await submit(x.id,a); }
+    else if(t==='rd_mcma'||t==='ls_mcma'){ await submit(x.id,vals(x.id)); }
+    else if(t==='rd_mcsa'||t==='ls_mcsa'||t==='ls_hcs'||t==='ls_smw'){ await submit(x.id,val(x.id)); }
+    else if(t==='rd_ro'){ const idx=(T.cur&&T.cur.idx||[]).slice(); x.s.forEach((s,k)=>{ if(!idx.includes(k))idx.push(k); }); await submit(x.id,idx); }
+    else if(t==='rd_rfib'){ const f=(T.cur&&T.cur.fill)||[]; await submit(x.id,f.map(v=>v==null?'':x.bank[v])); }
+    else if(t==='ls_fibt'){ const a=[...document.querySelectorAll('.pt-in')].map(i=>(i.value||'').trim()); await submit(x.id,a); }
+    else if(t==='ls_hiw'){ await submit(x.id,(T.cur&&T.cur.sel)||[]); }
+    else if(t==='ls_wfd'){ const ta=document.getElementById('pt-ta'); await submit(x.id,ta?ta.value:''); }
+    else if(t==='ls_sst'||t==='swt'||t==='es'){ const ta=document.getElementById('pt-ta'); T.prod[x.id]=ta?ta.value:(T.prod[x.id]||''); }
+    else if(/^(pi|ra|rs|di|rl|asq|sgd|rts)$/.test(t)){ if(T.cur){ if(T.cur.fin&&!T.cur.done&&T.recording)await T.cur.fin(); clearInterval(T.sIv); const ta=document.getElementById('pt-sp-ta'); if(ta)T.prod[T.cur.task]=ta.value; if(t==='asq')await submit(x.id,T.prod[T.cur.task]||''); } }
+    if(/^ls_/.test(t)||/^(rs|rl|asq|sgd|rts)$/.test(t))stopMedia();
+  }
+
+  // ---------- marking ----------
+    // ---------- marking ----------
+  function sim(said,target){
+    const n=t=>(t||'').toLowerCase().replace(/[^a-z0-9' ]/g,'').split(/\s+/).filter(Boolean); const a=n(said), k=n(target); if(!k.length||!a.length)return 0;
+    const used=new Array(a.length).fill(false); let m=0; k.forEach(w=>{ for(let j=0;j<a.length;j++){ if(!used[j]&&a[j]===w){ used[j]=true; m++; break; } } }); return m/k.length;
+  }
+  async function aiGrade(kind,prompt,answer,skill){
+    if(!answer||wc(answer)<2)return {band:1,g:null,blank:true};
+    try{
+      const res=await fetch(GRADE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({kind,prompt,answer:String(answer).slice(0,5800),testName:'PTE Academic',takeId:T.take,skill})});
+      const d=await res.json(); if(res.ok&&typeof d.band==='number')return {band:r05(d.band),g:d};
+    }catch(e){} return {band:null,g:null};
+  }
+
+  async function pool(jobs,n){ const out=new Array(jobs.length); let i=0; await Promise.all(new Array(n).fill(0).map(async()=>{ while(i<jobs.length){ const k=i++; out[k]=await jobs[k](); } })); return out; }
+  async function grading(){
+    main(`<div class="pt-wrap"><div class="pt-card" style="text-align:center"><div style="font-size:40px">📝</div><h3>Marking your test</h3><p style="color:#667">Your writing and speaking are being assessed. This can take a few minutes. Please keep this page open.</p></div></div>`);
+    closeStream(); const c=T.c, P=T.prod; const qText=id=>((T.cache[id]||[]).map(x=>x[1]).join(' '))||'(recording not played)';
+    const J=[], meta=[];
+    const add=(grp,title,kind,prompt,ans,skill,id)=>{ meta.push({grp,title,prompt,answer:ans,id}); J.push(()=>aiGrade(kind,prompt,ans,skill)); };
+    c.listening.sst.forEach((x,i)=>add('sst','Summarize Spoken Text '+(i+1),'pte_sst','Summarize the recording in 50 to 70 words. Transcript of the recording: '+qText(x.id),P[x.id],'Listening',x.id));
+    c.swt.forEach((x,i)=>add('swt','Summarize Written Text '+(i+1),'pte_swt','Summarize the passage in ONE sentence of 5 to 75 words. Passage: '+x.text,P[x.id],'Writing',x.id));
+    add('essay','Write Essay','pte_essay',c.essay.prompt,P[c.essay.id],'Writing',c.essay.id);
+    c.di.forEach((x,i)=>add('ai','Describe Image '+(i+1),'pte_di','Describe the image in detail. The image: '+x.alt,P['di'+(i+1)],'Speaking',x.id));
+    c.rl.forEach((x,i)=>add('ai','Re-tell Lecture '+(i+1),'pte_rl','Retell the lecture in your own words. Transcript of the lecture: '+qText(x.id),P['rl'+(i+1)],'Speaking',x.id));
+    c.sgd.forEach((x,i)=>add('ai','Summarize Group Discussion '+(i+1),'pte_sgd','Summarize the different opinions in the discussion. Topic: '+x.topic+'. Transcript: '+qText(x.id),P['sg'+(i+1)],'Speaking',x.id));
+    c.rts.forEach((x,i)=>add('ai','Respond to a Situation '+(i+1),'pte_rts',x.text,P['rt'+(i+1)],'Speaking',x.id));
+    const R=await pool(J,4);
+    const tasks=meta.map((m,i)=>Object.assign({},m,{res:R[i]}));
+    const bands=g=>tasks.filter(t=>t.grp===g&&t.res.band!=null).map(t=>t.res.band);
+    const rad=c.ra.map((x,i)=>{ const said=P['ra'+(i+1)]||''; return {target:x.text,said,sim:sim(said,x.text)}; });
+    const rsd=c.rs.map((x,i)=>{ const target=qText(x.id); const said=P['rs'+(i+1)]||''; return {target,said,sim:sim(said,target)}; });
+    const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
+    const raP=avg(rad.map(x=>x.sim)), rsP=avg(rsd.map(x=>x.sim));
+    T.tasks=tasks; T.rad=rad; T.rsd=rsd;
+    const slim=t=>({title:t.title,grp:t.grp,prompt:String(t.prompt||'').slice(0,600),answer:t.answer,band:t.res.band,g:t.res.g});
+    try{
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'writing',p_value:{swt:bands('swt'),essay:bands('essay')[0]!=null?bands('essay')[0]:null}});
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'listening_ai',p_value:{sst:bands('sst')}});
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'speaking',p_value:{ra:raP!=null?Math.round(raP*1000)/1000:null,rs:rsP!=null?Math.round(rsP*1000)/1000:null,ai:bands('ai'),rad:rad.map(x=>({target:x.target,said:x.said,sim:Math.round(x.sim*100)/100})),rsd:rsd.map(x=>({target:x.target,said:x.said,sim:Math.round(x.sim*100)/100}))}});
+      await sbn().rpc('save_premium_part',{p_take:T.take,p_key:'pte_tasks',p_value:tasks.map(slim)});
+      const f=await sbn().rpc('finish_pte',{p_take:T.take}); T.final=f.error?null:f.data;
+    }catch(e){ T.final=null; }
+    try{ await Promise.race([Promise.allSettled(T.uploads||[]),new Promise(r=>setTimeout(r,25000))]); }catch(e){}
+    T.pos=T.steps.length-1; T.deadline=0; T.finished=true; try{ localStorage.removeItem(key()); }catch(e){} render();
+  }
+
+  // ---------- result ----------
+    function gCard(t){
+    const g=t.res&&t.res.g, b=t.res?t.res.band:null;
+    return `<div class="pt-card"><h3 style="font-size:16px">${E(t.title)}${b!=null?' · estimated band '+b:''}</h3>
+      <details><summary style="cursor:pointer;color:#14365f;font-size:13px">Your answer</summary><p style="white-space:pre-wrap;font-size:14px">${E(t.answer||'(blank)')}</p></details>
+      ${g?`${(g.criteria||[]).map(k=>`<p style="font-size:13px;margin:3px 0"><b>${E(k.name)}</b> ${k.band}: ${E(k.comment||'')}</p>`).join('')}
+      ${(g.strengths||[]).length?`<p style="margin:8px 0 2px"><b>What worked</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.strengths.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}
+      ${(g.improvements||[]).length?`<p style="margin:8px 0 2px"><b>To improve</b></p><ul style="margin:0;padding-left:20px;font-size:13px">${g.improvements.map(s=>`<li>${E(s)}</li>`).join('')}</ul>`:''}`:`<p style="font-size:13px;color:#667">${t.res&&t.res.blank?'No answer was given.':'Detailed marking was not available for this answer.'}</p>`}</div>`;
+  }
+  const tips=st=>{ const L=[]; if(!st)return L;
+    if(st.wpm!=null)L.push(st.wpm<95?'Your pace was slow ('+st.wpm+' words per minute). Aim for about 110 to 150.':st.wpm>175?'Your pace was fast ('+st.wpm+' words per minute). Slow down a little.':'Good pace: '+st.wpm+' words per minute.');
+    if(st.start!=null&&st.start>5)L.push('You waited about '+st.start+' seconds before speaking. Start within 2 to 3 seconds.');
+    if(st.longest>=4)L.push('Your longest pause was '+st.longest+' seconds. Keep going with a simple sentence if you lose a word.'); else if(st.pauses>=3)L.push('You paused for more than 1.5 seconds '+st.pauses+' times.');
+    return L; };
+
+  function deliveryCard(){
+    const ks=Object.keys(T.recs||{}).filter(k=>/^(di|rl|sg|rt)\d/.test(k)).sort(); if(!ks.length)return '';
+    const nm=k=>({di:'Describe Image',rl:'Re-tell Lecture',sg:'Summarize Group Discussion',rt:'Respond to a Situation'})[k.slice(0,2)]+' '+k.slice(2);
+    let h=`<div class="pt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 100 days.</p>`;
+    ks.forEach(k=>{ const r=T.recs[k]; h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>${nm(k)}</b> <span style="font-size:12.5px;color:#667">${E([r.stats.wpm!=null?r.stats.wpm+' words/min':null,r.stats.start!=null?'started after '+r.stats.start+' s':null,r.stats.longest>=3?'longest pause '+r.stats.longest+' s':null].filter(Boolean).join(' · '))}</span>
+      <div id="pt-rp-${k}" style="margin:6px 0"><button class="pt-btn alt" style="padding:6px 12px;font-size:13px" onclick="ptWatch('${k}')">▶ Listen</button></div>${tips(r.stats).length?`<ul style="margin:4px 0 0;padding-left:20px;font-size:13px">${tips(r.stats).map(t=>`<li>${E(t)}</li>`).join('')}</ul>`:''}</div>`; });
+    return h+`<p style="margin:10px 0 0"><button class="pt-btn alt" style="padding:6px 12px;font-size:13px" onclick="ptDelRecs()">Delete my recordings</button></p></div>`;
+  }
+    window.ptWatch=async function(k){
+    const box=document.getElementById('pt-rp-'+k), r=T.recs&&T.recs[k]; if(!box||!r)return; let url=r.url;
+    if(!url){ try{ const s=await sbn().storage.from(BUCKET).createSignedUrl(r.path,900); if(s.error)throw s.error; url=s.data.signedUrl; }catch(e){ box.innerHTML='<span style="font-size:13px;color:#B3261E">Could not load this recording.</span>'; return; } }
+    box.innerHTML='<audio controls playsinline src="'+url+'" style="width:100%;max-width:380px"></audio>';
+  };
+  window.ptDelRecs=async function(){
+    if(!confirm('Delete all your recordings for this simulation? This cannot be undone. Your scores stay.'))return;
+    try{ const r=await sbn().rpc('delete_my_sim_recordings',{p_take:T.take}); if(r.error)throw r.error; const paths=r.data||[]; if(paths.length)await sbn().storage.from(BUCKET).remove(paths); }catch(e){ alert('Could not delete the recordings right now. Please try again.'); return; }
+    T.recs={}; if(T.view)result();
+  };
+
+  function result(){
+    hideTimer(); const f=T.final||{}; T.view=true;
+    const tile=(n,v)=>`<div class="pt-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b>${v!=null?`<div style="font-size:11.5px;color:#667">${CEFR(v)}</div>`:''}</div>`;
+    let h=`<div class="pt-wrap"><div class="pt-card" style="text-align:center"><div style="font-size:42px">${f.overall&&f.overall>=65?'🎉':'💪'}</div>
+      ${f.overall!=null?`<div class="pt-score">${f.overall}<span style="font-size:20px;color:#667"> / 90</span></div><div style="color:#14365f;font-weight:700">${CEFR(f.overall)} · estimated overall score</div>`:`<div style="font-size:15px;color:#B3261E;margin:8px 0">Some parts could not be marked, so no overall score is shown. Your other scores are below.</div>`}</div>
+      <div class="pt-grid">${tile('Speaking',f.speaking)}${tile('Writing',f.writing)}${tile('Reading',f.reading)}${tile('Listening',f.listening)}</div>`;
+    const types=f.types||{}; const rows=Object.keys(types).sort((a,b)=>types[a]-types[b]);
+    if(rows.length)h+=`<div class="pt-card" style="margin-top:14px"><h3 style="font-size:16px">Task by task (marked questions)</h3><table class="pt-tt">${rows.map(k=>`<tr><td>${E(TYPE_NAMES[k]||k)}</td><td style="width:90px;text-align:right"><b>${Math.round(types[k]*100)}%</b></td></tr>`).join('')}</table><p style="font-size:12.5px;color:#667;margin:8px 0 0">Lowest first. Start your practice with the top rows.</p></div>`;
+    if(f.ra!=null||f.rs!=null)h+=`<div class="pt-card"><h3 style="font-size:16px">Read Aloud and Repeat Sentence</h3><p style="font-size:14px;line-height:1.7">Read Aloud: you said <b>${Math.round((f.ra||0)*100)}%</b> of the words. Repeat Sentence: <b>${Math.round((f.rs||0)*100)}%</b>. These are compared with what the microphone heard, so a noisy room lowers them.</p></div>`;
+    if(T.tasks){ const sec=(t,g)=>T.tasks.filter(x=>x.grp===g); h+=T.tasks.map(gCard).join(''); }
+    h+=deliveryCard();
+    h+=`<p style="font-size:12.5px;color:#667">Scores are estimates, not official PTE results. Reading and Listening items (except Summarize Spoken Text) are marked against a fixed answer key with PTE-style partial credit. Writing and the longer speaking tasks are marked by AI. Read Aloud and Repeat Sentence are scored from what the microphone heard. Pronunciation and oral fluency are not measured, because speaking is judged from text. The real test uses a larger question bank and its own scoring, and your four skill scores there also draw on integrated tasks, so expect some difference.</p></div>`;
+    main(h); foot(`<button class="pt-btn" onclick="ptPdf()">⬇ Download result PDF</button><button class="pt-btn alt" onclick="ptExit()">Close</button>`);
+    const pr=document.getElementById('pt-prog'); if(pr)pr.style.width='100%';
+  }
+  window.ptPdf=function(){
+    const f=T.final||{}; const g=t=>{ const L=[]; const x=t.res&&t.res.g; if(t.res&&t.res.band!=null)L.push('Estimated band: '+t.res.band+' / 6'); if(x){ (x.criteria||[]).forEach(k=>L.push(k.name+' '+k.band+': '+(k.comment||''))); (x.strengths||[]).forEach(s=>L.push('+ '+s)); (x.improvements||[]).forEach(s=>L.push('- '+s)); } return L; };
+    const rp={title:'PTE Academic - Final Simulation',candidate:cand(),date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+      overall:f.overall!=null?f.overall+' / 90 ('+CEFR(f.overall)+')':null,overallLabel:'Overall score (estimate)',
+      sections:[['Speaking',f.speaking],['Writing',f.writing],['Reading',f.reading],['Listening',f.listening]].map(x=>({name:x[0],band:x[1]!=null?String(x[1]):'-',note:x[1]!=null?CEFR(x[1]):''})),blocks:[]};
+    const low=[['Speaking',f.speaking],['Writing',f.writing],['Reading',f.reading],['Listening',f.listening]].filter(x=>x[1]!=null).sort((a,b)=>a[1]-b[1])[0];
+    if(low)rp.blocks.push({h:'Where to focus next',lines:['Your lowest skill in this simulation was '+low[0]+' ('+low[1]+'). Practise it in short daily sessions, then take another full practice to measure the change.']});
+    const types=f.types||{}; const rows=Object.keys(types).sort((a,b)=>types[a]-types[b]);
+    if(rows.length)rp.blocks.push({h:'Task by task (marked questions)',lines:rows.map(k=>(TYPE_NAMES[k]||k)+': '+Math.round(types[k]*100)+'%')});
+    if(f.ra!=null||f.rs!=null)rp.blocks.push({h:'Read Aloud and Repeat Sentence',lines:['Read Aloud: '+Math.round((f.ra||0)*100)+'% of words matched.','Repeat Sentence: '+Math.round((f.rs||0)*100)+'% of words matched.']});
+    if(T.tasks)T.tasks.forEach(t=>rp.blocks.push({h:t.title,lines:g(t)}));
+    const rs=Object.keys(T.recs||{}).filter(k=>/^(di|rl|sg|rt)\d/.test(k)&&T.recs[k].stats); if(rs.length){ const lines=[]; rs.sort().forEach(k=>{ const st=T.recs[k].stats; lines.push(k.toUpperCase()+': '+[st.wpm!=null?st.wpm+' words/min':null,st.start!=null?'started after '+st.start+' s':null,st.longest>=3?'longest pause '+st.longest+' s':null].filter(Boolean).join(', ')); }); rp.blocks.push({h:'Speaking delivery',lines}); }
+    rp.note='Scores are estimates from a practice simulation, not official PTE results. Reading and Listening are marked against a fixed key with partial credit. Writing and the longer speaking tasks are AI-assisted, and speaking is judged from text, so pronunciation and oral fluency are not measured. The real test uses its own scoring and a larger question bank.';
+    s4pMakePdf(rp,'Step4Progress-PTE-simulation-result.pdf');
+  };
+  window.ptViewSaved=async function(){
+    if(!requireRealLogin())return;
+    const{data,error}=await sbn().from('premium_results').select('*').eq('mock_id',PT_ID).order('updated_at',{ascending:false}).limit(1);
+    if(error||!data||!data.length){ alert('Could not load your result.'); return; }
+    const r=data[0].results||{}; const tk=(r.pte_tasks||[]).map(t=>({title:t.title,grp:t.grp,prompt:t.prompt,answer:t.answer,res:{band:t.band,g:t.g}}));
+    T={take:data[0].take_id,c:null,final:r.pte_final||null,view:true,steps:[{t:'result'}],pos:0,prod:{},cache:{},recs:{},uploads:[],deadline:0,pd:{},tick:null,tasks:tk.length?tk:null};
+    try{ const q=await sbn().from('sim_recordings').select('task,path,mime,duration_s,stats').eq('take_id',T.take); (q.data||[]).forEach(x=>{ T.recs[x.task]={task:x.task,stats:x.stats||{},path:x.path,mime:x.mime,ok:true}; }); }catch(e){}
+    injectCss(); const o=root(); if(o)o.remove();
+    const el=document.createElement('div'); el.id='pt-root';
+    el.innerHTML=`<div class="pt-top"><div class="pt-logo">PTE<span>·</span>Simulation</div><div class="pt-part">Your saved result</div><div class="pt-timer" id="pt-timer" style="display:none"></div><button class="pt-btn alt" style="padding:5px 12px;font-size:12.5px" onclick="ptExit()">Close</button></div><div class="pt-bar"><i id="pt-prog"></i></div><div class="pt-main" id="pt-main"></div><div class="pt-foot" id="pt-foot"></div>`;
+    document.body.appendChild(el); result();
+  };
+
+  // show the card on the PTE Mocks tab
+  try{
+    const _rm=window.renderMocksTab||renderMocksTab;
+    window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='PTE'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('pte-card')){ el.insertAdjacentHTML('afterbegin','<div id="pte-card" style="margin-bottom:12px"></div>'); ptHydrate(); } } }catch(e){} return r; };
+  }catch(e){ console.warn('pte tab hook skipped',e); }
+})();
+</script>
+
 </body>
 </html>
