@@ -14602,19 +14602,25 @@ async function fmFetchPart(tpl,testName,pi){
     }
     return null;
   }
+  let lastFail=null;
   for(let attempt=0;attempt<2;attempt++){
     try{
       const res=await fetch(GENERATE_MOCK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({template:tpl,testName,kind:'section',takeId:FM.take.id,skill:FM.sec.skill,part:pi})});
       const data=await res.json();
       if(res.ok&&data.questions&&data.questions.length)return data;
       if(res.status===403)return{err:data.error||'Not allowed.',code:data.code||''};
-    }catch(e){}
+      lastFail={msg:data.error||'',code:data.code||('HTTP_'+res.status),detail:data.detail||''};
+      if(res.status===401||res.status===400)break;
+      if(data.code&&/^(AI_CREDIT|AI_KEY|AI_MODEL)$/.test(data.code))break;   // retrying cannot help
+    }catch(e){ lastFail={msg:'',code:'NETWORK',detail:String(e&&e.message||e)}; }
   }
+  window.FM_LAST_FAIL=lastFail;
   return null;
 }
 async function fmRunSection(){
   const sec=FM.def.sections.find(s=>s.skill===FM.order[FM.pos]);
   FM.sec=sec;
+  window.FM_LAST_FAIL=null;
   const total=sec.parts.length;
   let ready=0;
   const draw=()=>{ fmEl().innerHTML=`<div style="text-align:center;padding:40px 20px"><div style="font-size:34px;margin-bottom:10px">${sec.icon}</div><h3 style="font-size:17px;color:var(--pine);margin-bottom:6px">Preparing your ${esc(sec.skill)} test</h3><p style="color:var(--ink3);font-size:13.5px">Writing fresh questions for you: ${ready} of ${total} parts ready. This can take up to a minute.</p></div>`; };
@@ -14627,7 +14633,7 @@ async function fmRunSection(){
     return;
   }
   if(results.some(r=>!r)){
-    fmEl().innerHTML=`<div class="tp-info-card"><h4>Couldn't prepare this section</h4><p>One part of the test didn't generate. Nothing has been lost. Please try again.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="fmRunSection()">Try again</button> <button class="tp-reveal-btn" style="margin-left:8px" onclick="fmExit()">Back</button></div>`;
+    fmEl().innerHTML=`<div class="tp-info-card"><h4>Couldn't prepare this section</h4><p>${esc((window.FM_LAST_FAIL&&window.FM_LAST_FAIL.msg)||'One part of the test did not generate. Nothing has been used up. Please try again.')}</p>${(window.FM_LAST_FAIL&&window.FM_LAST_FAIL.detail&&MOCK_ACCESS&&MOCK_ACCESS.admin)?`<p style="font-size:11px;color:var(--ink3);word-break:break-word">Admin detail: ${esc(window.FM_LAST_FAIL.code)} - ${esc(window.FM_LAST_FAIL.detail)}</p>`:''}<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="fmRunSection()">Try again</button> <button class="tp-reveal-btn" style="margin-left:8px" onclick="fmExit()">Back</button></div>`;
     return;
   }
   const questions=[], passages=[], partInfo=[];
