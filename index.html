@@ -1841,7 +1841,10 @@ async function saveName(){
 
   let referredByStudentId=null;
   if(referralInput){
-    const{data:referrer}=await sb.from('students').select('id').eq('referral_code',referralInput).maybeSingle();
+    let referrer=null;
+    {const rr=await sb.rpc('referrer_id_for_code',{p_code:referralInput});
+     if(!rr.error){ referrer=rr.data?{id:rr.data}:null; }
+     else { const fb=await sb.from('students').select('id').eq('referral_code',referralInput).maybeSingle(); referrer=fb.data||null; } }
     if(!referrer){
       errEl.textContent='That referral code wasn\'t found — check it and try again, or leave it blank.';
       errEl.style.display='block';
