@@ -521,10 +521,41 @@ html.native #install-banner,html.native .install-banner{display:none!important}
           <label for="phoneInput" id="phoneLabel">Mobile number</label>
           <div class="phone-row">
             <select id="countryCode" aria-label="Country code">
-              <option value="+91">🇮🇳 +91</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+92">🇵🇰 +92</option>
-              <option value="+880">🇧🇩 +880</option>
+              <option value="+91">🇮🇳 India +91</option>
+              <option value="+44">🇬🇧 UK +44</option>
+              <option value="+92">🇵🇰 Pakistan +92</option>
+              <option value="+880">🇧🇩 Bangladesh +880</option>
+              <option value="+971">🇦🇪 UAE +971</option>
+              <option value="+1">🇺🇸 USA / Canada +1</option>
+              <option value="+61">🇦🇺 Australia +61</option>
+              <option value="+977">🇳🇵 Nepal +977</option>
+              <option value="+94">🇱🇰 Sri Lanka +94</option>
+              <option value="+234">🇳🇬 Nigeria +234</option>
+              <option value="+254">🇰🇪 Kenya +254</option>
+              <option value="+233">🇬🇭 Ghana +233</option>
+              <option value="+27">🇿🇦 South Africa +27</option>
+              <option value="+966">🇸🇦 Saudi Arabia +966</option>
+              <option value="+974">🇶🇦 Qatar +974</option>
+              <option value="+968">🇴🇲 Oman +968</option>
+              <option value="+965">🇰🇼 Kuwait +965</option>
+              <option value="+973">🇧🇭 Bahrain +973</option>
+              <option value="+60">🇲🇾 Malaysia +60</option>
+              <option value="+65">🇸🇬 Singapore +65</option>
+              <option value="+353">🇮🇪 Ireland +353</option>
+              <option value="+49">🇩🇪 Germany +49</option>
+              <option value="+33">🇫🇷 France +33</option>
+              <option value="+39">🇮🇹 Italy +39</option>
+              <option value="+34">🇪🇸 Spain +34</option>
+              <option value="+31">🇳🇱 Netherlands +31</option>
+              <option value="+64">🇳🇿 New Zealand +64</option>
+              <option value="+20">🇪🇬 Egypt +20</option>
+              <option value="+98">🇮🇷 Iran +98</option>
+              <option value="+90">🇹🇷 Turkey +90</option>
+              <option value="+63">🇵🇭 Philippines +63</option>
+              <option value="+84">🇻🇳 Vietnam +84</option>
+              <option value="+86">🇨🇳 China +86</option>
+              <option value="+82">🇰🇷 South Korea +82</option>
+              <option value="+81">🇯🇵 Japan +81</option>
             </select>
             <input type="tel" id="phoneInput" name="tel" autocomplete="tel-national" placeholder="98765 43210" inputmode="numeric">
           </div>
@@ -13519,12 +13550,32 @@ function markMockSelf(i,gotItRight){
 // (my_mock_access / begin_mock / unlock_free_take); this page only displays it.
 const PAYMENT_MODE='manual'; // becomes 'gateway' once online payment is connected
 const PLAN_FALLBACK=[
-  {code:'continue',name:'Mock Pass',price_inr:99,mocks:1,spark:false,valid_days:100,description:'1 full-length mock for any exam, valid 100 days. Spark: 40 messages and 4 feedback reports in total.'},
-  {code:'starter',name:'3 Mocks',price_inr:249,mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 60 messages, 8 feedback reports and 1 IELTS speaking exam in total.'},
-  {code:'plus',name:'5 Mocks + Spark',price_inr:599,mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 300 messages, 30 feedback reports and 6 IELTS speaking exams in total.'},
-  {code:'pro',name:'10 Mocks + Spark',price_inr:1199,mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 800 messages, 80 feedback reports and 15 IELTS speaking exams in total.'}
+  {code:'continue',name:'Mock Pass',mocks:1,spark:false,valid_days:100,description:'1 full-length mock for any exam, valid 100 days. Spark: 40 messages and 4 feedback reports in total.'},
+  {code:'starter',name:'3 Mocks',mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 60 messages, 8 feedback reports and 1 IELTS speaking exam in total.'},
+  {code:'plus',name:'5 Mocks + Spark',mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 300 messages, 30 feedback reports and 6 IELTS speaking exams in total.'},
+  {code:'pro',name:'10 Mocks + Spark',mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 800 messages, 80 feedback reports and 15 IELTS speaking exams in total.'}
 ];
 let MOCK_ACCESS=null, MOCK_PLANS=null;
+// Price list for THIS student's region. The server locks the region (India number + Indian connection => India prices;
+// UK => GBP; everyone else => USD). Only the student's own prices are ever sent to the browser.
+let REGION=null, PRICE_MAP={};
+async function loadRegionPrices(force){
+  if(IS_NATIVE||isPreviewMode||!currentSession)return;
+  if(!force&&REGION&&Object.keys(PRICE_MAP).length)return;
+  try{
+    const r=await fetch(CUSTOM_OTP_BASE_URL+'/my-region',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token,apikey:SUPABASE_ANON_KEY},body:'{}'});
+    const d=await r.json().catch(()=>({}));
+    REGION=(d&&d.region)||null;
+    PRICE_MAP={};
+    if(REGION){const{data}=await sb.rpc('my_plan_prices');(data||[]).forEach(x=>{PRICE_MAP[x.plan_code]=x;});}
+  }catch(e){}
+}
+function priceText(code){
+  if(STORE_PRICES[code])return STORE_PRICES[code];
+  const x=PRICE_MAP[code]; if(!x)return null;
+  try{return new Intl.NumberFormat(x.currency==='INR'?'en-IN':'en-GB',{style:'currency',currency:x.currency,minimumFractionDigits:(x.amount_minor%100?2:0),maximumFractionDigits:2}).format(x.amount_minor/100);}
+  catch(e){return x.currency+' '+(x.amount_minor/100);}
+}
 async function loadMockAccess(force){
   if(isPreviewMode||!currentSession){MOCK_ACCESS=null;return null;}
   try{
@@ -13534,6 +13585,7 @@ async function loadMockAccess(force){
     ]);
     MOCK_ACCESS=a.error?null:a.data;
     if(!p.error&&p.data&&p.data.length)MOCK_PLANS=p.data;
+    await loadRegionPrices(false);
   }catch(e){MOCK_ACCESS=null;}
   return MOCK_ACCESS;
 }
@@ -13542,11 +13594,11 @@ function planCardsHtml(highlight){
   const plans=MOCK_PLANS||PLAN_FALLBACK;
   const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>All lessons, your first full mock (all four sections, with your overall band) and Spark: 15 messages a day. ${highlight==='unlock'?'':''}</p></div>`;
   return free+plans.map(p=>{
-    const note='';
+    const note='';const pt=priceText(p.code);
     return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter')?'border:2px solid var(--pine3,#2D5A94)':''}">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
-      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--pine)">${esc(STORE_PRICES[p.code]||('₹'+p.price_inr))}</div>
-      <button class="btn" style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
+      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:${pt?20:13}px;font-weight:800;color:var(--pine)">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div>
+      <button class="btn" ${(!pt&&currentSession&&!isPreviewMode)?'disabled':''} style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
   }).join('');
 }
 function openPlansDialog(reason){
@@ -13711,7 +13763,7 @@ async function choosePlan(code){
   try{
     const{error}=await sb.rpc('request_plan',{p_plan:code,p_note:null});
     if(error)throw error;
-    done(`<div class="tp-info-card"><h4>✅ Request received</h4><p>You chose <b>${esc(plan?plan.name:code)}</b> (₹${plan?plan.price_inr:''}). Our team will contact you on your registered phone number to complete the payment, and your plan is activated as soon as it is confirmed.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="closePlansDialog()">Done</button></div>`);
+    done(`<div class="tp-info-card"><h4>✅ Request received</h4><p>You chose <b>${esc(plan?plan.name:code)}</b> ${priceText(code)?'('+esc(priceText(code))+')':''}. Our team will contact you on your registered phone number to complete the payment, and your plan is activated as soon as it is confirmed.</p><button class="btn" style="margin-top:10px;width:auto;padding:9px 18px" onclick="closePlansDialog()">Done</button></div>`);
   }catch(e){
     done(`<div class="tp-info-card"><h4>Couldn't send your request</h4><p>Please try again in a moment, or contact your Step4Progress counsellor.</p></div>`);
   }
