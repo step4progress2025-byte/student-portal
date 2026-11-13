@@ -487,6 +487,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
       <div class="brand-sub">Your Learning Journey</div>
     </div>
     <span class="nbell" id="notifBell" style="display:none" onclick="openNotifications()" title="Notifications" aria-label="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><b id="notifBadge" style="display:none">0</b></span>
+    <span class="nbell" id="accountBtn" style="display:none" onclick="openAccount()" title="My account" aria-label="My account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
     <span class="brand-signout" id="signOutBtn" style="display:none;margin-left:10px" onclick="signOut()">Sign out</span>
   </div>
 
@@ -1068,6 +1069,45 @@ html.native #install-banner,html.native .install-banner{display:none!important}
        Deliberately structured short fields rather than parsing the
        uploaded resume file (see Career screen for that upload) — this
        is what the AI actually reads to tailor questions and tips. -->
+  <div class="screen" id="screen-account">
+    <span class="back-link" onclick="closeAccount()">← Back</span>
+    <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">👤 My Account</h2>
+    <p style="font-size:14px;color:var(--ink3);margin-bottom:14px">The details you use to sign in.</p>
+
+    <div class="tp-info-card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Sign-in details</div>
+      <div style="display:grid;grid-template-columns:96px 1fr;gap:8px 10px;font-size:14.5px;align-items:baseline">
+        <div style="color:var(--ink3)">Name</div><div id="acc-name" style="font-weight:600;word-break:break-word">…</div>
+        <div style="color:var(--ink3)">Email</div><div id="acc-email" style="font-weight:600;word-break:break-all">…</div>
+        <div style="color:var(--ink3)">Mobile</div><div id="acc-phone" style="font-weight:600">…</div>
+        <div style="color:var(--ink3)">Password</div><div style="font-weight:600;letter-spacing:.15em">••••••••</div>
+      </div>
+      <p style="font-size:12.5px;line-height:1.55;color:var(--ink3);margin:10px 0 0">For your safety, a password is never stored in a form anyone can read, not even by us, so it cannot be shown here. If you forgot it, set a new one below. You can always sign in with a code sent to your email instead.</p>
+    </div>
+
+    <div class="tp-info-card" style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Set or change password</div>
+      <form id="accPwForm" onsubmit="return accSavePassword(event)" autocomplete="on" novalidate>
+        <input type="text" id="accUsername" name="username" autocomplete="username" readonly tabindex="-1" aria-hidden="true" style="position:absolute;opacity:0;height:0;width:0;pointer-events:none">
+        <div class="ff"><label for="accPw1">New password</label>
+          <div class="pw-wrap"><input type="password" id="accPw1" name="new-password" autocomplete="new-password" placeholder="At least 8 characters"><button type="button" class="pw-eye" onclick="togglePw('accPw1',this)" aria-label="Show password"><i class="ti ti-eye"></i></button></div></div>
+        <div class="ff"><label for="accPw2">Confirm new password</label>
+          <div class="pw-wrap"><input type="password" id="accPw2" name="confirm-password" autocomplete="new-password" placeholder="Type it again"><button type="button" class="pw-eye" onclick="togglePw('accPw2',this)" aria-label="Show password"><i class="ti ti-eye"></i></button></div></div>
+        <button class="btn" id="accPwBtn" type="submit">Save password</button>
+        <div class="err" id="accPwErr" style="display:none"></div>
+        <div id="accPwOk" style="display:none;color:#1B6B3A;font-weight:600;font-size:14px;margin-top:8px"></div>
+      </form>
+    </div>
+
+    <button class="btn-outline btn" style="margin-bottom:14px" onclick="signOut()">Sign out</button>
+
+    <div class="tp-info-card" style="border:1.5px solid #F3C9C5;background:#FFF8F7">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.04em;color:#B42318;text-transform:uppercase;margin-bottom:6px">Delete account</div>
+      <p style="font-size:13.5px;line-height:1.55;color:var(--ink3);margin:0 0 10px">Permanently deletes your account, progress, profile and saved work. Unused mock credits are lost. This cannot be undone.</p>
+      <button class="btn-outline btn" style="width:auto;padding:8px 16px;font-size:13px;color:#B42318;border-color:#B42318;margin:0" onclick="deleteMyAccount()">Delete my account</button>
+    </div>
+  </div>
+
   <div class="screen" id="screen-my-profile">
     <span class="back-link" onclick="closeMyProfile()">← Back</span>
     <h2 style="font-size:19px;color:var(--pine);margin-bottom:4px">📝 My Profile</h2>
@@ -19250,5 +19290,58 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
 })();
 </script>
 
+<script>
+/* ===== My Account page: shows the sign-in details, lets the student set a new password, sign out or delete the account ===== */
+(function(){
+  var back='screen-dashboard';
+  var $=function(id){return document.getElementById(id);};
+  // the account icon follows the Sign out button: visible whenever a real student is signed in
+  function sync(){ var so=$('signOutBtn'), ab=$('accountBtn'); if(!so||!ab)return; var on=so.style.display!=='none'&&so.textContent.trim()!=='Exit preview'; ab.style.display=on?'inline-flex':'none'; }
+  try{ var so=$('signOutBtn'); if(so){ new MutationObserver(sync).observe(so,{attributes:true,attributeFilter:['style'],childList:true,characterData:true,subtree:true}); sync(); } }catch(e){}
+  window.openAccount=async function(){
+    if(!currentSession||isPreviewMode){ alert('Please sign in first.'); return; }
+    var cur=document.querySelector('.screen.active'); back=(cur&&cur.id&&cur.id!=='screen-account')?cur.id:'screen-dashboard';
+    var u=currentSession.user||{}, md=u.user_metadata||{};
+    $('acc-email').textContent=u.email||'(no email on this account)';
+    $('acc-phone').textContent=md.contact_phone||u.phone||'Not given';
+    $('acc-name').textContent=md.full_name||'…';
+    $('accUsername').value=u.email||'';
+    ['accPw1','accPw2'].forEach(function(i){ $(i).value=''; $(i).type='password'; });
+    $('accPwErr').style.display='none'; $('accPwOk').style.display='none';
+    showScreen('screen-account');
+    try{
+      var r=await sb.from('students').select('full_name,phone,email').eq('id',u.id).maybeSingle();
+      if(r&&r.data){ if(r.data.full_name)$('acc-name').textContent=r.data.full_name; else if($('acc-name').textContent==='…')$('acc-name').textContent='Not given';
+        if(r.data.phone&&$('acc-phone').textContent==='Not given')$('acc-phone').textContent=r.data.phone;
+        if(!u.email&&r.data.email)$('acc-email').textContent=r.data.email; }
+      else if($('acc-name').textContent==='…')$('acc-name').textContent='Not given';
+    }catch(e){ if($('acc-name').textContent==='…')$('acc-name').textContent='Not given'; }
+  };
+  window.closeAccount=function(){ showScreen(back||'screen-dashboard'); };
+  window.accSavePassword=async function(ev){
+    if(ev&&ev.preventDefault)ev.preventDefault();
+    var p1=$('accPw1').value, p2=$('accPw2').value, err=$('accPwErr'), ok=$('accPwOk'), btn=$('accPwBtn');
+    err.style.display='none'; ok.style.display='none';
+    if(!currentSession||isPreviewMode){ err.textContent='Please sign in first.'; err.style.display='block'; return false; }
+    if(p1.length<8){ err.textContent='Please use at least 8 characters.'; err.style.display='block'; return false; }
+    if(p1!==p2){ err.textContent="The two passwords don't match."; err.style.display='block'; return false; }
+    btn.disabled=true; btn.textContent='Saving…';
+    var res; try{ res=await sb.auth.updateUser({password:p1}); }catch(e){ res={error:{message:String(e&&e.message||e)}}; }
+    btn.disabled=false; btn.textContent='Save password';
+    if(res&&res.error){
+      var m=String(res.error.message||''), low=m.toLowerCase();
+      if(/same|different from the old/.test(low)) m='Your new password must be different from the old one.';
+      else if(/reauth|recently|nonce/.test(low)) m='For your safety, please sign out, sign in again with a fresh code, and then change your password.';
+      else if(/weak|short|at least|characters/.test(low)) m='That password is too weak. Use at least 8 characters, with letters and numbers.';
+      else if(!m) m='Could not save the password. Please try again.';
+      err.textContent=m; err.style.display='block'; return false;
+    }
+    ok.textContent='Password saved. You can now sign in with your email and this password.'; ok.style.display='block';
+    try{ offerSavePassword(currentSession.user.email,p1); }catch(e){}
+    $('accPw1').value=''; $('accPw2').value='';
+    return false;
+  };
+})();
+</script>
 </body>
 </html>
