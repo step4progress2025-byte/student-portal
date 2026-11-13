@@ -428,6 +428,7 @@
   .dtile.today{background:linear-gradient(135deg,#1C3F6E,#2D5A94)}
   .dtile.weekly{background:linear-gradient(135deg,#B45309,#E08429)}
   .dtile.sponsor{background:linear-gradient(135deg,#0F5C4D,#1F8A70)}
+  .dtile.coach{background:linear-gradient(135deg,#4B2A7B,#7A4DB8)}
   .dsc{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--pine3);border-radius:14px;padding:18px 20px;cursor:pointer;box-shadow:0 1px 3px rgba(28,23,18,.05)}
   .dsc .dt-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);font-weight:700;margin-bottom:6px}
   .dsc .dsc-title{font-family:var(--font-h);font-size:23px;font-weight:700;color:var(--pine);line-height:1.2}
@@ -642,6 +643,11 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     <div class="dash-top">
       <div id="dash-mock-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--gold,#C9631A)"></div>
       <div id="dash-plan-card" class="dsc" style="display:none;cursor:default;border-left-color:var(--pine3,#2D5A94)"></div>
+      <div id="dash-coach-card" class="dtile coach" style="cursor:pointer" onclick="s4pOpenCoach()">
+        <div class="dt-eyebrow"><i class="ti ti-microphone"></i> Speaking coach</div>
+        <div class="dt-msg">Practise speaking with Asha on camera. Get coaching on eye contact, pace and confidence.</div>
+        <div class="dt-cta">Practise with Asha →</div>
+      </div>
       <div id="dash-sponsor-card" class="dtile sponsor" style="cursor:pointer" onclick="s4pOpenSponsors()">
         <div class="dt-eyebrow"><i class="ti ti-briefcase"></i> Work in the UK</div>
         <div class="dt-msg">Find UK employers licensed to sponsor a work visa, save your shortlist and track your visa steps.</div>
@@ -18286,6 +18292,321 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const _rm=window.renderMocksTab||renderMocksTab;
     window.renderMocksTab=async function(){ const r=await _rm.apply(this,arguments); try{ if(currentTpTest==='TOEFL'){ const el=document.getElementById('tp-subtab-content'); if(el&&!document.getElementById('toefl-card')){ el.insertAdjacentHTML('afterbegin','<div id="toefl-card" style="margin-bottom:12px"></div>'); tfHydrate(); } } }catch(e){} return r; };
   }catch(e){ console.warn('toefl tab hook skipped',e); }
+})();
+</script>
+
+<script>
+/* ============================================================
+   ASHA VIDEO COACH: (1) a practice conversation on camera, where Asha asks questions by voice, the student answers
+   on camera, and gets coaching on eye contact, pace, pauses and fillers plus Spark feedback; (2) Asha's coaching lessons.
+   Video stays on the device (not uploaded). Only the numbers are saved (0041_asha_coach.sql).
+   Uses the existing ai-speaking-partner function (Spark daily limits apply). To add real Asha lesson videos later, fill
+   window.S4P_COACH_VIDEOS = {eye:'https://...mp4', start:'...'} (lesson ids below).
+   ============================================================ */
+(function(){
+  const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sbn=()=>sb;
+  window.S4P_COACH_VIDEOS=window.S4P_COACH_VIDEOS||{};
+  const EXAMS={IELTS:{name:'IELTS Speaking',topic:'IELTS Speaking Part 1 and Part 3 style questions about everyday life, studies, work and society'},TOEFL:{name:'TOEFL Take an Interview',topic:'a TOEFL interview on learning and everyday student life: short personal questions, then opinion questions'},PTE:{name:'PTE Speaking',topic:'PTE style speaking: describe, explain and give an opinion in clear short answers'},Duolingo:{name:'Duolingo Speaking',topic:'Duolingo style speaking: describe, give an opinion and speak for about a minute'},General:{name:'General interview',topic:'a friendly interview for a study abroad student: study plans, background, goals and life abroad'}};
+  const FOCUS={all:'Everything',eye:'Eye contact',start:'Starting quickly',pace:'Pace and pauses',structure:'Structure'};
+  const ANSWERS=5, MAXSEC=75;
+  const LESSONS=[
+    {id:'eye',icon:'👀',title:'Eye contact',min:3,slides:[
+      ['Look at the lens, not the screen','When you look at your own face or the screen, the viewer sees you looking down or away. The camera lens is the "eye" of the person watching. Keep your gaze near it when you speak.'],
+      ['A simple trick','Put a small sticky note with a smiley face right next to the lens. Talk to the smiley as if it is a friendly person. Move your video window as close to the camera as you can.'],
+      ['Natural, not a stare','You do not need to stare. Look at the lens when you start a sentence and when you finish it. It is normal to glance away for a second while you think. Aim to look at the camera most of the time while you speak.'],
+      ['Practise with Asha','In the video practice, a small indicator tells you when you are looking at the camera. Try to keep it green while you speak.']]},
+    {id:'start',icon:'⚡',title:'Start answering fast',min:3,slides:[
+      ['The first two seconds matter','Long silence at the start makes you look unsure, even if your answer is good. Try to start within two to three seconds.'],
+      ['Use a starter phrase','Say a short phrase while you think: "That is an interesting question." "Let me think about that for a second." "I would say that..." Then give your real answer.'],
+      ['Start simple','Your first sentence does not need to be clever. Answer the question directly: "Yes, I do." "I usually..." Add reasons after.'],
+      ['Practise with Asha','Asha shows how many seconds you waited before speaking. Try to bring it under three.']]},
+    {id:'pace',icon:'🐢',title:'Pace and pauses',min:4,slides:[
+      ['Not too fast, not too slow','Most clear speakers use about 110 to 150 words per minute. Faster is hard to follow. Much slower can sound unsure.'],
+      ['Pause at the end of an idea','Pauses are good when they come at the end of a thought. Take a short breath, then continue. Long silence in the middle of a sentence is what we want to avoid.'],
+      ['If you lose a word','Do not stop. Say "let me put it another way" and continue with simpler words. A smooth sentence with simple words is better than a perfect word after a long gap.'],
+      ['Practise with Asha','The report shows your words per minute, your number of long pauses and your longest pause.']]},
+    {id:'fillers',icon:'🧩',title:'Fewer "um" and "uh"',min:3,slides:[
+      ['Everyone uses fillers','Words like "um", "uh" and "you know" are normal. The problem is when they fill every gap.'],
+      ['Replace them with silence','A quiet half-second pause sounds confident. Practise stopping, breathing, and then saying the next word.'],
+      ['Use planned bridges instead','Keep two or three bridge phrases ready: "Well,", "In my experience,", "For example,". They give your brain time without sounding lost.']]},
+    {id:'structure',icon:'🏗️',title:'Structure your answer',min:4,slides:[
+      ['A simple shape: PREP','Point: answer the question in one sentence. Reason: say why. Example: give a real example from your life. Point: finish by repeating your answer in new words.'],
+      ['Example','"Do you prefer studying alone or in a group?" Point: "I prefer studying alone." Reason: "I can focus better." Example: "Last month I finished my whole report in one evening at the library." Point: "So I am usually more productive alone."'],
+      ['Short answers, two ideas','Do not try to say everything. Two clear ideas with one example are better than five rushed ones.'],
+      ['Practise with Asha','Choose "Structure" as your focus and Asha will ask follow-up questions that let you practise the shape.']]},
+    {id:'voice',icon:'🎙️',title:'Voice, posture and set-up',min:3,slides:[
+      ['Set up your space','Sit in a quiet room. Put the light in front of your face, not behind you. Place the camera at eye level (a pile of books under a laptop helps). Use headphones.'],
+      ['Sit tall, shoulders relaxed','Good posture helps your breathing and your voice. Keep your hands relaxed and out of your face.'],
+      ['Start with a smile','A small smile when you begin warms your voice and relaxes your face.'],
+      ['Steady volume','Speak clearly to the end of every sentence. Do not let your voice drop at the end.']]},
+    {id:'calm',icon:'🌿',title:'Stay calm',min:3,slides:[
+      ['Nerves are normal','Almost everyone is nervous in a speaking test. The goal is not to remove nerves, it is to speak well anyway.'],
+      ['Breathe before you start','Breathe in for four counts, hold for four, breathe out slowly for six. Do it twice before the first question.'],
+      ['Treat it like a conversation','You are not performing. You are answering a person. Mistakes are fine: correct yourself once and keep going.'],
+      ['Practise often, in short rounds','Five minutes a day with Asha is better than one long session before the test. Each round you will feel a little calmer.']]},
+    {id:'testday',icon:'🧭',title:'What changes in each test',min:3,slides:[
+      ['Tests are different','Some tests record your video (Duolingo records you speaking on camera). IELTS Speaking is a conversation with an examiner. TOEFL and PTE record your voice. Check the official guide of your test before test day.'],
+      ['Good habits help everywhere','Even when only your voice is recorded, a clear start, steady pace and organised answers raise your score. Eye contact also helps you sound natural.'],
+      ['Do a full practice','After this lesson, try a full simulation for your exam in the Mocks tab, then come back here to review your delivery.']]}
+  ];
+  let C=null;
+  const css=`#ac-root{position:fixed;inset:0;z-index:10060;background:#f4f1f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
+#ac-root *{box-sizing:border-box}
+.ac-top{background:#4B2A7B;color:#fff;display:flex;align-items:center;gap:12px;padding:10px 16px;flex:none}
+.ac-top b{font-size:16px;flex:1}
+.ac-x{background:transparent;border:1.5px solid #fff;color:#fff;border-radius:8px;padding:5px 12px;font-size:12.5px;cursor:pointer}
+.ac-tabs{display:flex;background:#fff;border-bottom:1px solid #e1dcea;flex:none;overflow-x:auto}
+.ac-tab{flex:1;padding:12px 10px;border:none;background:none;font-weight:700;font-size:14px;color:#6b6480;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.ac-tab.on{color:#4B2A7B;border-bottom-color:#4B2A7B}
+.ac-main{flex:1;overflow:auto;padding:16px}
+.ac-wrap{max-width:860px;margin:0 auto}
+.ac-card{background:#fff;border:1px solid #e1dcea;border-radius:14px;padding:16px;margin-bottom:14px}
+.ac-card h3{margin:0 0 8px;color:#4B2A7B;font-size:18px}
+.ac-btn{background:#4B2A7B;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:700;cursor:pointer}
+.ac-btn.alt{background:#fff;color:#4B2A7B;border:1.5px solid #4B2A7B}
+.ac-btn:disabled{opacity:.45;cursor:default}
+.ac-sel{padding:9px 10px;border:1.5px solid #cfc7de;border-radius:9px;font:inherit;background:#fff;max-width:100%}
+.ac-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ac-tile{background:#fff;border:1px solid #e1dcea;border-radius:12px;padding:12px;text-align:center}
+.ac-tile b{display:block;font-size:26px;color:#4B2A7B}
+.ac-call{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.ac-call{grid-template-columns:1fr 1fr}}
+.ac-pane{background:#1f1636;border-radius:14px;min-height:240px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff}
+.ac-pane video{width:100%;height:100%;max-height:340px;object-fit:cover;transform:scaleX(-1);background:#000}
+.ac-cap{background:#f6f2fc;border-left:4px solid #4B2A7B;border-radius:8px;padding:10px 12px;margin:10px 0;line-height:1.6;font-size:15px}
+.ac-live{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;border-radius:99px;padding:4px 12px;font-size:12.5px}
+.ac-live.ok{background:rgba(30,140,70,.85)}
+.ac-rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:#e53935;margin-right:6px;animation:acp 1s infinite}@keyframes acp{50%{opacity:.25}}
+.ac-ta{width:100%;min-height:80px;padding:10px;border:1.5px solid #cfc7de;border-radius:10px;font:inherit;font-size:15px;resize:vertical}
+.ac-les{display:flex;gap:12px;align-items:center;cursor:pointer}
+.ac-les .ic{font-size:30px}
+.ac-tip{background:#fff8e6;border:1px solid #f0d9a6;border-radius:10px;padding:9px 12px;font-size:13.5px;line-height:1.55;margin:8px 0}`;
+  function injectCss(){ if(document.getElementById('ac-css'))return; const s=document.createElement('style'); s.id='ac-css'; s.textContent=css; document.head.appendChild(s); }
+  const root=()=>document.getElementById('ac-root');
+  const main=h=>{ const m=document.getElementById('ac-main'); if(m){ m.innerHTML=h; m.scrollTop=0; } };
+  const wc=t=>(t||'').trim().split(/\s+/).filter(Boolean).length;
+  const asha=(mood,size)=>window.ashaSvg?window.ashaSvg(mood,size):'<span style="font-size:60px">🧑‍🏫</span>';
+  function cand(){ try{ const m=currentSession.user.user_metadata||{}; return m.full_name||m.name||currentSession.user.email||'Student'; }catch(e){ return 'Student'; } }
+
+  // ---------- open / close ----------
+  window.s4pOpenCoach=function(tab,focus){
+    if(!requireRealLogin())return;
+    injectCss(); const o=root(); if(o)o.remove();
+    C={tab:tab||'practice',exam:'IELTS',focus:focus||'all',sess:null,lesson:null,slide:0};
+    const r=document.createElement('div'); r.id='ac-root';
+    r.innerHTML=`<div class="ac-top"><b>Asha · Video Coach</b><button class="ac-x" onclick="acClose()">Close</button></div>
+      <div class="ac-tabs"><button class="ac-tab" id="ac-t-practice" onclick="acTab('practice')">Practise with Asha</button><button class="ac-tab" id="ac-t-lessons" onclick="acTab('lessons')">Asha's lessons</button><button class="ac-tab" id="ac-t-progress" onclick="acTab('progress')">My progress</button></div>
+      <div class="ac-main" id="ac-main"></div>`;
+    document.body.appendChild(r); acTab(C.tab);
+  };
+  window.acClose=function(){
+    if(C&&C.sess&&C.sess.live&&!confirm('Leave this practice? Your answers so far will not be saved.'))return;
+    acStopAll(); const o=root(); if(o)o.remove(); C=null;
+  };
+  window.acTab=function(t){
+    if(C&&C.sess&&C.sess.live&&t!=='practice'&&!confirm('Leave this practice? Your answers so far will not be saved.'))return;
+    acStopAll(); C.sess=null; C.tab=t;
+    ['practice','lessons','progress'].forEach(x=>{ const b=document.getElementById('ac-t-'+x); if(b)b.classList.toggle('on',x===t); });
+    ({practice:setup,lessons:lessons,progress:progress})[t]();
+  };
+  function acStopAll(){ try{ speechSynthesis.cancel(); }catch(e){} const S=C&&C.sess; if(!S)return; clearInterval(S.iv); clearInterval(S.gz); try{ if(S.sr){ S.sr.onend=null; S.sr.stop(); } }catch(e){} try{ if(S.rec&&S.rec.state!=='inactive'){ S.rec.onstop=null; S.rec.stop(); } }catch(e){} try{ S.ctx&&S.ctx.close(); }catch(e){} try{ S.stream&&S.stream.getTracks().forEach(t=>t.stop()); }catch(e){} S.live=false; }
+
+  // ---------- setup ----------
+  function setup(){
+    main(`<div class="ac-wrap"><div class="ac-card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">${asha('wave',90)}<div style="flex:1;min-width:220px"><h3>Practise speaking with Asha, on camera</h3><p style="margin:0;line-height:1.6;font-size:14.5px">Asha asks you questions by voice. You answer on camera. She shows whether you look at the camera, and afterwards gives you your pace, pauses, fillers and tips. About 8 minutes, ${ANSWERS} questions.</p></div></div>
+      <div class="ac-card"><label style="font-weight:700;font-size:14px">Practise for</label><br><select class="ac-sel" id="ac-exam" onchange="C_set('exam',this.value)">${Object.keys(EXAMS).map(k=>`<option value="${k}" ${C.exam===k?'selected':''}>${E(EXAMS[k].name)}</option>`).join('')}</select>
+        <br><br><label style="font-weight:700;font-size:14px">What do you want to work on?</label><br><select class="ac-sel" id="ac-focus" onchange="C_set('focus',this.value)">${Object.keys(FOCUS).map(k=>`<option value="${k}" ${C.focus===k?'selected':''}>${E(FOCUS[k])}</option>`).join('')}</select>
+        <ul style="font-size:13px;line-height:1.7;color:#445;margin:14px 0 6px 18px"><li>Your video stays on your device. It is <b>not uploaded</b> and disappears when you close this screen. Only your numbers (pace, pauses, eye contact) are saved so you can see your progress.</li><li>Eye contact is an estimate from your camera and works best in good light, with the camera at eye level.</li><li>If you do not want to use the camera, you can choose voice only.</li></ul>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;margin-top:8px"><input type="checkbox" id="ac-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this practice.</label>
+        <p id="ac-msg" style="color:#B3261E;font-size:13px;min-height:18px;margin:8px 0 0"></p>
+        <p><button class="ac-btn" onclick="acStart('video')">▶ Start with camera</button> <button class="ac-btn alt" onclick="acStart('audio')">Voice only</button></p></div></div>`);
+  }
+  window.C_set=(k,v)=>{ C[k]=v; };
+
+  // ---------- gaze (eye contact estimate) ----------
+  async function loadGaze(S){
+    if(S.fl||S.flTried)return; S.flTried=true;
+    try{
+      const V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+      const mod=await import(V+'/vision_bundle.mjs'); const fs=await mod.FilesetResolver.forVisionTasks(V+'/wasm');
+      S.fl=await mod.FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
+    }catch(e){ console.warn('gaze unavailable',e); S.fl=null; }
+  }
+  function looking(res){
+    if(!res||!res.faceLandmarks||!res.faceLandmarks.length)return {face:false,look:false};
+    let yaw=0,pitch=0; try{ const m=res.facialTransformationMatrixes[0].data; yaw=Math.atan2(m[8],m[10])*180/Math.PI; pitch=Math.asin(Math.max(-1,Math.min(1,-m[9])))*180/Math.PI; }catch(e){}
+    let eye=0; try{ const bs={}; res.faceBlendshapes[0].categories.forEach(c=>bs[c.categoryName]=c.score); const k=['eyeLookInLeft','eyeLookInRight','eyeLookOutLeft','eyeLookOutRight','eyeLookUpLeft','eyeLookUpRight','eyeLookDownLeft','eyeLookDownRight']; eye=Math.max.apply(null,k.map(n=>bs[n]||0)); }catch(e){}
+    return {face:true,look:Math.abs(yaw)<=20&&Math.abs(pitch)<=18&&eye<0.45};
+  }
+
+  // ---------- Asha speaks ----------
+  function voice(){ const v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; const en=v.filter(x=>/^en/i.test(x.lang)); return en.find(x=>/female|samantha|zira|helen|susan|libby|aria|jenny/i.test(x.name))||en[0]; }
+  function say(text,done){
+    const cap=document.getElementById('ac-cap'); if(cap)cap.textContent=text;
+    const av=document.getElementById('ac-av'); if(av)av.innerHTML=asha('happy',120);
+    if(!window.speechSynthesis){ setTimeout(()=>{ if(done)done(); },Math.min(6000,1200+text.length*45)); return; }
+    try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=0.95; const v=voice(); if(v)u.voice=v; let fin=false; const end=()=>{ if(fin)return; fin=true; const a=document.getElementById('ac-av'); if(a)a.innerHTML=asha('think',120); if(done)done(); }; u.onend=end; u.onerror=end; speechSynthesis.speak(u); setTimeout(end,Math.min(30000,3000+text.length*90)); }
+    catch(e){ if(done)done(); }
+  }
+  async function ask(userMessage){
+    const S=C.sess; const ex=EXAMS[S.exam];
+    const focus={all:'',eye:' The student wants to practise eye contact, so keep questions short and conversational.',start:' The student wants to practise starting to answer quickly, so ask direct questions that can be answered at once.',pace:' The student wants to practise a steady pace, so ask questions that need a one-minute answer.',structure:' The student wants to practise structuring answers (point, reason, example), so ask open questions that need reasons and examples.'}[S.focus]||'';
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'reply',mode:'test_practice',testType:ex.name,skillPrompt:ex.topic+'. You are Asha, a warm speaking coach. Ask one short question at a time.'+focus,conversationHistory:S.hist,userMessage})});
+    const d=await r.json(); if(!r.ok||d.error)throw new Error(d.error||'Asha could not reply.'); return String(d.reply||'').replace(/\*/g,'').slice(0,600);
+  }
+
+  // ---------- session ----------
+  window.acStart=async function(mode){
+    const msg=document.getElementById('ac-msg'); if(!document.getElementById('ac-guard').checked){ msg.textContent='Please tick the box to continue.'; return; }
+    const S={exam:C.exam,focus:C.focus,mode,hist:[],n:0,live:true,answers:[],blobs:[],t0:Date.now()}; C.sess=S;
+    msg.textContent='Starting…';
+    try{ S.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:mode==='video'?{width:{ideal:640},height:{ideal:480},facingMode:'user'}:false}); }
+    catch(e){ if(mode==='video'){ try{ S.stream=await navigator.mediaDevices.getUserMedia({audio:true}); S.mode='audio'; }catch(e2){ S.stream=null; S.mode='none'; } } else { S.stream=null; S.mode='none'; } }
+    if(S.mode==='video')loadGaze(S);
+    call();
+    try{ const first=await ask('Hello Asha, I am ready to begin.'); S.hist.push({role:'user',content:'Hello Asha, I am ready to begin.'},{role:'assistant',content:first}); S.q=first; say(first,()=>listen()); }
+    catch(e){ acFail(e.message); }
+  };
+  function acFail(m){ const c=document.getElementById('ac-cap'); if(c)c.innerHTML='<span style="color:#B3261E">'+E(m)+'</span>'; const b=document.getElementById('ac-ctl'); if(b)b.innerHTML='<button class="ac-btn alt" onclick="acTab(\'practice\')">Back</button>'; }
+  function call(){
+    const S=C.sess;
+    main(`<div class="ac-wrap"><div class="ac-call"><div class="ac-pane" style="flex-direction:column"><div id="ac-av">${asha('think',120)}</div><div style="font-weight:700;margin-top:6px">Asha</div></div>
+      <div class="ac-pane">${S.mode==='video'?'<video id="ac-v" playsinline muted autoplay></video><div class="ac-live" id="ac-live">Camera on</div>':'<div style="padding:30px;text-align:center">'+(S.mode==='audio'?'🎙️ Voice only':'⌨️ No microphone: type your answers')+'</div>'}</div></div>
+      <div class="ac-cap" id="ac-cap">Asha is getting ready…</div>
+      <div style="font-size:12.5px;color:#667;margin-bottom:6px" id="ac-prog">Question 1 of ${ANSWERS}</div>
+      <textarea class="ac-ta" id="ac-ta" placeholder="Your answer appears here as you speak. You can fix it or type it." style="display:none"></textarea>
+      <div id="ac-tip"></div><p id="ac-ctl"></p></div>`);
+    if(S.mode==='video'){ const v=document.getElementById('ac-v'); v.srcObject=S.stream; try{ v.play(); }catch(e){} }
+  }
+  function listen(){
+    const S=C.sess; if(!S||!S.live)return;
+    const ta=document.getElementById('ac-ta'); ta.style.display=''; ta.value=''; S.cur={t0:Date.now(),first:null,last:null,silent:0,longest:0,pauses:0,frames:0,face:0,look:0,chunks:[],heard:''};
+    document.getElementById('ac-prog').textContent='Question '+(S.n+1)+' of '+ANSWERS+' · your turn';
+    document.getElementById('ac-ctl').innerHTML='<span class="ac-rec"></span>Recording. Answer now (up to '+MAXSEC+' seconds). <button class="ac-btn" onclick="acDone()">I have finished</button>';
+    const cur=S.cur;
+    if(S.stream){
+      try{ const mime=['video/webm;codecs=vp8,opus','video/webm','video/mp4','audio/webm','audio/mp4'].find(m=>{ try{ return (S.mode==='video'||/^audio/.test(m))&&MediaRecorder.isTypeSupported(m); }catch(e){ return false; } })||''; S.mime=mime; const rec=new MediaRecorder(S.stream,mime?{mimeType:mime,videoBitsPerSecond:350000,audioBitsPerSecond:48000}:undefined); rec.ondataavailable=e=>{ if(e.data&&e.data.size)cur.chunks.push(e.data); }; rec.start(1000); S.rec=rec; }catch(e){ S.rec=null; }
+      try{ const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); const an=ctx.createAnalyser(); an.fftSize=1024; ctx.createMediaStreamSource(new MediaStream(S.stream.getAudioTracks())).connect(an); const buf=new Uint8Array(an.fftSize); S.ctx=ctx; cur.an=an;
+        S.iv=setInterval(()=>{ an.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; s+=v*v; } const now=Date.now()-cur.t0;
+          if(Math.sqrt(s/buf.length)>0.02){ if(cur.first==null)cur.first=now; if(cur.silent>=1500&&cur.last!=null)cur.pauses++; if(cur.silent>cur.longest&&cur.last!=null)cur.longest=cur.silent; cur.silent=0; cur.last=now; } else cur.silent+=100;
+          if((Date.now()-cur.t0)/1000>=MAXSEC||(cur.first!=null&&cur.silent>=5000&&wc(ta.value)>=3))acDone(); },100); }catch(e){}
+      if(S.mode==='video'){ const v=document.getElementById('ac-v'); S.gz=setInterval(()=>{ if(!S.fl||!v||v.readyState<2)return; try{ const speaking=cur.silent<400; const r=looking(S.fl.detectForVideo(v,performance.now())); const live=document.getElementById('ac-live'); if(live){ live.textContent=r.face?(r.look?'👀 Looking at the camera':'Look at the camera lens'):'I cannot see your face'; live.classList.toggle('ok',r.look); } if(speaking){ cur.frames++; if(r.face)cur.face++; if(r.look)cur.look++; } }catch(e){} },250); }
+    }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){ try{ const sr=new SR(); sr.lang='en-US'; sr.continuous=true; sr.interimResults=true; let fin='';
+      sr.onresult=e=>{ let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } cur.heard=(fin+interim).trim(); ta.value=cur.heard; };
+      sr.onend=()=>{ if(C&&C.sess===S&&S.sr===sr&&S.cur===cur&&!cur.done){ try{ sr.start(); }catch(e){} } };
+      S.sr=sr; sr.start(); }catch(e){ S.sr=null; } }
+    if(!S.stream&&!SR){ document.getElementById('ac-ctl').innerHTML='Type your answer, then <button class="ac-btn" onclick="acDone()">Send</button>'; }
+  }
+  const FILL=/\b(um+|uh+|er+|erm|you know|i mean|basically|sort of|kind of)\b/gi;
+  window.acDone=async function(){
+    const S=C&&C.sess; if(!S||!S.live||!S.cur||S.cur.done)return; const cur=S.cur; cur.done=true;
+    clearInterval(S.iv); clearInterval(S.gz); try{ if(S.sr){ S.sr.onend=null; S.sr.stop(); S.sr=null; } }catch(e){}
+    const ta=document.getElementById('ac-ta'); const text=(ta.value||'').trim(); const dur=(Date.now()-cur.t0)/1000;
+    document.getElementById('ac-ctl').innerHTML='Asha is thinking…';
+    let blob=null; if(S.rec){ const rec=S.rec; S.rec=null; await new Promise(res=>{ rec.onstop=res; try{ rec.stop(); }catch(e){ res(); } setTimeout(res,2500); }); if(cur.chunks.length)blob=new Blob(cur.chunks,{type:String(S.mime||'video/webm').split(';')[0]}); }
+    try{ S.ctx&&S.ctx.close(); S.ctx=null; }catch(e){}
+    const words=wc(text); const talk=(cur.first!=null&&cur.last!=null)?(cur.last-cur.first)/60000:0;
+    const st={q:S.q,text,dur:Math.round(dur),words,start:cur.first!=null?Math.round(cur.first/100)/10:null,pauses:cur.pauses,longest:Math.round(cur.longest/100)/10,fillers:(text.match(FILL)||[]).length};
+    if(words>=5&&talk>0.05)st.wpm=Math.round(words/talk); if(cur.frames>=8){ st.eye=Math.round(100*cur.look/cur.frames); st.face=Math.round(100*cur.face/cur.frames); }
+    S.answers.push(st); if(blob)S.blobs.push({n:S.n+1,url:URL.createObjectURL(blob),video:S.mode==='video'&&/video/.test(blob.type)});
+    S.hist.push({role:'user',content:text||'(no answer)'}); S.n++;
+    const tip=quickTip(st); const tp=document.getElementById('ac-tip'); if(tp)tp.innerHTML=tip?'<div class="ac-tip">💡 '+E(tip)+'</div>':'';
+    if(S.n>=ANSWERS){ say((tip?tip+' ':'')+'That was the last question. Well done. Let me put your report together.',()=>finish()); return; }
+    try{ const q=await ask(text||'(The student did not answer. Gently encourage them and ask the next question.)'); S.hist.push({role:'assistant',content:q}); S.q=q; say((tip?tip+' ':'')+q,()=>listen()); }
+    catch(e){ acFail(e.message); const b=document.getElementById('ac-ctl'); if(b&&S.answers.length>=2)b.innerHTML+=' <button class="ac-btn" onclick="acFinishNow()">See my report</button>'; }
+  };
+  window.acFinishNow=()=>finish();
+  function quickTip(st){
+    if(st.words<8)return 'Try to say a little more next time: give a reason and an example.';
+    if(st.start!=null&&st.start>5)return 'You waited a few seconds before starting. Try a starter phrase next time.';
+    if(st.eye!=null&&st.eye<40)return 'Try to look at the camera lens a little more while you speak.';
+    if(st.wpm!=null&&st.wpm>175)return 'You spoke quickly. Slow down a little.';
+    if(st.wpm!=null&&st.wpm<90)return 'You spoke slowly. Try to keep the flow going.';
+    if(st.longest>=4)return 'There was a long pause. Use a bridge phrase if you lose a word.';
+    return 'Nice answer.';
+  }
+
+  // ---------- report ----------
+  function avg(a){ a=a.filter(x=>x!=null); return a.length?a.reduce((x,y)=>x+y,0)/a.length:null; }
+  function summary(S){
+    const A=S.answers; const tw=A.reduce((x,a)=>x+a.words,0), ts=A.reduce((x,a)=>x+a.dur,0);
+    return {exam:S.exam,focus:S.focus,mode:S.mode,answers:A.length,words:tw,dur:Math.round(ts),wpm:avg(A.map(a=>a.wpm))!=null?Math.round(avg(A.map(a=>a.wpm))):null,start:avg(A.map(a=>a.start))!=null?Math.round(avg(A.map(a=>a.start))*10)/10:null,pauses:A.reduce((x,a)=>x+a.pauses,0),longest:Math.max(0,...A.map(a=>a.longest||0)),fillers:A.reduce((x,a)=>x+a.fillers,0),eye:avg(A.map(a=>a.eye))!=null?Math.round(avg(A.map(a=>a.eye))):null,face:avg(A.map(a=>a.face))!=null?Math.round(avg(A.map(a=>a.face))):null};
+  }
+  function coachTips(m){
+    const L=[];
+    if(m.eye!=null){ if(m.eye<40)L.push('Eye contact: you looked at the camera about '+m.eye+'% of the time while speaking. Put a sticky note next to the lens and talk to it. Watch the lesson "Eye contact".'); else if(m.eye<70)L.push('Eye contact: about '+m.eye+'% while speaking. Good start. Look at the lens when you begin and finish each sentence.'); else L.push('Eye contact: about '+m.eye+'% while speaking. Well done, keep it natural.'); }
+    if(m.wpm!=null)L.push(m.wpm<95?'Pace: '+m.wpm+' words per minute is slow. Aim for 110 to 150.':m.wpm>175?'Pace: '+m.wpm+' words per minute is fast. Slow down so every word is clear.':'Pace: '+m.wpm+' words per minute is a good speed.');
+    if(m.start!=null)L.push(m.start>4?'Starting: you waited about '+m.start+' seconds before speaking. Use a starter phrase such as "That is an interesting question".':'Starting: you began within about '+m.start+' seconds. Good.');
+    if(m.longest>=4)L.push('Pauses: your longest pause was '+m.longest+' seconds. If you lose a word, say "let me put it another way" and carry on.'); else if(m.pauses>=4)L.push('Pauses: you paused for more than 1.5 seconds '+m.pauses+' times. Try to link ideas with "because", "for example" and "so".');
+    if(m.fillers>=4)L.push('Fillers: about '+m.fillers+' filler words (like "um", "you know") were heard. Replace them with a short silent pause. (Speech recognition often hides "um", so you may use more than shown.)');
+    if(m.face!=null&&m.face<80)L.push('Camera: your face was out of view part of the time. Keep your face in the middle of the picture.');
+    return L;
+  }
+  async function finish(){
+    const S=C&&C.sess; if(!S)return; S.live=false; const stream=S.stream; try{ stream&&stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+    main(`<div class="ac-wrap"><div class="ac-card" style="text-align:center">${asha('think',100)}<h3>Asha is writing your report…</h3></div></div>`);
+    const m=summary(S); S.sum=m; let fb=null;
+    if(m.words>=15){ try{ const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'feedback',conversationHistory:S.hist.filter((x,i)=>i>0)})}); const d=await r.json(); if(r.ok&&d.feedback)fb=d.feedback; else S.fbErr=d.error||''; }catch(e){} }
+    S.fb=fb;
+    try{ await sbn().from('coach_sessions').insert({exam:m.exam,focus:m.focus,mode:m.mode,answers:m.answers,words:m.words,duration_s:m.dur,wpm:m.wpm,start_s:m.start,pauses:m.pauses,longest_s:m.longest,fillers:m.fillers,eye:m.eye,face:m.face,feedback:fb}); }catch(e){}
+    report();
+  }
+  function report(){
+    const S=C.sess, m=S.sum, fb=S.fb; const tile=(n,v,u)=>`<div class="ac-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b><div style="font-size:11.5px;color:#667">${u||''}</div></div>`;
+    let h=`<div class="ac-wrap"><div class="ac-card" style="display:flex;gap:12px;align-items:center">${asha('happy',90)}<div><h3 style="margin:0">Well done! Here is your delivery report</h3><div style="font-size:13px;color:#667">${E(EXAMS[m.exam].name)} · ${m.answers} answers · ${m.words} words</div></div></div>
+      <div class="ac-grid">${tile('Eye contact',m.eye!=null?m.eye+'%':null,'while speaking')}${tile('Pace',m.wpm,'words per minute')}${tile('Start time',m.start!=null?m.start+'s':null,'before speaking')}${tile('Long pauses',m.pauses,'over 1.5 s')}${tile('Fillers',m.fillers,'heard in the text')}</div>
+      <div class="ac-card" style="margin-top:14px"><h3 style="font-size:16px">Asha's coaching</h3><ul style="margin:0;padding-left:20px;line-height:1.7;font-size:14px">${coachTips(m).map(t=>`<li>${E(t)}</li>`).join('')||'<li>Not enough speech to measure. Try again with a few longer answers.</li>'}</ul></div>`;
+    if(fb)h+=`<div class="ac-card"><h3 style="font-size:16px">Your language</h3><p style="margin:4px 0;font-size:14px"><b>Fluency:</b> ${E(fb.fluency)}</p><p style="margin:4px 0;font-size:14px"><b>Grammar:</b> ${E(fb.grammar)}</p><p style="margin:4px 0;font-size:14px"><b>Vocabulary:</b> ${E(fb.vocabulary)}</p><div class="ac-tip">🎯 <b>Focus next time:</b> ${E(fb.tip)}</div></div>`;
+    else h+=`<div class="ac-card"><p style="font-size:13.5px;color:#667;margin:0">${E(S.fbErr||'Language feedback was not available this time.')}</p></div>`;
+    if(S.blobs.length)h+=`<div class="ac-card"><h3 style="font-size:16px">Watch yourself</h3><p style="font-size:13px;color:#667;margin-top:0">These stay on your device and disappear when you close this screen.</p>${S.blobs.map(b=>`<div style="margin:8px 0"><b style="font-size:13px">Answer ${b.n}</b>${S.answers[b.n-1]&&S.answers[b.n-1].text?`<div style="font-size:13px;color:#445;margin:2px 0 4px">${E(S.answers[b.n-1].text.slice(0,160))}${S.answers[b.n-1].text.length>160?'…':''}</div>`:''}<${b.video?'video':'audio'} controls playsinline src="${b.url}" style="width:100%;max-width:380px;border-radius:10px"></${b.video?'video':'audio'}></div>`).join('')}</div>`;
+    h+=`<p><button class="ac-btn" onclick="acPdf()">⬇ Download report PDF</button> <button class="ac-btn alt" onclick="acTab('practice')">Practise again</button> <button class="ac-btn alt" onclick="acTab('lessons')">Asha's lessons</button></p><p style="font-size:12.5px;color:#667">Eye contact, pace and pauses are estimates from your device. They help you notice habits. They are not an exam score.</p></div>`;
+    main(h);
+  }
+  window.acPdf=function(){
+    const S=C&&C.sess; if(!S||!S.sum)return; const m=S.sum; const fb=S.fb;
+    const rp={title:'Asha Video Coach - Delivery Report',candidate:cand(),date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),overall:null,overallLabel:EXAMS[m.exam].name,
+      sections:[{name:'Eye contact (while speaking)',band:m.eye!=null?m.eye+'%':'-',note:''},{name:'Pace',band:m.wpm!=null?m.wpm+' wpm':'-',note:''},{name:'Start time',band:m.start!=null?m.start+' s':'-',note:''},{name:'Long pauses',band:String(m.pauses),note:''},{name:'Fillers',band:String(m.fillers),note:''}],blocks:[{h:"Asha's coaching",lines:coachTips(m)}]};
+    if(fb)rp.blocks.push({h:'Your language',lines:['Fluency: '+fb.fluency,'Grammar: '+fb.grammar,'Vocabulary: '+fb.vocabulary,'Focus next time: '+fb.tip]});
+    rp.note='Eye contact, pace and pauses are estimates made by your device while you spoke. They help you notice habits and are not an exam score.';
+    s4pMakePdf(rp,'Step4Progress-Asha-coach-report.pdf');
+  };
+
+  // ---------- lessons ----------
+  function lessons(){
+    if(C.lesson){ return lesson(); }
+    main(`<div class="ac-wrap"><div class="ac-card" style="display:flex;gap:14px;align-items:center">${asha('wave',80)}<div><h3 style="margin:0">Asha's coaching lessons</h3><div style="font-size:14px;color:#445">Short lessons on delivery. Tap "Listen" and Asha reads each slide to you.</div></div></div>
+      ${LESSONS.map(l=>`<div class="ac-card ac-les" onclick="acLesson('${l.id}')"><div class="ic">${l.icon}</div><div style="flex:1"><b style="color:#4B2A7B">${E(l.title)}</b><div style="font-size:12.5px;color:#667">${l.slides.length} short slides · about ${l.min} min${window.S4P_COACH_VIDEOS[l.id]?' · video':''}</div></div><span style="color:#4B2A7B;font-weight:700">Open →</span></div>`).join('')}</div>`);
+  }
+  window.acLesson=function(id){ C.lesson=id; C.slide=0; lesson(); };
+  function lesson(){
+    const l=LESSONS.find(x=>x.id===C.lesson); if(!l){ C.lesson=null; return lessons(); } const s=l.slides[C.slide]; const vid=window.S4P_COACH_VIDEOS[l.id];
+    main(`<div class="ac-wrap"><p><a href="#" onclick="return acBack()" style="color:#4B2A7B;font-size:14px">← All lessons</a></p>
+      <div class="ac-card"><div style="display:flex;gap:12px;align-items:center">${asha('wave',80)}<div><h3 style="margin:0">${l.icon} ${E(l.title)}</h3><div style="font-size:12.5px;color:#667">Slide ${C.slide+1} of ${l.slides.length}</div></div></div>
+      ${vid&&C.slide===0?`<video controls playsinline src="${E(vid)}" style="width:100%;max-width:640px;border-radius:12px;margin-top:10px"></video>`:''}
+      <h3 style="margin-top:14px;font-size:19px">${E(s[0])}</h3><div class="ac-cap" id="ac-sl">${E(s[1])}</div>
+      <p><button class="ac-btn alt" onclick="acListen()">🔊 Listen to Asha</button></p>
+      <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="ac-btn alt" ${C.slide?'':'disabled'} onclick="acSlide(-1)">← Back</button>${C.slide<l.slides.length-1?'<button class="ac-btn" onclick="acSlide(1)">Next →</button>':`<button class="ac-btn" onclick="acTab('practice')">Practise this with Asha</button>`}</p></div></div>`);
+  }
+  window.acBack=function(){ try{ speechSynthesis.cancel(); }catch(e){} C.lesson=null; lessons(); return false; };
+  window.acSlide=function(d){ try{ speechSynthesis.cancel(); }catch(e){} C.slide+=d; lesson(); };
+  window.acListen=function(){ const l=LESSONS.find(x=>x.id===C.lesson); const s=l.slides[C.slide]; if(!window.speechSynthesis)return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(s[0]+'. '+s[1]); u.lang='en-US'; u.rate=0.95; const v=voice(); if(v)u.voice=v; speechSynthesis.speak(u); }catch(e){} };
+
+  // ---------- progress ----------
+  async function progress(){
+    main('<div class="ac-wrap"><div class="ac-card">Loading…</div></div>');
+    let rows=[]; try{ const r=await sbn().from('coach_sessions').select('created_at,exam,mode,words,wpm,start_s,pauses,longest_s,fillers,eye').order('created_at',{ascending:false}).limit(30); rows=r.data||[]; }catch(e){}
+    if(!rows.length){ main(`<div class="ac-wrap"><div class="ac-card" style="text-align:center">${asha('wave',90)}<h3>No sessions yet</h3><p style="font-size:14px;color:#445">After your first practice with Asha, your pace, pauses and eye contact are shown here so you can see yourself improve.</p><button class="ac-btn" onclick="acTab('practice')">Start practising</button></div></div>`); return; }
+    const last=rows.slice(0,8).reverse(); const bar=(v,max,color)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100px"><div style="font-size:11px;color:#667">${v!=null?v:''}</div><div style="width:70%;height:${v!=null?Math.max(4,Math.round(Math.min(v,max)/max*70)):0}px;background:${color};border-radius:4px 4px 0 0"></div></div>`;
+    const dt=r=>new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    main(`<div class="ac-wrap"><div class="ac-card"><h3>Your progress</h3><p style="font-size:13.5px;color:#445;margin-top:0">${rows.length} session${rows.length===1?'':'s'}. Your last sessions, oldest to newest.</p>
+      <b style="font-size:13px">Eye contact (% while speaking)</b><div style="display:flex;gap:4px;align-items:flex-end">${last.map(r=>bar(r.eye,100,'#4B2A7B')).join('')}</div>
+      <div style="display:flex;gap:4px">${last.map(r=>`<div style="flex:1;text-align:center;font-size:10.5px;color:#889">${dt(r)}</div>`).join('')}</div>
+      <b style="font-size:13px;display:block;margin-top:12px">Pace (words per minute)</b><div style="display:flex;gap:4px;align-items:flex-end">${last.map(r=>bar(r.wpm,200,'#C9631A')).join('')}</div></div>
+      <div class="ac-card"><h3 style="font-size:16px">All sessions</h3>${rows.map(r=>`<div style="border-top:1px solid #eee;padding:8px 0;font-size:13.5px"><b>${dt(r)}</b> · ${E((EXAMS[r.exam]||{}).name||r.exam)} · ${r.wpm!=null?r.wpm+' wpm':'-'} · eye ${r.eye!=null?r.eye+'%':'-'} · ${r.pauses} long pauses · start ${r.start_s!=null?r.start_s+'s':'-'}</div>`).join('')}</div></div>`);
+  }
 })();
 </script>
 
