@@ -10545,6 +10545,220 @@ const OFF={
   FR:['Campus France','https://www.campusfrance.org/en'],
   NL:['Study in NL','https://www.studyinnl.org/']
 };
+
+/* Official links only: government or state bodies (plus UKCISA, an independent UK charity, marked as such).
+   Every URL below was opened from the official site's own search result on 14 Nov 2026.
+   Kept separate from the guide data so rows loaded from the database also get links. */
+const L=(a,u,n)=>[a,u,n||''];
+const GL={
+ general:{
+  "Safety and scams":[L('112: the single European emergency number (EU)','https://europa.eu/youreurope/citizens/travel/security-and-emergencies/emergency/index_en.htm','Works free from any phone in every EU country, alongside local numbers.')]
+ },
+ uk:{
+  "Key numbers":[
+   L('GOV.UK: Student visa','https://www.gov.uk/student-visa','Fee, who can apply, work rules and how to apply.'),
+   L('GOV.UK: Money you need','https://www.gov.uk/student-visa/money','Monthly living-cost figures and the 28-day rule.'),
+   L('GOV.UK: Financial evidence','https://www.gov.uk/guidance/financial-evidence-for-student-and-child-student-route-applicants','Which bank statements and documents are accepted.'),
+   L('GOV.UK: English language','https://www.gov.uk/student-visa/knowledge-of-english','How to prove your English for the visa.'),
+   L('GOV.UK: Graduate visa','https://www.gov.uk/graduate-visa','Stay and work after your degree.'),
+   L('GOV.UK: Graduate visa cost','https://www.gov.uk/graduate-visa/how-much-it-costs','Application fee and health surcharge.')],
+  "Recent changes to watch":[
+   L('GOV.UK: Graduate visa','https://www.gov.uk/graduate-visa','Length of stay depends on the date you apply.'),
+   L('GOV.UK: Student visa','https://www.gov.uk/student-visa','Check this page for the current rules before you apply.')],
+  "Visa application: do's and don'ts":[
+   L('GOV.UK: Student visa','https://www.gov.uk/student-visa','The official application steps.'),
+   L('GOV.UK: Financial evidence','https://www.gov.uk/guidance/financial-evidence-for-student-and-child-student-route-applicants','Exactly what funds proof must show.')],
+  "Housing, banking and daily life":[
+   L('GOV.UK: Private renting deposits','https://www.gov.uk/private-renting/deposits','Deposit limit, protection and how to get it back.'),
+   L('GOV.UK: Deposit protection schemes','https://www.gov.uk/deposit-protection-schemes-and-landlords','The three government-backed schemes.'),
+   L('NHS: urgent help with 111','https://111.nhs.uk','When it is not an emergency. Call 999 for a life-threatening emergency.'),
+   L('UKCISA: Healthcare (independent charity)','https://www.ukcisa.org.uk/student-advice/life-in-the-uk/healthcare/','The UK national advice body for international students.')],
+  "Safety and scams":[
+   L('Action Fraud: student rental scams','https://www.actionfraud.police.uk/news/students-urged-to-watch-out-for-rental-scams','National police fraud reporting centre. Never pay upfront before you view.'),
+   L('NHS: urgent help with 111','https://111.nhs.uk','Free, 24 hours a day. 999 for life-threatening emergencies.')],
+  "Tips and tricks":[
+   L('UKCISA: Student work (independent charity)','https://www.ukcisa.org.uk/student-advice/working/student-work/','Work hours and what counts as work.'),
+   L('UKCISA: Working after studies (independent charity)','https://www.ukcisa.org.uk/student-advice/working/working-after-studies/','Your options after graduating.')]
+ },
+ usa:{
+  "Key numbers and rules":[
+   L('US Dept of State: Student visa','https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html','F-1 and M-1 steps and the interview.'),
+   L('ICE: I-901 SEVIS fee','https://www.ice.gov/sevis/i901','The fee is paid to the government at FMJfee.com.'),
+   L('ICE: Employment for students','https://www.ice.gov/sevis/employment','On-campus work limits.'),
+   L('Study in the States (DHS)','https://studyinthestates.dhs.gov','The US government hub for international students.')],
+  "Recent changes to watch":[
+   L('Study in the States (DHS)','https://studyinthestates.dhs.gov','Official updates for F and M students.'),
+   L('US Dept of State: Student visa','https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html','Check before you book your interview.')],
+  "Visa interview: do's and don'ts":[
+   L('US Dept of State: Student visa','https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html','Official interview and document guidance.')],
+  "Housing, banking and daily life":[
+   L('Study in the States: Applying for practical training','https://studyinthestates.dhs.gov/students/work/applying-for-practical-training','CPT, OPT and the Social Security number rule.'),
+   L('USCIS: Students and employment','https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/students-and-employment','What F-1 students may do about work.')],
+  "Safety and scams":[
+   L('IRS: Tax scams','https://www.irs.gov/help/tax-scams','The IRS first contacts people by mail, not by phone threats.'),
+   L('FTC: Government impersonation scams','https://consumer.ftc.gov/articles/how-avoid-government-impersonation-scam','How to spot and report them.')],
+  "Tips and tricks":[
+   L('Study in the States: Training opportunities','https://studyinthestates.dhs.gov/students/training-opportunities-in-the-united-states','CPT and OPT explained by DHS.'),
+   L('USCIS: Students and employment','https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/students-and-employment','Work rules after the first academic year.')]
+ },
+ canada:{
+  "Key numbers and rules":[
+   L('IRCC: How to apply for a study permit','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/apply.html','Documents and steps.'),
+   L('IRCC: Who can apply','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/eligibility.html','Funds, health and other requirements.'),
+   L('IRCC: Provincial attestation letter','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/get-documents/provincial-attestation-letter.html','Who needs a PAL or TAL and how long it is valid.'),
+   L('IRCC: Work off campus','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/work-off-campus.html','The 24-hour weekly limit and conditions.')],
+  "Recent changes to watch":[
+   L('IRCC: Provincial attestation letter','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/get-documents/provincial-attestation-letter.html','Cap-year rules and exemptions.'),
+   L('IRCC: PGWP, who can apply','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation/eligibility.html','Language and field-of-study rules.')],
+  "Application: do's and don'ts":[
+   L('IRCC: How to apply for a study permit','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/apply.html','Official checklist.'),
+   L('IRCC: How to report scams, fraud or abuse','https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html','If someone promises to speed up or fix your application.')],
+  "Housing, banking and daily life":[
+   L('CRA: Newcomers and your SIN','https://www.canada.ca/en/revenue-agency/services/tax/international-non-residents/individuals-leaving-entering-canada-non-residents/newcomers-canada-immigrants.html','A SIN is needed to work and to open most bank accounts.')],
+  "Safety and scams":[
+   L('CRA: Recognize a scam','https://www.canada.ca/en/revenue-agency/corporate/scams-fraud/recognize-scam.html','Real examples and what to do.'),
+   L('IRCC: Report scams, fraud or abuse','https://www.canada.ca/en/immigration-refugees-citizenship/services/protect-fraud/report-fraud.html','Where to report, in and outside Canada.')],
+  "Tips and tricks":[
+   L('IRCC: Post-graduation work permit','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation.html','Apply within 180 days of finishing.'),
+   L('IRCC: Work off campus','https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/work-off-campus.html','Keep a record of your hours.')]
+ },
+ australia:{
+  "Key numbers and rules":[
+   L('Home Affairs: Student visa (500)','https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500','The official visa page.'),
+   L('Study Australia: Student visa (subclass 500)','https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/student-visa-subclass-500','Conditions and the 48-hours-a-fortnight limit.'),
+   L('Home Affairs: Work restrictions','https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500/temporary-relaxation-of-working-hours-for-student-visa-holders','How the fortnight is counted.')],
+  "Recent changes to watch":[
+   L('Home Affairs: Student visa (500)','https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500','Check for the latest settings before you apply.')],
+  "Application: do's and don'ts":[
+   L('Home Affairs: Student visa (500)','https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500','Official steps and documents.'),
+   L('Study Australia: Student visa (subclass 500)','https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/student-visa-subclass-500','Visa conditions you must follow.')],
+  "Housing, banking and daily life":[
+   L('Study Australia: Overseas Student Health Cover','https://www.studyaustralia.gov.au/en/plan-your-move/overseas-student-health-cover-oshc','What OSHC covers and where to buy it.'),
+   L('Dept of Health: OSHC fact sheet','https://www.health.gov.au/resources/publications/overseas-student-health-cover-oshc-fact-sheet?language=en','Short official summary.'),
+   L('Fair Work Ombudsman: Visa holders','https://www.fairwork.gov.au/find-help-for/visa-holders-migrants','Your pay and rights at work.')],
+  "Safety and scams":[
+   L('Scamwatch: ATO and myGov impersonation scams','https://www.scamwatch.gov.au/about-us/news-and-alerts/australian-taxation-office-ato-and-mygov-impersonation-scams','Warning signs and what to do.'),
+   L('ATO: Scam alerts','https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/scam-alerts','Latest alerts and the ATO scam line.')],
+  "Tips and tricks":[
+   L('Fair Work Ombudsman: Visa holders','https://www.fairwork.gov.au/find-help-for/visa-holders-migrants','Check pay with the free Pay and Conditions tool.'),
+   L('Study Australia: Student visa (subclass 500)','https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/student-visa-subclass-500','Check your work rights in VEVO.')]
+ },
+ ireland:{
+  "Key numbers and rules":[
+   L('Irish Immigration: Planning to study','https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/planning-to-study-in-ireland/','Funds, Stamp 2 and work hours.'),
+   L('Irish Immigration: Student FAQs','https://www.irishimmigration.ie/coming-to-study-in-ireland/frequently-asked-questions-for-students/','Work hours and staying after study.'),
+   L('Irish Immigration: Stamps','https://www.irishimmigration.ie/registering-your-immigration-permission/information-on-registering/immigration-permission-stamps/','What Stamp 2 and Stamp 1G allow.'),
+   L('Irish Immigration: Third Level Graduate Programme','https://www.irishimmigration.ie/my-situation-has-changed-since-i-arrived-in-ireland/third-level-graduate-programme/','Who qualifies and for how long.')],
+  "Application: do's and don'ts":[
+   L('Irish Immigration: Planning to study','https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/planning-to-study-in-ireland/','Check your course is on the ILEP.'),
+   L('Irish Immigration: Registration FAQs','https://www.irishimmigration.ie/registering-your-immigration-permission/frequently-asked-questions-for-registration/','IRP card and renewals.')],
+  "Housing, banking and daily life":[
+   L('Citizens Information: Tenants rights','https://www.citizensinformation.ie/en/housing/renting-a-home/tenants-rights-and-responsibilities/tenants-rights-and-obligations/','The Irish public information service.'),
+   L('RTB: Student specific accommodation','https://rtb.ie/renting/types-of-tenancies/student-specific-accommodation/','Deposit and advance-rent limits.'),
+   L('Citizens Information: PPS number','https://www.citizensinformation.ie/en/social-welfare/irish-social-welfare-system/personal-public-service-number/','Needed to work and use public services.'),
+   L('gov.ie: Get a PPS number','https://www.gov.ie/en/department-of-social-protection/services/get-a-personal-public-service-pps-number/','Apply online with MyGovID.')],
+  "Safety and scams":[
+   L('Garda: Student accommodation fraud warning','https://www.garda.ie/en/about-us/our-departments/office-of-corporate-communications/press-releases/2024/august/an-garda-siochana-student-accommodation-fraud-warning-august-2024.html','Red flags and safe payment advice.'),
+   L('An Garda Siochana','https://garda.ie/en/','In an emergency call 999 or 112.')],
+  "Tips and tricks":[
+   L('Education in Ireland: Working in Ireland','https://www.educationinireland.com/en/living-in-ireland/while-you-re-in-ireland/working-in-ireland/','Irish Government student site: Stamp 2 and 1G work rights.'),
+   L('Citizens Information: Looking for a place to rent','https://www.citizensinformation.ie/en/housing/renting-a-home/looking-for-a-flat-or-house-to-rent/','What to check before you agree.')]
+ },
+ eu:{
+  "Important to know":[
+   L('112: the single European emergency number','https://europa.eu/youreurope/citizens/travel/security-and-emergencies/emergency/index_en.htm','Works in every EU country.'),
+   L('Study in NL','https://www.studyinnl.org/plan-your-stay/do-you-need-a-visa','Do you need an entry visa or permit?')],
+  "Germany: key numbers":[
+   L('DAAD: Requirements overview','https://www.daad.de/en/studying-in-germany/requirements/overview/','Visa, funds and health insurance.'),
+   L('Federal Foreign Office: Study visa','https://www.germany.info/us-en/service/visa/study-visa-916776','Official visa page and blocked-account rule.'),
+   L('Make it in Germany: Studying','https://www.make-it-in-germany.com/en/study-vocational-training/studying-in-germany','Government portal: funds and work limits.')],
+  "France and the Netherlands (not re-checked this round)":[
+   L('France-Visas: Student','https://france-visas.gouv.fr/en/etudiant','Official French visa site.'),
+   L('Campus France: Long-stay student visa','https://www.campusfrance.org/en/student-long-stay-visa','French state agency: rights and work hours.'),
+   L('IND: International students','https://ind.nl/en/about-us/background-articles/international-students-and-the-ind','Dutch immigration service: permit and work limits.'),
+   L('Study in NL: Do you need a visa?','https://www.studyinnl.org/plan-your-stay/do-you-need-a-visa','Entry visa and residence permit.')],
+  "Application: do's and don'ts":[
+   L('DAAD: Requirements overview','https://www.daad.de/en/studying-in-germany/requirements/overview/','What to prepare for Germany.'),
+   L('France-Visas: Student','https://france-visas.gouv.fr/en/etudiant','What to prepare for France.')],
+  "Housing, banking and daily life":[
+   L('DAAD: Registering your address','https://www.daad.de/en/studying-in-germany/living-in-germany/registering/','Register within two weeks. Needed to open a bank account.')],
+  "Safety and scams":[
+   L('112: the single European emergency number','https://europa.eu/youreurope/citizens/travel/security-and-emergencies/emergency/index_en.htm','Free from any phone in the EU.')]
+ }
+};
+const OFFICIAL_HOST=/(^|\.)(gov\.uk|gov\.au|gov\.ie|gov|canada\.ca|europa\.eu|ice\.gov|nhs\.uk|police\.uk|daad\.de|germany\.info|make-it-in-germany\.com|studyinnl\.org|ind\.nl|campusfrance\.org|france-visas\.gouv\.fr|irishimmigration\.ie|citizensinformation\.ie|rtb\.ie|garda\.ie|educationinireland\.com|ukcisa\.org\.uk)$/i;
+const normT=t=>String(t||'').toLowerCase().replace(/[‘’']/g,"'").trim();
+function secLinks(ck,title){ const m=GL[ck]||{}; const k=Object.keys(m).find(x=>normT(x)===normT(title)); return k?m[k]:[]; }
+function officialSrc(c){
+  const seen={}, out=[];
+  const add=a=>{ try{ const h=new URL(a[1]).hostname; if(!OFFICIAL_HOST.test(h)||seen[a[1]])return; seen[a[1]]=1; out.push(a); }catch(e){} };
+  (c.sources||[]).forEach(add);
+  const m=GL[c.key]||{}; Object.keys(m).forEach(k=>m[k].forEach(add));
+  return out;
+}
+
+/* ===== One Guide journey (UK first). Stages follow the app promise: Learn, Qualify, Apply, Arrive, Thrive.
+   "rule" steps are checked against GOV.UK on 14 Nov 2026. "usual" steps describe how the process normally works and can differ by university. */
+const JS_=(h,k,d,todo,links,when)=>({h,k,d,todo:todo||[],links:links||[],when:when||''});
+const JOURNEY_UK={
+ name:'United Kingdom',checked:'14 Nov 2026',
+ intro:'From choosing a course to your first month in the UK. Steps marked Official rule come from GOV.UK. Steps marked Usually describe how it normally works. Your university may do it slightly differently, so read your own offer letter.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'Get your English and basics ready',steps:[
+  JS_('Know the English level you need','rule','For a degree-level course or above you need English equal to CEFR B2. Below degree level it is B1. At degree level your university can assess your English itself, and it may ask for a different test as long as it is B2 or equal. You need a Secure English Language Test (SELT) from an approved provider if you have no qualification that proves your English.',['Ask your university which English proof it accepts for your course before you book any test.','If you took a degree taught in English outside the UK, you may need an Ecctis assessment to use it as proof.'],[['GOV.UK: Knowledge of English','https://www.gov.uk/student-visa/knowledge-of-english','Who needs a test and who is exempt.']],'Before you apply'),
+  JS_('Practise with Ascend','usual','Use the lessons, daily quiz and mock tests in this app to reach your target score. The UK test finder in Test Prep shows approved centres if a SELT is needed.',['Take a full mock and note your weakest skill.','Book the real test only after your counsellor confirms which one you need.'],[],'2 to 6 months before applying')]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Counselling, offer, CAS and money',steps:[
+  JS_('Counselling and shortlisting','usual','Your counsellor reviews your marks, budget and goals, then shortlists courses and universities that fit. Ask about total cost, not just tuition: accommodation, insurance, travel and living costs.',['Ask for a written cost breakdown for each option.','Confirm that the university is a licensed student sponsor.'],[],'Month 1'),
+  JS_('Apply and receive your offer','usual','You apply to the university directly or through your counsellor. An offer can be conditional (you still need to meet a condition, such as a result) or unconditional. A CAS is normally issued once you have met the conditions and accepted the offer.',['Read every condition on the offer letter.','Keep copies of everything you submit.'],[],'Month 1 to 3'),
+  JS_('Understand the CAS','rule','A CAS is a Confirmation of Acceptance for Studies from your course provider. You always need it for the Student visa. It shows the exact course fee amount you must be able to pay, so check every detail on it: name, passport number, course and dates.',['Check your CAS against your passport letter by letter.','Do not apply for the visa until your CAS details are correct.'],[['GOV.UK: Documents you must provide','https://www.gov.uk/student-visa/documents-you-must-provide','Passport, CAS and other documents.']],'After you accept the offer'),
+  JS_('What you may pay before the CAS','usual','Many universities ask for a deposit, or for part of the tuition fee, before they issue the CAS. The amount and timing are set by each university, so it is written in your offer letter. Some ask for a short interview or a credibility check first. Always pay only to the university account shown in your official offer. Never to a personal account.',['Find the deposit amount and deadline in your offer letter.','Keep payment receipts and ask the university how it will confirm them.'],[],'Between offer and CAS'),
+  JS_('Prove your money (use the calculator)','rule','You need enough money for your course fee for 1 academic year (up to 9 months), plus living costs of £1,529 a month in London or £1,171 a month outside London, for up to 9 months. You must hold the money for at least 28 days in a row, and the 28 days must end within 31 days of your application date. Extra money is needed for each family member who comes with you.',['Move the money early so the 28 days run cleanly.','Use the calculator below to see your number.'],[['GOV.UK: Money you need','https://www.gov.uk/student-visa/money','Official amounts and the 28-day rule.'],['GOV.UK: Financial evidence','https://www.gov.uk/guidance/financial-evidence-for-student-and-child-student-route-applicants','Which documents are accepted.']],'Start 2 months before applying'),
+  JS_('Special checks: ATAS','rule','An ATAS certificate is needed only if your course and nationality require it. It is mainly relevant to masters level and above in some subjects.',['Ask your university if your course needs ATAS. It can take time, so ask early.'],[['GOV.UK: Documents you must provide','https://www.gov.uk/student-visa/documents-you-must-provide','See the ATAS line.']],'When you get your CAS')]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'Documents, TB test and the visa',steps:[
+  JS_('Gather your documents','rule','Always required: a current passport or other valid travel document, and your CAS. You may also need a TB test certificate, an ATAS certificate, proof of funds, and consent from a financial sponsor if a sponsor funded your fees or living costs in the last 12 months. Under-18s need parental or guardian consent.',['Make a folder with originals and clear scans.','Ask your counsellor to check the list against your case.'],[['GOV.UK: Documents you must provide','https://www.gov.uk/student-visa/documents-you-must-provide','The official list.']],'2 to 4 weeks before applying'),
+  JS_('Tuberculosis (TB) test, if needed','rule','You need a TB test if you are coming for 6 months or more and have lived in a listed country for 6 months or more. India, Nepal, Pakistan, Bangladesh, Sri Lanka, Nigeria and Ghana are on the list. The test must be at a clinic approved by the Home Office, and the certificate is valid for 6 months from the date of your x-ray.',['Check the list of countries and approved clinics first.','Time the test so the certificate is still valid on your application date.'],[['GOV.UK: TB test for a visa','https://www.gov.uk/tb-test-visa','Who needs it and how long it is valid.'],['GOV.UK: Countries where you need a TB test','https://www.gov.uk/tb-test-visa/countries-where-you-need-a-tb-test-to-enter-the-uk','The list of countries.']],'Before you apply'),
+  JS_('Apply online','rule','From outside the UK, the earliest you can apply is 6 months before your course starts. The application fee is £558, and the healthcare surcharge is paid as part of the application. Its amount depends on how long your visa lasts. You prove your identity as part of the application. The usual decision time is 3 weeks, and a faster decision may be available.',['Apply when your CAS, funds and documents are all ready.','Do not travel or book non-refundable flights before the visa is granted.'],[['GOV.UK: Apply for a Student visa','https://www.gov.uk/student-visa/apply','Fees, timing and steps.']],'1 to 3 months before course start'),
+  JS_('After approval: your eVisa','rule','You get an eVisa, an online record of your immigration status. You set up a UKVI account to see it, and link the travel document you will use to enter the UK.',['Set up your UKVI account and keep the login safe.','Check that the passport linked is the one you will travel with.'],[['GOV.UK: Apply for a Student visa','https://www.gov.uk/student-visa/apply','See "After a successful application".']],'When the decision arrives')]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and your first week',steps:[
+  JS_('Pick your travel date','rule','You can arrive up to 1 month before your course starts if it is longer than 6 months (1 week early if it is 6 months or less). Do not travel before the start date on your visa.',['Match your flight to the visa start date.','Keep your CAS, passport, offer letter and funds proof in hand luggage.'],[['GOV.UK: Apply for a Student visa','https://www.gov.uk/student-visa/apply','See "Travel timing".']],'Before booking flights'),
+  JS_('Airport pickup and first night','usual','Many universities run an airport pickup or welcome desk, and counsellors can arrange a pickup. Confirm the pickup person, a contact number and your first-night address before you fly.',['Save the address of your first stay offline.','Share your flight details with your family and your counsellor.'],[],'1 week before flying'),
+  JS_('Your first week','usual','Enrol at your university, collect your student card, and register with a GP surgery near you. You must register with a GP before you can use its services.',['Complete enrolment and any check-in the university requires.','Register with a GP: NHS 111 can help when it is not an emergency, and 999 is for life-threatening emergencies.','Set up a UK bank account once your university can give you a letter.'],[['NHS: urgent help with 111','https://111.nhs.uk','Free, 24 hours a day.']],'First 7 days'),
+  JS_('Rent safely','rule','Paying money upfront to secure a room before viewing is a common scam. A deposit that is not a holding deposit must be protected in a government-approved scheme. In England the deposit is capped at 5 weeks of rent for most tenancies.',['View the property, or have someone you trust view it, before you pay.','Get a written tenancy agreement and proof your deposit is protected.'],[['GOV.UK: Private renting deposits','https://www.gov.uk/private-renting/deposits','Caps and protection.'],['Action Fraud: student rental scams','https://www.actionfraud.police.uk/news/students-urged-to-watch-out-for-rental-scams','How the scams work.']],'Before you pay any rent')]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_('Work while you study','rule','Student visa work limits depend on your course level and what is printed on your visa and eVisa. Check your own conditions before taking any job, and never work more than allowed.',['Read your visa conditions.','Ask your university international office if you are unsure.'],[['GOV.UK: Student visa','https://www.gov.uk/student-visa','Work rules.'],['UKCISA: Student work (independent charity)','https://www.ukcisa.org.uk/student-advice/working/student-work/','Plain-English advice for students.']],'From the course start'),
+  JS_('After your degree: Graduate visa','rule','The Graduate visa lets you stay and work after your degree. It lasts 2 years if you apply on or before 31 December 2026, and 18 months from 1 January 2027. You apply from inside the UK once your university has confirmed you completed your course.',['Check the date rule before you plan.','Keep your student visa valid until you apply.'],[['GOV.UK: Graduate visa','https://www.gov.uk/graduate-visa','Eligibility and how to apply.'],['GOV.UK: Graduate visa cost','https://www.gov.uk/graduate-visa/how-much-it-costs','Fee and surcharge.']],'In your final term')]}
+ ]
+};
+function money(a){ return '£'+Math.round(a).toLocaleString('en-GB'); }
+window.jyCalc=function(){
+  const fee=parseFloat((document.getElementById('jy-fee')||{}).value)||0;
+  const m=Math.min(9,Math.max(1,parseInt((document.getElementById('jy-m')||{}).value)||9));
+  const ldn=((document.getElementById('jy-l')||{}).value)==='1';
+  const rate=ldn?1529:1171, live=rate*m, tot=fee+live;
+  const o=document.getElementById('jy-out'); if(!o)return;
+  o.innerHTML=`<div style="font-size:13px;color:var(--ink2,#444)">Course fee for the first year (amount still to pay, from your CAS): <b>${money(fee)}</b><br>Living costs: ${money(rate)} × ${m} month${m>1?'s':''} = <b>${money(live)}</b></div><div style="font-size:22px;font-weight:700;color:var(--pine,#1C3F6E);margin-top:6px">${money(tot)}</div><div style="font-size:12.5px;color:var(--ink2,#444);margin-top:4px">Hold this for at least 28 days in a row, ending within 31 days of applying. Add extra for each family member. Your CAS and GOV.UK give the final amount.</div>`;
+};
+let jyStage='learn';
+window.jyPick=function(k){ jyStage=k; renderJourney(); };
+function renderJourney(){
+  const J=JOURNEY_UK, st=J.stages.find(x=>x.k===jyStage)||J.stages[0];
+  const chips=G.countries.map(x=>`<div class="gd-chip" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
+  const tabs=J.stages.map(x=>`<div class="gd-chip ${x.k===st.k?'on':''}" onclick="jyPick('${x.k}')">${x.icon} ${E(x.t)}</div>`).join('');
+  const tag={rule:['Official rule','#0C447C','#E6F1FB'],usual:['Usually','#8A5A00','#FFF4DC']};
+  const steps=st.steps.map((s,i)=>{const g=tag[s.k]||tag.usual;return `<details class="gd-sec" ${i===0?'open':''}><summary><span style="font-weight:700;color:var(--ink3,#777)">${i+1}</span><span>${E(s.h)}</span><span class="gd-chk" style="color:${g[1]};background:${g[2]}">${g[0]}</span></summary>
+   <div class="gd-it"><div class="d" style="margin:0">${E(s.d)}</div>${s.when?`<div class="d" style="margin-top:6px"><b>When:</b> ${E(s.when)}</div>`:''}</div>
+   ${s.todo.length?`<div class="gd-it"><div class="gd-offh">✅ Your to-do</div>${s.todo.map(t=>`<div class="d" style="margin-top:3px">• ${E(t)}</div>`).join('')}</div>`:''}
+   ${s.links.length?`<div class="gd-it gd-off"><div class="gd-offh">🔗 Official pages</div>${s.links.map(l=>`<a href="${E(l[1])}" target="_blank" rel="noopener"><b>${E(l[0])} ↗</b>${l[2]?`<span>${E(l[2])}</span>`:''}</a>`).join('')}</div>`:''}</details>`}).join('');
+  const calc=(st.k==='qualify')?`<div class="gd-sec" style="padding:12px 14px"><div style="font-weight:700;margin-bottom:6px">🧮 UK money calculator</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="jy-fee" type="number" inputmode="decimal" placeholder="Course fee to pay (£)" class="gd-search" style="flex:1 1 150px;margin:0" oninput="jyCalc()"><select id="jy-l" class="gd-search" style="flex:1 1 120px;margin:0" onchange="jyCalc()"><option value="1">London</option><option value="0">Outside London</option></select><select id="jy-m" class="gd-search" style="flex:1 1 100px;margin:0" onchange="jyCalc()">${[9,8,7,6,5,4,3,2,1].map(n=>`<option value="${n}">${n} month${n>1?'s':''}</option>`).join('')}</select></div><div id="jy-out" style="margin-top:8px"></div></div>`:'';
+  document.getElementById('guide-body').innerHTML=`<h1 class="gd-h">Study Abroad Guide</h1>
+   <div class="gd-chips"><div class="gd-chip on">🧭 UK Journey</div>${chips}</div>
+   <div class="gd-note"><b>Ascend. One Guide. Every Step Forward.</b><br>${E(J.intro)} Last checked <b>${E(J.checked)}</b>. ${E(G.disclaimer)}</div>
+   <div class="gd-chips">${tabs}</div>
+   <div style="font-size:14px;color:var(--ink2,#444);margin:2px 0">${st.icon} <b>${E(st.t)}</b>: ${E(st.sub)}</div>
+   ${steps}${calc}`;
+  if(st.k==='qualify')jyCalc();
+}
 const G={
  checked:CHECKED,
  disclaimer:'This guide is for general information, not legal or immigration advice. Rules change often. Always confirm on the official site and with your counsellor before you apply or travel.',
@@ -10817,6 +11031,7 @@ function ensure(){
     .gd-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:2px 8px;margin-right:6px}
     .gd-it .h{font-weight:600;font-size:15px;line-height:1.4}.gd-it .d{font-size:14px;color:var(--ink2,#444);margin-top:4px;line-height:1.5}
     .gd-src a{color:var(--pine,#1C3F6E);font-size:14px;display:block;padding:4px 0}
+.gd-off a{display:block;padding:7px 0;color:var(--pine,#1C3F6E);text-decoration:none;border-top:1px dashed var(--line,#E6DDCC)}.gd-off a:first-of-type{border-top:0}.gd-off a b{font-size:14px;font-weight:600}.gd-off a span{display:block;font-size:12.5px;color:var(--ink2,#444);margin-top:1px;font-weight:400}.gd-offh{font-size:12px;font-weight:700;letter-spacing:.3px;color:var(--ink3,#777);text-transform:uppercase;margin-bottom:2px}
     .gd-chk{font-size:11.5px;font-weight:700;color:#0C447C;background:#E6F1FB;border-radius:99px;padding:2px 8px;margin-left:6px}`;
     document.head.appendChild(s);
   }
@@ -10837,16 +11052,18 @@ function ensure(){
 }
 function matchItem(it){ if(!q)return true; const t=(it.h+' '+it.d).toLowerCase(); return q.toLowerCase().split(/\s+/).every(w=>t.includes(w)); }
 function render(){
+  if(curKey==='j-uk'){ renderJourney(); return; }
   const c=G.countries.find(x=>x.key===curKey)||G.countries[0];
-  const chips=G.countries.map(x=>`<div class="gd-chip ${x.key===c.key?'on':''}" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
+  const chips=`<div class="gd-chip" onclick="guidePick('j-uk')">🧭 UK Journey</div>`+G.countries.map(x=>`<div class="gd-chip ${x.key===c.key?'on':''}" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
   let secs='', shown=0;
   c.sections.forEach((s,si)=>{
     const items=s.items.filter(matchItem); if(!items.length)return; shown+=items.length;
     secs+=`<details class="gd-sec" ${(q||si<2)?'open':''}><summary><span>${s.icon}</span><span>${E(s.title)}</span>${s.kind==='rules'?`<span class="gd-chk">checked ${E(c.checked||G.checked)}</span>`:''}<span class="c">${items.length}</span></summary>
-      ${items.map(it=>{const k=ICON[it.t]||ICON.tip;return `<div class="gd-it"><div class="h"><span class="gd-badge" style="color:${k[2]};background:${k[3]}">${k[0]} ${k[1]}</span>${E(it.h)}</div>${it.d?`<div class="d">${E(it.d)}</div>`:''}</div>`}).join('')}</details>`;
+      ${items.map(it=>{const k=ICON[it.t]||ICON.tip;return `<div class="gd-it"><div class="h"><span class="gd-badge" style="color:${k[2]};background:${k[3]}">${k[0]} ${k[1]}</span>${E(it.h)}</div>${it.d?`<div class="d">${E(it.d)}</div>`:''}</div>`}).join('')}${(()=>{const ls=secLinks(c.key,s.title); return ls.length?`<div class="gd-it gd-off"><div class="gd-offh">🔗 Official pages for this section</div>${ls.map(l=>`<a href="${E(l[1])}" target="_blank" rel="noopener"><b>${E(l[0])} ↗</b>${l[2]?`<span>${E(l[2])}</span>`:''}</a>`).join('')}</div>`:''})()}</details>`;
   });
   if(!shown)secs=`<div class="gd-note">Nothing found for "${E(q)}" in ${E(c.name)}. Try another word or country.</div>`;
-  const src=(c.sources||[]).length?`<details class="gd-sec"><summary><span>🔗</span><span>Sources and official links</span><span class="c">${c.sources.length}</span></summary><div class="gd-it gd-src">${c.sources.map(s=>`<a href="${E(s[1])}" target="_blank" rel="noopener">${E(s[0])} ↗</a>`).join('')}<div class="d" style="font-size:12.5px;margin-top:6px">Official pages are listed so you can confirm every rule. Third-party pages were used to read current figures and may lag behind the government site.</div></div></details>`:'';
+  const osrc=officialSrc(c);
+  const src=osrc.length?`<details class="gd-sec"><summary><span>🔗</span><span>All official links for ${E(c.name)}</span><span class="c">${osrc.length}</span></summary><div class="gd-it gd-off">${osrc.map(s=>`<a href="${E(s[1])}" target="_blank" rel="noopener"><b>${E(s[0])} ↗</b>${s[2]?`<span>${E(s[2])}</span>`:''}</a>`).join('')}<div class="d" style="font-size:12.5px;margin-top:6px">Only government and state-body pages are listed. Rules change, so open the page before you apply or travel.</div></div></details>`:'';
   document.getElementById('guide-body').innerHTML=`<h1 class="gd-h">Study Abroad Guide</h1>
    <div class="gd-note">Last checked <b>${E(c.checked||G.checked)}</b>. ${E(G.disclaimer)}</div>
    ${isAdmin?`<div class="gd-note" style="background:#E6F1FB">You are an admin. <b style="cursor:pointer;color:#0C447C;text-decoration:underline" onclick="guideEdit()">Edit ${E(c.name)}</b></div>`:''}
@@ -13236,9 +13453,9 @@ var VISA_COUNTRIES = {
   UK: {
     name: 'United Kingdom', flag: '🇬🇧', visaType: 'Student Route (formerly Tier 4)',
     overview: 'The UK Student Route visa is for students holding an unconditional offer from a licensed student sponsor, with a Confirmation of Acceptance for Studies (CAS) issued by the institution.',
-    requirements: ['A CAS (Confirmation of Acceptance for Studies) from a licensed sponsor institution', 'Proof of funds covering tuition plus living costs (usually 9 months, unless in London where the amount is higher)', 'A valid passport', 'English language proficiency (usually IELTS UKVI, PTE UKVI — not standard IELTS/PTE)', 'Tuberculosis test results, for applicants from certain countries'],
+    requirements: ['A CAS (Confirmation of Acceptance for Studies) from a licensed sponsor institution', 'Proof of funds covering tuition plus living costs (usually 9 months, unless in London where the amount is higher)', 'A valid passport', 'Proof of English at CEFR B2 for degree level or above (B1 below degree level). At degree level your university can assess your English itself. A Secure English Language Test (SELT) is needed if you have no qualification that proves it', 'A tuberculosis test certificate from a Home Office approved clinic, if you will stay 6 months or more and have lived in a listed country (India, Nepal, Pakistan, Bangladesh, Sri Lanka, Nigeria and Ghana are on the list)'],
     documents: ['CAS reference number', 'Bank statements showing required funds held for a consecutive 28-day period', 'Passport-size photo', 'Academic transcripts and certificates', 'ATAS certificate, if studying certain sensitive subjects'],
-    commonMistakes: ['Bank statements not covering the required continuous 28-day holding period.', 'Using a standard IELTS/PTE score instead of the UKVI-approved version required for the visa specifically.', 'Applying too early or too late relative to the course start date.'],
+    commonMistakes: ['Bank statements not covering the required continuous 28-day holding period.', 'Assuming you must take a UKVI test. Ask your university which English proof it accepts for your course. If a SELT is needed, it must be one from an approved provider.', 'Applying too early or too late. From outside the UK you can apply up to 6 months before the course starts.'],
     processingTime: 'Typically 3 weeks outside the UK, though this varies by country and season.',
   },
   USA: {
