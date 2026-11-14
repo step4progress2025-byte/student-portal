@@ -18714,7 +18714,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
    grade-response function with pte_ kinds.
    ============================================================ */
 (function(){
-  const PT_ID='prem_pte_1', BUCKET='sim-recordings';
+  let PT_ID='prem_pte_1'; const BUCKET='sim-recordings';  // PT_ID is chosen per student: resume > first one not taken yet > latest taken
   const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const sbn=()=>sb;
   let T=null;
@@ -18774,7 +18774,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   // ---------- card on the PTE Mocks tab ----------
   window.ptHydrate=async function(){
     const el=document.getElementById('pte-card'); if(!el||isPreviewMode||!currentSession)return;
-    let st=null; try{ const r=await sbn().rpc('premium_status'); if(!r.error)st=(r.data||[]).find(x=>x.id===PT_ID); }catch(e){}
+    let st=null, anyTaken=false; try{ const r=await sbn().rpc('premium_status'); if(!r.error){ const rows=(r.data||[]).filter(x=>/^prem_pte_/.test(x.id)); anyTaken=rows.some(x=>x.taken); st=rows.find(x=>x.in_progress&&!x.taken)||rows.find(x=>!x.taken)||rows.filter(x=>x.taken).pop()||null; if(st)PT_ID=st.id; } }catch(e){}
     if(!st){ el.innerHTML=''; return; }
     let status,btn;
     const b=(l,f)=>`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="${f}">${l}</button>`;
@@ -18784,7 +18784,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     else { status='Available with any paid plan. It uses one mock credit.'; btn=b('Choose a plan',"openPlansDialog('mock')"); }
     el.innerHTML=`<div class="tp-info-card" style="border:2px solid #C9631A;background:linear-gradient(180deg,#FFF8F0,#fff)"><h4>⭐ ${E(st.title)}</h4>
       <p>A full practice of the current PTE Academic: Speaking and Writing, then Reading, then Listening, in the real order, with the real task types. You get your estimated 10 to 90 scores, a task-by-task breakdown and a PDF report.</p>
-      <p style="margin-top:8px">${status}</p>${btn}
+      <p style="margin-top:8px">${status}</p>${btn}${(anyTaken&&!st.taken)?'<div style="margin-top:8px"><a href="javascript:ptViewSaved()" style="font-size:13px">View my previous PTE result</a></div>':''}
       <div style="font-size:12.5px;color:var(--ink3);margin-top:8px">About 2 hours 15 minutes in one sitting. Use a laptop or tablet, headphones, a microphone and a quiet room. No lessons are needed first.</div></div>`;
   };
   window.ptConfirm=function(){
@@ -19218,7 +19218,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   };
   window.ptViewSaved=async function(){
     if(!requireRealLogin())return;
-    const{data,error}=await sbn().from('premium_results').select('*').eq('mock_id',PT_ID).order('updated_at',{ascending:false}).limit(1);
+    const{data,error}=await sbn().from('premium_results').select('*').like('mock_id','prem_pte_%').order('updated_at',{ascending:false}).limit(1);
     if(error||!data||!data.length){ alert('Could not load your result.'); return; }
     const r=data[0].results||{}; const tk=(r.pte_tasks||[]).map(t=>({title:t.title,grp:t.grp,prompt:t.prompt,answer:t.answer,res:{band:t.band,g:t.g}}));
     T={take:data[0].take_id,c:null,final:r.pte_final||null,view:true,steps:[{t:'result'}],pos:0,prod:{},cache:{},recs:{},uploads:[],deadline:0,pd:{},tick:null,tasks:tk.length?tk:null};
