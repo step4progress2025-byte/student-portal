@@ -6056,7 +6056,7 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
     modules: ['Reading','Listening','Speaking','Writing'],
     gettingStarted: [],
     levels: [
-      { key:'foundation', name:'Foundation', band:'Score 30-50', skills:{Reading:[
+      { key:'foundation', name:'Foundation', band:'Band 2.5 to 3 (about 30 to 50 on the old 0 to 120 scale)', skills:{Reading:[
         {
           id: 'tf-r1', title: 'Complete the Words — Vocabulary and Spelling Together', time: '15-20 minutes',
           objectives: ['Understand this genuinely new 2026 TOEFL task type', 'Learn to use context to identify a partially-shown word', 'Practise spelling the completed word correctly, not just recognising it'],
@@ -6316,7 +6316,7 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
           ],
         },
       ]} },
-      { key:'developing', name:'Developing', band:'Score 51-70', skills:{Reading:[
+      { key:'developing', name:'Developing', band:'Band 3 to 3.5 (about 51 to 70 on the old scale)', skills:{Reading:[
         {
           id: 'td-r1', title: 'Reading Comprehension in Shorter Passages', time: '15-20 minutes',
           objectives: ['Understand how the 2026 format\'s shorter passages change reading strategy', 'Learn to identify a passage\'s main claim quickly, given less text overall', 'Practise answering comprehension questions without over-reading for excessive detail'],
@@ -6508,7 +6508,7 @@ id: 'pa-l4', title: 'Time Management Across the Full Listening Section', time: '
           ],
         },
       ]} },
-      { key:'intermediate', name:'Intermediate', band:'Score 71-90', skills:{Reading:[
+      { key:'intermediate', name:'Intermediate', band:'Band 4 to 4.5 (about 71 to 90 on the old scale)', skills:{Reading:[
         {
           id: 'ti-r1', title: 'Following an Argument Across a Longer Academic Passage', time: '15-20 minutes',
           objectives: ['Learn to track a developing argument across multiple paragraphs', 'Understand how academic passages build evidence toward a conclusion', 'Practise identifying how each paragraph contributes to the overall argument'],
@@ -6753,7 +6753,7 @@ id: 'ti-s4', title: 'Managing Time Across Reading, Listening, and Speaking Phase
   ],
         },
       ]} },
-      { key:'advanced', name:'Advanced', band:'Score 91-120', skills:{Reading:[
+      { key:'advanced', name:'Advanced', band:'Band 4.5 to 6 (about 91 to 120 on the old scale)', skills:{Reading:[
         {
           id: 'ta-r1', title: 'Evaluating the Strength of Evidence in Academic Passages', time: '20-25 minutes',
           objectives: ['Learn to distinguish strong evidence from weak or anecdotal support', 'Understand how academic writing signals confidence versus uncertainty in evidence', 'Practise identifying when a passage\'s conclusion outpaces its actual evidence'],
@@ -13994,9 +13994,9 @@ function markMockSelf(i,gotItRight){
 // (my_mock_access / begin_mock / unlock_free_take); this page only displays it.
 const PAYMENT_MODE='manual'; // becomes 'gateway' once online payment is connected
 const PLAN_FALLBACK=[
-  {code:'continue',name:'Mock Pass',mocks:1,spark:false,valid_days:100,description:'1 full-length mock for any exam, valid 100 days. Spark: 40 messages and 4 feedback reports in total.'},
-  {code:'starter',name:'3 Mocks',mocks:3,spark:false,valid_days:100,description:'3 full-length mocks, each once, valid 100 days. Spark: 60 messages, 8 feedback reports and 1 IELTS speaking exam in total.'},
-  {code:'plus',name:'5 Mocks + Spark',mocks:5,spark:true,valid_days:100,description:'5 full-length mocks, valid 100 days. Spark: 300 messages, 30 feedback reports and 6 IELTS speaking exams in total.'},
+  {code:'continue',name:'Mock Pass',mocks:1,spark:false,valid_days:30,description:'1 full-length mock for any exam, valid 30 days. Spark: 40 messages and 4 feedback reports in total.'},
+  {code:'starter',name:'3 Mocks',mocks:3,spark:false,valid_days:45,description:'3 full-length mocks, each once, valid 45 days. Spark: 60 messages, 8 feedback reports and 1 IELTS speaking exam in total.'},
+  {code:'plus',name:'5 Mocks + Spark',mocks:5,spark:true,valid_days:45,description:'5 full-length mocks, valid 45 days. Spark: 300 messages, 30 feedback reports and 6 IELTS speaking exams in total.'},
   {code:'pro',name:'10 Mocks + Spark',mocks:10,spark:true,valid_days:30,description:'10 full-length mocks, valid 1 month. Spark: 800 messages, 80 feedback reports and 15 IELTS speaking exams in total.'}
 ];
 let MOCK_ACCESS=null, MOCK_PLANS=null;
@@ -14058,7 +14058,7 @@ function planCardsHtml(highlight){
       <h4>${esc(p.name)}</h4>
       <div class="pl-price">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div>
       ${(pm&&p.mocks>1)?`<div class="pl-per">${esc(pm)} per full mock</div>`:'<div class="pl-per">&nbsp;</div>'}
-      <ul class="pl-list">${li('<b>'+f.mocks+'</b> full-length mock'+(f.mocks===1?'':'s'))}${f.days?li('Valid for <b>'+f.days+' days</b>'):''}${f.msgs?li('Spark: <b>'+f.msgs+'</b> messages'):''}${f.reports?li('<b>'+f.reports+'</b> speaking feedback reports'):''}${f.exams?li('<b>'+f.exams+'</b> full IELTS speaking exam'+(f.exams===1?'':'s')):''}</ul>
+      <ul class="pl-list">${li('<b>'+f.mocks+'</b> full-length mock'+(f.mocks===1?'':'s')+', each taken once')}${f.days?li('Valid for <b>'+f.days+' days</b>'):''}${f.msgs?li('Spark: <b>'+f.msgs+'</b> messages'):''}${f.reports?li('<b>'+f.reports+'</b> speaking feedback reports'):''}${f.exams?li('<b>'+f.exams+'</b> full IELTS speaking exam'+(f.exams===1?'':'s')):''}</ul>
       <button class="btn pl-btn" ${(!pt&&currentSession&&!isPreviewMode)?'disabled':''} onclick="choosePlan('${p.code}')">Get this</button></div>`;
   }).join('')+`</div>`;
 }
@@ -14069,7 +14069,7 @@ function simPlans(){ const l=(MOCK_PLANS||[]).filter(p=>p.kind==='sim'); return 
 function simCanStart(st){ return !!(st&&(st.admin||st.sim_credits>0||st.credits>0)); }
 function simStatusText(st){
   if(st.admin)return 'Administrator: start as often as you like.';
-  if(st.sim_credits>0)return `You have <b>${st.sim_credits}</b> simulation pass${st.sim_credits===1?'':'es'} for this exam. It can be taken once.`;
+  if(st.sim_credits>0)return `You have <b>${st.sim_credits}</b> simulation pass${st.sim_credits===1?'':'es'} for this exam. Each can be taken once.`;
   return `This uses <b>1 of your ${st.credits}</b> mock credit${st.credits===1?'':'s'}. It can be taken once.`;
 }
 function simBuyBtn(st,style){
@@ -14080,9 +14080,9 @@ function simBuyBtn(st,style){
 function planSimHtml(highlight){
   const list=simPlans();
   const inc=['Exam-day screen with the real timings and the one-time Listening audio','Speaking with Asha, your examiner, on camera-style screen (IELTS)','Marked on the exam\'s own criteria, with a score estimate and PDF report','If marking fails because of us, you can ask for your attempt back'];
-  return `<div class="pl-sec"><h3>Exam simulations</h3><p class="pl-sub">One full exam-day practice for a single exam. Pay for the one you need. It is separate from the practice plans above.</p>
+  return `<div class="pl-sec"><h3>Exam simulations</h3><p class="pl-sub">One full exam-day practice for a single exam. You can take it <b>once</b>, within <b>30 days</b> of buying. It is separate from the practice plans.</p>
    <div class="pl-grid">${list.map(p=>{const pt=priceText(p.code);const hl=highlight==='sim';
-     return `<div class="pl-card${hl?' pl-hi':''}"><h4>${esc(p.name||p.code)}</h4><div class="pl-price">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div><div class="pl-per">one full simulation, taken once</div>
+     return `<div class="pl-card${hl?' pl-hi':''}"><h4>${esc(p.name||p.code)}</h4><div class="pl-price">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div><div class="pl-per">taken once · valid 30 days</div>
        <button class="btn pl-btn" ${(!pt&&currentSession&&!isPreviewMode)?'disabled':''} onclick="choosePlan('${p.code}')">Buy this simulation</button></div>`;}).join('')}</div>
    <ul class="pl-list" style="margin-top:12px">${inc.map(t=>'<li>'+t+'</li>').join('')}</ul></div>`;
 }
@@ -14143,6 +14143,7 @@ function planBenefitsHtml(){
 function planWhyHtml(){
   return `<div class="pl-sec pl-why"><h3>Why these prices?</h3><ul>
    <li><b>Pay for what you use.</b> Plans are one-time packs of mocks. There is no subscription and nothing renews.</li>
+   <li><b>Each mock can be taken once.</b> A pack gives you that many full mocks, each once, within its validity days. A simulation pass gives one attempt within 30 days.</li>
    <li><b>Bigger packs cost less per mock.</b> The price per mock is shown on every card so you can compare.</li>
    <li><b>Every full mock includes real marking</b> of your speaking and writing, which is the largest cost to us, plus the audio, storage and your PDF report.</li>
    <li><b>Estimates, not official scores.</b> Our scores are practice estimates. Step4Progress is not affiliated with or endorsed by IELTS, Pearson, ETS or Duolingo.</li></ul></div>`;
@@ -14502,7 +14503,7 @@ async function pmHydrate(){
   if(st.taken){ status='You have taken this mock. Your result is saved.'; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmViewSaved()">View my result</button>`; }
   else if(st.in_progress){ status='Your premium mock is in progress. You can resume it.'; btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmStart()">Resume premium mock</button>`; }
   else if(simCanStart(st)){ status=simStatusText(st); btn=`<button class="btn" style="margin-top:10px;width:auto;padding:9px 18px;font-size:13px" onclick="pmIntroConfirm()">Start premium mock</button>`; }
-  else { status='A single full exam-day simulation. Buy it once, take it once.'; btn=simBuyBtn(st); }
+  else { status='A single full exam-day simulation. You can take it once, within 30 days of buying.'; btn=simBuyBtn(st); }
   el.innerHTML=`<div class="tp-info-card" style="border:2px solid #B8923F;background:linear-gradient(180deg,#FFFBF1,#fff)">
     <h4>⭐ ${esc(st.title)}</h4>
     <p>The complete exam-day experience: Listening with recordings played once, Reading and Writing under strict timing, and a Speaking interview, followed by an estimated band report. Original questions, written in exam style.</p>
@@ -14826,7 +14827,7 @@ function pmCheck(){
   <label class="pa-opt"><input type="radio" name="pa-rec" value="video" ${A.mode==='video'?'checked':''} onchange="pmRecMode(this.value)"> Camera and voice (best, like a real exam room)</label>
   <label class="pa-opt"><input type="radio" name="pa-rec" value="audio" ${A.mode==='audio'?'checked':''} onchange="pmRecMode(this.value)"> Voice only</label>
   <label class="pa-opt"><input type="radio" name="pa-rec" value="none" ${A.mode==='none'?'checked':''} onchange="pmRecMode(this.value)"> No recording</label>
-  <p class="pa-small">Recordings are private to you, kept for 100 days, then deleted. You can delete them yourself from your result. If you are under 18, a parent or guardian should agree first.</p>
+  <p class="pa-small">Recordings are private to you, kept for 30 days, then deleted. You can delete them yourself from your result. If you are under 18, a parent or guardian should agree first.</p>
   <label class="pa-opt" id="pa-guard" style="display:${A.mode==='none'?'none':'block'}"><input type="checkbox" id="pa-ok" ${A.consent?'checked':''} onchange="pmAsha().consent=this.checked;pmCheckGo()"> I agree to my Speaking being recorded${''} (and a parent or guardian agrees if I am under 18).</label></div>
   <p id="pa-warn" class="pa-warn"></p>
   <button class="pm-btn go" id="pa-go" onclick="pmCheckBegin()">I am ready: begin the test</button>
@@ -15672,7 +15673,25 @@ async function dqNext(){
 const TRIMMED_LESSONS=new Set(['f-l4', 'f-l5', 'f-r3', 'f-r5', 'f-w3', 'f-w5', 'f-s5', 'f-s7', 'd-l3', 'd-l7', 'd-r3', 'd-r5', 'd-w5', 'd-w7', 'd-s3', 'd-s5', 'i-l5', 'i-l7', 'i-r3', 'i-r5', 'i-w5', 'i-w7', 'i-s5', 'i-s6', 'a-l4', 'a-l5', 'a-r3', 'a-r6', 'a-w1', 'a-w3', 'a-s4', 'a-s6', 'pf-sw4', 'pf-r4', 'pf-l4', 'pd-sw4', 'pd-r2', 'pd-l4', 'pd-r5', 'pi-sw2', 'pi-r2', 'pi-r3', 'pi-l4', 'pa-sw2', 'pa-sw4', 'pa-r5', 'pa-l2', 'pa-l6', 'ti-r5', 'ti-r6', 'ti-s1', 'ti-s2', 'ti-s3', 'ti-s4', 'ta-s1', 'td-s1', 'td-s2', 'ta-r3', 'tf-r6', 'tf-l3', 'tf-w3', 'tf-w6', 'tf-s2', 'tf-s5', 'td-r3', 'td-w3', 'td-l2', 'ta-r5', 'ta-l4', 'ta-l6', 'ta-w3', 'ta-w6', 'ta-s4', 'ta-s6', 'dl-li2', 'dl-co2', 'dl-cv2', 'dl-pr4', 'dd-li2', 'dd-co2', 'dd-cv2', 'dd-pr2', 'di-li2', 'di-co2', 'di-cv2', 'di-pr2', 'da-li2', 'da-co2', 'da-cv2', 'da-pr2', 'gr-sb-basics4', 'gr-sb-basics5', 'gr-sb1', 'gr-sb2', 'gr-ta1', 'gr-ta4', 'gr-sk2', 'gr-sk7', 'gr-sx2', 'gr-sx3', 'gr-sx4', 'gr-sx6', 'gr-bb2', 'gr-wi1', 'pr-ph1', 'pr-cs3', 'pr-sy2', 'pr-ws2', 'ac-b-g1', 'ac-b-r3', 'ac-m-w3', 'ac-m-r3', 'ac-p-w3', 'ac-p-g2']);
 // ── Region and language filter (14 Nov 2026) ─────────────────────────
 // Lessons stay worldwide. Only the Tamil learner pack (lessons that explain with Tamil words or Tamil mistakes) is hidden for people who say Tamil is not their first language.
-const TAMIL_PACK=new Set(['gr-pf1','ac-b-w1','ac-b-w2','ac-b-w3','ac-b-s2']);
+const TAMIL_PACK=new Set(['gr-pf1']);   // hidden outright for learners whose first language is not Tamil
+// These beginner lessons have Tamil glosses. For other learners the same lesson (same id, so progress is kept) is shown without Tamil.
+const TAMIL_STRIP=new Set(['ac-b-w1','ac-b-w2','ac-b-w3','ac-b-s2','ac-b-g1','ac-b-g2','ac-b-g3','ac-b-s1']);
+const EN_MATCH={
+  'ac-b-w1':[['chair','a seat for one person'],['milk','a white drink'],['egg','food from a hen'],['door','you open it to enter a room']],
+  'ac-b-w2':[['mother','a female parent'],['brother','a boy in your family with the same parents'],['green','the colour of grass'],['white','the colour of snow']],
+  'ac-b-w3':[['wake up','stop sleeping'],['study','learn from books or lessons'],['cook','make food with heat'],['sleep','rest with your eyes closed at night']],
+  'ac-b-s2':[['left','the opposite of right'],['right','the opposite of left'],['straight','keep going forward'],['near','not far']]
+};
+const __ENC={};
+function enLesson(l){
+  if(__ENC[l.id])return __ENC[l.id];
+  const TA=/[\u0B80-\u0BFF]/;
+  const clean=t=>t.replace(/\s*\([^()]*[\u0B80-\u0BFF][^()]*\)/g,'').replace(/[\u0B80-\u0BFF][\u0B80-\u0BFF\s\/,.]*/g,'').replace(/ {2,}/g,' ').replace(/\s+([,.;:])/g,'$1').replace(/Connect English words with their Tamil meanings/g,'Connect English words with their meanings').replace(/ Tamil meaning/g,' meaning');
+  const walk=v=>typeof v==='string'?clean(v):Array.isArray(v)?v.map(walk):(v&&typeof v==='object')?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,walk(x)])):v;
+  const c=walk(JSON.parse(JSON.stringify(l)));
+  if(EN_MATCH[l.id]&&c.match){ c.match=EN_MATCH[l.id]; c.matchInstruction='Match each word to its meaning.'; }
+  return __ENC[l.id]=c;
+}
 const REGION_KEY='s4p_region';
 function getRegion(){try{return JSON.parse(localStorage.getItem(REGION_KEY)||'null');}catch(e){return null;}}
 function setRegion(r){try{localStorage.setItem(REGION_KEY,JSON.stringify(r));}catch(e){}}
@@ -15689,10 +15708,11 @@ function applyRegionFilter(){
   const r=getRegion();
   const hide=!!(r&&r.home&&r.home!=='ta'&&!r.showAll);
   const keep=l=>!(hide&&TAMIL_PACK.has(l.id));
+  const pick=l=>(hide&&TAMIL_STRIP.has(l.id))?enLesson(l):l;
   Object.entries(TEST_DATA).forEach(([k,t])=>{
     const f=__FULL[k];
-    if(Array.isArray(t.gettingStarted))t.gettingStarted=f.gs.filter(keep);
-    (t.levels||[]).forEach((v,i)=>{const sk={};Object.keys(f.lv[i]).forEach(n=>{const a=f.lv[i][n].filter(keep);if(a.length)sk[n]=a;});v.skills=sk;});
+    if(Array.isArray(t.gettingStarted))t.gettingStarted=f.gs.filter(keep).map(pick);
+    (t.levels||[]).forEach((v,i)=>{const sk={};Object.keys(f.lv[i]).forEach(n=>{const a=f.lv[i][n].filter(keep).map(pick);if(a.length)sk[n]=a;});v.skills=sk;});
   });
   syncLessonCounts(hide);
 }
@@ -18219,7 +18239,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','detViewSaved()'); }
     else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','detStart()'); }
     else if(simCanStart(st)){ status=simStatusText(st); btn=b('Start simulation','detConfirm()'); }
-    else { status='A single full exam-day simulation. Buy it once, take it once.'; btn=simBuyBtn(st); }
+    else { status='A single full exam-day simulation. You can take it once, within 30 days of buying.'; btn=simBuyBtn(st); }
     el.innerHTML=`<div class="tp-info-card" style="border:2px solid #B8923F;background:linear-gradient(180deg,#FFFBF1,#fff)"><h4>⭐ ${E(st.title)}</h4>
       <p>A full practice of the Duolingo English Test: it starts easy and gets harder as you answer correctly, like the real adaptive test. Reading, listening, writing and speaking tasks, then an estimated score out of 160 with a PDF report. Original questions, not real test items.</p>
       <p style="margin-top:8px">${status}</p>${btn}${(anyTaken&&!st.taken)?'<div style="margin-top:8px"><a href="javascript:detViewSaved()" style="font-size:13px">View my previous Duolingo result</a></div>':''}
@@ -18624,7 +18644,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       <label class="dt-opt"><input type="radio" name="detrm" value="video" checked> Record video and sound (shows eye contact)</label>
       <label class="dt-opt"><input type="radio" name="detrm" value="audio"> Record sound only</label>
       <label class="dt-opt"><input type="radio" name="detrm" value="none"> Do not record</label>
-      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can watch your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself any time from your result page.</li><li>They are used only to show you your own delivery. Nothing is shared or used for marketing.</li><li>Eye contact is an estimate from your camera and works best in good light.</li></ul>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can watch your recordings. Counsellors and teachers cannot.</li><li>They are kept for 30 days, then deleted. You can delete them yourself any time from your result page.</li><li>They are used only to show you your own delivery. Nothing is shared or used for marketing.</li><li>Eye contact is an estimate from your camera and works best in good light.</li></ul>
       <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="det-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
       <p id="det-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
     foot('<button class="dt-btn" onclick="detCheckGo()">Continue</button>');
@@ -18671,7 +18691,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   }
   function deliveryCard(){
     const tasks=SPEAK_TASKS.filter(t=>D.recs&&D.recs[t]); if(!tasks.length)return '';
-    let h=`<div class="dt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can watch these. They are deleted after 100 days.</p>`;
+    let h=`<div class="dt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can watch these. They are deleted after 30 days.</p>`;
     tasks.forEach(t=>{ const r=D.recs[t]; const tips=tipsFor(t,r.stats);
       h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>${E(TASK_NAME[t]||t)}</b> <span style="font-size:12.5px;color:#667">${E(statLine(r.stats))}</span>
         <div id="det-rp-${t}" style="margin:6px 0"><button class="dt-btn alt" style="padding:6px 12px;font-size:13px" onclick="detWatch('${t}')">▶ Watch</button></div>
@@ -18940,7 +18960,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','tfViewSaved()'); }
     else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','tfStart()'); }
     else if(simCanStart(st)){ status=simStatusText(st); btn=b('Start simulation','tfConfirm()'); }
-    else { status='A single full exam-day simulation. Buy it once, take it once.'; btn=simBuyBtn(st); }
+    else { status='A single full exam-day simulation. You can take it once, within 30 days of buying.'; btn=simBuyBtn(st); }
     el.innerHTML=`<div class="tp-info-card" style="border:2px solid #B8923F;background:linear-gradient(180deg,#FFFBF1,#fff)"><h4>⭐ ${E(st.title)}</h4>
       <p>A full practice of the current TOEFL iBT. Reading and Listening start in the middle and become easier or harder depending on how you do, like the real test. Then Writing and Speaking. You get your estimated 1 to 6 bands, the comparable 0 to 120 range and a PDF report. Original questions, written for practice.</p>
       <p style="margin-top:8px">${status}</p>${btn}${(anyTaken&&!st.taken)?'<div style="margin-top:8px"><a href="javascript:tfViewSaved()" style="font-size:13px">View my previous TOEFL result</a></div>':''}
@@ -19052,7 +19072,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       <p style="line-height:1.7;font-size:14.5px">You can record your voice during the Speaking tasks. Afterwards you can listen to yourself, see your speaking speed and pauses, and get tips.</p>
       <label class="tf-opt"><input type="radio" name="tfrm" value="audio" checked> Record sound only</label>
       <label class="tf-opt"><input type="radio" name="tfrm" value="none"> Do not record</label>
-      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 30 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
       <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="tf-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
       <p id="tf-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
     foot('<button class="tf-btn" onclick="tfCheckGo()">Continue</button>');
@@ -19173,8 +19193,10 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   function speak(step){
     const iv=step.t==='iv'; const id=iv?T.c.speaking.interview.qs[step.i].id:T.c.speaking.lr[step.i].id; const task=iv?'iv'+(step.i+1):'lr'+(step.i+1);
     T.cur={id,task,iv}; const secs=iv?T.c.speaking.interview.secs:12; const played=!!T.played['sp_'+id];
-    main(`<div class="tf-wrap"><div class="tf-card"><h3>${iv?'Take an Interview · question '+(step.i+1)+' of '+T.c.speaking.interview.qs.length:'Listen and Repeat · '+(step.i+1)+' of '+T.c.speaking.lr.length}</h3>
-      <p style="font-size:13.5px;color:#667;line-height:1.6">${iv?'Topic: '+E(T.c.speaking.interview.topic)+'. The interviewer asks a question. Then you have '+secs+' seconds to answer.':'Listen to the sentence once. Then repeat it exactly as you heard it.'} The audio plays <b>once</b>.</p>
+    if(iv&&typeof pmAshaCss==='function')pmAshaCss();
+    const ashaBox=iv?`<div class="pa-stage" style="margin:0 0 12px;padding:12px 14px"><div class="pa-top"><span>Your interviewer: Asha</span><span>Question ${step.i+1} of ${T.c.speaking.interview.qs.length}</span></div><div class="pa-avwrap" style="padding:8px 0 2px"><div class="pa-av" id="pa-av" style="width:72px;height:72px;font-size:32px">A</div></div></div>`:'';
+    main(`<div class="tf-wrap">${ashaBox}<div class="tf-card"><h3>${iv?'Take an Interview · question '+(step.i+1)+' of '+T.c.speaking.interview.qs.length:'Listen and Repeat · '+(step.i+1)+' of '+T.c.speaking.lr.length}</h3>
+      <p style="font-size:13.5px;color:#667;line-height:1.6">${iv?'Topic: '+E(T.c.speaking.interview.topic)+'. Asha asks a question. Then you have '+secs+' seconds to answer.':'Listen to the sentence once. Then repeat it exactly as you heard it.'} The audio plays <b>once</b>.</p>
       <p><button class="tf-btn" id="tf-sp" onclick="tfSpeak()" ${played?'disabled':''}>${played?'Done':'▶ Play, then speak'}</button></p>
       <div id="tf-st" style="font-size:14px;color:#445;min-height:22px"></div>
       <p style="font-size:13px;color:#667;margin:10px 0 2px">What we heard (you can fix it, or type your answer if the microphone does not work):</p>
@@ -19186,7 +19208,9 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     const c=T.cur; const b=document.getElementById('tf-sp'); if(!b||T.played['sp_'+c.id])return; T.played['sp_'+c.id]=1; b.disabled=true; b.textContent='Listen…';
     const st=document.getElementById('tf-st'); let turns; try{ turns=await turnsFor(c.id); }catch(e){ if(st)st.textContent='Could not load the audio. Type your answer below.'; const n=document.getElementById('tf-sp-n'); if(n)n.disabled=false; return; }
     const secs=c.iv?T.c.speaking.interview.secs:12;
+    const av=document.getElementById('pa-av'); if(av)av.classList.add('talk');
     const go=()=>{
+      const av2=document.getElementById('pa-av'); if(av2)av2.classList.remove('talk');
       if(!T||T.cur!==c)return; b.textContent='Speak now'; T.recording=true; startRec(c.task); let left=secs;
       const upd=()=>{ if(st)st.innerHTML='<span class="tf-rec"></span>Recording… '+left+' s left'; }; upd();
       const iv=setInterval(()=>{ left--; upd(); if(left<=0){ clearInterval(iv); fin(); } },1000); T.sIv=iv;
@@ -19260,7 +19284,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     return L; };
   function deliveryCard(){
     const ks=Object.keys(T.recs||{}).filter(k=>/^iv/.test(k)).sort(); if(!ks.length)return '';
-    let h=`<div class="tf-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 100 days.</p>`;
+    let h=`<div class="tf-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 30 days.</p>`;
     ks.forEach(k=>{ const r=T.recs[k]; h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>Interview question ${k.slice(2)}</b> <span style="font-size:12.5px;color:#667">${E([r.stats.wpm!=null?r.stats.wpm+' words/min':null,r.stats.start!=null?'started after '+r.stats.start+'s':null,'longest pause '+(r.stats.longest||0)+'s'].filter(Boolean).join(' · '))}</span>
       <div id="tf-rp-${k}" style="margin:6px 0"><button class="tf-btn alt" style="padding:6px 12px;font-size:13px" onclick="tfWatch('${k}')">▶ Listen</button></div>${tips(r.stats).length?`<ul style="margin:4px 0 0;padding-left:20px;font-size:13px">${tips(r.stats).map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:''}</div>`; });
     return h+`<p style="margin:10px 0 0"><button class="tf-btn alt" style="padding:6px 12px;font-size:13px" onclick="tfDelRecs()">Delete my recordings</button></p></div>`;
@@ -19337,7 +19361,10 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   const E=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const sbn=()=>sb;
   window.S4P_COACH_VIDEOS=window.S4P_COACH_VIDEOS||{};
-  const EXAMS={IELTS:{name:'IELTS Speaking',topic:'IELTS Speaking Part 1 and Part 3 style questions about everyday life, studies, work and society'},TOEFL:{name:'TOEFL Take an Interview',topic:'a TOEFL interview on learning and everyday student life: short personal questions, then opinion questions'},PTE:{name:'PTE Speaking',topic:'PTE style speaking: describe, explain and give an opinion in clear short answers'},Duolingo:{name:'Duolingo Speaking',topic:'Duolingo style speaking: describe, give an opinion and speak for about a minute'},General:{name:'General interview',topic:'a friendly interview for a study abroad student: study plans, background, goals and life abroad'}};
+  const EXAMS={IELTS:{name:'IELTS Speaking',topic:'IELTS Speaking Part 1 and Part 3 style questions about everyday life, studies, work and society'},TOEFL:{name:'TOEFL Take an Interview',topic:'a TOEFL interview on learning and everyday student life: short personal questions, then opinion questions'},PTE:{name:'PTE Speaking',topic:'PTE style speaking: describe, explain and give an opinion in clear short answers'},Duolingo:{name:'Duolingo Speaking',topic:'Duolingo style speaking: describe, give an opinion and speak for about a minute'},General:{name:'General interview',topic:'a friendly interview for a study abroad student: study plans, background, goals and life abroad'},
+    UKVI_Cred:{name:'UK student visa credibility interview (practice)',topic:'a PRACTICE of the UK Student visa credibility interview. You play a polite, neutral Home Office style interviewer checking that the applicant is a genuine student. Cover, one topic at a time: personal and education background, why this course, why this university, why the UK and not their own country or another country, how the course and living costs are paid for, where they will live, plans after the course, and any gap in study or earlier visas. If an answer is vague or very short, ask one short follow-up for detail. Do not coach, do not suggest answers, do not praise or judge during the interview. The student must answer honestly in their own words. This is practice only and not the real interview'},
+    Uni_Interview:{name:'University admission interview (practice)',topic:'a PRACTICE university admission or course interview. You play a friendly but serious admissions tutor. Ask about why the applicant chose this subject and this university, their relevant study or work experience, a time they solved a problem or worked in a team, what they hope to learn, how they study and manage time, and their plans after the degree. Ask one short question at a time and follow up on what they actually said. Do not give feedback during the interview'},
+    UKVI_SELT:{name:'UK visa English test speaking (SELT style, practice)',topic:'speaking practice in the style of the UK visa English tests (Secure English Language Tests): everyday personal questions, then describing and giving reasons and opinions on familiar topics, in clear short answers. This is general practice for the speaking part and not an official test of any provider'}};
   const FOCUS={all:'Everything',eye:'Eye contact',start:'Starting quickly',pace:'Pace and pauses',structure:'Structure'};
   const ANSWERS=5, MAXSEC=75;
   const LESSONS=[
@@ -19447,7 +19474,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     main(`<div class="ac-wrap"><div class="ac-card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">${asha('wave',90)}<div style="flex:1;min-width:220px"><h3>Practise speaking with Asha, on camera</h3><p style="margin:0;line-height:1.6;font-size:14.5px">Asha asks you questions by voice. You answer on camera. She shows whether you look at the camera, and afterwards gives you your pace, pauses, fillers and tips. About 8 minutes, ${ANSWERS} questions.</p></div></div>
       <div class="ac-card"><label style="font-weight:700;font-size:14px">Practise for</label><br><select class="ac-sel" id="ac-exam" onchange="C_set('exam',this.value)">${Object.keys(EXAMS).map(k=>`<option value="${k}" ${C.exam===k?'selected':''}>${E(EXAMS[k].name)}</option>`).join('')}</select>
         <br><br><label style="font-weight:700;font-size:14px">What do you want to work on?</label><br><select class="ac-sel" id="ac-focus" onchange="C_set('focus',this.value)">${Object.keys(FOCUS).map(k=>`<option value="${k}" ${C.focus===k?'selected':''}>${E(FOCUS[k])}</option>`).join('')}</select>
-        <ul style="font-size:13px;line-height:1.7;color:#445;margin:14px 0 6px 18px"><li>Your video stays on your device. It is <b>not uploaded</b> and disappears when you close this screen. Only your numbers (pace, pauses, eye contact) are saved so you can see your progress.</li><li>Eye contact is an estimate from your camera and works best in good light, with the camera at eye level.</li><li>If you do not want to use the camera, you can choose voice only.</li></ul>
+        <ul style="font-size:13px;line-height:1.7;color:#445;margin:14px 0 6px 18px"><li>Your video stays on your device. It is <b>not uploaded</b> and disappears when you close this screen. Only your numbers (pace, pauses, eye contact) are saved so you can see your progress.</li><li>Eye contact is an estimate from your camera and works best in good light, with the camera at eye level.</li><li>If you do not want to use the camera, you can choose voice only.</li><li>The <b>visa interview</b> and <b>university interview</b> options are practice only. They are not the real interview, they cannot predict the result, and in a real interview your answers must be true and in your own words. Check the current rules on GOV.UK.</li></ul>
         <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;margin-top:8px"><input type="checkbox" id="ac-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this practice.</label>
         <p id="ac-msg" style="color:#B3261E;font-size:13px;min-height:18px;margin:8px 0 0"></p>
         <p><button class="ac-btn" onclick="acStart('video')">▶ Start with camera</button> <button class="ac-btn alt" onclick="acStart('audio')">Voice only</button></p></div></div>`);
@@ -19714,7 +19741,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     if(st.taken){ status='You have taken this simulation. Your result is saved.'; btn=b('View my result','ptViewSaved()'); }
     else if(st.in_progress){ status='Your simulation is in progress. You can resume it.'; btn=b('Resume simulation','ptStart()'); }
     else if(simCanStart(st)){ status=simStatusText(st); btn=b('Start simulation','ptConfirm()'); }
-    else { status='A single full exam-day simulation. Buy it once, take it once.'; btn=simBuyBtn(st); }
+    else { status='A single full exam-day simulation. You can take it once, within 30 days of buying.'; btn=simBuyBtn(st); }
     el.innerHTML=`<div class="tp-info-card" style="border:2px solid #B8923F;background:linear-gradient(180deg,#FFFBF1,#fff)"><h4>⭐ ${E(st.title)}</h4>
       <p>A full practice of the current PTE Academic: Speaking and Writing, then Reading, then Listening, in the real order, with the real task types. You get your estimated 10 to 90 scores, a task-by-task breakdown and a PDF report.</p>
       <p style="margin-top:8px">${status}</p>${btn}${(anyTaken&&!st.taken)?'<div style="margin-top:8px"><a href="javascript:ptViewSaved()" style="font-size:13px">View my previous PTE result</a></div>':''}
@@ -19841,7 +19868,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
       <p style="line-height:1.7;font-size:14.5px">You can record your voice during the Speaking tasks. Afterwards you can listen to yourself, see your speaking speed and pauses, and get tips.</p>
       <label class="pt-opt"><input type="radio" name="ptrm" value="audio" checked> Record sound only</label>
       <label class="pt-opt"><input type="radio" name="ptrm" value="none"> Do not record</label>
-      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 100 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
+      <ul style="font-size:13px;line-height:1.7;color:#445;margin:10px 0 6px 18px"><li>Only you can listen to your recordings. Counsellors and teachers cannot.</li><li>They are kept for 30 days, then deleted. You can delete them yourself from your result page.</li><li>They are used only to show you your own delivery.</li></ul>
       <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5"><input type="checkbox" id="pt-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this recording.</label>
       <p id="pt-recmsg" style="font-size:13px;color:#B3261E;min-height:18px;margin:8px 0 0"></p></div></div>`);
     foot('<button class="pt-btn" onclick="ptCheckGo()">Continue</button>');
@@ -20103,7 +20130,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   function deliveryCard(){
     const ks=Object.keys(T.recs||{}).filter(k=>/^(di|rl|sg|rt)\d/.test(k)).sort(); if(!ks.length)return '';
     const nm=k=>({di:'Describe Image',rl:'Re-tell Lecture',sg:'Summarize Group Discussion',rt:'Respond to a Situation'})[k.slice(0,2)]+' '+k.slice(2);
-    let h=`<div class="pt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 100 days.</p>`;
+    let h=`<div class="pt-card"><h3 style="font-size:16px">Your speaking delivery</h3><p style="font-size:13px;color:#667;margin-top:0">Only you can listen to these. They are deleted after 30 days.</p>`;
     ks.forEach(k=>{ const r=T.recs[k]; h+=`<div style="border-top:1px solid #e3e8f2;padding:10px 0"><b>${nm(k)}</b> <span style="font-size:12.5px;color:#667">${E([r.stats.wpm!=null?r.stats.wpm+' words/min':null,r.stats.start!=null?'started after '+r.stats.start+' s':null,r.stats.longest>=3?'longest pause '+r.stats.longest+' s':null].filter(Boolean).join(' · '))}</span>
       <div id="pt-rp-${k}" style="margin:6px 0"><button class="pt-btn alt" style="padding:6px 12px;font-size:13px" onclick="ptWatch('${k}')">▶ Listen</button></div>${tips(r.stats).length?`<ul style="margin:4px 0 0;padding-left:20px;font-size:13px">${tips(r.stats).map(t=>`<li>${E(t)}</li>`).join('')}</ul>`:''}</div>`; });
     return h+`<p style="margin:10px 0 0"><button class="pt-btn alt" style="padding:6px 12px;font-size:13px" onclick="ptDelRecs()">Delete my recordings</button></p></div>`;
