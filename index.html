@@ -1559,6 +1559,9 @@ const TERMS_URL = 'https://step4progress2025-byte.github.io/student-portal/terms
 const GET_STATUS_URL = SUPABASE_URL + "/functions/v1/get-my-status";
 const GET_APPS_URL = SUPABASE_URL + "/functions/v1/get-my-applications";
 const SYNC_DOC_URL = SUPABASE_URL + "/functions/v1/sync-my-document";
+const CLAIM_LINK_URL = SUPABASE_URL + "/functions/v1/claim-portal-invite";
+// A counsellor's invite link looks like  .../student-portal/?invite=<64 characters>. Keep the code until the student has signed in.
+try{ const t=new URLSearchParams(location.search).get('invite'); if(t&&/^[0-9a-f]{64}$/i.test(t)){ localStorage.setItem('s4p_invite',t); history.replaceState(null,'',location.pathname+location.hash); } }catch(e){}
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1828,7 +1831,7 @@ async function afterLogin(){
   renderDashStats(student);
   renderTodayCard(student);
   renderWeeklyChallengeCard();
-  renderCounsellorCard();
+  claimPortalLink().finally(()=>{ try{ renderCounsellorCard(); }catch(e){} });
   try{ renderDashMocks(); }catch(e){}
   try{ renderAcademyCard(); }catch(e){}
   try{ snStart(); }catch(e){}
@@ -2265,13 +2268,47 @@ async function requireActiveSubscription(){
 function counsellorInitials(name){
   return (name||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
 }
+// Connect this student to their CRM lead: with the invite code if they came from a counsellor's link, otherwise by matching phone or email.
+async function claimPortalLink(){
+  if(isPreviewMode||!currentSession)return;
+  let token=''; try{ token=localStorage.getItem('s4p_invite')||''; }catch(e){}
+  try{ if(!token&&sessionStorage.getItem('s4p_linkchk'))return; }catch(e){}
+  try{
+    const r=await fetch(CLAIM_LINK_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token,apikey:SUPABASE_ANON_KEY},body:JSON.stringify(token?{token}:{})});
+    const d=await r.json().catch(()=>({}));
+    try{ sessionStorage.setItem('s4p_linkchk','1'); }catch(e){}
+    if(token){
+      const done=d&&(d.linked||['invalid','expired','used','lead_already_linked'].includes(d.reason));
+      if(done){ try{ localStorage.removeItem('s4p_invite'); }catch(e){} }
+      const msg=d&&d.linked?('You are now connected to your counsellor'+(d.counsellor?', '+d.counsellor:'')+'.'):
+        d&&d.reason==='expired'?'This invite link has expired. Please ask your counsellor for a new one.':
+        d&&d.reason==='used'?'This invite link was already used. Please ask your counsellor for a new one.':
+        d&&d.reason==='lead_already_linked'?'This file is already connected to another portal account. Please ask your counsellor.':
+        d&&d.reason==='invalid'?'This invite link is not valid. Please ask your counsellor for a new one.':'';
+      if(msg){ try{ alert(msg); }catch(e){} }
+    }
+  }catch(e){ /* network problem: the invite code stays saved and is tried again next time */ }
+}
 async function renderCounsellorCard(){
   const card=document.getElementById('counsellor-card');
   if(!card||!currentSession)return;
   try{
     const res=await fetch(GET_STATUS_URL,{headers:{Authorization:'Bearer '+currentSession.access_token}});
     const d=await res.json();
-    if(!res.ok||!d.found)return; // no application on file yet — nothing to show
+    if(!res.ok||!d.found){
+      // no application on file yet: still show who the student's counsellor is, if they are connected to a CRM lead
+      try{
+        const{data:lk}=await sb.rpc('my_counsellor');
+        if(lk&&lk.linked){
+          card.style.display='block';
+          const nm=lk.counsellor||'Your Step4Progress Team';
+          document.getElementById('counsellor-name').textContent=nm;
+          if(lk.counsellor)document.getElementById('counsellor-avatar').textContent=counsellorInitials(lk.counsellor);
+          const wb=document.getElementById('counsellor-whatsapp-btn'); if(wb)wb.style.display='none';
+        }
+      }catch(e){}
+      return;
+    }
 
     // Dashboard application-status card
     const sc=document.getElementById('dash-status-card');
