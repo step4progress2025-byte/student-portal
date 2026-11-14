@@ -2280,7 +2280,7 @@ async function claimPortalLink(){
     if(token){
       const done=d&&(d.linked||['invalid','expired','used','lead_already_linked'].includes(d.reason));
       if(done){ try{ localStorage.removeItem('s4p_invite'); }catch(e){} }
-      const msg=d&&d.linked?('You are now connected to your counsellor'+(d.counsellor?', '+d.counsellor:'')+'.'):
+      const msg=d&&d.linked?('You are now connected to your counsellor'+(d.counsellor?', '+d.counsellor:'')+'. Your counsellor can see your progress and practice scores. Your recordings and written answers stay private to you.'):
         d&&d.reason==='expired'?'This invite link has expired. Please ask your counsellor for a new one.':
         d&&d.reason==='used'?'This invite link was already used. Please ask your counsellor for a new one.':
         d&&d.reason==='lead_already_linked'?'This file is already connected to another portal account. Please ask your counsellor.':
