@@ -605,6 +605,26 @@ a,.link{ }
   body.has-tabs .wrap{padding-bottom:calc(var(--tabh) + 24px + env(safe-area-inset-bottom,0px))}
   body.has-tabs .site-foot{display:none}
 }
+
+/* hamburger menu + drawer */
+.brand>.nbell{margin-left:8px}.brand>div{flex:1;min-width:0}
+#menuBtn{display:none}
+html.native body:not(.on-login) #menuBtn{display:inline-flex}
+#s4p-drawer-bg{position:fixed;inset:0;background:rgba(11,27,52,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:90}
+#s4p-drawer{position:fixed;top:0;right:0;bottom:0;width:min(86vw,340px);background:var(--cream);z-index:91;transform:translateX(102%);transition:transform .32s var(--ease);display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(15,36,68,.2)}
+body.menu-open #s4p-drawer{transform:none}
+body.menu-open #s4p-drawer-bg{opacity:1;pointer-events:auto}
+.dr-top{background:linear-gradient(160deg,#1E3F73,#0F2444);color:#fff;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 16px;display:flex;align-items:center;justify-content:space-between}
+.dr-top b{font-family:var(--font-h);font-size:20px;display:block}
+.dr-top span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--pine4)}
+.dr-x{background:rgba(255,255,255,.14);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer}
+.dr-body{overflow:auto;padding:6px 0 24px;flex:1}
+.dr-h{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700;padding:16px 18px 6px}
+.dr-i{display:flex;align-items:center;gap:12px;padding:11px 18px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--ink);border:0;background:none;width:100%;text-align:left;font-family:var(--font-b)}
+.dr-i:active{background:var(--gold-l)}
+.dr-i .ico{width:34px;height:34px;border-radius:10px;background:var(--gold-l);color:var(--pine);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.dr-i small{display:block;font-weight:400;font-size:11.5px;color:var(--ink3)}
+.dr-out{color:#9B2C2C}
 </style>
 <style id="native-css">
 html.native-android body{padding-top:var(--safe-area-inset-top,0px);padding-bottom:var(--safe-area-inset-bottom,0px);padding-left:var(--safe-area-inset-left,0px);padding-right:var(--safe-area-inset-right,0px)}
@@ -626,6 +646,7 @@ html.native #install-banner,html.native .install-banner{display:none!important}
     </div>
     <span class="nbell" id="notifBell" style="display:none" onclick="openNotifications()" title="Notifications" aria-label="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><b id="notifBadge" style="display:none">0</b></span>
     <span class="nbell" id="accountBtn" style="display:none" onclick="openAccount()" title="My account" aria-label="My account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
+    <span class="nbell" id="menuBtn" onclick="s4pMenu(true)" title="Menu" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
     <span class="brand-signout" id="signOutBtn" style="display:none;margin-left:10px" onclick="signOut()">Sign out</span>
   </div>
 
@@ -895,6 +916,8 @@ html.native #install-banner,html.native .install-banner{display:none!important}
   <button data-t="journey" onclick="s4pTab('journey')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Journey</button>
   <button data-t="me" onclick="s4pTab('me')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Me</button>
 </nav>
+<div id="s4p-drawer-bg" onclick="s4pMenu(false)"></div>
+<aside id="s4p-drawer" aria-label="Menu"><div class="dr-top"><div><b>Step4Progress Ascend</b><span>One Guide. Every Step Forward.</span></div><button class="dr-x" onclick="s4pMenu(false)" aria-label="Close">&times;</button></div><div class="dr-body" id="s4p-drawer-body"></div></aside>
   <!-- Celebration overlay — shown briefly when a lesson is completed -->
   <audio id="tts-audio-player" style="display:none"></audio>
   <div id="celebration-overlay" class="celebration-overlay" style="display:none">
@@ -14389,6 +14412,7 @@ const PM_BASE='', PM_ID='prem_ielts_1';   // audio and chart sit next to index.h
 let PM=null;
 const PM_STEPS=['intro','check','lins','L','rins','R','wins','W','sins','S','grading','result'];
 function pmCss(){
+  if(typeof pmAshaCss==='function')pmAshaCss();
   if(document.getElementById('pm-css'))return;
   const s=document.createElement('style'); s.id='pm-css';
   s.textContent=`#pm-root{position:fixed;inset:0;z-index:10050;background:#f3f5f9;display:flex;flex-direction:column;font-family:var(--font-b,system-ui,sans-serif);color:#1b2433}
@@ -14438,7 +14462,7 @@ function pmCss(){
 }
 function pmNow(){return Date.now();}
 function pmE(x){ return esc(x).replace(/"/g,'&quot;'); }
-function pmSave(){ if(!PM||PM.step==='result'||PM.view)return; try{ localStorage.setItem('pm_state_'+PM.take,JSON.stringify({step:PM.step,sub:PM.sub,ans:PM.ans,deadline:PM.deadline,secIdx:PM.secIdx,played:PM.played,subEnd:PM.subEnd,tab:PM.tab,res:PM.res,spk:PM.spk,w1:PM.w1})); }catch(e){} }
+function pmSave(){ if(!PM||PM.step==='result'||PM.view)return; try{ localStorage.setItem('pm_state_'+PM.take,JSON.stringify({step:PM.step,sub:PM.sub,ans:PM.ans,deadline:PM.deadline,secIdx:PM.secIdx,played:PM.played,subEnd:PM.subEnd,tab:PM.tab,res:PM.res,spk:PM.spk,w1:PM.w1,asha:PM.asha?{heard:PM.asha.heard,mic:PM.asha.mic,sr:PM.asha.sr,mode:PM.asha.mode,typed:PM.asha.typed,consent:PM.asha.consent}:null})); }catch(e){} }
 function pmLoad(id){ try{ return JSON.parse(localStorage.getItem('pm_state_'+id)||'null'); }catch(e){ return null; } }
 function pmRoot(){ return document.getElementById('pm-root'); }
 function pmFmt(sec){ sec=Math.max(0,Math.ceil(sec)); return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'); }
@@ -14481,7 +14505,7 @@ async function pmStart(){
   const c=data.content;
   PM={take:data.take_id,c,ans:{L:{},R:{},W:{},S:{}},res:data.results||{},step:'intro',sub:null,secIdx:0,deadline:0,subEnd:0,played:{},tab:0,spk:{i:0,phase:'q'},w1:null,audio:null,tick:null,lastSave:0};
   if(data.resumed&&!saved){ if(PM.res.reading)PM.step='wins'; else if(PM.res.listening)PM.step='rins'; }
-  if(saved&&data.resumed){ Object.assign(PM,{step:saved.step||'intro',sub:saved.sub,ans:saved.ans||PM.ans,deadline:saved.deadline||0,secIdx:saved.secIdx||0,played:saved.played||{},subEnd:saved.subEnd||0,tab:saved.tab||0,spk:saved.spk||PM.spk}); }
+  if(saved&&data.resumed){ Object.assign(PM,{step:saved.step||'intro',sub:saved.sub,ans:saved.ans||PM.ans,deadline:saved.deadline||0,secIdx:saved.secIdx||0,played:saved.played||{},subEnd:saved.subEnd||0,tab:saved.tab||0,spk:saved.spk||PM.spk,asha:saved.asha?Object.assign({heard:false,mic:false,sr:false,mode:'none',typed:false,consent:false,redo:{},stream:null,rec:null,chunks:[],t0:0},saved.asha):null}); }
   pmOpen();
 }
 function pmOpen(){
@@ -14504,7 +14528,7 @@ function pmExitAsk(){
   document.body.appendChild(m);
 }
 function pmClose(){
-  if(PM){ pmSave(); if(PM.tick)clearInterval(PM.tick); if(PM.audio){ try{PM.audio.pause();}catch(e){} } try{speechSynthesis.cancel();}catch(e){} try{ if(PM.rec)PM.rec.stop(); }catch(e){} }
+  if(PM){ pmSave(); if(PM.tick)clearInterval(PM.tick); if(PM.audio){ try{PM.audio.pause();}catch(e){} } try{speechSynthesis.cancel();}catch(e){} try{ if(PM.rec)PM.rec.stop(); }catch(e){} try{ if(PM.asha){ if(PM.asha.rec)PM.asha.rec.stop(); if(PM.asha.stream)PM.asha.stream.getTracks().forEach(t=>t.stop()); } }catch(e){} }
   window.removeEventListener('beforeunload',pmBeforeUnload);
   const r=pmRoot(); if(r)r.remove(); PM=null;
   try{ loadMockAccess(true).then(()=>{ const el=document.getElementById('pm-card'); if(el)pmHydrate(); }); }catch(e){}
@@ -14555,21 +14579,6 @@ function pmIntro(){
   <li><b>Speaking</b>: an interview in three parts, about 11 to 14 minutes. You will speak your answers (or type them if your device cannot take dictation).</li></ul>
   <p><b>Rules:</b> no dictionary, no notes, no phone. Answers are saved as you go. When time is up, a section closes automatically.</p>
   <button class="pm-btn go" onclick="pmGo('check')">Continue</button></div></div>`);
-}
-function pmCheck(){
-  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Equipment check</h2>
-  <p>Put on your headphones and press the button. You should hear a short tone.</p>
-  <button class="pm-btn alt" onclick="pmTone()">🔊 Play test tone</button>
-  <p style="margin-top:14px">For Speaking, your browser may ask to use the microphone. You can press the button below to check it. If dictation is not available on your device, you can type your Speaking answers.</p>
-  <button class="pm-btn alt" onclick="pmMicTest()">🎤 Test microphone</button> <span id="pm-micmsg" style="font-size:13px;margin-left:8px"></span>
-  <p style="margin-top:14px">Make sure you are somewhere quiet and will not be interrupted for about 2 hours 30 minutes.</p>
-  <button class="pm-btn go" onclick="pmGo('lins')">I am ready: begin the test</button></div></div>`);
-}
-function pmTone(){ try{ const C=new (window.AudioContext||window.webkitAudioContext)(); const o=C.createOscillator(),g=C.createGain(); o.frequency.value=440; g.gain.value=.15; o.connect(g); g.connect(C.destination); o.start(); setTimeout(()=>{o.stop();C.close();},800); }catch(e){} }
-async function pmMicTest(){
-  const m=document.getElementById('pm-micmsg');
-  try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); if(m)m.textContent='✓ Microphone works'; }
-  catch(e){ if(m)m.textContent='Microphone not available. You can type your Speaking answers.'; }
 }
 function pmLIns(){
   pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Listening</h2><p>You will hear four recordings. Each is played <b>once only</b>.</p>
@@ -14719,12 +14728,6 @@ function pmSubmitWriting(timeUp){
 }
 
 // ---- Speaking ----
-function pmSIns(){
-  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Speaking</h2><p>The Speaking test has three parts and takes 11 to 14 minutes.</p>
-  <ul><li><b>Part 1</b>: short questions about familiar topics.</li><li><b>Part 2</b>: you get a topic card, one minute to prepare (you can make notes), then speak for one to two minutes.</li><li><b>Part 3</b>: a longer discussion on related ideas.</li></ul>
-  <p>Press <b>Start speaking</b> for each question and talk naturally. Your words are written down as you speak, and you can fix them before moving on. If dictation does not work on your device, type your answer. The examiner's question is read aloud if your device has a voice.</p>
-  <button class="pm-btn go" onclick="pmStartSpeaking()">Start Speaking</button></div></div>`);
-}
 function pmSpkList(){
   const S=PM.c.speaking, out=[];
   S.part1.topics.forEach(t=>t[1].forEach(q=>out.push({part:1,topic:t[0],q})));
@@ -14732,55 +14735,218 @@ function pmSpkList(){
   S.part3.questions.forEach(q=>out.push({part:3,topic:S.part3.theme,q}));
   return out;
 }
-function pmStartSpeaking(){ PM.spk={i:0,phase:'q'}; PM.sub='q'; pmGo('S','q'); }
-function pmSay(text){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. ')); const v=speechSynthesis.getVoices().find(x=>/en-GB/i.test(x.lang))||speechSynthesis.getVoices().find(x=>/^en/i.test(x.lang)); if(v)u.voice=v; u.rate=.95; speechSynthesis.speak(u); }catch(e){} }
-function pmSpeaking(resume){
-  const list=pmSpkList(), it=list[PM.spk.i]; if(!it){ pmEndSpeaking(); return; }
-  const key='S'+PM.spk.i; const cur=PM.ans.S[PM.spk.i]||'';
-  const partTitle={1:'Part 1: Interview',2:'Part 2: Long turn',3:'Part 3: Discussion'}[it.part];
-  if(it.part===2){
-    if(PM.sub==='p2prep'||(!PM.sub||PM.sub==='q')){
-      pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>${partTitle}</h2><p>I'm going to give you a topic and I'd like you to talk about it for one to two minutes. You have one minute to think about what you are going to say. You can make some notes if you wish.</p>
-      <div class="pm-box" style="font-size:15px;line-height:1.7">${esc(it.q).replace(/\n/g,'<br>')}</div><textarea class="pm-ta" style="min-height:120px" placeholder="Your notes (not marked)"></textarea>
-      <p style="margin-top:10px"><b>Preparation time: <span id="pm-cd">60</span> seconds</b></p><button class="pm-btn alt" onclick="PM.subEnd=0;pmP2Speak()">I'm ready: start speaking</button></div></div>`);
-      PM.sub='p2prep'; PM.subEnd=pmNow()+(resume&&PM.subEnd>pmNow()?PM.subEnd-pmNow():PM.c.speaking.part2.prep_seconds*1000); pmSave(); pmSay("Here is your topic card. You have one minute to prepare.");
-      return;
-    }
-    if(PM.sub==='p2speak'){ pmSpeakCard(it,partTitle,cur); return; }
-  }
-  pmSpeakCard(it,partTitle,cur);
-}
 function pmP2Speak(){ PM.sub='p2speak'; pmSave(); pmGo('S','p2speak'); pmSetTimer(PM.c.speaking.part2.speak_seconds); }
-function pmSpeakCard(it,partTitle,cur){
-  const list=pmSpkList();
-  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>${partTitle} <span style="font-size:13px;color:#667">(question ${PM.spk.i+1} of ${list.length})</span></h2>
-  ${it.topic&&it.part===1?`<p style="color:#667;font-size:13px">Topic: ${esc(it.topic)}</p>`:''}
-  <div class="pm-box" style="font-size:17px;line-height:1.6">${esc(it.q).replace(/\n/g,'<br>')}</div>
-  <button class="pm-btn alt" onclick="pmSay(${JSON.stringify(it.q).replace(/"/g,'&quot;')})">🔊 Hear the question</button>
-  <div style="margin:12px 0"><button class="pm-btn go" id="pm-mic" onclick="pmDictate()">🎤 Start speaking</button> <span id="pm-micst" style="font-size:13px;color:#556;margin-left:8px"></span></div>
-  <textarea class="pm-ta" id="pm-spk" style="min-height:140px" placeholder="Your spoken answer appears here. You can also type." data-sk="S" data-n="${PM.spk.i}">${esc(cur)}</textarea>
-  <div style="margin-top:12px"><button class="pm-btn" onclick="pmSpeakNext()">${PM.spk.i===list.length-1?'Finish Speaking':'Next question'}</button></div></div></div>`);
-  if(!(it.part===2))pmSay(it.q);
-}
-function pmDictate(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition, b=document.getElementById('pm-mic'), st=document.getElementById('pm-micst');
-  if(PM.rec){ try{PM.rec.stop();}catch(e){} PM.rec=null; if(b)b.textContent='🎤 Start speaking'; return; }
-  if(!SR){ if(st)st.textContent='Dictation is not available on this device. Please type your answer.'; return; }
+
+
+// ═════════ ASHA-LED SPEAKING + SOUND CHECK (IELTS simulation) ═════════
+// Questions are fixed and checked (from the database). Asha reads them aloud: from a recorded file when PM_ASHA_AUDIO is on
+// (premium/ielts_mock1_speaking_q1.mp3 ... and premium/asha_check.mp3), otherwise with the device voice. Captions are always shown.
+// Marking still goes to grade-response (kind 'speaking'). No live AI during the exam, so no extra cost per student.
+const PM_ASHA_AUDIO=false;
+function pmAshaUrl(name){ return PM_BASE+'premium/'+name+'.mp3'; }
+function pmAsha(){ if(!PM.asha)PM.asha={heard:false,mic:false,sr:false,mode:'none',typed:false,redo:{},consent:false,stream:null,rec:null,chunks:[],t0:0}; return PM.asha; }
+function pmSrOk(){ return !!(window.SpeechRecognition||window.webkitSpeechRecognition); }
+// Asha speaks: recorded file first (if on), then the device voice, and the caption stays on screen either way. cb(ok)
+function pmSay(text,file,cb){
+  const done=ok=>{ const av=document.getElementById('pa-av'); if(av)av.classList.remove('talk'); if(cb)cb(ok); };
+  const av=document.getElementById('pa-av'); if(av)av.classList.add('talk');
+  try{ if(PM.audio&&PM.audio.pause)PM.audio.pause(); }catch(e){}
   try{ speechSynthesis.cancel(); }catch(e){}
-  const r=new SR(); r.lang='en-GB'; r.continuous=true; r.interimResults=false;
-  r.onresult=e=>{ let add=''; for(let k=e.resultIndex;k<e.results.length;k++){ if(e.results[k].isFinal)add+=e.results[k][0].transcript+' '; } const ta=document.getElementById('pm-spk'); if(ta&&add){ ta.value=(ta.value?ta.value.trim()+' ':'')+add.trim(); PM.ans.S[PM.spk.i]=ta.value; pmSave(); } };
-  r.onend=()=>{ PM.rec=null; const bb=document.getElementById('pm-mic'); if(bb)bb.textContent='🎤 Start speaking'; const s=document.getElementById('pm-micst'); if(s)s.textContent=''; };
-  r.onerror=()=>{ const s=document.getElementById('pm-micst'); if(s)s.textContent='Could not hear you. Check microphone permission, or type your answer.'; };
-  PM.rec=r; r.start(); if(b)b.textContent='⏹ Stop'; if(st)st.textContent='Listening… speak now';
+  const viaVoice=()=>{
+    try{
+      const u=new SpeechSynthesisUtterance(String(text).replace(/\n+/g,'. '));
+      const vs=speechSynthesis.getVoices(); const v=vs.find(x=>/en-GB/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang)); if(v)u.voice=v; u.rate=.95;
+      u.onend=()=>done(true); u.onerror=()=>done(false); speechSynthesis.speak(u);
+      setTimeout(()=>{ if(!speechSynthesis.speaking&&!speechSynthesis.pending)done(false); },1500);
+    }catch(e){ done(false); }
+  };
+  if(PM_ASHA_AUDIO&&file){
+    try{ const a=new Audio(pmAshaUrl(file)); PM.ashaAudio=a; a.onended=()=>done(true); a.onerror=viaVoice; const pr=a.play(); if(pr&&pr.catch)pr.catch(viaVoice); return; }catch(e){}
+  }
+  viaVoice();
 }
+function pmCheck(){
+  const A=pmAsha();
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Sound and recording check</h2>
+  <p>This takes a minute and saves problems later. Put on headphones, sit somewhere quiet, and allow the microphone when asked.</p>
+  <div class="pa-step"><b>1. Can you hear Asha?</b><div class="pa-row"><button class="pm-btn alt" onclick="pmCheckHear()">🔊 Play Asha's voice</button><span id="pa-s1" class="pa-st">${A.heard?'✓ You can hear Asha':''}</span></div>
+  <div id="pa-s1b" class="pa-row" style="display:${A.heard?'none':'flex'}"><button class="pm-btn alt" onclick="pmCheckHeard(true)">Yes, I heard her</button><button class="pm-btn alt" onclick="pmCheckHeard(false)">No sound</button></div></div>
+  <div class="pa-step"><b>2. Can she hear you?</b><div class="pa-row"><button class="pm-btn alt" onclick="pmCheckMic()">🎤 Test microphone</button><span id="pa-s2" class="pa-st">${A.mic?'✓ Microphone works':''}</span></div>
+  <div class="pa-meter"><i id="pa-lv"></i></div><div id="pa-heard" class="pa-heard"></div><a href="javascript:void(0)" class="pa-small" onclick="pmAsha().typed=true;this.textContent='✓ You will type your Speaking answers';pmCheckGo()">My microphone will not work: I will type my Speaking answers</a></div>
+  <div class="pa-step"><b>3. Recording of your Speaking</b>
+  <label class="pa-opt"><input type="radio" name="pa-rec" value="video" ${A.mode==='video'?'checked':''} onchange="pmRecMode(this.value)"> Camera and voice (best, like a real exam room)</label>
+  <label class="pa-opt"><input type="radio" name="pa-rec" value="audio" ${A.mode==='audio'?'checked':''} onchange="pmRecMode(this.value)"> Voice only</label>
+  <label class="pa-opt"><input type="radio" name="pa-rec" value="none" ${A.mode==='none'?'checked':''} onchange="pmRecMode(this.value)"> No recording</label>
+  <p class="pa-small">Recordings are private to you, kept for 100 days, then deleted. You can delete them yourself from your result. If you are under 18, a parent or guardian should agree first.</p>
+  <label class="pa-opt" id="pa-guard" style="display:${A.mode==='none'?'none':'block'}"><input type="checkbox" id="pa-ok" ${A.consent?'checked':''} onchange="pmAsha().consent=this.checked;pmCheckGo()"> I agree to my Speaking being recorded${''} (and a parent or guardian agrees if I am under 18).</label></div>
+  <p id="pa-warn" class="pa-warn"></p>
+  <button class="pm-btn go" id="pa-go" onclick="pmCheckBegin()">I am ready: begin the test</button>
+  <p class="pa-small" style="margin-top:10px">Allow about 2 hours 30 minutes without interruption.</p></div></div>`);
+  pmCheckGo();
+}
+function pmCheckHear(){ pmSay('Hello, I am Asha. If you can hear me clearly, press the button that says Yes.','asha_check',ok=>{ if(!ok){ const s=document.getElementById('pa-s1'); if(s)s.textContent='Could not play sound on this device. You can still read my questions on screen.'; } }); const b=document.getElementById('pa-s1b'); if(b)b.style.display='flex'; }
+function pmCheckHeard(y){ const A=pmAsha(); A.heard=!!y; const s=document.getElementById('pa-s1'); const b=document.getElementById('pa-s1b'); if(y){ if(s)s.textContent='✓ You can hear Asha'; if(b)b.style.display='none'; } else if(s)s.textContent='No problem. Check your volume and headphones and try again. If there is still no sound, you can continue: every question is also shown in writing.'; pmCheckGo(); }
+async function pmCheckMic(){
+  const A=pmAsha(), s=document.getElementById('pa-s2'), h=document.getElementById('pa-heard'), lv=document.getElementById('pa-lv');
+  try{
+    const st=await navigator.mediaDevices.getUserMedia({audio:true});
+    A.mic=true; if(s)s.textContent='✓ Microphone works. Say: "My name is …"';
+    try{ const C=new (window.AudioContext||window.webkitAudioContext)(); const src=C.createMediaStreamSource(st); const an=C.createAnalyser(); an.fftSize=256; src.connect(an); const buf=new Uint8Array(an.frequencyBinCount); let n=0; const iv=setInterval(()=>{ an.getByteTimeDomainData(buf); let m=0; for(const v of buf)m=Math.max(m,Math.abs(v-128)); if(lv)lv.style.width=Math.min(100,m*1.6)+'%'; if(++n>60||!document.getElementById('pa-lv')){ clearInterval(iv); st.getTracks().forEach(t=>t.stop()); try{C.close();}catch(e){} } },100); }catch(e){ st.getTracks().forEach(t=>t.stop()); }
+    if(pmSrOk()){
+      A.sr=true; const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const r=new SR(); r.lang='en-GB'; r.interimResults=false;
+      r.onresult=e=>{ if(h)h.textContent='We heard: “'+e.results[0][0].transcript+'”'; };
+      r.onerror=()=>{ if(h)h.textContent='We could not turn your voice into text on this device. You will type your Speaking answers.'; A.sr=false; A.typed=true; pmCheckGo(); };
+      try{ setTimeout(()=>{ try{r.start();}catch(e){} },300); }catch(e){}
+    } else { A.sr=false; A.typed=true; if(h)h.textContent='This browser cannot turn speech into text. You will type your Speaking answers (Chrome or Edge on a phone or computer works best).'; }
+  }catch(e){ A.mic=false; A.typed=true; if(s)s.textContent='Microphone blocked. Allow it in your browser settings (the lock or camera icon near the address bar) and test again, or continue and type your Speaking answers.'; }
+  pmCheckGo();
+}
+function pmRecMode(v){ const A=pmAsha(); A.mode=v; if(v==='none')A.consent=false; const g=document.getElementById('pa-guard'); if(g)g.style.display=v==='none'?'none':'block'; pmCheckGo(); }
+function pmCheckGo(){
+  const A=pmAsha(), b=document.getElementById('pa-go'), w=document.getElementById('pa-warn'); if(!b)return;
+  let msg='';
+  if(A.mode!=='none'&&!A.consent)msg='Tick the box to agree to recording, or choose No recording.';
+  else if(!A.mic&&!A.typed)msg='Test your microphone first, or choose to type your Speaking answers.';
+  if(w)w.textContent=msg; b.disabled=!!msg;
+}
+async function pmCheckBegin(){
+  const A=pmAsha();
+  if(!A.mic){ A.typed=true; }
+  if(A.mode!=='none'&&A.consent){ try{ const r=await sb.rpc('record_recording_consent',{p_take:PM.take,p_mode:A.mode==='video'?'video':'audio',p_guardian:true}); if(r.error)throw r.error; }catch(e){ A.mode='none'; A.consent=false; } }
+  pmSave(); pmGo('lins');
+}
+function pmSIns(){
+  const A=pmAsha();
+  pmMain(`<div class="pm-wrap"><div class="pm-card"><h2>Speaking with Asha</h2><p>Asha is your examiner for the Speaking test. It has three parts and takes 11 to 14 minutes.</p>
+  <ul><li><b>Part 1</b>: short questions about familiar topics.</li><li><b>Part 2</b>: a topic card, one minute to prepare (you can make notes), then you speak for one to two minutes.</li><li><b>Part 3</b>: a longer discussion on related ideas.</li></ul>
+  <p>Asha reads each question aloud, and it is always shown in writing too. ${A.typed?'<b>You will type your answers on this device.</b>':'Press <b>Start talking</b> and speak naturally. Your words appear as you speak, and you can fix any mishearing before moving on.'} ${A.mode!=='none'?'Your Speaking is being recorded.':''}</p>
+  <button class="pm-btn go" onclick="pmStartSpeaking()">Start Speaking</button></div></div>`);
+}
+async function pmRecStart(){
+  const A=pmAsha(); if(A.rec||A.mode==='none'||!A.consent)return;
+  try{
+    const st=await navigator.mediaDevices.getUserMedia(A.mode==='video'?{audio:true,video:{facingMode:'user',width:{ideal:480},height:{ideal:360}}}:{audio:true});
+    A.stream=st; A.chunks=[]; A.t0=Date.now();
+    const mt=(A.mode==='video'?['video/webm;codecs=vp8,opus','video/webm','video/mp4']:['audio/webm;codecs=opus','audio/webm','audio/mp4']).find(m=>{ try{ return MediaRecorder.isTypeSupported(m); }catch(e){ return false; } });
+    const r=new MediaRecorder(st,Object.assign({},mt?{mimeType:mt}:{},A.mode==='video'?{videoBitsPerSecond:300000,audioBitsPerSecond:48000}:{audioBitsPerSecond:48000}));
+    r.ondataavailable=e=>{ if(e.data&&e.data.size)A.chunks.push(e.data); }; r.start(5000); A.rec=r; A.mime=r.mimeType||mt||'';
+    const v=document.getElementById('pa-cam'); if(v&&A.mode==='video'){ v.srcObject=st; v.play&&v.play().catch(()=>{}); }
+    const t=document.getElementById('pa-rec'); if(t)t.style.display='flex';
+  }catch(e){ A.rec=null; A.mode='none'; const t=document.getElementById('pa-rec'); if(t)t.style.display='none'; }
+}
+async function pmRecStopUpload(){
+  const A=pmAsha(); if(!A.rec)return; const r=A.rec; A.rec=null;
+  const stopped=new Promise(res=>{ r.onstop=res; try{ r.stop(); }catch(e){ res(); } });
+  await Promise.race([stopped,new Promise(res=>setTimeout(res,3000))]);
+  try{ A.stream&&A.stream.getTracks().forEach(t=>t.stop()); }catch(e){} A.stream=null;
+  if(!A.chunks.length)return;
+  try{
+    const blob=new Blob(A.chunks,{type:A.mime||'video/webm'}), ext=/mp4/.test(A.mime||'')?'mp4':'webm', uid=currentSession.user.id, path=uid+'/'+PM.take+'/speaking.'+ext;
+    const up=await sb.storage.from('sim-recordings').upload(path,blob,{contentType:(A.mime||'video/webm').split(';')[0],upsert:true}); if(up.error)throw up.error;
+    await sb.rpc('register_sim_recording',{p_take:PM.take,p_task:'speaking',p_path:path,p_mime:(A.mime||'').slice(0,60),p_duration:Math.round((Date.now()-A.t0)/1000),p_size:blob.size,p_stats:{asha:true,typed:!!A.typed}});
+  }catch(e){ /* recording is a bonus: never block the exam */ }
+  A.chunks=[];
+}
+function pmStartSpeaking(){ PM.spk={i:0,phase:'q'}; PM.sub='q'; pmGo('S','q'); pmRecStart(); }
+function pmSpeaking(resume){
+  const A=pmAsha(); const list=pmSpkList(), it=list[PM.spk.i]; if(!it){ pmEndSpeaking(); return; }
+  const cur=PM.ans.S[PM.spk.i]||'';
+  const partTitle={1:'Part 1 · Interview',2:'Part 2 · Long turn',3:'Part 3 · Discussion'}[it.part];
+  const prep=(it.part===2&&(PM.sub==='p2prep'||!PM.sub||PM.sub==='q'));
+  const speak2=(it.part===2&&PM.sub==='p2speak');
+  const last=PM.spk.i===list.length-1;
+  const camTile=`<div class="pa-me" id="pa-rec" style="display:${A.rec?'flex':'none'}"><span class="pa-recdot"></span><b>REC</b>${A.mode==='video'?'<video id="pa-cam" autoplay muted playsinline></video>':'<span class="pa-mic">🎤</span>'}<span class="pa-youl">You</span></div>`;
+  const intro=prep?"I'm going to give you a topic and I'd like you to talk about it for one to two minutes. You have one minute to think about what you are going to say. You can make some notes if you wish.":it.q;
+  const cue=it.part===2?`<div class="pa-cue">${esc(it.q).replace(/\n/g,'<br>')}</div>`:'';
+  pmMain(`<div class="pm-wrap"><div class="pa-stage">
+    <div class="pa-top"><span>${partTitle}</span><span>Question ${PM.spk.i+1} of ${list.length}</span></div>
+    <div class="pa-avwrap"><div class="pa-av" id="pa-av">A</div></div>
+    ${prep?`<div class="pa-cd">Preparation time <b id="pm-cd">60</b> seconds</div>`:''}${speak2?`<div class="pa-cd">Your time starts now. Speak for one to two minutes.</div>`:''}
+    <div class="pa-cap"><small>Asha</small>${esc(speak2?'Please begin when you are ready.':intro)}</div>
+    ${cue}
+    ${prep?`<textarea class="pa-notes" placeholder="Notes for yourself (not marked)"></textarea>`:''}
+    ${!prep?`<div class="pa-ans"><div class="pa-ansh"><b>${A.typed?'Type your answer':'What we heard'}</b>${A.typed?'':'<span>Fix any mishearing before you continue</span>'}</div>
+      <textarea class="pa-ta" id="pm-spk" data-sk="S" data-n="${PM.spk.i}" placeholder="${A.typed?'Type your answer here':'Your words appear here as you speak. You can also type.'}">${esc(cur)}</textarea>
+      <div id="pm-micst" class="pa-st2"></div></div>`:''}
+    ${camTile}
+    <div class="pa-ctl">
+      ${prep?`<button class="pa-b" onclick="pmAshaAgain()">🔊 Hear again</button><button class="pa-b gold" onclick="PM.subEnd=0;pmP2Speak()">I'm ready: start talking</button>`
+            :`<button class="pa-b" onclick="pmAshaAgain()">🔊 Hear again</button>${A.typed?'':`<button class="pa-b gold" id="pm-mic" onclick="pmDictate()">🎤 Start talking</button>`}<button class="pa-b" onclick="pmSpeakNext()">${last?'Finish Speaking':'Next question'}</button>`}
+    </div>
+    <div class="pa-help"><a href="javascript:void(0)" onclick="pmSoundHelp()">Problem with sound or microphone?</a></div>
+  </div></div>`);
+  if(A.rec&&A.mode==='video'){ const v=document.getElementById('pa-cam'); if(v&&A.stream){ v.srcObject=A.stream; v.play&&v.play().catch(()=>{}); } }
+  if(prep){ PM.sub='p2prep'; PM.subEnd=pmNow()+(resume&&PM.subEnd>pmNow()?PM.subEnd-pmNow():PM.c.speaking.part2.prep_seconds*1000); pmSave(); }
+  if(!resume||true) setTimeout(()=>pmAshaAsk(it,prep,speak2),350);
+}
+function pmAshaAsk(it,prep,speak2){
+  if(!PM||PM.step!=='S')return;
+  const i=PM.spk.i+1;
+  if(speak2){ pmSay('Please begin when you are ready.',null); return; }
+  if(prep){ pmSay("I'm going to give you a topic and I'd like you to talk about it for one to two minutes. You have one minute to think about what you are going to say. Here is your topic card.",'ielts_mock1_speaking_q'+i); return; }
+  pmSay(it.q,'ielts_mock1_speaking_q'+i);
+}
+function pmAshaAgain(){ const it=pmSpkList()[PM.spk.i]; if(!it)return; const prep=it.part===2&&PM.sub==='p2prep'; pmAshaAsk(it,prep,it.part===2&&PM.sub==='p2speak'); }
+function pmP2Speak(){ try{ speechSynthesis.cancel(); }catch(e){} PM.sub='p2speak'; pmSave(); pmGo('S','p2speak'); pmSetTimer(PM.c.speaking.part2.speak_seconds); }
+function pmDictate(){
+  const A=pmAsha(), b=document.getElementById('pm-mic'), st=document.getElementById('pm-micst');
+  if(PM.rec){ try{PM.rec.stop();}catch(e){} PM.rec=null; if(b)b.textContent='🎤 Start talking'; if(st)st.textContent=''; return; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ A.typed=true; if(st)st.textContent='This device cannot turn speech into text. Please type your answer.'; return; }
+  try{ speechSynthesis.cancel(); if(PM.ashaAudio)PM.ashaAudio.pause(); }catch(e){}
+  const r=new SR(); r.lang='en-GB'; r.continuous=true; r.interimResults=true; let base=(document.getElementById('pm-spk')||{}).value||'';
+  r.onresult=e=>{ let fin='',tmp=''; for(let k=e.resultIndex;k<e.results.length;k++){ const t=e.results[k][0].transcript; if(e.results[k].isFinal)fin+=t+' '; else tmp+=t; } const ta=document.getElementById('pm-spk'); if(!ta)return; if(fin)base=(base?base.trim()+' ':'')+fin.trim(); ta.value=(base+(tmp?' '+tmp:'')).trim(); PM.ans.S[PM.spk.i]=base; pmSave(); };
+  r.onend=()=>{ PM.rec=null; const bb=document.getElementById('pm-mic'); if(bb)bb.textContent='🎤 Start talking'; const s=document.getElementById('pm-micst'); if(s)s.textContent=''; const ta=document.getElementById('pm-spk'); if(ta){ PM.ans.S[PM.spk.i]=ta.value; pmSave(); } };
+  r.onerror=ev=>{ const s=document.getElementById('pm-micst'); if(!s)return; s.textContent=(ev&&ev.error==='not-allowed')?'The microphone is blocked. Allow it in browser settings, or type your answer.':'We could not hear you. Check your microphone, or type your answer.'; };
+  PM.rec=r; try{ r.start(); }catch(e){ PM.rec=null; return; } if(b)b.textContent='⏹ Stop'; if(st)st.textContent='Listening… speak now';
+}
+function pmSoundHelp(){
+  const m=document.createElement('div'); m.className='pm-modal'; m.id='pa-help';
+  m.innerHTML=`<div><h3 style="margin:0 0 8px;color:#1E3A6B">Problem with sound?</h3>
+  <p style="font-size:14px;line-height:1.6">Pick what suits you. Your answers so far are saved.</p>
+  <div style="display:flex;flex-direction:column;gap:8px">
+  <button class="pm-btn alt" onclick="document.getElementById('pa-help').remove();pmAshaAgain()">🔊 Play the question again</button>
+  <button class="pm-btn alt" onclick="pmAsha().typed=true;document.getElementById('pa-help').remove();pmSpeaking(true)">⌨️ I will type my answers instead</button>
+  <button class="pm-btn alt" onclick="document.getElementById('pa-help').remove();pmRestartSpeaking()">↺ Restart the Speaking part from the beginning</button>
+  <button class="pm-btn" onclick="document.getElementById('pa-help').remove()">Close</button></div>
+  <p style="font-size:12.5px;color:#667;margin-top:10px">If something went wrong on our side, tell your Step4Progress counsellor and we will put it right.</p></div>`;
+  document.body.appendChild(m);
+}
+function pmRestartSpeaking(){ try{ if(PM.rec){PM.rec.stop();PM.rec=null;} speechSynthesis.cancel(); }catch(e){} PM.ans.S={}; PM.spk={i:0,phase:'q'}; PM.sub='q'; PM.subEnd=0; pmHideTimer(); pmGo('S','q'); }
 function pmSpeakNext(){
-  try{ if(PM.rec){ PM.rec.stop(); PM.rec=null; } speechSynthesis.cancel(); }catch(e){}
+  try{ if(PM.rec){ PM.rec.stop(); PM.rec=null; } speechSynthesis.cancel(); if(PM.ashaAudio)PM.ashaAudio.pause(); }catch(e){}
+  const ta=document.getElementById('pm-spk'); if(ta)PM.ans.S[PM.spk.i]=ta.value;
   pmHideTimer(); PM.subEnd=0;
   const list=pmSpkList(); PM.spk.i++; PM.sub='q';
   if(PM.spk.i>=list.length){ pmEndSpeaking(); return; }
   pmGo('S','q');
 }
-function pmEndSpeaking(){ pmGo('grading'); }
+async function pmEndSpeaking(){ try{ await pmRecStopUpload(); }catch(e){} pmGo('grading'); }
+function pmAshaCss(){
+  if(document.getElementById('pa-css'))return;
+  const s=document.createElement('style'); s.id='pa-css';
+  s.textContent=`.pa-step{border-top:1px solid #e6eaf2;padding:12px 0}.pa-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.pa-st{font-size:13px;color:#1d7a35;font-weight:600}
+.pa-meter{height:8px;background:#e6eaf2;border-radius:9px;overflow:hidden;margin:6px 0}.pa-meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1E3A6B,#C9A24B);transition:width .1s}
+.pa-heard{font-size:13.5px;color:#334;min-height:18px}.pa-opt{display:block;font-size:14px;padding:5px 0;line-height:1.5}.pa-opt input{margin-right:8px}.pa-small{font-size:12.5px;color:#667;line-height:1.5}.pa-warn{color:#B3261E;font-size:13px;font-weight:600;min-height:18px}
+.pa-stage{background:linear-gradient(170deg,#0B1B34,#12294D 60%,#1E3F73);border-radius:18px;color:#fff;padding:16px 16px 14px;position:relative;max-width:560px;margin:0 auto}
+.pa-top{display:flex;justify-content:space-between;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#E7D3A0;font-weight:700}
+.pa-avwrap{display:flex;justify-content:center;padding:14px 0 6px}
+.pa-av{width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3E3B5,#C9A24B);display:flex;align-items:center;justify-content:center;font:700 46px Georgia,serif;color:#12294D;box-shadow:0 0 0 8px rgba(231,211,160,.16),0 0 0 16px rgba(231,211,160,.07);transition:box-shadow .3s}
+.pa-av.talk{animation:paPulse 1.2s ease-in-out infinite}@keyframes paPulse{0%,100%{box-shadow:0 0 0 8px rgba(231,211,160,.2),0 0 0 16px rgba(231,211,160,.08)}50%{box-shadow:0 0 0 12px rgba(231,211,160,.3),0 0 0 24px rgba(231,211,160,.12)}}
+.pa-cd{margin:6px auto 4px;width:max-content;max-width:100%;background:rgba(231,211,160,.16);border:1px solid rgba(231,211,160,.4);border-radius:99px;padding:6px 14px;font-size:13px;color:#E7D3A0;text-align:center}.pa-cd b{font-size:15px}
+.pa-cap{margin-top:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:11px 13px;font-size:14.5px;line-height:1.55}.pa-cap small{display:block;font-size:10px;letter-spacing:.14em;color:#E7D3A0;font-weight:700;margin-bottom:3px;text-transform:uppercase}
+.pa-cue{margin-top:10px;background:#fff;color:#14213A;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6}
+.pa-notes{width:100%;margin-top:10px;min-height:90px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;padding:10px;font:inherit;font-size:14px}.pa-notes::placeholder{color:rgba(255,255,255,.55)}
+.pa-ans{margin-top:10px;background:#fff;color:#14213A;border-radius:14px;padding:10px 12px}.pa-ansh{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:6px}.pa-ansh span{color:#6B6A62}
+.pa-ta{width:100%;min-height:96px;border:1.5px solid #DDD3BC;border-radius:10px;padding:9px;font:inherit;font-size:14.5px;line-height:1.55;resize:vertical}.pa-st2{font-size:12.5px;color:#9a4b00;margin-top:5px;min-height:15px}
+.pa-me{position:absolute;right:14px;top:56px;width:84px;height:100px;border-radius:14px;background:linear-gradient(160deg,#394a6b,#1b2a47);border:2px solid rgba(255,255,255,.3);overflow:hidden;flex-direction:column;align-items:center;justify-content:flex-end;font-size:10.5px}
+.pa-me video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.pa-me b,.pa-recdot,.pa-youl,.pa-mic{position:relative;z-index:2}
+.pa-recdot{position:absolute;top:6px;left:7px;width:8px;height:8px;border-radius:50%;background:#ff4d4f;animation:paRec 1.2s infinite}.pa-me b{position:absolute;top:4px;left:19px;font-size:9.5px;letter-spacing:.08em}@keyframes paRec{50%{opacity:.3}}
+.pa-youl{background:rgba(0,0,0,.45);width:100%;text-align:center;padding:2px 0}.pa-mic{font-size:26px;margin-bottom:22px}
+.pa-ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pa-b{flex:1;min-width:120px;border-radius:12px;padding:12px 10px;font-weight:700;font-size:14px;cursor:pointer;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35)}.pa-b.gold{background:linear-gradient(135deg,#C9A24B,#B8923F);border-color:transparent;color:#12294D}
+.pa-help{text-align:center;margin-top:10px;font-size:12.5px}.pa-help a{color:#E7D3A0}`;
+  document.head.appendChild(s);
+}
 
 // ---- grading and result ----
 async function pmGradeCall(kind,prompt,answer,skill){
@@ -20055,6 +20221,35 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
     var on=id==='screen-dashboard'?'home':id==='screen-testprep'?'learn':/speaking|partner|spark|coach/i.test(id)?'practise':/guide|visa|timeline|journey/i.test(id)?'journey':id==='screen-account'?'me':'';
     document.querySelectorAll('#s4p-tabs button').forEach(function(x){x.classList.toggle('on',x.dataset.t===on)});
   };
+})();
+</script>
+<script>
+/* Hamburger drawer: built from the Home tiles so it always lists everything */
+(function(){
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function item(ic,label,sub,fn,cls){return '<button class="dr-i '+(cls||'')+'" onclick="'+fn.replace(/"/g,'&quot;')+';s4pMenu(false)"><span class="ico"><i class="ti '+ic+'"></i></span><span>'+esc(label)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>'}
+  function build(){
+    var h=item('ti-map-pin','Home','Your dashboard',"showScreen('screen-dashboard')".replace('ti-map-pin',''));
+    h=item('ti-route','Home','Your dashboard',"showScreen('screen-dashboard')");
+    document.querySelectorAll('#screen-dashboard .nav-section').forEach(function(sec){
+      var t=(sec.querySelector('h3')||{}).textContent||'';
+      h+='<div class="dr-h">'+esc(t)+'</div>';
+      sec.querySelectorAll('.nav-tile').forEach(function(tl){
+        var oc=tl.getAttribute('onclick'); if(!oc)return;
+        var ic=(tl.querySelector('.ico i')||{}).className||'ti ti-chevron-right';
+        var lb=tl.querySelector('.label'); var main=lb?(lb.childNodes[0]||{}).textContent||lb.textContent:'';
+        var sub=(tl.querySelector('.lsub')||{}).textContent||'';
+        h+='<button class="dr-i" onclick="'+oc.replace(/"/g,'&quot;')+';s4pMenu(false)"><span class="ico"><i class="'+ic+'"></i></span><span>'+esc(main.trim())+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>';
+      });
+    });
+    h+='<div class="dr-h">Account</div>'+item('ti-user','My account','Profile and settings',"openAccount()")+item('ti-x','Sign out','',"signOut()",'dr-out');
+    document.getElementById('s4p-drawer-body').innerHTML=h;
+  }
+  window.s4pMenu=function(open){
+    if(open)build();
+    document.body.classList.toggle('menu-open',!!open);
+  };
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')s4pMenu(false)});
 })();
 </script>
 </body>
