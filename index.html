@@ -10855,6 +10855,114 @@ const JOURNEY_UK={
   JS_('After your degree: Graduate visa','rule','The Graduate visa lets you stay and work after your degree. It lasts 2 years if you apply on or before 31 December 2026, and 18 months from 1 January 2027. You apply from inside the UK once your university has confirmed you completed your course.',['Check the date rule before you plan.','Keep your student visa valid until you apply.'],[['GOV.UK: Graduate visa','https://www.gov.uk/graduate-visa','Eligibility and how to apply.'],['GOV.UK: Graduate visa cost','https://www.gov.uk/graduate-visa/how-much-it-costs','Fee and surcharge.']],'In your final term')]}
  ]
 };
+/* ===== Journeys for the other countries. Same five stages as the UK one.
+   Tags: "rule" = read on the official site itself; "cross" = amounts and dates cross-checked from several current sources while the official page could not be opened, so confirm on the official link; "usual" = how it normally works. Checked 14 Nov 2026. */
+const JOURNEY_US={name:'United States',flag:'🇺🇸',checked:'14 Nov 2026',
+ intro:'From choosing a university to your first month in the USA. Steps marked Confirm on official site use amounts cross-checked from several sources. Always check the official link before you pay or apply.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'Get your English and basics ready',steps:[
+  JS_("Know the English level you need","usual","There is no single national English score for the visa. Each university sets its own TOEFL, IELTS, PTE or Duolingo minimum. The visa officer will also judge your English in the interview, so practise speaking.",["Check your target universities' English score pages","Take a full mock in Ascend and a speaking practice with Asha"],[])]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Counselling, admission, I-20 and money',steps:[
+  JS_("Counselling and shortlisting","usual","Your counsellor reviews your marks, budget and goals, then shortlists universities. Ask for the total cost of the whole program, not only year one.",["Share your budget and who is paying","Ask about scholarships and assistantships"],[]),
+  JS_("Admission and the I-20","rule","After admission and proof of funds, a school approved for international students issues Form I-20. It carries your SEVIS ID, program dates and the estimated cost. You need it for every later step.",["Check every detail on the I-20 against your passport","Sign it"],[["Study in the States (DHS)","https://studyinthestates.dhs.gov","Official US government site for international students."]]),
+  JS_("Prove your money","cross","The USA has no single national funds figure. Each school sets the amount on the I-20 from tuition, fees and living costs, and officers look at funds for the whole program. Your sponsor documents must match the I-20.",["Use the calculator below with your I-20 numbers","Keep bank statements and the sponsor's income proof ready"],[["US Dept of State: Student visa","https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html","Official visa steps."]])]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'SEVIS fee, DS-160 and interview',steps:[
+  JS_("Pay the SEVIS I-901 fee","cross","The SEVIS fee for most F-1 students is about $350, paid online. Keep the receipt, because you need it at the interview.",["Pay only on the official ICE site","Print the receipt"],[["ICE: I-901 SEVIS fee","https://www.ice.gov/sevis/i901","Official payment site."]]),
+  JS_("Complete the DS-160 and pay the visa fee","cross","The DS-160 is the online visa application. The visa application fee is about $185. You must list your social media identifiers, so keep your public profiles consistent with your application.",["Fill the DS-160 with the same details as the I-20","Save the confirmation page with its barcode"],[["US Dept of State: Student visa","https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html","Official steps and fees."]]),
+  JS_("Book and attend the interview","rule","A visa can be issued up to 120 days before your program start date. Most F-1 applicants now need an in-person interview. Book early, because wait times vary by city.",["Carry the passport, I-20, DS-160 confirmation, SEVIS receipt, financial and academic documents","Practise answers on why this course, university and country"],[["US Dept of State: Student visa","https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html","Official steps."]],"Book as soon as you have the I-20 and the SEVIS receipt.")]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and your first week',steps:[
+  JS_("Plan your travel date","rule","With an F-1 visa you can enter the USA up to 30 days before the program start date on your I-20. Do not enter earlier.",["Book a flight to match the start date","Keep the I-20 and funds proof in your hand luggage"],[]),
+  JS_("Check in with your DSO","usual","Your school's Designated School Official (DSO) is your contact for status. Meet the DSO in the first week to report your address, check work rules and plan travel signatures.",["Complete international student check-in","Report any change of address as required"],[])]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_("Work while you study","rule","On-campus work is allowed up to 20 hours a week in term. Off-campus work such as CPT needs approval, so ask your DSO before accepting any job.",["Read the work rules before you apply for jobs"],[["ICE: Employment for students","https://www.ice.gov/sevis/employment","Official work rules for F-1 students."]]),
+  JS_("After your degree: OPT","rule","OPT lets F-1 graduates work in their field for a limited period, and some STEM degrees can extend it. Apply within the allowed window, so plan with your DSO from the last year.",["Ask your DSO about the OPT timeline and the STEM extension"],[["Study in the States: Practical training","https://studyinthestates.dhs.gov/students/work/applying-for-practical-training","Official OPT and CPT pages."]])]}
+ ]};
+const JOURNEY_CA={name:'Canada',flag:'🇨🇦',checked:'14 Nov 2026',
+ intro:'From choosing a school to your first month in Canada. Steps marked Confirm on official site use amounts cross-checked from several sources. Check the official link before you pay or apply.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'English and the right school',steps:[
+  JS_("Get your English ready","usual","Your school sets its own English minimum, and IRCC may ask for an approved language test with some applications. Practise the four skills and take a full mock in Ascend.",["Check the score pages of your target schools"],[]),
+  JS_("Choose a Designated Learning Institution","rule","You must study at a Designated Learning Institution (DLI) and, for off-campus work, in an eligible program of at least 6 months. Confirm the school's DLI status before paying anything.",["Check the school and program on IRCC's list"],[["IRCC: Who can apply","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/eligibility.html","Official eligibility rules."]])]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Counselling, acceptance, PAL and money',steps:[
+  JS_("Counselling, application and letter of acceptance","usual","Your counsellor shortlists schools and programs. When a school accepts you, it sends a letter of acceptance. You need it to apply for the study permit.",["Ask about the total first-year cost","Keep the letter safe as a PDF"],[]),
+  JS_("Provincial attestation letter (PAL)","cross","Most applicants need a Provincial or Territorial Attestation Letter before applying. Master's and doctoral students at public institutions were exempt from 1 January 2026. Check whether your case needs one.",["Ask your school if it will arrange the PAL","Confirm the rule on the official page"],[["IRCC: Provincial attestation letter","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/get-documents/provincial-attestation-letter.html","Official page."]]),
+  JS_("Prove your money (use the calculator)","cross","For applications from 1 September 2026, a single applicant studying outside Quebec must show at least C$23,448 for living costs, plus first-year tuition and travel. It was C$22,895 before that date. Quebec has its own higher figure. You cannot borrow the money.",["Use the calculator below","Ask your bank for statements, or a GIC if you choose that route"],[["IRCC: How to apply for a study permit","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/apply.html","Official application page with the current amounts."]])]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'Documents and the study permit',steps:[
+  JS_("Gather your documents","rule","You usually need the letter of acceptance, the PAL if it applies, proof of funds, your passport, and a medical exam or police certificate if IRCC asks for them.",["Check your own document list on the official page","Translate documents if they are not in English or French"],[["IRCC: How to apply for a study permit","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/apply.html","Official checklist."]]),
+  JS_("Apply online and give biometrics","usual","You apply online, pay the fees and then give fingerprints and a photo at a visa application centre when asked. Processing times change, so apply early.",["Apply as soon as you hold all documents"],[])]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and your first week',steps:[
+  JS_("At the airport","usual","Carry your passport, letter of introduction, letter of acceptance, funds proof and school details in your hand luggage. The border officer checks your documents and issues your permit.",["Keep documents in hand luggage, not in checked bags"],[]),
+  JS_("Your first weeks","usual","Enrol and attend orientation. If your permit allows work, apply for your Social Insurance Number (SIN) before you start any job.",["Apply for your SIN","Open a bank account","Buy health insurance if your province or school asks"],[["CRA: Newcomers and your SIN","https://www.canada.ca/en/revenue-agency/services/tax/international-non-residents/individuals-leaving-entering-canada-non-residents/newcomers-canada-immigrants.html","Official page."]])]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_("Work while you study","rule","Off campus you can work up to 24 hours a week during regular school terms, and without an hour limit during scheduled breaks. You must be a full-time student at a DLI, hold a permit that allows off-campus work and have a SIN. Exceeding the limit can cost you your status.",["Keep a record of your hours"],[["IRCC: Work off campus","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/work-off-campus.html","Official page."]]),
+  JS_("After your degree: PGWP","cross","The Post-Graduation Work Permit has language and field-of-study conditions. University graduates need CLB 7 in each skill and college graduates CLB 5, and college programs must be on the eligible field list. Confirm for your own program.",["Check your program against the eligible list before you enrol"],[["IRCC: PGWP, who can apply","https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation/eligibility.html","Official page."]])]}
+ ]};
+const JOURNEY_AU={name:'Australia',flag:'🇦🇺',checked:'14 Nov 2026',
+ intro:'From choosing a course to your first month in Australia. Steps marked Confirm on official site use amounts cross-checked from several sources. Check the official link before you pay or apply.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'English and the right course',steps:[
+  JS_("Get your English ready","cross","Many courses ask for about IELTS 6.0 for undergraduate and 6.5 for postgraduate, and lower scores can open ELICOS or pathway routes. Your provider sets the exact level, so check it.",["Check your provider's English page","Take a full mock in Ascend"],[["Study Australia: Student visa (subclass 500)","https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/student-visa-subclass-500","Official government site."]])]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Counselling, CoE and money',steps:[
+  JS_("Counselling, offer and acceptance","usual","Your counsellor shortlists CRICOS-registered courses. After you accept an offer and pay the required deposit, the provider issues your Confirmation of Enrolment (CoE).",["Ask the deposit and refund terms in writing"],[]),
+  JS_("Confirmation of Enrolment (CoE)","rule","You cannot apply for the Student visa without a valid electronic CoE from a CRICOS-registered provider.",["Check the course, dates and fees on the CoE"],[["Home Affairs: Student visa (500)","https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500","Official visa page."]]),
+  JS_("Prove your money (use the calculator)","cross","Home Affairs expects evidence of about A$29,710 a year for living costs for a single student, plus tuition not yet paid and travel costs, commonly A$2,000 for most offshore locations. The visa application charge rose to A$2,500 from 1 July 2026.",["Use the calculator below","Show where the money comes from and who owns it"],[["Home Affairs: Student visa (500)","https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500","Official page with the current amounts."]])]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'GS statement, health cover and the visa',steps:[
+  JS_("Write your Genuine Student statement","rule","You must explain in your own words why you chose this course and provider, how it fits your background and goals, and that you will follow visa conditions.",["Write it yourself","Keep it consistent with your CoE and documents"],[["Home Affairs: Student visa (500)","https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500","Official page."]]),
+  JS_("Arrange OSHC and apply online","rule","You need Overseas Student Health Cover (OSHC) for the length of your visa. You apply online through ImmiAccount.",["Buy OSHC for the whole stay","Upload documents in the right format"],[["Study Australia: OSHC","https://www.studyaustralia.gov.au/en/plan-your-move/overseas-student-health-cover-oshc","Official government page."]])]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and your first week',steps:[
+  JS_("Travel and arrival","usual","Fly with your visa grant letter, CoE, passport and OSHC details. Many providers offer an airport pickup. Confirm it and the first-night address before you fly.",["Keep documents in hand luggage","Save emergency contacts"],[]),
+  JS_("Your first week","usual","Attend orientation, enrol, open a bank account and get a tax file number before you work. Tell your provider your Australian address.",["Complete enrolment","Apply for a tax file number"],[])]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_("Work while you study","cross","The usual limit is 48 hours per fortnight during study periods, with no cap in official course breaks. Research students have different rules. Check the conditions printed on your own visa.",["Know the Fair Work rights for visa holders"],[["Fair Work Ombudsman: Visa holders","https://www.fairwork.gov.au/find-help-for/visa-holders-migrants","Official worker rights page."]]),
+  JS_("After your degree: Temporary Graduate visa","cross","The 485 visa usually gives 2 years after a bachelor's or master's coursework degree and 3 years after a research degree. Fees and rules change often, so check before planning.",["Check the current 485 rules in your final year"],[["Home Affairs: Student visa (500)","https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500","Start here and follow the links to the 485 page."]])]}
+ ]};
+const JOURNEY_IE={name:'Ireland',flag:'🇮🇪',checked:'14 Nov 2026',
+ intro:'From choosing a course to your first month in Ireland. Steps marked Confirm on official site use amounts cross-checked from several sources. Check the official link before you pay or apply.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'English and the right course',steps:[
+  JS_("Get your English ready","usual","Irish colleges set their own English minimum. Practise the four skills and take a full mock in Ascend.",["Check each college's English page"],[]),
+  JS_("Choose an approved programme","rule","Only full-time courses on the list of eligible programmes and institutions give you student immigration permission (Stamp 2). Check the list before you pay.",["Confirm your programme is on the official list"],[["Irish Immigration: Planning to study","https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/planning-to-study-in-ireland/","Official page."]])]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Counselling, offer, fees and money',steps:[
+  JS_("Counselling, application and offer","usual","Your counsellor shortlists colleges. Visa applications normally need an offer and proof that tuition fees have been paid, so ask what the college requires.",["Keep the offer letter and the fee receipt"],[]),
+  JS_("Prove your money (use the calculator)","cross","You are normally asked to show access to at least €10,000 for living costs for the academic year, on top of tuition and private medical insurance. Confirm the current amount on the official page.",["Use the calculator below","Keep your bank statements ready"],[["Irish Immigration: Student FAQs","https://www.irishimmigration.ie/coming-to-study-in-ireland/frequently-asked-questions-for-students/","Official FAQs."]])]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'The study visa',steps:[
+  JS_("Check if you need a visa","rule","Students from visa-required countries apply for a long-stay D visa online before travel. India is on the visa-required list, but check your own nationality on the official site.",["Check the official list for your passport"],[["Irish Immigration: Planning to study","https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/planning-to-study-in-ireland/","Official page."]]),
+  JS_("Apply online and send documents","cross","The visa fee is about €60 for a single entry and €100 for multiple entry. Send the documents the online system asks for, including your offer, fee receipt, funds proof and insurance.",["Apply as soon as you hold the fee receipt"],[])]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and registration',steps:[
+  JS_("Landing and the immigration officer","rule","Entry is decided by the immigration officer at the border, based on the documents you show. Carry your passport, visa, offer letter, funds proof and insurance in your hand luggage.",["Keep every document in hand luggage"],[]),
+  JS_("Register with immigration within 90 days","cross","Every non-EEA student staying more than 90 days must register and receive an Irish Residence Permit (IRP) card with Stamp 2. The registration fee is about €300. Book your appointment soon after arrival.",["Book your registration appointment","Bring your passport, college letter and proof of funds or insurance if asked"],[["Irish Immigration: Registration FAQs","https://www.irishimmigration.ie/registering-your-immigration-permission/frequently-asked-questions-for-registration/","Official page."]])]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_("Work while you study","rule","On Stamp 2 you can work up to 20 hours a week in term time, and up to 40 hours a week from 1 June to 30 September and from 15 December to 15 January. Keep payslips and a record of your hours.",["Apply for a PPS number before you start work"],[["gov.ie: Get a PPS number","https://www.gov.ie/en/department-of-social-protection/services/get-a-personal-public-service-pps-number/","Official page."]]),
+  JS_("After your degree: Graduate Scheme","rule","After your results you can apply for Stamp 1G, and until it is approved you are limited to part-time hours. The length depends on your qualification level, so confirm it before you plan.",["Check the scheme in your final year"],[["Irish Immigration: Third Level Graduate Programme","https://www.irishimmigration.ie/my-situation-has-changed-since-i-arrived-in-ireland/third-level-graduate-programme/","Official page."]])]}
+ ]};
+const JOURNEY_DE={name:'Germany',flag:'🇩🇪',checked:'14 Nov 2026',
+ intro:'From choosing a course to your first month in Germany. Steps marked Official rule were read on the DAAD site. Others should be confirmed on the official links.',
+ stages:[
+ {k:'learn',icon:'📚',t:'Learn',sub:'Language and the right course',steps:[
+  JS_("Check the teaching language","usual","Many master's courses are taught in English, but daily life and part-time work often need German. Check the language requirement for your own course, and plan to learn some German early.",["Check the English or German score your university asks for"],[["DAAD: Requirements overview","https://www.daad.de/en/studying-in-germany/requirements/overview/","Official German academic exchange service."]])]},
+ {k:'qualify',icon:'🎯',t:'Qualify',sub:'Admission, funds and insurance',steps:[
+  JS_("Counselling and admission","rule","You can apply for a student visa once a higher education institution has accepted you. If you are still waiting for your admission letter or must sit an entrance exam, you can apply for a prospective student visa instead.",["Keep the admission letter","Ask whether your course needs uni-assist"],[["DAAD: Requirements overview","https://www.daad.de/en/studying-in-germany/requirements/overview/","Official page."]]),
+  JS_("Prove your money (use the calculator)","rule","Students are expected to prove funds of €992 per month, which is €11,904 per year, since January 2025. A blocked account (Sperrkonto) is one way. Other options listed include parental income, a bank guarantee and a recognised scholarship.",["Use the calculator below","Open the blocked account only through a provider the embassy accepts"],[["DAAD: Requirements overview","https://www.daad.de/en/studying-in-germany/requirements/overview/","Official page with the current amount."]]),
+  JS_("Health insurance","rule","You must prove that you have health insurance when you enrol. In special circumstances, insurance from your home country may be recognised.",["Ask your university which insurance it accepts"],[["DAAD: Requirements overview","https://www.daad.de/en/studying-in-germany/requirements/overview/","Official page."]])]},
+ {k:'apply',icon:'🛂',t:'Apply',sub:'The student visa',steps:[
+  JS_("Apply at the embassy or consulate","rule","You apply for the student visa at a German embassy or consulate in your home country. Book your appointment early, because waits can be long.",["Check the document list on the embassy page","Bring the blocked-account confirmation, admission letter and insurance proof"],[["Federal Foreign Office: Study visa","https://www.germany.info/us-en/service/visa/study-visa-916776","Official visa page."]],"Book as soon as you hold the admission letter.")]},
+ {k:'arrive',icon:'✈️',t:'Arrive',sub:'Flying out and your first weeks',steps:[
+  JS_("Register your address","cross","Register your address with the local registration office soon after you find a home, usually within two weeks. You need the registration confirmation to open a bank account and for the residence permit.",["Ask your landlord for the landlord confirmation form"],[["DAAD: Registering your address","https://www.daad.de/en/studying-in-germany/living-in-germany/registering/","Official page."]]),
+  JS_("Residence permit and enrolment","usual","Your visa lets you enter. In most cases you then apply for a residence permit at the local foreigners' office (Ausländerbehörde). Enrol at your university and pay the semester contribution.",["Book the foreigners' office appointment early"],[])]},
+ {k:'thrive',icon:'🌱',t:'Thrive',sub:'Study, work, then what next',steps:[
+  JS_("Work while you study","cross","Non-EU students can work 140 full days or 280 half days a year, and a half day is up to 4 hours. Self-employment is usually not allowed, so check your permit.",["Count your days carefully"],[["Make it in Germany: Studying","https://www.make-it-in-germany.com/en/study-vocational-training/studying-in-germany","Official government portal."]]),
+  JS_("After your degree","cross","After graduation you can usually get a permit of up to 18 months to look for a job that matches your degree. Check the current rules before you apply.",["Ask the foreigners' office about the job-seeking permit"],[["Make it in Germany: Studying","https://www.make-it-in-germany.com/en/study-vocational-training/studying-in-germany","Official government portal."]])]}
+ ]};
+const JOURNEYS={uk:JOURNEY_UK,usa:JOURNEY_US,canada:JOURNEY_CA,australia:JOURNEY_AU,ireland:JOURNEY_IE,germany:JOURNEY_DE};
+JOURNEY_UK.flag='🇬🇧';
+const JCALC={
+ usa:{cur:'$',tuition:'First-year cost on your I-20 ($)',rows:[],note:'Use the total estimated cost on the I-20 for one year. Officers look at funds for the whole program.'},
+ canada:{cur:'C$',tuition:'First-year tuition (C$)',rows:[['IRCC living-cost minimum, single applicant outside Quebec',23448]],travel:'Travel to Canada (C$, your estimate)',note:'From 1 September 2026. Quebec and larger families have different amounts.'},
+ australia:{cur:'A$',tuition:'Tuition still to pay (A$)',rows:[['Living costs, single student, 12 months',29710]],travel:'Travel (A$, commonly 2,000 for most offshore locations)',note:'Visa application charge A$2,500 is paid separately and does not count as funds.'},
+ ireland:{cur:'€',tuition:'Tuition fee (€)',rows:[['Living costs, one academic year',10000]],note:'Confirm the current amount and whether tuition must be prepaid.'},
+ germany:{cur:'€',tuition:'',rows:[['Blocked account or other proof, €992 × 12 months',11904]],note:'Public universities charge small semester contributions, not tuition, in most states. Private universities charge fees.'}
+};
+
 function money(a){ return '£'+Math.round(a).toLocaleString('en-GB'); }
 window.jyCalc=function(){
   const fee=parseFloat((document.getElementById('jy-fee')||{}).value)||0;
@@ -10864,26 +10972,37 @@ window.jyCalc=function(){
   const o=document.getElementById('jy-out'); if(!o)return;
   o.innerHTML=`<div style="font-size:13px;color:var(--ink2,#444)">Course fee for the first year (amount still to pay, from your CAS): <b>${money(fee)}</b><br>Living costs: ${money(rate)} × ${m} month${m>1?'s':''} = <b>${money(live)}</b></div><div style="font-size:22px;font-weight:700;color:var(--pine,#1C3F6E);margin-top:6px">${money(tot)}</div><div style="font-size:12.5px;color:var(--ink2,#444);margin-top:4px">Hold this for at least 28 days in a row, ending within 31 days of applying. Add extra for each family member. Your CAS and GOV.UK give the final amount.</div>`;
 };
-let jyStage='learn';
+let jyStage='learn', jyKey='uk';
+window.jyCalc2=function(){
+  const C=JCALC[jyKey]; if(!C)return; const o=document.getElementById('jy-out'); if(!o)return;
+  const v=id=>parseFloat((document.getElementById(id)||{}).value)||0;
+  const f=n=>C.cur+Math.round(n).toLocaleString('en-GB');
+  const fee=C.tuition?v('jy-fee'):0, tr=C.travel?v('jy-tr'):0, fixed=C.rows.reduce((a,r)=>a+r[1],0), tot=fee+fixed+tr;
+  o.innerHTML=(C.tuition?`<div style="font-size:13px">${E(C.tuition)}: <b>${f(fee)}</b></div>`:'')+C.rows.map(r=>`<div style="font-size:13px">${E(r[0])}: <b>${f(r[1])}</b></div>`).join('')+(C.travel?`<div style="font-size:13px">Travel: <b>${f(tr)}</b></div>`:'')+`<div style="font-size:15px;margin-top:6px">Total to be able to show: <b>${f(tot)}</b></div><div style="font-size:12px;color:var(--ink3,#777);margin-top:4px">${E(C.note)} Amounts change, so confirm on the official link. This is a planning aid, not advice.</div>`;
+};
 window.jyPick=function(k){ jyStage=k; renderJourney(); };
+window.jyCountry=function(k){ jyKey=k; jyStage='learn'; renderJourney(); window.scrollTo&&window.scrollTo(0,0); };
 function renderJourney(){
-  const J=JOURNEY_UK, st=J.stages.find(x=>x.k===jyStage)||J.stages[0];
+  const J=JOURNEYS[jyKey]||JOURNEY_UK, st=J.stages.find(x=>x.k===jyStage)||J.stages[0];
   const chips=G.countries.map(x=>`<div class="gd-chip" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
   const tabs=J.stages.map(x=>`<div class="gd-chip ${x.k===st.k?'on':''}" onclick="jyPick('${x.k}')">${x.icon} ${E(x.t)}</div>`).join('');
-  const tag={rule:['Official rule','#0C447C','#E6F1FB'],usual:['Usually','#8A5A00','#FFF4DC']};
+  const tag={rule:['Official rule','#0C447C','#E6F1FB'],usual:['Usually','#8A5A00','#FFF4DC'],cross:['Confirm on official site','#5B3F99','#EFE9FB']};
   const steps=st.steps.map((s,i)=>{const g=tag[s.k]||tag.usual;return `<details class="gd-sec" ${i===0?'open':''}><summary><span style="font-weight:700;color:var(--ink3,#777)">${i+1}</span><span>${E(s.h)}</span><span class="gd-chk" style="color:${g[1]};background:${g[2]}">${g[0]}</span></summary>
    <div class="gd-it"><div class="d" style="margin:0">${E(s.d)}</div>${s.when?`<div class="d" style="margin-top:6px"><b>When:</b> ${E(s.when)}</div>`:''}</div>
    ${s.todo.length?`<div class="gd-it"><div class="gd-offh">✅ Your to-do</div>${s.todo.map(t=>`<div class="d" style="margin-top:3px">• ${E(t)}</div>`).join('')}</div>`:''}
    ${s.links.length?`<div class="gd-it gd-off"><div class="gd-offh">🔗 Official pages</div>${s.links.map(l=>`<a href="${E(l[1])}" target="_blank" rel="noopener"><b>${E(l[0])} ↗</b>${l[2]?`<span>${E(l[2])}</span>`:''}</a>`).join('')}</div>`:''}</details>`}).join('');
-  const calc=(st.k==='qualify')?`<div class="gd-sec" style="padding:12px 14px"><div style="font-weight:700;margin-bottom:6px">🧮 UK money calculator</div>
+  const calcUK=(st.k==='qualify')?`<div class="gd-sec" style="padding:12px 14px"><div style="font-weight:700;margin-bottom:6px">🧮 UK money calculator</div>
    <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="jy-fee" type="number" inputmode="decimal" placeholder="Course fee to pay (£)" class="gd-search" style="flex:1 1 150px;margin:0" oninput="jyCalc()"><select id="jy-l" class="gd-search" style="flex:1 1 120px;margin:0" onchange="jyCalc()"><option value="1">London</option><option value="0">Outside London</option></select><select id="jy-m" class="gd-search" style="flex:1 1 100px;margin:0" onchange="jyCalc()">${[9,8,7,6,5,4,3,2,1].map(n=>`<option value="${n}">${n} month${n>1?'s':''}</option>`).join('')}</select></div><div id="jy-out" style="margin-top:8px"></div></div>`:'';
+  const JC=JCALC[jyKey];
+  const calcOther=(st.k==='qualify'&&JC)?`<div class="gd-sec" style="padding:12px 14px"><div style="font-weight:700;margin-bottom:6px">🧮 ${E(J.name)} money calculator</div><div style="display:flex;gap:8px;flex-wrap:wrap">${JC.tuition?`<input id="jy-fee" type="number" inputmode="decimal" placeholder="${E(JC.tuition)}" class="gd-search" style="flex:1 1 170px;margin:0" oninput="jyCalc2()">`:''}${JC.travel?`<input id="jy-tr" type="number" inputmode="decimal" placeholder="${E(JC.travel)}" class="gd-search" style="flex:1 1 170px;margin:0" oninput="jyCalc2()">`:''}</div><div id="jy-out" style="margin-top:8px"></div></div>`:'';
+  const calc=jyKey==='uk'?calcUK:calcOther;
   document.getElementById('guide-body').innerHTML=`<h1 class="gd-h">Study Abroad Guide</h1>
-   <div class="gd-chips"><div class="gd-chip on">🧭 UK Journey</div>${chips}</div>
+   <div class="gd-chips">${Object.keys(JOURNEYS).map(k=>`<div class="gd-chip ${k===jyKey?'on':''}" onclick="jyCountry('${k}')">🧭 ${JOURNEYS[k].flag} ${E(JOURNEYS[k].name)}</div>`).join('')}</div><div class="gd-chips">${chips}</div>
    <div class="gd-note"><b>Ascend. One Guide. Every Step Forward.</b><br>${E(J.intro)} Last checked <b>${E(J.checked)}</b>. ${E(G.disclaimer)}</div>
    <div class="gd-chips">${tabs}</div>
    <div style="font-size:14px;color:var(--ink2,#444);margin:2px 0">${st.icon} <b>${E(st.t)}</b>: ${E(st.sub)}</div>
    ${steps}${calc}`;
-  if(st.k==='qualify')jyCalc();
+  if(st.k==='qualify'){ if(jyKey==='uk')jyCalc(); else jyCalc2(); }
 }
 const G={
  checked:CHECKED,
@@ -11178,9 +11297,9 @@ function ensure(){
 }
 function matchItem(it){ if(!q)return true; const t=(it.h+' '+it.d).toLowerCase(); return q.toLowerCase().split(/\s+/).every(w=>t.includes(w)); }
 function render(){
-  if(curKey==='j-uk'){ renderJourney(); return; }
+  if(/^j-/.test(curKey)){ const jk=curKey.slice(2); if(JOURNEYS[jk]){ if(jyKey!==jk){jyKey=jk;jyStage='learn';} renderJourney(); return; } curKey='uk'; }
   const c=G.countries.find(x=>x.key===curKey)||G.countries[0];
-  const chips=`<div class="gd-chip" onclick="guidePick('j-uk')">🧭 UK Journey</div>`+G.countries.map(x=>`<div class="gd-chip ${x.key===c.key?'on':''}" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
+  const jmap={uk:'uk',usa:'usa',canada:'canada',australia:'australia',ireland:'ireland',eu:'germany'}; const chips=`<div class="gd-chip" onclick="guidePick('j-${jmap[c.key]||'uk'}')">🧭 Journey</div>`+G.countries.map(x=>`<div class="gd-chip ${x.key===c.key?'on':''}" onclick="guidePick('${x.key}')">${x.flag} ${E(x.name)}</div>`).join('');
   let secs='', shown=0;
   c.sections.forEach((s,si)=>{
     const items=s.items.filter(matchItem); if(!items.length)return; shown+=items.length;
