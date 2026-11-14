@@ -329,6 +329,62 @@
   .tp-level-card:hover{border-color:var(--pine3)}
   .tp-level-badge{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pine),var(--pine3));color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-weight:700;font-size:15px;flex-shrink:0}
 
+  /* Plans page */
+  .pl-sheet{background:#f6f7fb;max-width:980px;margin:0 auto;min-height:100%}
+  .sc-card{background:#fff;border:1px solid #d9dfec;border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 10px rgba(13,31,69,.06);text-align:left}
+  .sc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:linear-gradient(135deg,#0d1f45,#1f3f86);color:#fff;padding:16px 18px}
+  .sc-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#f3c96b;font-weight:700}.sc-title{font-size:18px;font-weight:700;margin-top:3px}
+  .sc-pill{background:rgba(255,255,255,.16);border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:600;white-space:nowrap}
+  .sc-body{display:grid;grid-template-columns:200px 1fr;gap:18px;padding:18px;align-items:center}
+  .sc-left{text-align:center}.sc-unit{font-weight:700;color:#0d1f45;font-size:15px;margin-top:2px}.sc-sub{font-size:13px;color:#14365f;margin-top:3px}.sc-warn{font-size:13px;color:#B3261E;margin:8px 0 0}
+  .sc-row{margin-bottom:12px}.sc-top{display:flex;justify-content:space-between;font-size:14px;color:#0d1f45;margin-bottom:5px}.sc-top b{font-size:15px}
+  .sc-bar{height:9px;background:#e5e9f2;border-radius:999px;overflow:hidden}.sc-bar i{display:block;height:100%;background:linear-gradient(90deg,#1f3f86,#e8821e);border-radius:999px}
+  .sc-note{font-size:11.5px;color:#667;margin-top:3px}
+  .sc-scale{padding:0 18px 6px}.sc-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,#dbe3f4,#9db3e0,#1f3f86)}.sc-mark{position:absolute;top:-5px;width:4px;height:20px;background:#e8821e;border-radius:3px;transform:translateX(-50%)}
+  .sc-ends{display:flex;justify-content:space-between;font-size:11.5px;color:#667;margin-top:5px}
+  .sc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 18px 0}.sc-chip{background:#eef3fc;border-radius:999px;padding:5px 12px;font-size:12.5px;color:#14365f}
+  .sc-focus{display:flex;flex-wrap:wrap;gap:8px 22px;padding:12px 18px 0;font-size:13.5px;color:#14365f}.sc-focus b{color:#0d1f45;margin-right:4px}
+  .sc-foot{padding:12px 18px 16px;font-size:12px;color:#667;line-height:1.5}
+  @media(max-width:560px){.sc-body{grid-template-columns:1fr}}
+  .rg-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-left:4px solid #1f3f86;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  .rg-strip b{display:block;font-size:15px;color:var(--pine)}.rg-strip span{display:block;font-size:13px;color:var(--ink3);margin-top:2px;line-height:1.4}
+  .rg-toggle{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink3);margin:0 2px 12px}
+  .rg-q{font-weight:700;font-size:15px;color:var(--pine);margin:4px 0 10px}
+  .rg-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:18px}
+  .rg-tile{display:flex;align-items:center;gap:10px;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;font:inherit;color:inherit}
+  .rg-tile.on{border-color:#1f3f86;background:#eef3fc;box-shadow:0 0 0 2px rgba(31,63,134,.15)}
+  .rg-badge{min-width:38px;height:38px;border-radius:10px;background:#0d1f45;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .rg-name{font-weight:600;font-size:14px;line-height:1.3}
+  .rg-chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;cursor:pointer}
+  .rg-chip.on{border-color:#1f3f86;background:#1f3f86;color:#fff}
+  .rg-note{font-size:13px;line-height:1.55;color:var(--ink3);margin:12px 0}
+  .rg-selt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}.rg-selt h4{margin:0 0 10px;font-size:15px;color:var(--pine)}
+  .rg-scroll{overflow-x:auto}.rg-selt table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+  .rg-selt th,.rg-selt td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  .rg-selt thead th{background:#2f2f2f;color:#fff;font-size:12px}.rg-selt tbody th{font-weight:700;color:var(--pine)}
+  .rg-pop{display:inline-block;margin-left:8px;background:#e8821e;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:3px 8px;vertical-align:middle}
+  .pl-hero{background:linear-gradient(135deg,#0d1f45,#1f3f86);color:#fff;padding:26px 20px 30px;position:relative}
+  .pl-hero h3{font-size:26px;margin:6px 0 8px;line-height:1.2;font-weight:800}.pl-hero p{margin:0;opacity:.9;font-size:14.5px;max-width:560px;line-height:1.5}
+  .pl-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#f2c14e}
+  .pl-close{position:absolute;right:14px;top:14px;background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .pl-body{padding:18px 16px 40px}
+  .pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:26px}
+  .pl-card{background:#fff;border:1.5px solid #e2e6f0;border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;position:relative}
+  .pl-card.pl-hi{border-color:#1f5fa8;box-shadow:0 6px 22px rgba(31,95,168,.15)}
+  .pl-card h4{margin:0 0 6px;font-size:16px;color:#14365f}
+  .pl-tag{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5b6784;margin-bottom:6px}.pl-tag-b{color:#fff;background:#e0832b;border-radius:999px;padding:3px 9px;align-self:flex-start}
+  .pl-price{font-size:26px;font-weight:800;color:#0d1f45}.pl-price span{font-size:12px;font-weight:600;color:#5b6784}.pl-per{font-size:12.5px;color:#5b6784;margin-bottom:10px;min-height:18px}
+  .pl-list{list-style:none;padding:0;margin:0 0 14px;flex:1}.pl-list li{font-size:13.5px;line-height:1.45;padding:5px 0 5px 22px;position:relative;border-top:1px solid #eef0f6}.pl-list li:before{content:'✓';position:absolute;left:0;color:#1e8a4c;font-weight:800}
+  .pl-btn{width:100%;padding:11px;font-size:14px;border-radius:999px}.pl-btn-o{background:#fff;color:#14365f;border:1.5px solid #14365f}
+  .pl-sec{margin-bottom:28px}.pl-sec h3{font-size:20px;color:#0d1f45;margin:0 0 6px}.pl-sub{color:#5b6784;font-size:13.5px;margin:0 0 14px}
+  .pl-tablewrap{overflow-x:auto;border-radius:14px;border:1px solid #e2e6f0;background:#fff}
+  .pl-table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}.pl-table th{background:#3d3d3f;color:#fff;text-align:center;padding:13px 10px;font-weight:700}.pl-table th:first-child,.pl-table td:first-child{text-align:left;padding-left:16px}
+  .pl-table td{padding:13px 10px;text-align:center;border-top:1px solid #eef0f6}.pl-table tbody tr:nth-child(even){background:#f8f9fc}
+  .pl-yes{color:#1e8a4c;font-weight:800;font-size:16px}.pl-no{color:#b9bfcf}
+  .pl-ben{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border:1px solid #e2e6f0;border-radius:14px;overflow:hidden;background:#fff}
+  .pl-b{padding:18px 16px;border:1px solid #eef0f6}.pl-b span{display:inline-flex;width:30px;height:30px;border-radius:8px;background:#eef1fb;color:#14365f;font-weight:800;align-items:center;justify-content:center;margin-bottom:10px}
+  .pl-b h5{margin:0 0 6px;font-size:15px;color:#0d1f45}.pl-b p{margin:0;font-size:13px;line-height:1.5;color:#5b6784}
+  .pl-why{background:#fff;border:1px solid #e2e6f0;border-radius:14px;padding:18px 16px}.pl-why ul{margin:0;padding-left:18px}.pl-why li{font-size:13.5px;line-height:1.6;margin-bottom:8px;color:#2b3350}
   /* Daily Quiz */
   .dq-hero{background:linear-gradient(135deg,#14365f,#1f5fa8);color:#fff;border-radius:16px;padding:22px 20px;margin-bottom:18px}
   .dq-eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;font-weight:700}
@@ -2886,7 +2942,7 @@ const TEST_DATA = {
           {
             id: 'gr-pos1', title: 'Nouns — Naming People, Places, and Things', time: '12-15 minutes',
             objectives: ['Understand what a noun is and recognise common vs. proper nouns', 'Learn the difference between singular and plural nouns', 'Practise spotting nouns inside real sentences'],
-            concept: 'A noun is a word that names a person, place, thing, or idea — "teacher," "London," "phone," and "happiness" are all nouns. Nouns are usually the words a sentence is actually ABOUT.<br><br>Common nouns name general things ("city," "book," "friend") and are not capitalised unless starting a sentence. Proper nouns name ONE specific person, place, or thing ("Chennai," "Ravi," "Samsung") and are always capitalised, no matter where they appear in a sentence.<br><br>Nouns can also be singular (one — "book") or plural (more than one — "books"), which matters a lot for later lessons on subject-verb agreement.',
+            concept: 'A noun is a word that names a person, place, thing, or idea — "teacher," "London," "phone," and "happiness" are all nouns. Nouns are usually the words a sentence is actually ABOUT.<br><br>Common nouns name general things ("city," "book," "friend") and are not capitalised unless starting a sentence. Proper nouns name ONE specific person, place, or thing ("Toronto," "Ravi," "Samsung") and are always capitalised, no matter where they appear in a sentence.<br><br>Nouns can also be singular (one — "book") or plural (more than one — "books"), which matters a lot for later lessons on subject-verb agreement.',
             example: '<i>(Original example)</i><br><br>Sentence: <b>"My friend Priya bought two books from a shop in Coimbatore."</b><br><br>Nouns: friend (common), Priya (proper), books (common, plural), shop (common), Coimbatore (proper).<br><br>Notice "Priya" and "Coimbatore" are capitalised even though they appear in the middle of the sentence — because they are proper nouns naming one specific person and one specific place.',
             vocab: [['noun','a word naming a person, place, thing, or idea'],['common noun','a noun naming a general person, place, or thing, not capitalised mid-sentence'],['proper noun','a noun naming one specific person, place, or thing, always capitalised'],['singular','referring to exactly one of something'],['plural','referring to more than one of something']],
             mistakes: ['Forgetting to capitalise a proper noun (a specific name) in the middle of a sentence.', 'Capitalising a common noun that is not actually a specific name.', 'Confusing singular and plural nouns, especially with irregular plurals like "child" → "children."', 'Missing that abstract ideas ("happiness," "freedom") are also nouns, not just physical objects.'],
@@ -2894,7 +2950,7 @@ const TEST_DATA = {
             practiceAnswer: 'Ahmed (proper), engineering (common), college (common), Dubai (proper).',
             quiz: [
               {q:'What is a noun?', options:['A word describing an action','A word naming a person, place, thing, or idea','A word connecting two sentences','A word describing another word'], correct:1, a:'A noun names a person, place, thing, or idea.'},
-              {q:'Which of these is a proper noun?', options:['city','Mumbai','book','happiness'], correct:1, a:'"Mumbai" names one specific city, so it is a proper noun and is always capitalised.'},
+              {q:'Which of these is a proper noun?', options:['city','Madrid','book','happiness'], correct:1, a:'"Madrid" names one specific city, so it is a proper noun and is always capitalised.'},
               {q:'Why does singular vs. plural matter for later lessons?', options:['It does not matter at all','It affects which form of a verb should be used with it','It only matters for proper nouns','It only affects punctuation'], correct:1, a:'Singular and plural nouns affect subject-verb agreement, covered in a later lesson.'},
             ],
             matchInstruction: 'Tap a noun on the left, then tap whether it is common or proper on the right.',
@@ -2910,7 +2966,7 @@ const TEST_DATA = {
             id: 'gr-pos2', title: 'Pronouns — Standing In for Nouns', time: '12-15 minutes',
             objectives: ['Understand what a pronoun is and why they are used', 'Learn the main personal pronouns (I, you, he, she, it, we, they) and their forms', 'Practise replacing repeated nouns with the correct pronoun'],
             concept: 'A pronoun is a word that stands in for a noun, so the same noun does not need repeating over and over. Without pronouns, sentences would sound very unnatural: "Priya went to Priya\'s house because Priya forgot Priya\'s keys" instead of "Priya went to her house because she forgot her keys."<br><br>The main personal pronouns are: I, you, he, she, it, we, they (used as the subject — the one doing the action), and me, you, him, her, it, us, them (used as the object — the one receiving the action). Choosing the correct form matters: "He called me" is correct; "Him called I" is not.',
-            example: '<i>(Original example)</i><br><br>Without pronouns: <b>"Rahul likes cricket. Rahul plays cricket every weekend with Rahul\'s friends."</b><br><br>With pronouns: <b>"Rahul likes cricket. He plays it every weekend with his friends."</b><br><br>"He" replaces "Rahul" (subject), "it" replaces "cricket" (object), and "his" shows the friends belong to Rahul — all without needlessly repeating "Rahul" three times.',
+            example: '<i>(Original example)</i><br><br>Without pronouns: <b>"Rahul likes football. Rahul plays football every weekend with Rahul\'s friends."</b><br><br>With pronouns: <b>"Rahul likes football. He plays it every weekend with his friends."</b><br><br>"He" replaces "Rahul" (subject), "it" replaces "football" (object), and "his" shows the friends belong to Rahul — all without needlessly repeating "Rahul" three times.',
             vocab: [['pronoun','a word that stands in for a noun, avoiding repetition'],['subject pronoun','a pronoun used as the doer of the action (I, he, she, they...)'],['object pronoun','a pronoun used as the receiver of the action (me, him, her, them...)'],['possessive pronoun/adjective','a pronoun showing ownership (his, her, their, my...)'],['repetition (to avoid)','saying the same word unnecessarily many times']],
             mistakes: ['Using an object pronoun where a subject pronoun is needed, e.g. "Him is my friend" instead of "He is my friend."', 'Repeating the same noun many times instead of switching to a pronoun after the first mention.', 'Confusing "its" (possessive, no apostrophe) with "it\'s" (short for "it is").', 'Using the wrong pronoun gender or number, e.g. calling a group "he" instead of "they."'],
             practice: 'Rewrite this to avoid repeating the noun: <b>"Mother cooked Mother\'s favourite dish for Mother\'s guests."</b>',
@@ -3011,8 +3067,8 @@ const TEST_DATA = {
             example: '<i>(Original example)</i><br><br>"I bought <b>a</b> book yesterday. <b>The</b> book was about history."<br><br>First mention: "a book" (indefinite — not specific to the listener yet). Second mention: "the book" (definite — now it is a specific, already-known book, the same one just mentioned).',
             vocab: [['article','a small word (a, an, the) placed before a noun to show whether it is general or specific'],['indefinite article','"a" or "an," used for something general or mentioned for the first time'],['definite article','"the," used for something specific or already known/mentioned'],['consonant sound','the sound at the start of a word that is not a vowel sound, even if the letter looks different'],['vowel sound','the sound at the start of a word that is a vowel sound (a, e, i, o, u sound), even if the letter looks different']],
             mistakes: ['Using "a" before a vowel SOUND instead of "an" (e.g. "a apple" instead of "an apple").', 'Using "an" before a consonant SOUND just because the spelling starts with a vowel letter, e.g. "an university" instead of "a university."', 'Using "the" for something being mentioned for the very first time, when "a/an" is more natural.', 'Forgetting articles entirely, which happens especially to speakers of languages that do not use articles the same way — English requires them in most cases where a singular countable noun is used.'],
-            practice: 'Choose the correct article: <b>"She is ___ honest person and ___ engineer. ___ engineer she works with is from Chennai."</b>',
-            practiceAnswer: '"She is an honest person and an engineer. The engineer she works with is from Chennai." — "an" before "honest" (silent h, vowel sound) and "engineer" (vowel sound); "The" for the second, now-specific mention of "engineer."',
+            practice: 'Choose the correct article: <b>"She is ___ honest person and ___ engineer. ___ engineer she works with is from Toronto."</b>',
+            practiceAnswer: '"She is an honest person and an engineer. The engineer she works with is from Toronto." — "an" before "honest" (silent h, vowel sound) and "engineer" (vowel sound); "The" for the second, now-specific mention of "engineer."',
             quiz: [
               {q:'When is "the" typically used instead of "a/an"?', options:['For something mentioned for the very first time','For something specific or already known/mentioned','Only before plural nouns','Only before proper nouns'], correct:1, a:'"The" is used for something specific, already known, or already mentioned earlier.'},
               {q:'Which is correct: "an hour" or "a hour"?', options:['a hour','an hour','Both are equally correct','Neither is correct'], correct:1, a:'"An hour" is correct because "hour" starts with a silent h, making it sound like it begins with a vowel.'},
@@ -3058,8 +3114,8 @@ id: 'gr-sb-basics3', title: 'Do, Does, Did — The Helper Verbs Behind Questions
   example: '<i>(Original example)</i><br><br>Statement: <b>"He works here. She worked here."</b><br>Question: <b>"Does he work here? Did she work here?"</b><br>Negative: <b>"He does not work here. She did not work here."</b><br><br>Notice "works" becomes "work" once "does" is added, and "worked" becomes "work" once "did" is added — the helper verb carries the tense, so the main verb returns to its base form.',
   vocab: [['helper verb (recap)','an auxiliary verb like do/does/did that helps form questions and negatives'],['base form (recap)','the plain, unchanged form of a verb — the form used after do/does/did'],['double marking (recap)','a common error of keeping the tense marker on the main verb even after adding do/does/did'],['question formation (recap)','the process of turning a statement into a question, often using a helper verb'],['negative formation (recap)','the process of turning a statement into a negative, often using a helper verb plus "not"']],
   mistakes: ['Keeping the tense ending on the main verb after adding do/does/did, e.g. "Does she works here?" instead of "Does she work here?"', 'Using "do" with a singular subject like "he/she/it," when "does" is needed instead.', 'Using "does" for a past-tense question, when "did" is actually needed.', 'Forgetting the helper verb entirely and just reordering words, e.g. "Works she here?" instead of "Does she work here?"'],
-  practice: 'Turn this into a question and then a negative: <b>"They visited Chennai last year."</b>',
-  practiceAnswer: 'Question: "Did they visit Chennai last year?" Negative: "They did not visit Chennai last year." — "did" carries the past tense, so "visited" returns to its base form "visit" in both cases.',
+  practice: 'Turn this into a question and then a negative: <b>"They visited Toronto last year."</b>',
+  practiceAnswer: 'Question: "Did they visit Toronto last year?" Negative: "They did not visit Toronto last year." — "did" carries the past tense, so "visited" returns to its base form "visit" in both cases.',
   quiz: [
     {q:'Which helper verb is used with "he," "she," or "it" in the present?', options:['Do','Does','Did','None — no helper verb is needed'], correct:1, a:'"Does" is used with third-person singular subjects (he, she, it) in the present.'},
     {q:'What happens to the main verb once "did" is added to a sentence?', options:['It stays in the past tense form','It returns to its plain base form','It changes to the "-ing" form','It disappears entirely'], correct:1, a:'Once "did" carries the past tense, the main verb returns to its base form, e.g. "did go," not "did went."'},
@@ -3067,7 +3123,7 @@ id: 'gr-sb-basics3', title: 'Do, Does, Did — The Helper Verbs Behind Questions
   ],
   reorder: [
     {instruction:'Build a correct present-tense question.', words:['Does','she','like','coffee','?']},
-    {instruction:'Build a correct past-tense question.', words:['Did','they','visit','Chennai','?']},
+    {instruction:'Build a correct past-tense question.', words:['Did','they','visit','Toronto','?']},
   ],
           },
           {
@@ -3106,15 +3162,15 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
             id: 'gr-sb1', title: 'Subject and Predicate — The Two Halves of Every Sentence', time: '12-14 minutes',
             objectives: ['Understand that every complete sentence has a subject and a predicate', 'Learn to identify the subject (who/what the sentence is about)', 'Learn to identify the predicate (what is said about the subject)'],
             concept: 'Every complete English sentence divides into two parts: the SUBJECT (who or what the sentence is about) and the PREDICATE (everything that is said about the subject, always including the verb). Understanding this split makes it much easier to check whether a sentence is actually complete, and to understand more advanced grammar terms later.<br><br>The subject is usually a noun or pronoun near the start of the sentence. The predicate is everything else — usually starting with the verb.',
-            example: '<i>(Original example)</i><br><br>Sentence: <b>"My younger brother plays cricket every evening."</b><br><br>Subject: "My younger brother" (who the sentence is about).<br>Predicate: "plays cricket every evening" (everything said about the subject, including the verb "plays").',
+            example: '<i>(Original example)</i><br><br>Sentence: <b>"My younger brother plays football every evening."</b><br><br>Subject: "My younger brother" (who the sentence is about).<br>Predicate: "plays football every evening" (everything said about the subject, including the verb "plays").',
             vocab: [['subject','the noun or pronoun a sentence is mainly about — the "who" or "what"'],['predicate','everything said about the subject, always including the verb'],['complete thought','a full idea that makes sense on its own, requiring both a subject and predicate'],['sentence fragment','an incomplete piece of a sentence, missing either a subject or a full predicate'],['split (subject/predicate)','dividing a sentence into its two essential grammatical halves']],
-            mistakes: ['Writing a sentence fragment that has only a subject with no complete predicate (e.g. "My brother, who loves cricket" — incomplete on its own).', 'Believing the subject must always be a single word, when it can be a longer phrase ("My younger brother" is the whole subject, not just "brother").', 'Confusing the subject with the first word of the sentence, when the true subject may come after an introductory phrase (e.g. "In the evening, my brother plays cricket" — the subject is still "my brother," not "evening").', 'Missing that the predicate must include the verb, not just extra description.'],
+            mistakes: ['Writing a sentence fragment that has only a subject with no complete predicate (e.g. "My brother, who loves football" — incomplete on its own).', 'Believing the subject must always be a single word, when it can be a longer phrase ("My younger brother" is the whole subject, not just "brother").', 'Confusing the subject with the first word of the sentence, when the true subject may come after an introductory phrase (e.g. "In the evening, my brother plays football" — the subject is still "my brother," not "evening").', 'Missing that the predicate must include the verb, not just extra description.'],
             practice: 'Split this sentence into subject and predicate: <b>"The new student from Kerala joined our class yesterday."</b>',
             practiceAnswer: 'Subject: "The new student from Kerala." Predicate: "joined our class yesterday."',
             quiz: [
               {q:'What is the subject of a sentence?', options:['Everything said about the main noun','The noun or pronoun the sentence is mainly about','Only the verb in the sentence','Any descriptive word in the sentence'], correct:1, a:'The subject is the noun or pronoun that the sentence is mainly about.'},
               {q:'What must the predicate always include?', options:['An adjective','A preposition','The verb','A conjunction'], correct:2, a:'The predicate always includes the verb, along with everything else said about the subject.'},
-              {q:'In "In the evening, my brother plays cricket," what is the actual subject?', options:['In the evening','My brother','Plays cricket','Evening'], correct:1, a:'"My brother" is the true subject — "In the evening" is only an introductory phrase, not the subject.'},
+              {q:'In "In the evening, my brother plays football," what is the actual subject?', options:['In the evening','My brother','Plays football','Evening'], correct:1, a:'"My brother" is the true subject — "In the evening" is only an introductory phrase, not the subject.'},
             ],
           },
           {
@@ -3168,7 +3224,7 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
             id: 'gr-ta1', title: 'Present, Past, and Future Simple — The Three Basic Tenses', time: '16-18 minutes',
             objectives: ['Understand what "tense" means and why it matters', 'Learn the basic form of present, past, and future simple tense', 'Practise choosing the correct simple tense for a given time context'],
             concept: 'Tense shows WHEN an action happens — in the present, past, or future. The three simple tenses are the starting point for everything else in later, more detailed tense lessons:<br>• PRESENT SIMPLE — for habits, facts, and routines: "I study every day."<br>• PAST SIMPLE — for completed actions in the past: "I studied yesterday."<br>• FUTURE SIMPLE — for actions expected to happen later: "I will study tomorrow."<br><br>Notice past simple regular verbs usually add "-ed" ("study" → "studied"), but many common verbs are irregular and change completely ("go" → "went," "eat" → "ate") — these irregular forms simply have to be memorised individually over time.',
-            example: '<i>(Original example)</i><br><br>Present: <b>"She works in Chennai."</b> (a fact/routine, true now)<br>Past: <b>"She worked in Chennai last year."</b> (completed, finished in the past)<br>Future: <b>"She will work in Chennai next year."</b> (expected to happen later)<br><br>Same basic sentence, three different tenses, each placing the action at a different point in time.',
+            example: '<i>(Original example)</i><br><br>Present: <b>"She works in Toronto."</b> (a fact/routine, true now)<br>Past: <b>"She worked in Toronto last year."</b> (completed, finished in the past)<br>Future: <b>"She will work in Toronto next year."</b> (expected to happen later)<br><br>Same basic sentence, three different tenses, each placing the action at a different point in time.',
             vocab: [['tense','the grammatical form of a verb showing when an action happens'],['present simple','the tense for habits, facts, and routines'],['past simple','the tense for actions that are completed and finished in the past'],['future simple','the tense for actions expected to happen later, often using "will"'],['irregular verb','a verb that does not follow the standard "-ed" pattern for its past form']],
             mistakes: ['Using present simple to describe something that already happened, e.g. "I go yesterday" instead of "I went yesterday."', 'Forgetting the "-ed" ending on regular past-tense verbs, especially in fast speech.', 'Treating all verbs as regular, when common irregular verbs (go, eat, have, do, see) do not follow the "-ed" pattern.', 'Using "will" for a habitual, ongoing routine, when present simple is actually correct — "I will go to school every day" should be "I go to school every day."'],
             practice: 'Put the correct tense form of the verb in brackets: <b>"Yesterday, she (go) to the market and (buy) vegetables."</b>',
@@ -3198,7 +3254,7 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
             id: 'gr-ta3', title: 'Subject-Verb Agreement — Making Subjects and Verbs Match', time: '16-18 minutes',
             objectives: ['Understand what subject-verb agreement means and why it matters', 'Learn the basic rule for singular vs. plural subjects', 'Practise spotting and fixing subject-verb agreement mistakes'],
             concept: 'Subject-verb agreement means the verb must match the subject in number — a singular subject needs a singular verb form, and a plural subject needs a plural verb form. In present simple, this mostly means adding "-s" to the verb for singular subjects (he/she/it): "She works" not "She work"; but "They work" (no -s, since "they" is plural).<br><br>This trips up many learners because it feels backwards at first — the "-s" goes on the VERB for singular, which is the opposite of how "-s" normally shows PLURAL on nouns.',
-            example: '<i>(Original example)</i><br><br>Correct: <b>"My sister works in Bangalore. My parents work in Chennai."</b><br><br>"Sister" (singular) → "works" (with -s). "Parents" (plural) → "work" (no -s). The pattern feels counterintuitive at first: -s appears on the verb for ONE person, but disappears from the verb for MORE than one — the opposite of how nouns normally work.',
+            example: '<i>(Original example)</i><br><br>Correct: <b>"My sister works in Dublin. My parents work in Toronto."</b><br><br>"Sister" (singular) → "works" (with -s). "Parents" (plural) → "work" (no -s). The pattern feels counterintuitive at first: -s appears on the verb for ONE person, but disappears from the verb for MORE than one — the opposite of how nouns normally work.',
             vocab: [['subject-verb agreement','the grammar rule that a verb must match its subject in number (singular/plural)'],['third-person singular','he, she, it, or a singular noun — this is where "-s" is added to present simple verbs'],['counterintuitive','feeling backwards or opposite to what would naturally be expected'],['collective noun','a singular-form noun referring to a group (team, family, class) — usually takes a singular verb'],['number agreement','matching singular with singular, and plural with plural, throughout a sentence']],
             mistakes: ['Forgetting to add "-s" to the verb for a singular third-person subject, e.g. "She go to work" instead of "She goes to work."', 'Mistakenly adding "-s" to the verb for a plural subject, e.g. "They goes to work" instead of "They go to work."', 'Getting confused when the subject is separated from the verb by other words, e.g. "The list of items (is/are) long" — the verb should agree with "list" (singular), not "items."', 'Treating collective nouns like "team" or "family" as automatically plural, when they are often grammatically singular ("The team is winning," not "The team are winning," in most everyday usage).'],
             practice: 'Correct any agreement mistakes: <b>"My brother work every day. His friends works with him too."</b>',
@@ -3213,7 +3269,7 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
             id: 'gr-ta4', title: 'Forming Questions and Negatives', time: '16-18 minutes',
             objectives: ['Understand the basic pattern for forming yes/no questions in English', 'Learn the basic pattern for forming negative sentences', 'Practise both patterns with different tenses'],
             concept: 'English typically forms yes/no QUESTIONS and NEGATIVES using a "helping" (auxiliary) verb — do/does/did for simple tenses, or by reordering am/is/are/have/has/will for others.<br><br>Questions (present simple): <b>Do/Does + subject + base verb?</b> — "Does she work here?" (not "Works she here?").<br>Negatives (present simple): <b>Subject + do/does + not + base verb.</b> — "She does not work here" (not "She works not here").<br><br>This "do/does/did" pattern is one of the most common sources of unnatural-sounding sentences for learners whose first language forms questions and negatives differently (often by simply changing word order or adding a single word) — English specifically needs this extra helping verb for simple tenses.',
-            example: '<i>(Original example)</i><br><br>Statement: <b>"He plays cricket."</b><br>Question: <b>"Does he play cricket?"</b> (auxiliary "does" + base form "play," NOT "plays")<br>Negative: <b>"He does not play cricket."</b> (auxiliary carries the "-s," so the main verb returns to its base form)<br><br>Notice the main verb loses its "-s" once "does" is added — the "-s" only ever appears once in the sentence.',
+            example: '<i>(Original example)</i><br><br>Statement: <b>"He plays football."</b><br>Question: <b>"Does he play football?"</b> (auxiliary "does" + base form "play," NOT "plays")<br>Negative: <b>"He does not play football."</b> (auxiliary carries the "-s," so the main verb returns to its base form)<br><br>Notice the main verb loses its "-s" once "does" is added — the "-s" only ever appears once in the sentence.',
             vocab: [['auxiliary verb','a "helping" verb (do, does, did, have, will...) used to form questions, negatives, and other structures'],['base form (of a verb)','the plain, unchanged form of a verb, with no -s, -ed, or -ing added (play, go, eat)'],['yes/no question','a question that can be answered with a simple "yes" or "no"'],['word order (in questions)','the specific arrangement of words required to form a grammatically correct question'],['double marking (error)','mistakenly adding the same grammar marker twice, e.g. "does" and "-s" together']],
             mistakes: ['Forgetting the auxiliary "do/does/did" entirely and just changing word order, e.g. "Works she here?" instead of "Does she work here?"', 'Keeping the "-s" on the main verb even after adding "does," e.g. "Does she works here?" instead of "Does she work here?" (a double-marking error).', 'Placing "not" incorrectly, e.g. "She not works here" instead of "She does not work here."', 'Using "do/does" with the being verb "is/am/are," which does not need it — "Is she a teacher?" not "Does she is a teacher?"'],
             practice: 'Turn this into a question, then a negative: <b>"They live in Dubai."</b>',
@@ -3249,7 +3305,7 @@ id: 'gr-sb-basics5', title: 'Common Everyday Sentence Patterns You\'ll Use Const
             id: 'gr-pf2', title: 'Basic Punctuation — Capital Letters, Full Stops, Commas, and Question Marks', time: '14-16 minutes',
             objectives: ['Learn the basic rules for capital letters at the start of sentences and for proper nouns', 'Understand when to use a full stop vs. a question mark', 'Learn a few essential comma rules'],
             concept: 'A few punctuation basics make writing look far more polished and are checked by every test on this app (IELTS/TOEFL/PTE Writing especially):<br>• Capital letters start every sentence, and every proper noun (names of people, places, days, months) — but NOT ordinary common nouns.<br>• A full stop (.) ends a statement. A question mark (?) ends a genuine question.<br>• A comma is used: after an introductory phrase ("After lunch, we went home"), between items in a list ("apples, bananas, and oranges"), and before a coordinating conjunction joining two independent clauses ("I was tired, but I kept working").',
-            example: '<i>(Original example)</i><br><br>Incorrect: <b>"my Friend from chennai asked are you free tomorrow"</b><br><br>Correct: <b>"My friend from Chennai asked, \'Are you free tomorrow?\'"</b><br><br>Fixed: capital "My" (sentence start), lowercase "friend" (common noun), capital "Chennai" (proper noun), question mark for the actual question being asked, and a comma introducing the quoted question.',
+            example: '<i>(Original example)</i><br><br>Incorrect: <b>"my Friend from chennai asked are you free tomorrow"</b><br><br>Correct: <b>"My friend from Toronto asked, \'Are you free tomorrow?\'"</b><br><br>Fixed: capital "My" (sentence start), lowercase "friend" (common noun), capital "Toronto" (proper noun), question mark for the actual question being asked, and a comma introducing the quoted question.',
             vocab: [['capitalisation','the use of capital letters at appropriate points in writing'],['full stop/period','the punctuation mark (.) ending a statement'],['question mark','the punctuation mark (?) ending a genuine question'],['introductory phrase','a phrase at the start of a sentence, often followed by a comma, before the main clause'],['list (punctuation)','a comma-separated series of items within a sentence']],
             mistakes: ['Forgetting to capitalise the first word of a sentence.', 'Capitalising ordinary common nouns that are not proper nouns.', 'Ending a genuine question with a full stop instead of a question mark, or vice versa for a statement.', 'Missing the comma after an introductory phrase, making the sentence harder to read at a glance.'],
             practice: 'Fix the punctuation and capitalisation: <b>"after the meeting rahul asked did you finish the report"</b>',
@@ -7760,7 +7816,7 @@ L('dl-cv3','Read Aloud: Clear, Steady Pronunciation',
 L('dl-cv4','Listen then Speak: Repeating and Answering Accurately',
 ['Hold a short spoken message in memory long enough to respond','Answer the actual question, not a related one','Start speaking quickly and keep going'],
 'Some speaking tasks play a question or short passage and then ask you to respond. First, decide what was asked: a fact, an opinion, or a description. Start with the answer in a full sentence, then add one or two details. A simple frame helps: answer, reason, example. If you lose a word, keep going with the part you understood. A fluent, relevant answer scores better than a long hesitant one.',
-'Question heard: "What do you usually do on weekends?"<br><br>Answer: "I usually relax at home on weekends. I like cooking and sometimes I meet my friends, for example we play cricket at the park on Sundays."<br><br>This answers the question, gives a reason or detail, and ends with an example.',
+'Question heard: "What do you usually do on weekends?"<br><br>Answer: "I usually relax at home on weekends. I like cooking and sometimes I meet my friends, for example we play football at the park on Sundays."<br><br>This answers the question, gives a reason or detail, and ends with an example.',
 [['respond','to give an answer or reaction'],['relevant','closely connected to the question asked'],['detail','an extra fact that supports the answer'],['fluency','speaking smoothly without long stops']],
 ['Answering a different question from the one asked.','Long silence while searching for a perfect word.','Giving one-word answers.','Stopping when you make a small mistake.'],
 'Question: "Describe your favourite food." Give a three-part answer.',
@@ -7784,7 +7840,7 @@ L('dl-pr3','Write About the Photo: Describing People, Places and Actions',
 L('dl-pr4','Sentence Variety: Moving Beyond Short Simple Sentences',
 ['Combine two short sentences into one clear sentence','Use basic linking words correctly','Keep sentences accurate while adding variety'],
 'A text made only of short sentences ("I like tea. I drink it daily. It is hot.") is correct but basic. Joining ideas with simple linking words (and, but, because, so, when) makes writing smoother and shows range. Keep accuracy first: a clear simple sentence is better than a long mistaken one. Try one combination at a time, add a comma before "but" or "so" when joining two full sentences, and check that each joined sentence still has a subject and a verb.',
-'Basic: "I was tired. I went to bed early."<br>Better: <b>I was tired, so I went to bed early.</b><br><br>Basic: "It was raining. We played cricket."<br>Better: <b>Although it was raining, we played cricket.</b>',
+'Basic: "I was tired. I went to bed early."<br>Better: <b>I was tired, so I went to bed early.</b><br><br>Basic: "It was raining. We played football."<br>Better: <b>Although it was raining, we played football.</b>',
 [['linking word','a word that joins ideas, such as "because" or "but"'],['clause','a group of words with a subject and a verb'],['range','the variety of structures and words you can use'],['accuracy','being correct in grammar and spelling']],
 ['Joining with only "and" every time.','Forgetting the subject after a linking word.','Writing a sentence fragment starting with "Because".','Making sentences so long that the meaning is lost.'],
 'Combine: "I wanted to go out. It was very cold."',
@@ -8858,16 +8914,16 @@ const SK=[
 G(`gr-sk1`,`The Sentence Skeleton: Subject + Verb`,
 [`See that every sentence is built on a subject and a verb`,`Find the subject and the verb in a simple sentence`,`Add an object to complete the idea`],
 `Think of a sentence as a body. The skeleton is the part that holds everything up: <b>Subject + Verb</b>. The subject is who or what the sentence is about. The verb tells what the subject does or is. Without both, the sentence is not complete.<br><br>Many sentences add a third bone, the <b>object</b>, which receives the action: Subject + Verb + Object (S + V + O). "Maria (S) reads (V) novels (O)." Everything else, such as adverbs and extra details, is added to this skeleton like clothes on a body.`,
-`<b>Dogs bark.</b> (S + V)<br><b>My brother plays cricket.</b> (S + V + O)<br><b>The students are happy.</b> (S + V + describing word)<br><br>Not a sentence: "Plays cricket." (no subject) and "My brother." (no verb).`,
+`<b>Dogs bark.</b> (S + V)<br><b>My brother plays football.</b> (S + V + O)<br><b>The students are happy.</b> (S + V + describing word)<br><br>Not a sentence: "Plays football." (no subject) and "My brother." (no verb).`,
 [[`subject`,`who or what the sentence is about`],[`verb`,`a word that shows an action or a state`],[`object`,`the person or thing that receives the action`],[`skeleton`,`the basic parts a sentence needs to stand up`]],
-[`Writing a sentence with no subject ("Went to the shop.").`,`Writing a sentence with no verb ("The new teacher from Chennai.").`,`Thinking the subject is always the first word.`,`Forgetting that the verb must match the subject.`],
+[`Writing a sentence with no subject ("Went to the shop.").`,`Writing a sentence with no verb ("The new teacher from Toronto.").`,`Thinking the subject is always the first word.`,`Forgetting that the verb must match the subject.`],
 `Find the subject and verb: "The children played football."`,
 `Subject: The children. Verb: played. (Object: football.)`,
 [[`The two bones every sentence needs are:`,[`Adjective + adverb`,`Subject + verb`,`Noun + noun`,`Verb + adverb`],1,`Every complete sentence needs a subject and a verb.`],
  [`In "She writes emails", the object is:`,[`She`,`writes`,`emails`,`There is none`],2,`Emails receives the action of writing.`],
  [`Which is a complete sentence?`,[`Reads books.`,`The tall boy.`,`Birds fly.`,`In the garden.`],2,`Birds (subject) fly (verb) has both parts.`]],
 {match:[[`subject`,`who or what the sentence is about`],[`verb`,`shows an action or state`],[`object`,`receives the action`],[`sentence`,`a complete thought`]],matchInstruction:`Match each part of the skeleton to its job.`,
- reorder:[{words:[`My`,`brother`,`plays`,`cricket.`],instruction:`Tap the words to build a sentence: subject, verb, object.`},{words:[`The`,`students`,`finished`,`the`,`test.`],instruction:`Build the sentence in the right order.`}]}),
+ reorder:[{words:[`My`,`brother`,`plays`,`football.`],instruction:`Tap the words to build a sentence: subject, verb, object.`},{words:[`The`,`students`,`finished`,`the`,`test.`],instruction:`Build the sentence in the right order.`}]}),
 G(`gr-sk2`,`Finding the Subject and Verb in Longer Sentences`,
 [`Ignore extra details to find the real subject`,`Find the main verb`,`Use the question "who or what + does what?"`],
 `Real sentences are longer than "Dogs bark." They carry extra details that can hide the skeleton. To find it, ask: <b>Who or what is the sentence about?</b> (subject) and <b>What does it do or what is it?</b> (verb). Cross out phrases that start with words like "in", "on", "after", "with", or that sit between commas; they are extra details, not the skeleton.<br><br>The subject is never inside a phrase that starts with a preposition: in "The teacher from the school", the subject is "teacher", not "school".`,
@@ -8908,7 +8964,7 @@ G(`gr-sk4`,`Present Tenses in the Skeleton: Simple and Continuous`,
  reorder:[{words:[`She`,`studies`,`English`,`every`,`day.`],instruction:`Build a present simple sentence.`},{words:[`They`,`are`,`playing`,`football`,`now.`],instruction:`Build a present continuous sentence.`}]}),
 G(`gr-sk5`,`Past Tenses in the Skeleton: Past Simple and Present Perfect`,
 [`Use the past simple for finished actions at a known time`,`Use the present perfect to connect the past with now`,`Choose by the time word`],
-`<b>Past simple</b> = a finished action at a definite time in the past. Form: verb + -ed, or an irregular form (go → went, see → saw). Time words: <i>yesterday, last week, in 2020, two days ago</i>. "I visited Delhi last year."<br><br><b>Present perfect</b> = have/has + past participle. It connects the past with now: an experience, a result, or an action that has lasted up to now. "I have visited Delhi twice." "She has lost her keys." "They have lived here since 2019."<br><br>Key rule: do not use the present perfect with a finished time word. Say "I saw him yesterday", not "I have seen him yesterday". Time words for present perfect: <i>ever, never, already, yet, just, for, since</i>.`,
+`<b>Past simple</b> = a finished action at a definite time in the past. Form: verb + -ed, or an irregular form (go → went, see → saw). Time words: <i>yesterday, last week, in 2020, two days ago</i>. "I visited Sydney last year."<br><br><b>Present perfect</b> = have/has + past participle. It connects the past with now: an experience, a result, or an action that has lasted up to now. "I have visited Sydney twice." "She has lost her keys." "They have lived here since 2019."<br><br>Key rule: do not use the present perfect with a finished time word. Say "I saw him yesterday", not "I have seen him yesterday". Time words for present perfect: <i>ever, never, already, yet, just, for, since</i>.`,
 `<b>Past simple:</b> "We watched the match yesterday."<br><b>Present perfect:</b> "We have watched this match three times."<br>Skeleton: We (S) + watched / have watched (V) + the match (O).`,
 [[`past participle`,`the verb form used after have/has, such as gone, seen, done`],[`irregular verb`,`a verb that does not form its past with -ed`],[`definite time`,`a specific finished time, such as yesterday`],[`experience`,`something you have done in your life`]],
 [`"I have seen him yesterday" (finished time word).`,`"She goed home" (wrong irregular form).`,`"Did she went?" (after did, use the base verb).`,`Using the past simple with "since" or "for" to talk about up to now.`],
@@ -8925,7 +8981,7 @@ G(`gr-sk6`,`Talking About the Future and Choosing the Right Tense`,
 `"Every morning I walk to school." (habit → present simple)<br>"I am walking to school now." (now → present continuous)<br>"I walked to school yesterday." (finished → past simple)<br>"I have walked to school since March." (connected to now → present perfect)<br>"I will walk to school tomorrow." (future → will)`,
 [[`prediction`,`a statement about what you think will happen`],[`arrangement`,`a plan fixed with other people`],[`decision`,`a choice made`],[`time word`,`a word like yesterday or tomorrow that shows when`]],
 [`Using "will" when you can see evidence now (say "It is going to rain" when the clouds are already dark).`,`Adding "will" after "if" or "when" ("If it will rain").`,`Using "will" + verb-ing.`,`Ignoring the time word.`],
-`Choose the tense: "She (lives / is living / lived / will live) in Chennai since 2019." Time word: since.`,
+`Choose the tense: "She (lives / is living / lived / will live) in Toronto since 2019." Time word: since.`,
 `has lived — "since" signals the present perfect.`,
 [[`"Look at the clouds. It ___ rain." (evidence now)`,[`will`,`is going to`,`rained`,`has rained`],1,`Use going to when there is evidence now.`],
  [`Which tense for "tomorrow"?`,[`Past simple`,`Will / going to`,`Present perfect`,`Past continuous`],1,`Tomorrow talks about the future.`],
@@ -9171,23 +9227,23 @@ G('ac-b-g2','A, An, The, This, That and Plurals',
 
 G('ac-b-g3','Simple Present: Habits and Facts',
 [`Use the simple present for habits`,`Add -s/-es for he, she, it`,`Make negatives with do not / does not and questions with Do / Does`],
-`Use the simple present for habits and facts (அன்றாடப் பழக்கங்கள் மற்றும் உண்மைகள்). <b>I/you/we/they + base verb</b>: I play. <b>He/she/it + verb+s</b>: She plays. After consonant + y: study → studies. Go → goes.<br><br><b>Negative:</b> do not / does not + base verb (She <b>does not like</b> tea, not "does not likes").<br><b>Question:</b> Do / Does + subject + base verb (<b>Does</b> he play cricket?).`,
+`Use the simple present for habits and facts (அன்றாடப் பழக்கங்கள் மற்றும் உண்மைகள்). <b>I/you/we/they + base verb</b>: I play. <b>He/she/it + verb+s</b>: She plays. After consonant + y: study → studies. Go → goes.<br><br><b>Negative:</b> do not / does not + base verb (She <b>does not like</b> tea, not "does not likes").<br><b>Question:</b> Do / Does + subject + base verb (<b>Does</b> he play football?).`,
 `I <b>wake up</b> at 6. She <b>wakes up</b> at 7.<br>He <b>studies</b> English. She <b>goes</b> to college.<br>They <b>do not</b> play football. &nbsp; <b>Does</b> she speak English?`,
 [[`habit`,`something you do regularly`],[`base verb`,`the verb without -s or -ed (play, eat)`],[`fact`,`something that is always true`],[`third person`,`he, she or it`]],
 [`Saying "She go" (needs goes).`,`Saying "He does not likes" (use like).`,`Saying "Do she play?" (use Does).`,`Writing "studys" for study + s.`],
-`Complete: 1. She (play) cricket. 2. He (study) English. 3. They (not like) tea. 4. (Do/Does) she speak English?`,
+`Complete: 1. She (play) football. 2. He (study) English. 3. They (not like) tea. 4. (Do/Does) she speak English?`,
 `plays, studies, do not like, Does.`,
 [[`She ___ coffee every day.`,[`drink`,`drinks`,`drinking`,`drank`],1,`She + verb with -s.`],
  [`He ___ not like tea.`,[`do`,`does`,`is`,`are`],1,`He takes does not.`],
  [`___ you speak English?`,[`Does`,`Do`,`Is`,`Are`],1,`With you, use Do.`]],
 {match:[[`I play`,`She plays`],[`I study`,`She studies`],[`I go`,`She goes`],[`I do`,`She does`]],matchInstruction:`Match each I-form to the she-form.`,
- reorder:[{words:[`She`,`does`,`not`,`like`,`tea.`],instruction:`Build the negative sentence.`},{words:[`Does`,`he`,`play`,`cricket?`],instruction:`Build the question.`}]})
+ reorder:[{words:[`She`,`does`,`not`,`like`,`tea.`],instruction:`Build the negative sentence.`},{words:[`Does`,`he`,`play`,`football?`],instruction:`Build the question.`}]})
 ];
 sk[M.S]=[
 G('ac-b-s1','Greetings and Introducing Yourself',
 [`Greet people at different times of day`,`Introduce yourself in 5 sentences`,`Say "nice to meet you" naturally`],
 `<b>Greetings:</b> Hello / Hi; Good morning (காலை வணக்கம்); Good afternoon; Good evening; Good night (only when leaving or going to bed).<br><b>How are you?</b> I am fine, thank you. And you?<br><br><b>Self-introduction pattern:</b> Hello! My name is ___. I am from ___. I am a ___. I am learning English. Nice to meet you!<br>Smile, look at the person, and say your name slowly.`,
-`"Hello! My name is Arun. I am from Madurai. I am a student. I am learning English. Nice to meet you!"<br><br>A: Hello! How are you? B: I am fine, thank you. How are you? A: I am good. What is your name? B: My name is Priya.`,
+`"Hello! My name is Arun. I am from Cardiff. I am a student. I am learning English. Nice to meet you!"<br><br>A: Hello! How are you? B: I am fine, thank you. How are you? A: I am good. What is your name? B: My name is Priya.`,
 [[`greeting`,`words you say when you meet someone`],[`introduce`,`to tell someone your name and who you are`],[`nice to meet you`,`a polite phrase when you meet someone for the first time`],[`from`,`used for your home town or country`]],
 [`Saying "I am fine" without asking back.`,`Using "Good night" as a meeting greeting.`,`Saying "My self Arun" (say "My name is Arun").`,`Speaking too fast and not smiling.`],
 `Record yourself: <b>Hello! My name is ___. I am from ___. I am a ___. I am learning English. Nice to meet you!</b> Listen back: is it slow and clear?`,
@@ -9229,27 +9285,27 @@ G('ac-b-s3','Shopping and Prices',
 sk[M.R]=[
 G('ac-b-r1','Reading a Short Personal Profile',
 [`Read a short text for facts`,`Answer who, where, what and why questions`,`Find key words in a paragraph`],
-`When you read, ask 4 questions: <b>Who?</b> <b>Where?</b> <b>What?</b> <b>Why?</b> Look for the answer in the text, then underline it.<br><br>Read this profile: <i>"My name is Karthik. I am 20 years old. I live in Chennai. I am a college student. I enjoy reading books and playing cricket. I want to improve my English because I want to study abroad."</i>`,
-`Who? Karthik, a college student.<br>Where? Chennai.<br>What does he enjoy? Reading books and playing cricket.<br>Why English? Because he wants to study abroad.`,
+`When you read, ask 4 questions: <b>Who?</b> <b>Where?</b> <b>What?</b> <b>Why?</b> Look for the answer in the text, then underline it.<br><br>Read this profile: <i>"My name is Karthik. I am 20 years old. I live in Toronto. I am a college student. I enjoy reading books and playing football. I want to improve my English because I want to study abroad."</i>`,
+`Who? Karthik, a college student.<br>Where? Toronto.<br>What does he enjoy? Reading books and playing football.<br>Why English? Because he wants to study abroad.`,
 [[`profile`,`a short description of a person`],[`enjoy`,`to like doing something`],[`improve`,`to make better`],[`abroad`,`in another country`]],
 [`Reading every word slowly without looking for answers.`,`Copying the whole sentence instead of the key words.`,`Not reading the question first.`,`Confusing "live" (home) with "life".`],
 `Read the profile above and answer: 1. How old is Karthik? 2. Where does he live? 3. What does he want to study abroad for? (Why does he want to improve English?)`,
-`1. He is 20. 2. Chennai. 3. Because he wants to study abroad.`,
-[[`Where does Karthik live?`,[`Madurai`,`Chennai`,`Delhi`,`Abroad`],1,`I live in Chennai.`],
- [`What does he enjoy?`,[`Cooking`,`Swimming`,`Reading books and playing cricket`,`Singing`],2,`The profile says so.`],
+`1. He is 20. 2. Toronto. 3. Because he wants to study abroad.`,
+[[`Where does Karthik live?`,[`Cardiff`,`Toronto`,`Sydney`,`Abroad`],1,`I live in Toronto.`],
+ [`What does he enjoy?`,[`Cooking`,`Swimming`,`Reading books and playing football`,`Singing`],2,`The profile says so.`],
  [`Why does he want to improve his English?`,[`To get a job in a shop`,`To study abroad`,`To meet friends`,`For fun only`],1,`because I want to study abroad.`]],
 {match:[[`Who?`,`a person`],[`Where?`,`a place`],[`When?`,`a time`],[`Why?`,`a reason`]],matchInstruction:`Match each question word to what it asks for.`,
- reorder:[{words:[`Karthik`,`lives`,`in`,`Chennai.`],instruction:`Build the sentence.`}]}),
+ reorder:[{words:[`Karthik`,`lives`,`in`,`Toronto.`],instruction:`Build the sentence.`}]}),
 
 G('ac-b-r2','Writing About Yourself: Five Good Sentences',
 [`Start sentences with a capital letter and end with a full stop`,`Write 5 connected sentences about yourself`,`Use and, but and because`],
-`A good sentence starts with a <b>capital letter</b>, ends with a <b>full stop</b>, and has a subject and a verb. Names (Chennai, Priya, Monday) always start with a capital.<br><br>Join short sentences with: <b>and</b> (adds), <b>but</b> (shows difference), <b>because</b> (gives a reason).<br>Plan: 1. name 2. place 3. job or study 4. like 5. goal.`,
-`My name is Priya. I live in Madurai. I am a student, and I study commerce. I like music, but I do not like cricket. I want to learn English because I want a good job.`,
+`A good sentence starts with a <b>capital letter</b>, ends with a <b>full stop</b>, and has a subject and a verb. Names (Toronto, Priya, Monday) always start with a capital.<br><br>Join short sentences with: <b>and</b> (adds), <b>but</b> (shows difference), <b>because</b> (gives a reason).<br>Plan: 1. name 2. place 3. job or study 4. like 5. goal.`,
+`My name is Priya. I live in Cardiff. I am a student, and I study commerce. I like music, but I do not like football. I want to learn English because I want a good job.`,
 [[`capital letter`,`a big letter, like A or B`],[`full stop`,`the dot at the end of a sentence`],[`and`,`adds more information`],[`because`,`gives a reason`]],
 [`Writing "i" instead of "I".`,`No full stop at the end.`,`Writing a name without a capital letter.`,`Writing one long sentence with no punctuation.`],
 `Write 5 sentences about yourself: name, place, study or job, one thing you like, and your goal. Use and, but or because once.`,
 `A correct 5-sentence paragraph with capitals and full stops.`,
-[[`Which sentence is correct?`,[`i live in chennai`,`I live in chennai.`,`I live in Chennai.`,`i live in Chennai`],2,`I and Chennai need capitals, and the sentence needs a full stop.`],
+[[`Which sentence is correct?`,[`i live in chennai`,`I live in chennai.`,`I live in Toronto.`,`i live in Toronto`],2,`I and Toronto need capitals, and the sentence needs a full stop.`],
  [`"I like tea ___ I do not like coffee."`,[`because`,`but`,`and so`,`or`],1,`But shows a difference.`],
  [`"I study English ___ I want a good job."`,[`because`,`but`,`or`,`if`],0,`Because gives a reason.`]],
 {match:[[`and`,`adds`],[`but`,`shows difference`],[`because`,`gives a reason`],[`.`,`full stop`]],matchInstruction:`Match each word or mark to its job.`,
@@ -9320,7 +9376,7 @@ G('ac-m-w3','Everyday Phrasal Verbs and Linking Words',
 sk[M.G]=[
 G('ac-m-g1','Past Simple: Regular and Irregular Verbs',
 [`Form the past simple`,`Use did / did not for questions and negatives`,`Learn 20 common irregular verbs`],
-`Use the past simple for finished actions at a definite time: <b>I visited Chennai last year.</b><br><b>Regular:</b> verb + ed (work → worked, study → studied, stop → stopped).<br><b>Irregular:</b> go → went, see → saw, eat → ate, buy → bought, take → took, have → had, make → made, come → came, write → wrote, speak → spoke.<br><b>Negative / question:</b> did not / Did + <b>base verb</b>: She <b>did not go</b>. <b>Did</b> you <b>see</b> him?<br>Time words: yesterday, last week, in 2020, two days ago.`,
+`Use the past simple for finished actions at a definite time: <b>I visited Toronto last year.</b><br><b>Regular:</b> verb + ed (work → worked, study → studied, stop → stopped).<br><b>Irregular:</b> go → went, see → saw, eat → ate, buy → bought, take → took, have → had, make → made, come → came, write → wrote, speak → spoke.<br><b>Negative / question:</b> did not / Did + <b>base verb</b>: She <b>did not go</b>. <b>Did</b> you <b>see</b> him?<br>Time words: yesterday, last week, in 2020, two days ago.`,
 `I <b>went</b> to the market yesterday and <b>bought</b> some fruit. I <b>did not buy</b> vegetables. <b>Did</b> you <b>see</b> Ravi?`,
 [[`past simple`,`the tense for finished actions in the past`],[`irregular verb`,`a verb with a special past form`],[`did`,`the helper used for past questions and negatives`],[`ago`,`used after a time to say how long before now`]],
 [`Saying "I goed" or "I buyed".`,`Saying "Did you went?" (use go).`,`Saying "I did not saw".`,`Forgetting -ed on regular verbs.`],
@@ -9334,14 +9390,14 @@ G('ac-m-g1','Past Simple: Regular and Irregular Verbs',
 
 G('ac-m-g2','Present Perfect or Past Simple?',
 [`Form the present perfect`,`Choose between present perfect and past simple`,`Use for, since, already, yet and ever`],
-`<b>Present perfect = have/has + past participle.</b> It connects the past with now.<br>Use it for: <b>experience</b> (I have visited Delhi), <b>unfinished time</b> (I have lived here for 3 years / since 2023), <b>recent news</b> (She has just left).<br>Use the <b>past simple</b> when the time is finished and stated: I visited Delhi <b>in 2022</b>.<br><br><b>for</b> + length of time (for two years); <b>since</b> + starting point (since 2023). <b>already</b> (earlier than expected), <b>yet</b> (in questions/negatives), <b>ever / never</b>.`,
-`I <b>have lived</b> in Chennai <b>for</b> five years. I <b>moved</b> here <b>in</b> 2021.<br><b>Have</b> you <b>ever</b> been abroad? No, I <b>have never</b> travelled. I <b>haven't</b> finished <b>yet</b>.`,
+`<b>Present perfect = have/has + past participle.</b> It connects the past with now.<br>Use it for: <b>experience</b> (I have visited Sydney), <b>unfinished time</b> (I have lived here for 3 years / since 2023), <b>recent news</b> (She has just left).<br>Use the <b>past simple</b> when the time is finished and stated: I visited Sydney <b>in 2022</b>.<br><br><b>for</b> + length of time (for two years); <b>since</b> + starting point (since 2023). <b>already</b> (earlier than expected), <b>yet</b> (in questions/negatives), <b>ever / never</b>.`,
+`I <b>have lived</b> in Toronto <b>for</b> five years. I <b>moved</b> here <b>in</b> 2021.<br><b>Have</b> you <b>ever</b> been abroad? No, I <b>have never</b> travelled. I <b>haven't</b> finished <b>yet</b>.`,
 [[`present perfect`,`have/has + past participle`],[`past participle`,`the third form of the verb (done, been, seen)`],[`since`,`from a point in the past until now`],[`for`,`a length of time`]],
 [`Saying "I have seen him yesterday".`,`Saying "I am living here since 2020".`,`Using "since" with a length of time.`,`Forgetting has with he/she/it.`],
-`Choose: 1. I (lived / have lived) here since 2020. 2. She (went / has gone) to Delhi last week. 3. (Did / Have) you ever eaten sushi?`,
+`Choose: 1. I (lived / have lived) here since 2020. 2. She (went / has gone) to Sydney last week. 3. (Did / Have) you ever eaten sushi?`,
 `have lived, went, Have.`,
 [[`I ___ here for three years.`,[`live`,`lived`,`have lived`,`am living`],2,`For + length of time with the present perfect.`],
- [`She ___ to Delhi in 2022.`,[`has gone`,`went`,`goes`,`has been going`],1,`A finished time (2022) needs the past simple.`],
+ [`She ___ to Sydney in 2022.`,[`has gone`,`went`,`goes`,`has been going`],1,`A finished time (2022) needs the past simple.`],
  [`I have worked here ___ 2023.`,[`for`,`since`,`from`,`in`],1,`Since + starting point.`]],
 {match:[[`for`,`three years`],[`since`,`2023`],[`ever`,`in questions about experience`],[`yet`,`in negatives and questions`]],matchInstruction:`Match each word to what it goes with.`,
  reorder:[{words:[`I`,`have`,`lived`,`here`,`since`,`2021.`],instruction:`Build the sentence.`}]}),
@@ -9363,8 +9419,8 @@ G('ac-m-g3','Talking About the Future: Will, Going to, Present Continuous',
 sk[M.S]=[
 G('ac-m-s1','Talking About Past Experiences',
 [`Tell a short story in the past`,`Use time words to order events`,`Answer "What did you do...?" with details`],
-`When you tell a story, use <b>past tenses</b> and <b>order words</b>: first, then, after that, later, finally.<br>Add details: <b>where, when, who, how you felt</b>.<br><br>Structure: 1. Set the scene (Last year I went to Chennai with my family.) 2. What happened (First we..., then...) 3. How it ended and how you felt (Finally... It was wonderful.)<br>Use <b>was/were</b> for feelings: I was nervous. The food was delicious.`,
-`"Last summer I <b>visited</b> my uncle in Chennai. <b>First</b>, we <b>went</b> to the beach. <b>Then</b> we <b>ate</b> dinner at a small restaurant. <b>After that</b>, we <b>walked</b> home. It <b>was</b> a wonderful day, and I <b>felt</b> very happy."`,
+`When you tell a story, use <b>past tenses</b> and <b>order words</b>: first, then, after that, later, finally.<br>Add details: <b>where, when, who, how you felt</b>.<br><br>Structure: 1. Set the scene (Last year I went to Toronto with my family.) 2. What happened (First we..., then...) 3. How it ended and how you felt (Finally... It was wonderful.)<br>Use <b>was/were</b> for feelings: I was nervous. The food was delicious.`,
+`"Last summer I <b>visited</b> my uncle in Toronto. <b>First</b>, we <b>went</b> to the beach. <b>Then</b> we <b>ate</b> dinner at a small restaurant. <b>After that</b>, we <b>walked</b> home. It <b>was</b> a wonderful day, and I <b>felt</b> very happy."`,
 [[`first`,`used to start a sequence`],[`after that`,`used to say what happened next`],[`finally`,`used for the last event`],[`wonderful`,`very good`]],
 [`Mixing present and past ("I go there yesterday").`,`Missing the order words.`,`Saying only short answers.`,`No feeling or detail.`],
 `Record a 30-second story about your last holiday or a special day. Use <b>first, then, after that, finally</b> and say how you felt.`,
@@ -9731,10 +9787,10 @@ G('pr-ph2','Blending Sounds and Letter Pairs (sh, ch, th, ng)',
 sk[M2]=[
 G('pr-vw1','Short Vowel Sounds',
 [`Say the five short vowel sounds clearly`,`Hear the difference between pairs like pan / pen`,`Read short words correctly`],
-`English has five vowel <i>letters</i> (a, e, i, o, u) but about twenty vowel <i>sounds</i>. Start with the five <b>short</b> ones:<br><b>a</b> /æ/ cat &nbsp; <b>e</b> /e/ pen &nbsp; <b>i</b> /ɪ/ sit &nbsp; <b>o</b> /ɒ/ dog &nbsp; <b>u</b> /ʌ/ cup.<br><br>The short <b>a</b> in <i>cat</i> needs a wide-open mouth with lips slightly spread, not the Tamil-style "a" of <i>amma</i>. The short <b>e</b> in <i>pen</i> is smaller. If you mix them, <i>pan</i> and <i>pen</i>, <i>bat</i> and <i>bet</i> sound the same to a listener.<br><br>Short <b>i</b> is relaxed and quick: <i>sit</i>. Do not stretch it into <i>seat</i>. Short <b>u</b> /ʌ/ is a relaxed middle sound: <i>cup</i>, <i>bus</i>.`,
+`English has five vowel <i>letters</i> (a, e, i, o, u) but about twenty vowel <i>sounds</i>. Start with the five <b>short</b> ones:<br><b>a</b> /æ/ cat &nbsp; <b>e</b> /e/ pen &nbsp; <b>i</b> /ɪ/ sit &nbsp; <b>o</b> /ɒ/ dog &nbsp; <b>u</b> /ʌ/ cup.<br><br>The short <b>a</b> in <i>cat</i> needs a wide-open mouth with lips slightly spread, not the flatter "a" of many other languages (for example <i>amma</i> in Tamil). The short <b>e</b> in <i>pen</i> is smaller. If you mix them, <i>pan</i> and <i>pen</i>, <i>bat</i> and <i>bet</i> sound the same to a listener.<br><br>Short <b>i</b> is relaxed and quick: <i>sit</i>. Do not stretch it into <i>seat</i>. Short <b>u</b> /ʌ/ is a relaxed middle sound: <i>cup</i>, <i>bus</i>.`,
 `${S('cat')} ${S('pen')} ${S('sit')} ${S('dog')} ${S('cup')}<br><br>Minimal pairs (only the vowel changes):<br>${S('pan')} / ${S('pen')} &nbsp; ${S('bat')} / ${S('bet')} &nbsp; ${S('sit')} / ${S('set')} &nbsp; ${S('cut')} / ${S('cot')}`,
 [[`short vowel`,`a quick vowel sound, as in cat, pen, sit, dog, cup`],[`minimal pair`,`two words that differ by only one sound`],[`vowel sound`,`the sound made with an open mouth and no blocking`],[`relaxed`,`not tense or stretched`]],
-[`Saying "pen" and "pan" the same.`,`Saying the short a in "cat" like the Tamil அ.`,`Making the short i long ("sit" as "seat").`,`Saying the u in "cup" like oo.`],
+[`Saying "pen" and "pan" the same.`,`Saying the short a in "cat" like the short "a" of your first language.`,`Making the short i long ("sit" as "seat").`,`Saying the u in "cup" like oo.`],
 `Read these pairs aloud and record yourself: <b>bad / bed</b>, <b>pan / pen</b>, <b>bit / bet</b>, <b>cap / cup</b>. Can you hear the difference?`,
 `You should hear a wider mouth for a-words, a smaller mouth for e-words, and a relaxed middle sound for cup.`,
 [[`Which word has the short /ɪ/ vowel?`,[`seat`,`sit`,`site`,`set`],1,`sit /sɪt/ has the short i.`],
@@ -9774,7 +9830,7 @@ G('pr-vw3','Short vs Long: ship / sheep, full / fool',
 sk[M3]=[
 G('pr-cs1','Voiced and Voiceless Consonants',
 [`Feel the difference between voiced and voiceless sounds`,`Say p/b, t/d, k/g, f/v, s/z pairs clearly`,`Avoid mixing up words like pen / Ben`],
-`Put two fingers on your throat. Say /z/ and you feel a <b>buzz</b>: it is <b>voiced</b>. Say /s/ and there is no buzz: it is <b>voiceless</b>.<br><br>Pairs (same mouth position, different voice):<br>/p/ - /b/ &nbsp; /t/ - /d/ &nbsp; /k/ - /g/ &nbsp; /f/ - /v/ &nbsp; /s/ - /z/.<br><br>In Tamil, one letter often covers both sounds, so English pairs such as <i>pen / Ben</i>, <i>time / dime</i>, <i>cold / gold</i> can blur. Also, voiceless /p t k/ at the start of a word get a small <b>puff of air</b>: hold a paper in front of your mouth when you say <i>pen</i>; it should move.`,
+`Put two fingers on your throat. Say /z/ and you feel a <b>buzz</b>: it is <b>voiced</b>. Say /s/ and there is no buzz: it is <b>voiceless</b>.<br><br>Pairs (same mouth position, different voice):<br>/p/ - /b/ &nbsp; /t/ - /d/ &nbsp; /k/ - /g/ &nbsp; /f/ - /v/ &nbsp; /s/ - /z/.<br><br>In some languages, Tamil among them, one letter often covers both sounds, so English pairs such as <i>pen / Ben</i>, <i>time / dime</i>, <i>cold / gold</i> can blur. Also, voiceless /p t k/ at the start of a word get a small <b>puff of air</b>: hold a paper in front of your mouth when you say <i>pen</i>; it should move.`,
 `${S('pen')} / ${S('Ben')} &nbsp; ${S('time')} / ${S('dime')}<br>${S('cold')} / ${S('gold')} &nbsp; ${S('fan')} / ${S('van')}<br>${S('sip')} / ${S('zip')}`,
 [[`voiced`,`made with the vocal cords buzzing (b, d, g, v, z)`],[`voiceless`,`made without buzzing (p, t, k, f, s)`],[`puff of air`,`the small breath after p, t, k at the start of a word`],[`pair`,`two sounds with the same mouth position`]],
 [`Saying p and b the same.`,`Saying t and d the same.`,`Forgetting the puff of air on "pen", "time", "cat".`,`Saying v like w or b.`],
@@ -9904,7 +9960,7 @@ G('pr-ss2','Weak Forms and the Schwa /ə/',
 sk[M7]=[
 G('pr-in1','Intonation: Falling and Rising Tones',
 [`Use a falling tone for statements and wh-questions`,`Use a rising tone for yes/no questions`,`Use the right pattern in lists`],
-`<b>Intonation</b> is the music of speech: the voice goes up and down. The most important movement happens on the last stressed word.<br><br><b>Falling ↘</b>: statements, wh-questions, commands. "I live in Chennai.↘" &nbsp; "Where do you live?↘" &nbsp; "Close the door.↘"<br><b>Rising ↗</b>: yes/no questions. "Do you live here?↗" &nbsp; "Are you ready?↗"<br><b>Lists</b>: rise on each item and fall on the last. "I bought rice↗, milk↗, eggs↗ and bread↘."<br><br>A flat voice sounds bored or unsure and loses marks in speaking exams.`,
+`<b>Intonation</b> is the music of speech: the voice goes up and down. The most important movement happens on the last stressed word.<br><br><b>Falling ↘</b>: statements, wh-questions, commands. "I live in Toronto.↘" &nbsp; "Where do you live?↘" &nbsp; "Close the door.↘"<br><b>Rising ↗</b>: yes/no questions. "Do you live here?↗" &nbsp; "Are you ready?↗"<br><b>Lists</b>: rise on each item and fall on the last. "I bought rice↗, milk↗, eggs↗ and bread↘."<br><br>A flat voice sounds bored or unsure and loses marks in speaking exams.`,
 `${S('Do you live here?')} ↗<br>${S('Where do you live?')} ↘<br>${S('I bought rice, milk, eggs and bread')} ↗ ↗ ↗ ↘`,
 [[`intonation`,`the rise and fall of the voice`],[`falling tone`,`the voice goes down at the end`],[`rising tone`,`the voice goes up at the end`],[`flat`,`staying at one pitch`]],
 [`Speaking in a flat voice.`,`Using a rising tone for every question.`,`Falling at every comma in a list.`,`Rising at the end of every statement (it sounds unsure).`],
@@ -9913,7 +9969,7 @@ G('pr-in1','Intonation: Falling and Rising Tones',
 [[`A yes/no question usually ends with a:`,[`falling tone`,`rising tone`,`flat tone`,`whisper`],1,`Do you like tea? ↗`],
  [`"What is your name?" usually ends with a:`,[`rising tone`,`falling tone`,`laugh`,`flat tone`],1,`Wh-questions usually fall.`],
  [`In a list, the last item usually has a:`,[`rise`,`fall`,`stop with no tone`,`shout`],1,`The voice falls on the last item.`]],
-{match:[[`Are you ready?`,`rising ↗`],[`Where do you live?`,`falling ↘`],[`I live in Madurai.`,`falling ↘`],[`Tea, coffee, milk...`,`rising on each item`]],matchInstruction:`Match each sentence to its usual tone.`,
+{match:[[`Are you ready?`,`rising ↗`],[`Where do you live?`,`falling ↘`],[`I live in Cardiff.`,`falling ↘`],[`Tea, coffee, milk...`,`rising on each item`]],matchInstruction:`Match each sentence to its usual tone.`,
  reorder:[{words:[`Wh-questions`,`usually`,`end`,`with`,`a`,`falling`,`tone.`],instruction:`Build the sentence.`}]}),
 
 G('pr-in2','Intonation Shows Feeling and Attitude',
@@ -9933,7 +9989,7 @@ G('pr-in2','Intonation Shows Feeling and Attitude',
 sk[M8]=[
 G('pr-cd1','V and W',
 [`Make /v/ with teeth on the lip`,`Make /w/ with rounded lips only`,`Tell vine / wine and vest / west apart`],
-`In Tamil one sound is often used for both, so many learners say something in between. English has two clear sounds:<br><b>/v/</b>: upper teeth touch the lower lip, and the voice buzzes. <i>very, voice, visit</i>.<br><b>/w/</b>: lips are rounded like a small circle, <b>no teeth contact</b>. <i>west, water, why</i>.<br><br>Practice: say a long "vvvv" while feeling your lip tickle, then say "ooo" and open into "wwwest". Look in a mirror for the teeth.`,
+`In some languages, Tamil among them, one sound is often used for both, so many learners say something in between. English has two clear sounds:<br><b>/v/</b>: upper teeth touch the lower lip, and the voice buzzes. <i>very, voice, visit</i>.<br><b>/w/</b>: lips are rounded like a small circle, <b>no teeth contact</b>. <i>west, water, why</i>.<br><br>Practice: say a long "vvvv" while feeling your lip tickle, then say "ooo" and open into "wwwest". Look in a mirror for the teeth.`,
 `${S('vine')} / ${S('wine')} &nbsp; ${S('vest')} / ${S('west')}<br>${S('very')} ${S('visit')} ${S('water')} ${S('why')}<br>${S('We visited Vellore in November','We visited Vellore in November.')}`,
 [[`/v/`,`teeth on lower lip, voiced`],[`/w/`,`rounded lips, no teeth`],[`rounded`,`shaped like a small circle`],[`tickle`,`the light buzzing feeling on the lip`]],
 [`Using one in-between sound for v and w.`,`Saying "very" like "wery".`,`Saying "wine" like "vine".`,`Letting the teeth touch the lip for w.`],
@@ -10073,14 +10129,14 @@ const PQ=[
  Q(1,`She ___ a teacher.`,[`am`,`is`,`are`,`be`],1,`She goes with "is".`),
  Q(1,`He ___ two brothers.`,[`have`,`has`,`haves`,`having`],1,`He/she/it uses "has".`),
  Q(1,`What is the plural of "child"?`,[`childs`,`childes`,`children`,`childrens`],2,`Child is irregular: children.`),
- Q(1,`They ___ play cricket on Sundays.`,[`do not`,`does not`,`is not`,`are not`],0,`With "they" and a base verb we use "do not".`),
- Q(1,`"___ do you live?" "I live in Madurai."`,[`What`,`Where`,`Who`,`Why`],1,`The answer is a place, so the question word is Where.`),
+ Q(1,`They ___ play football on Sundays.`,[`do not`,`does not`,`is not`,`are not`],0,`With "they" and a base verb we use "do not".`),
+ Q(1,`"___ do you live?" "I live in Cardiff."`,[`What`,`Where`,`Who`,`Why`],1,`The answer is a place, so the question word is Where.`),
  Q(2,`Yesterday I ___ to the market.`,[`go`,`goes`,`went`,`going`],2,`The past tense of go is went.`),
  Q(2,`She is ___ than her sister.`,[`tall`,`taller`,`tallest`,`more tall`],1,`Use the comparative: taller than.`),
  Q(2,`Look! The children ___ in the garden.`,[`play`,`plays`,`are playing`,`played`],2,`"Look!" shows something happening now: present continuous.`),
  Q(2,`Which word has the stress on the SECOND syllable?`,[`teacher`,`table`,`hotel`,`happy`],2,`ho-TEL. Most two-syllable nouns are stressed on the first syllable, but hotel is on the second.`),
  Q(2,`There isn't ___ milk in the fridge.`,[`many`,`much`,`a few`,`several`],1,`Milk is uncountable, so use "much" in negatives.`),
- Q(3,`I ___ in Chennai since 2020.`,[`live`,`lived`,`have lived`,`am living`],2,`"Since" with a period up to now needs the present perfect.`),
+ Q(3,`I ___ in Toronto since 2020.`,[`live`,`lived`,`have lived`,`am living`],2,`"Since" with a period up to now needs the present perfect.`),
  Q(3,`If it rains tomorrow, we ___ at home.`,[`stay`,`will stay`,`would stay`,`stayed`],1,`First conditional: if + present, will + verb.`),
  Q(3,`English ___ in many countries.`,[`speaks`,`is spoken`,`is speaking`,`spoke`],1,`Passive voice: is spoken.`),
  Q(3,`The woman ___ lives next door is a doctor.`,[`which`,`who`,`whose`,`what`],1,`Use "who" for people as the subject of a relative clause.`),
@@ -12650,7 +12706,7 @@ L('i-w6','Task 2 Body Paragraphs: Point, Explain, Example',
 'Add an explanation: "Exercise is important for students."',
 '"Regular exercise improves concentration and reduces stress, so students who stay active often study more effectively."',
 [['What does PEEL stand for here?',['Point, Explain, Example, Link','Plan, Edit, End, Leave','Pause, Echo, Enter, Leave','Pick, Eat, Enjoy, Lose'],0,'It is a paragraph pattern.'],
- ['Which is a specific example?',['Some people think so','A hospital in Chennai reduced waiting time by half','It is common','Many do this'],1,'Specific cases are stronger.'],
+ ['Which is a specific example?',['Some people think so','A hospital in Toronto reduced waiting time by half','It is common','Many do this'],1,'Specific cases are stronger.'],
  ['One paragraph should have:',['One main idea','Five ideas','No idea','Only a question']  ,0,'Keep one clear idea.']]),
 L('i-w7','Task Response and Conclusions: Answering Every Part of the Question',
 ['Identify every part of the question before writing','Keep a clear position from start to finish','Write a conclusion that matches the introduction'],
@@ -13240,14 +13296,15 @@ async function renderTpGrid(){
   const el=document.getElementById('tp-test-grid');
   el.innerHTML='<div class="empty">Loading…</div>';
   await loadAllTpProgress();
-  el.innerHTML=Object.keys(TEST_DATA).map(key=>{
+  const ord=rgOrderedKeys(), dn=destInfo((getRegion()||{}).dest);
+  el.innerHTML=rgStripHtml()+ord.keys.map(key=>{
     const t=TEST_DATA[key];
     const pct=tpProgressPercent(key);
     return `<div class="tp-test-card" onclick="openTestDetail('${key}')">
       <div class="tp-test-card-top">
         <div class="tp-test-icon">${TEST_ICONS[key]||'🎓'}</div>
         <div>
-          <div class="tp-test-name">${esc(t.name)}</div>
+          <div class="tp-test-name">${esc(t.name)}${ord.top.includes(key)&&dn?`<span class="rg-pop">Common for ${esc(dn.c)}</span>`:''}</div>
         </div>
       </div>
       <div class="tp-stat-row" style="margin:12px 0 10px">${t.stats.map(s=>`<div class="tp-stat"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div>`).join('')}</div>
@@ -13664,25 +13721,74 @@ async function loadMockAccess(force){
   return MOCK_ACCESS;
 }
 function fmtDay(d){return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function planFacts(p){
+  const d=String(p.description||'');
+  const g=re=>{const m=d.match(re);return m?parseInt(m[1],10):null;};
+  return {mocks:p.mocks||0,days:p.valid_days||null,msgs:g(/(\d+)\s*messages/i),reports:g(/(\d+)\s*feedback reports?/i),exams:g(/(\d+)\s*IELTS speaking exams?/i)};
+}
+function perMockText(p){
+  const x=PRICE_MAP[p.code]; if(!x||!p.mocks||STORE_PRICES[p.code])return null;
+  try{return new Intl.NumberFormat(x.currency==='INR'?'en-IN':'en-GB',{style:'currency',currency:x.currency,maximumFractionDigits:x.amount_minor/p.mocks>=10000?0:2}).format(x.amount_minor/100/p.mocks);}catch(e){return null;}
+}
 function planCardsHtml(highlight){
   const plans=MOCK_PLANS||PLAN_FALLBACK;
-  const free=`<div class="tp-info-card" style="margin:0 0 10px"><h4>🎁 Free</h4><p>All lessons, your first full mock (all four sections, with your overall band) and Spark: 15 messages a day. ${highlight==='unlock'?'':''}</p></div>`;
-  return free+plans.map(p=>{
-    const note='';const pt=priceText(p.code);
-    return `<div class="tp-info-card" style="margin:0 0 10px;${(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter')?'border:2px solid var(--pine3,#2D5A94)':''}">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h4 style="margin:0">${esc(p.name)}</h4><p style="margin:4px 0 0">${esc(p.description||'')}</p>${note}</div>
-      <div style="text-align:right;flex:none"><div style="font-family:var(--font-h);font-size:${pt?20:13}px;font-weight:800;color:var(--pine)">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div>
-      <button class="btn" ${(!pt&&currentSession&&!isPreviewMode)?'disabled':''} style="margin-top:6px;width:auto;padding:7px 14px;font-size:12.5px" onclick="choosePlan('${p.code}')">Get this</button></div></div></div>`;
-  }).join('');
+  let best=null,bestV=1e18;
+  plans.forEach(p=>{const x=PRICE_MAP[p.code];if(x&&p.mocks&&x.amount_minor/p.mocks<bestV){bestV=x.amount_minor/p.mocks;best=p.code;}});
+  const li=t=>`<li>${t}</li>`;
+  const free=`<div class="pl-card pl-free"><div class="pl-tag">Start here</div><h4>Free plan</h4><div class="pl-price">Free</div><div class="pl-per">&nbsp;</div>
+    <ul class="pl-list">${li('All lessons and the daily quiz')}${li('Your first full mock, all four sections, with overall band')}${li('Spark speaking partner: 15 messages a day')}</ul>
+    <button class="btn pl-btn pl-btn-o" onclick="closePlansDialog()">Continue free</button></div>`;
+  return `<div class="pl-grid">`+free+plans.map(p=>{
+    const f=planFacts(p),pt=priceText(p.code),pm=perMockText(p);
+    const hl=(highlight==='unlock'&&p.code==='continue')||(highlight==='spark'&&p.code==='starter');
+    return `<div class="pl-card${hl||p.code===best?' pl-hi':''}">${p.code===best?'<div class="pl-tag pl-tag-b">Lowest price per mock</div>':''}
+      <h4>${esc(p.name)}</h4>
+      <div class="pl-price">${esc(pt||((!currentSession||isPreviewMode)?'Sign in to see price':'Price unavailable'))}</div>
+      ${(pm&&p.mocks>1)?`<div class="pl-per">${esc(pm)} per full mock</div>`:'<div class="pl-per">&nbsp;</div>'}
+      <ul class="pl-list">${li('<b>'+f.mocks+'</b> full-length mock'+(f.mocks===1?'':'s'))}${f.days?li('Valid for <b>'+f.days+' days</b>'):''}${f.msgs?li('Spark: <b>'+f.msgs+'</b> messages'):''}${f.reports?li('<b>'+f.reports+'</b> speaking feedback reports'):''}${f.exams?li('<b>'+f.exams+'</b> full IELTS speaking exam'+(f.exams===1?'':'s')):''}</ul>
+      <button class="btn pl-btn" ${(!pt&&currentSession&&!isPreviewMode)?'disabled':''} onclick="choosePlan('${p.code}')">Get this</button></div>`;
+  }).join('')+`</div>`;
+}
+function planCompareHtml(){
+  const plans=MOCK_PLANS||PLAN_FALLBACK;
+  const F=plans.map(planFacts);
+  const dash='<span class="pl-no">–</span>',yes='<span class="pl-yes">✓</span>';
+  const row=(label,free,fn)=>`<tr><td>${label}</td><td>${free}</td>${plans.map((p,i)=>`<td>${fn(F[i],p)}</td>`).join('')}</tr>`;
+  return `<div class="pl-sec"><h3>Compare every plan</h3><div class="pl-tablewrap"><table class="pl-table"><thead><tr><th>Features</th><th>Free</th>${plans.map(p=>`<th>${esc(p.name)}</th>`).join('')}</tr></thead><tbody>
+    ${row('Full-length mock tests','1',f=>f.mocks)}
+    ${row('Valid for','–',f=>f.days?f.days+' days':dash)}
+    ${row('Lessons and daily quiz',yes,()=>yes)}
+    ${row('Final simulation (PTE, IELTS, TOEFL, Duolingo)',dash,()=>'Uses 1 mock')}
+    ${row('Spark speaking partner','15 messages a day',f=>f.msgs?f.msgs+' messages':dash)}
+    ${row('Speaking feedback reports',dash,f=>f.reports||dash)}
+    ${row('Full IELTS speaking exams with Spark',dash,f=>f.exams||dash)}
+    ${row('Estimated score and PDF report',yes,()=>yes)}
+    ${row('Auto-renewal','None',()=>'None')}
+    </tbody></table></div></div>`;
+}
+function planBenefitsHtml(){
+  const B=[['Real exam screen','Timer, question numbers, one-time audio and part navigation, built to feel like the computer-delivered test.'],
+   ['Fixed, checked simulations','The final simulations for IELTS, PTE, TOEFL and Duolingo are written and checked in advance, so every student sits the same fair test.'],
+   ['Marked on the real criteria','Writing and speaking are scored against the marking criteria of each exam, with comments on what to fix.'],
+   ['Instant results','Your estimated score, section scores and a task-by-task breakdown as soon as you finish, plus a PDF report.'],
+   ['Spark, your speaking partner','Practise real conversations and get feedback on grammar and fluency whenever you like.'],
+   ['Lessons and daily quiz are free','Every lesson and a fresh 5-question quiz each day cost nothing, so a plan only pays for mocks and marking.']];
+  return `<div class="pl-sec"><h3>What you are paying for</h3><p class="pl-sub">Mocks and marking are the costly part to run, so that is what a plan covers. Everything else stays free.</p><div class="pl-ben">${B.map((b,i)=>`<div class="pl-b"><span>${i+1}</span><h5>${b[0]}</h5><p>${b[1]}</p></div>`).join('')}</div></div>`;
+}
+function planWhyHtml(){
+  return `<div class="pl-sec pl-why"><h3>Why these prices?</h3><ul>
+   <li><b>Pay for what you use.</b> Plans are one-time packs of mocks. There is no subscription and nothing renews.</li>
+   <li><b>Bigger packs cost less per mock.</b> The price per mock is shown on every card so you can compare.</li>
+   <li><b>Every full mock includes real marking</b> of your speaking and writing, which is the largest cost to us, plus the audio, storage and your PDF report.</li>
+   <li><b>Estimates, not official scores.</b> Our scores are practice estimates. Step4Progress is not affiliated with or endorsed by IELTS, Pearson, ETS or Duolingo.</li></ul></div>`;
 }
 function openPlansDialog(reason){
   closePlansDialog();
-  const msg={mock:'You have used your free mock. Pick a plan to take your next full mock.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'Plans give you more Spark messages every day, plus the full IELTS speaking exam.'}[reason]||'Choose the plan that suits you.';
+  const msg={mock:'You have used your free mock. Pick a plan to take your next full mock.',unlock:'Unlock the rest of your free mock, or pick a bigger plan.',spark:'Plans give you more Spark messages, plus the full IELTS speaking exam.'}[reason]||'Choose the plan that suits you. One-time packs, no subscription.';
   const o=document.createElement('div');o.id='plans-overlay';
-  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:0';
-  o.innerHTML=`<div style="background:var(--cream,#fff);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 22px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3 style="font-size:18px;color:var(--pine);margin:0">Choose your plan</h3><button class="tp-reveal-btn" onclick="closePlansDialog()">Close</button></div>
-    <p style="color:var(--ink3);font-size:13.5px;margin-bottom:12px">${esc(msg)}</p><div id="plans-body">${planCardsHtml(reason)}</div></div>`;
+  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;overflow:auto';
+  o.innerHTML=`<div class="pl-sheet"><div class="pl-hero"><button class="pl-close" onclick="closePlansDialog()">✕ Close</button><div class="pl-eyebrow">Plans</div><h3>Practise like it is the real exam</h3><p>${esc(msg)}</p></div>
+    <div class="pl-body"><div id="plans-body">${planCardsHtml(reason)}</div>${planCompareHtml()}${planBenefitsHtml()}${planWhyHtml()}</div></div>`;
   o.addEventListener('click',e=>{if(e.target===o)closePlansDialog();});
   document.body.appendChild(o);
   if(IS_NATIVE&&!Object.keys(STORE_PRICES).length){ ensureBilling().then(()=>{const b=document.getElementById('plans-body'); if(b&&Object.keys(STORE_PRICES).length)b.innerHTML=planCardsHtml(reason);}); }
@@ -14408,15 +14514,28 @@ function pmReviewTable(r,label){
   if(!r||!r.detail)return '';
   return `<div class="pm-card"><h3>${label} answers (${r.correct} of ${r.total} correct)</h3><div style="overflow:auto"><table class="pm-rev" style="width:100%;border-collapse:collapse"><tr><th>#</th><th>Your answer</th><th>Correct answer</th><th></th></tr>${r.detail.map(d=>`<tr><td>${d.n}</td><td>${esc(d.given||'(blank)')}</td><td>${esc(d.answer)}</td><td class="${d.ok?'pm-ok':'pm-no'}">${d.ok?'✓':'✗'}</td></tr>`).join('')}</table></div></div>`;
 }
+// ── Score card: one look for every exam result (ring, skill bars, scale) ──
+function s4pScoreCard(o){
+  const min=o.min,span=o.max-o.min,pct=v=>Math.max(0,Math.min(100,(v-min)/span*100));
+  const has=typeof o.overall==='number',R=54,C=2*Math.PI*R;
+  const skills=(o.skills||[]).filter(x=>x),num=skills.filter(x=>typeof x.v==='number').sort((a,b)=>b.v-a.v);
+  const ring=`<svg viewBox="0 0 130 130" width="150" height="150" role="img" aria-label="${has?esc(o.unit+' '+o.overallText):'No overall score'}"><circle cx="65" cy="65" r="${R}" fill="none" stroke="#e5e9f2" stroke-width="12"/>${has?`<circle cx="65" cy="65" r="${R}" fill="none" stroke="#1f3f86" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(C*pct(o.overall)/100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 65 65)"/>`:''}<text x="65" y="${has?66:70}" text-anchor="middle" font-size="${has?34:26}" font-weight="800" fill="#0d1f45">${has?esc(o.overallText):'–'}</text>${has&&o.outOf?`<text x="65" y="86" text-anchor="middle" font-size="12" fill="#667">${esc(o.outOf)}</text>`:''}</svg>`;
+  const rows=skills.map(x=>`<div class="sc-row"><div class="sc-top"><span>${esc(x.name)}</span><b>${typeof x.v==='number'?esc(x.vText!=null?x.vText:x.v):'–'}</b></div><div class="sc-bar"><i style="width:${typeof x.v==='number'?pct(x.v).toFixed(0):0}%"></i></div>${x.note?`<div class="sc-note">${esc(x.note)}</div>`:''}</div>`).join('');
+  const extra=(o.extra||[]).filter(x=>typeof x[1]==='number').map(x=>`<span class="sc-chip">${esc(x[0])} <b>${x[1]}</b></span>`).join('');
+  const marker=has?`<div class="sc-scale"><div class="sc-track"><span class="sc-mark" style="left:${pct(o.overall).toFixed(1)}%"></span></div><div class="sc-ends"><span>${esc(o.minText!=null?o.minText:min)}</span><span>${esc(o.maxText!=null?o.maxText:o.max)}</span></div></div>`:'';
+  const focus=num.length>1?`<div class="sc-focus"><span><b>Strongest</b> ${esc(num[0].name)}</span><span><b>To work on</b> ${esc(num[num.length-1].name)}</span></div>`:'';
+  return `<div class="sc-card"><div class="sc-head"><div><div class="sc-eyebrow">${esc(o.exam)}</div><div class="sc-title">${esc(o.title||'Your estimated result')}</div></div><span class="sc-pill">Practice estimate</span></div>
+   <div class="sc-body"><div class="sc-left">${ring}<div class="sc-unit">${esc(o.unit)}</div>${o.sub?`<div class="sc-sub">${esc(o.sub)}</div>`:''}${has?'':`<p class="sc-warn">Some parts could not be marked, so an overall score is not shown.</p>`}</div><div class="sc-right">${rows}</div></div>
+   ${marker}${extra?`<div class="sc-chips">${extra}</div>`:''}${focus}<div class="sc-foot">${esc(o.note||'An estimate based on this practice test. It is not an official score.')}</div></div>`;
+}
 function pmResult(){
   const r=PM.res, o=r.overall, bs=(b)=>(typeof b==='number')?fmBandStr(b):'–';
   const lb=r.lb, rb=r.rb, wb=r.writing&&r.writing.band, sb_=r.speaking&&r.speaking.band;
   const secs=[['Listening','🎧',lb,r.listening?`${r.listening.correct}/${r.listening.total} correct`:''],['Reading','📖',rb,r.reading?`${r.reading.correct}/${r.reading.total} correct`:''],['Writing','✍️',wb,''],['Speaking','🗣️',sb_,'']];
   const scored=secs.filter(s=>typeof s[2]==='number').sort((a,b)=>a[2]-b[2]);
-  let h=`<div class="pm-wrap"><div class="pm-card" style="text-align:center"><div style="font-size:42px">${o&&o>=6.5?'🎉':'💪'}</div>
-   ${typeof o==='number'?`<div class="pm-bignum">Overall Band ${fmBandStr(o)}</div>`:`<div class="pm-bignum" style="font-size:28px">Result</div><p>Some sections could not be marked, so an overall band is not shown.</p>`}
-   <p style="color:#667;font-size:13px">An estimate based on this practice test. It is not an official IELTS score.</p></div>
-   <div class="pm-grid">${secs.map(s=>`<div class="pm-tile"><div style="font-size:22px">${s[1]}</div><div style="font-weight:700">${s[0]}</div><div class="b">${bs(s[2])}</div><div style="font-size:12px;color:#667">${esc(s[3])}</div></div>`).join('')}</div>`;
+  const bandDesc=(b)=>({9:'Expert user',8:'Very good user',7:'Good user',6:'Competent user',5:'Modest user',4:'Limited user',3:'Extremely limited user',2:'Intermittent user',1:'Non user'})[Math.floor(b)]||'';
+  let h=`<div class="pm-wrap">`+s4pScoreCard({exam:'IELTS Academic',unit:'Overall band',overall:o,overallText:typeof o==='number'?fmBandStr(o):'',min:0,max:9,minText:'0',maxText:'9',sub:typeof o==='number'?bandDesc(o):'',
+    skills:secs.map(s=>({name:s[0],v:s[2],vText:bs(s[2]),note:s[3]})),note:'An estimate based on this practice test. It is not an official IELTS score.'});
   if(scored.length>1)h+=`<div class="pm-card" style="margin-top:14px"><h3>Where to focus next</h3><p>Your lowest section was <b>${scored[0][0]}</b> (Band ${bs(scored[0][2])}). Your counsellor can suggest lessons and practice for it.</p></div>`;
   if(r.writing&&r.writing.tasks)r.writing.tasks.forEach(t=>{ h+=`<div style="margin-top:14px">${fmFeedbackCard('Writing Task '+t.no+' ('+t.words+' words)',t.g,t.ans,null)}</div>`; });
   if(r.speaking)h+=`<div style="margin-top:14px">${fmFeedbackCard('Speaking',r.speaking.g,r.speaking.qa,null)}</div>`;
@@ -14996,13 +15115,127 @@ async function dqNext(){
 }
 // ── Lesson trim (approved 14 Nov 2026): hidden, not deleted, so saved progress is safe ──
 const TRIMMED_LESSONS=new Set(['f-l4', 'f-l5', 'f-r3', 'f-r5', 'f-w3', 'f-w5', 'f-s5', 'f-s7', 'd-l3', 'd-l7', 'd-r3', 'd-r5', 'd-w5', 'd-w7', 'd-s3', 'd-s5', 'i-l5', 'i-l7', 'i-r3', 'i-r5', 'i-w5', 'i-w7', 'i-s5', 'i-s6', 'a-l4', 'a-l5', 'a-r3', 'a-r6', 'a-w1', 'a-w3', 'a-s4', 'a-s6', 'pf-sw4', 'pf-r4', 'pf-l4', 'pd-sw4', 'pd-r2', 'pd-l4', 'pd-r5', 'pi-sw2', 'pi-r2', 'pi-r3', 'pi-l4', 'pa-sw2', 'pa-sw4', 'pa-r5', 'pa-l2', 'pa-l6', 'ti-r5', 'ti-r6', 'ti-s1', 'ti-s2', 'ti-s3', 'ti-s4', 'ta-s1', 'td-s1', 'td-s2', 'ta-r3', 'tf-r6', 'tf-l3', 'tf-w3', 'tf-w6', 'tf-s2', 'tf-s5', 'td-r3', 'td-w3', 'td-l2', 'ta-r5', 'ta-l4', 'ta-l6', 'ta-w3', 'ta-w6', 'ta-s4', 'ta-s6', 'dl-li2', 'dl-co2', 'dl-cv2', 'dl-pr4', 'dd-li2', 'dd-co2', 'dd-cv2', 'dd-pr2', 'di-li2', 'di-co2', 'di-cv2', 'di-pr2', 'da-li2', 'da-co2', 'da-cv2', 'da-pr2', 'gr-sb-basics4', 'gr-sb-basics5', 'gr-sb1', 'gr-sb2', 'gr-ta1', 'gr-ta4', 'gr-sk2', 'gr-sk7', 'gr-sx2', 'gr-sx3', 'gr-sx4', 'gr-sx6', 'gr-bb2', 'gr-wi1', 'pr-ph1', 'pr-cs3', 'pr-sy2', 'pr-ws2', 'ac-b-g1', 'ac-b-r3', 'ac-m-w3', 'ac-m-r3', 'ac-p-w3', 'ac-p-g2']);
+// ── Region and language filter (14 Nov 2026) ─────────────────────────
+// Lessons stay worldwide. Only the Tamil learner pack (lessons that explain with Tamil words or Tamil mistakes) is hidden for people who say Tamil is not their first language.
+const TAMIL_PACK=new Set(['gr-pf1','ac-b-w1','ac-b-w2','ac-b-w3','ac-b-s2']);
+const REGION_KEY='s4p_region';
+function getRegion(){try{return JSON.parse(localStorage.getItem(REGION_KEY)||'null');}catch(e){return null;}}
+function setRegion(r){try{localStorage.setItem(REGION_KEY,JSON.stringify(r));}catch(e){}}
+const __FULL={};
 (function(){
-  const keep=l=>!TRIMMED_LESSONS.has(l.id);
-  Object.values(TEST_DATA).forEach(t=>{
-    if(Array.isArray(t.gettingStarted))t.gettingStarted=t.gettingStarted.filter(keep);
-    (t.levels||[]).forEach(v=>{Object.keys(v.skills||{}).forEach(s=>{v.skills[s]=v.skills[s].filter(keep);});});
+  const trimmed=l=>!TRIMMED_LESSONS.has(l.id);
+  Object.entries(TEST_DATA).forEach(([k,t])=>{
+    const f={gs:(t.gettingStarted||[]).filter(trimmed),lv:[]};
+    (t.levels||[]).forEach(v=>{const sk={};Object.keys(v.skills||{}).forEach(n=>{sk[n]=v.skills[n].filter(trimmed);});f.lv.push(sk);});
+    __FULL[k]=f;
   });
 })();
+function applyRegionFilter(){
+  const r=getRegion();
+  const hide=!!(r&&r.home&&r.home!=='ta'&&!r.showAll);
+  const keep=l=>!(hide&&TAMIL_PACK.has(l.id));
+  Object.entries(TEST_DATA).forEach(([k,t])=>{
+    const f=__FULL[k];
+    if(Array.isArray(t.gettingStarted))t.gettingStarted=f.gs.filter(keep);
+    (t.levels||[]).forEach((v,i)=>{const sk={};Object.keys(f.lv[i]).forEach(n=>{const a=f.lv[i][n].filter(keep);if(a.length)sk[n]=a;});v.skills=sk;});
+  });
+  syncLessonCounts(hide);
+}
+// Keep every lesson count on the cards and info tabs equal to what the student can actually open.
+const __ORIG={};
+function syncLessonCounts(hide){
+  const orig=(key,val)=>(key in __ORIG)?__ORIG[key]:(__ORIG[key]=val);
+  Object.entries(TEST_DATA).forEach(([k,t])=>{
+    const lv=t.levels||[], sum=v=>Object.values(v.skills).reduce((n,a)=>n+a.length,0);
+    const total=(t.gettingStarted||[]).length+lv.reduce((n,v)=>n+sum(v),0);
+    (t.stats||[]).forEach((st,i)=>{
+      if(st[1]==='Lessons')st[0]=String(total);
+      if(k==='English'&&/Tamil support/.test(orig('stat'+i,st[1])))st[1]=hide?'Three levels, A1 to B2':orig('stat'+i,st[1]);
+    });
+    ((t.info&&t.info.sections)||[]).forEach((sec,i)=>{
+      let n=null;const m=/^Level (\d)/.exec(sec[0]);
+      if(m&&lv[m[1]-1])n=sum(lv[m[1]-1]);
+      else if(/^\d+ lessons?$/.test(sec[1])){lv.forEach(v=>{if(v.skills[sec[0]])n=(n||0)+v.skills[sec[0]].length;});}
+      if(n!==null)sec[1]=n+(n===1?' lesson':' lessons');
+      if(sec[2]&&/Tamil support/.test(orig(k+'sec'+i,sec[2])))sec[2]=hide?orig(k+'sec'+i,sec[2]).replace(/\s*Tamil support (is )?included\./,''):orig(k+'sec'+i,sec[2]);
+    });
+    lv.forEach((v,i)=>{if(v.band&&/Tamil support/.test(orig(k+'band'+i,v.band)))v.band=hide?orig(k+'band'+i,v.band).replace(/\s*Tamil support (is )?included\./,''):orig(k+'band'+i,v.band);});
+  });
+}
+applyRegionFilter();
+// ── Destination chooser ("Where do you want to go?") ─────────────────
+const DEST_LIST=[
+  {k:'uk',n:'United Kingdom',c:'UK',exams:['IELTS','PTE']},
+  {k:'us',n:'United States',c:'US',exams:['TOEFL','IELTS','Duolingo']},
+  {k:'ca',n:'Canada',c:'CA',exams:['IELTS','PTE','TOEFL']},
+  {k:'au',n:'Australia',c:'AU',exams:['PTE','IELTS','TOEFL']},
+  {k:'nz',n:'New Zealand',c:'NZ',exams:['IELTS','PTE','TOEFL']},
+  {k:'other',n:'Somewhere else or not sure yet',c:'🌍',exams:[]}
+];
+const destInfo=k=>DEST_LIST.find(d=>d.k===k)||null;
+let rgDraft=null;
+function rgTilesHtml(){
+  return DEST_LIST.map(d=>`<button type="button" class="rg-tile${rgDraft.dest===d.k?' on':''}" onclick="rgPick('dest','${d.k}')"><span class="rg-badge">${d.c}</span><span class="rg-name">${esc(d.n)}</span></button>`).join('');
+}
+function rgLangHtml(){
+  const o=[['ta','Tamil'],['other','Another language']];
+  return o.map(x=>`<button type="button" class="rg-chip${rgDraft.home===x[0]?' on':''}" onclick="rgPick('home','${x[0]}')">${x[1]}</button>`).join('');
+}
+function rgPick(field,v){rgDraft[field]=v;const t=document.getElementById('rg-tiles'),l=document.getElementById('rg-langs');if(t)t.innerHTML=rgTilesHtml();if(l)l.innerHTML=rgLangHtml();const b=document.getElementById('rg-save');if(b)b.disabled=!(rgDraft.dest&&rgDraft.home);}
+function openDestChooser(){
+  closeDestChooser();
+  const cur=getRegion()||{};
+  rgDraft={dest:cur.dest||'',home:cur.home||''};
+  const o=document.createElement('div');o.id='rg-overlay';
+  o.style.cssText='position:fixed;inset:0;background:rgba(15,25,45,.55);z-index:9999;overflow:auto';
+  o.innerHTML=`<div class="pl-sheet" style="max-width:640px"><div class="pl-hero"><button class="pl-close" onclick="closeDestChooser()">✕ Close</button><div class="pl-eyebrow">Your plan</div><h3>Where do you want to go?</h3><p>Tell us where you plan to study or work, and we will show the tests students commonly prepare for there.</p></div>
+    <div class="pl-body">
+      <div class="rg-q">1. Your destination</div><div class="rg-tiles" id="rg-tiles">${rgTilesHtml()}</div>
+      <div class="rg-q">2. Your first language</div><div id="rg-langs" style="display:flex;gap:8px;flex-wrap:wrap">${rgLangHtml()}</div>
+      <p class="rg-note">All lessons are written for learners worldwide. If your first language is Tamil, we also show lessons that explain with Tamil words and common Tamil-speaker mistakes. More language packs will follow.</p>
+      <p class="rg-note">Rules differ by university and by visa type. Always confirm the English test you need on the official page of your university or government.</p>
+      <button class="btn" id="rg-save" onclick="rgSave()" ${rgDraft.dest&&rgDraft.home?'':'disabled'}>Save and continue</button>
+      ${cur.dest?'<button class="btn-outline btn" style="margin-top:8px" onclick="rgClear()">Clear my choices</button>':''}
+    </div></div>`;
+  o.addEventListener('click',e=>{if(e.target===o)closeDestChooser();});
+  document.body.appendChild(o);
+}
+function closeDestChooser(){const o=document.getElementById('rg-overlay');if(o)o.remove();}
+function rgSave(){
+  if(!rgDraft||!rgDraft.dest||!rgDraft.home)return;
+  setRegion({dest:rgDraft.dest,home:rgDraft.home,showAll:false});
+  applyRegionFilter();closeDestChooser();try{renderTpGrid();}catch(e){}
+}
+function rgClear(){try{localStorage.removeItem(REGION_KEY);}catch(e){}applyRegionFilter();closeDestChooser();try{renderTpGrid();}catch(e){}}
+function rgShowAll(on){const r=getRegion();if(!r)return;r.showAll=!!on;setRegion(r);applyRegionFilter();try{renderTpGrid();}catch(e){}}
+function rgStripHtml(){
+  const r=getRegion();
+  if(!r||!r.dest)return `<div class="rg-strip"><div><b>Where do you want to go?</b><span>Choose your destination and first language to tailor your lessons and test list.</span></div><button class="btn" style="width:auto;padding:9px 16px;margin:0;font-size:13.5px" onclick="openDestChooser()">Choose</button></div>`;
+  const d=destInfo(r.dest);
+  const hidden=r.home!=='ta'&&!r.showAll;
+  return `<div class="rg-strip"><div><b>Going to: ${esc(d?d.n:'')}</b><span>First language: ${r.home==='ta'?'Tamil':'another language'}${hidden?' · Tamil learner lessons are hidden':''}</span></div><button class="btn-outline btn" style="width:auto;padding:8px 14px;margin:0;font-size:13px" onclick="openDestChooser()">Change</button></div>`
+    +(r.home!=='ta'?`<label class="rg-toggle"><input type="checkbox" ${r.showAll?'checked':''} onchange="rgShowAll(this.checked)"> Show Tamil learner lessons too</label>`:'')
+    +(r.dest==='uk'?rgSeltHtml():'');
+}
+function rgSeltHtml(){
+  const rows=[
+    ['PTE Home A1','First-time family visas','Speaking, listening','22 min','A1'],
+    ['PTE Home A2','Family visa extensions','Speaking, listening','25 min','A2'],
+    ['PTE Home B1','Settlement and British citizenship','Speaking, listening','22 min','B1'],
+    ['PTE Academic UKVI','Skilled Worker visas and some study routes','All four skills','About 2 hours','B1 to C1']
+  ];
+  return `<div class="rg-selt"><h4>UK visa English tests at a glance</h4><div class="rg-scroll"><table><thead><tr><th>Test</th><th>Used for</th><th>Skills</th><th>Time</th><th>Level</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>i?`<td>${esc(c)}</td>`:`<th scope="row">${esc(c)}</th>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="rg-note">Pearson tests only. Other providers also offer approved tests, so check the GOV.UK list before you book. Source: Pearson PTE pages. Last verified 13 November 2026.</p></div>`;
+}
+function rgOrderedKeys(){
+  const keys=Object.keys(TEST_DATA),r=getRegion(),d=r&&destInfo(r.dest);
+  if(!d||!d.exams.length)return {keys,top:[]};
+  const exam=['IELTS','PTE','TOEFL','Duolingo'].filter(k=>keys.includes(k));
+  const slots=keys.map((k,i)=>exam.includes(k)?i:-1).filter(i=>i>=0);
+  const pref=d.exams.filter(k=>exam.includes(k)).concat(exam.filter(k=>!d.exams.includes(k)));
+  const out=keys.slice();slots.forEach((i,j)=>{out[i]=pref[j];});
+  return {keys:out,top:d.exams.slice(0,2)};
+}
 // ── Lessons: Getting Started + Level → Skill → Lesson navigation ────
 let currentTpLevel=null; // level key while browsing within a level
 function lessonRow(l,onclickCall){
@@ -17651,10 +17884,9 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   function result(){
     hideTimer(); const f=D.final||{}; D.view=true;
     const tile=(n,v)=>`<div class="dt-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b></div>`;
-    let h=`<div class="dt-wrap"><div class="dt-card" style="text-align:center"><div style="font-size:42px">${f.overall&&f.overall>=120?'🎉':'💪'}</div>
-      ${f.overall!=null?`<div class="dt-score">${f.overall}<span style="font-size:20px;color:#667"> / 160</span></div><div style="color:#667;font-size:13px">Estimated Duolingo English Test score. Not an official result.</div>`:`<h3>Result</h3><p>Some parts could not be marked, so an overall score is not shown.</p>`}</div>
-      <div class="dt-grid">${tile('Reading',f.reading)}${tile('Listening',f.listening)}${tile('Writing',f.writing)}${tile('Speaking',f.speaking)}</div>
-      <div class="dt-grid" style="margin-top:10px">${tile('Literacy',f.literacy)}${tile('Comprehension',f.comprehension)}${tile('Conversation',f.conversation)}${tile('Production',f.production)}</div>`;
+    let h=`<div class="dt-wrap">`+s4pScoreCard({exam:'Duolingo English Test',unit:'Overall score',overall:f.overall,overallText:f.overall!=null?String(f.overall):'',outOf:'out of 160',min:10,max:160,
+      skills:[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking]].map(x=>({name:x[0],v:x[1]})),
+      extra:[['Literacy',f.literacy],['Comprehension',f.comprehension],['Conversation',f.conversation],['Production',f.production]],note:'Estimated Duolingo English Test score. Not an official result.'});
     const lv=D.tier?`<div class="dt-card" style="margin-top:14px"><h3 style="font-size:16px">How far you climbed</h3><p style="font-size:14px;line-height:1.7">The test gets harder when you answer correctly. By the end you were working at: Read and Select level ${D.tier.rs||'-'}, Read and Complete level ${D.tier.fib||'-'}, Listen and Type level ${D.tier.lt||'-'}, Interactive Reading level ${D.tier.ir||'-'} (1 = easiest, 3 = hardest).</p></div>`:'';
     if(D.tier)h+=lv;
     if(D.tasks){ h+=D.tasks.writing.map(g_card).join('')+D.tasks.speaking.map(g_card).join('');
@@ -18260,7 +18492,9 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   // ---------- Reading ----------
   function rd(step){
     const m=T.c.reading.mods[step.mod]; const ctw=m.ctw;
-    let h=`<div class="tf-wrap"><div class="tf-card"><h3>Complete the Words</h3><p style="font-size:13.5px;color:#667">Type the missing letters to finish each word.</p><div class="tf-ctw">${E(ctw.text).replace(/«([^|»]*)\|(\d+)»/g,(x,p,n)=>`<b>${p}</b><input class="tf-blank" data-p="${p}" maxlength="${n}" size="${+n+1}" autocomplete="off" autocapitalize="off" spellcheck="false">`)}</div></div>`;
+    let h=`<div class="tf-wrap">`+s4pScoreCard({exam:'TOEFL iBT (2026 format)',unit:'Overall band',overall:f.overall,overallText:f.overall!=null?String(f.overall):'',outOf:'out of 6',min:1,max:6,
+      sub:f.overall!=null?CEFR(f.overall)+' · comparable to '+OLD(f.overall)+' on the old 0 to 120 scale':'',
+      skills:[['Reading',f.reading],['Listening',f.listening],['Writing',f.writing],['Speaking',f.speaking]].map(x=>({name:x[0],v:x[1],note:x[1]!=null?CEFR(x[1])+' · old scale '+OLD(x[1]):''})),note:'Estimated TOEFL iBT score. Not an official ETS result.'});
     (m.daily||[]).forEach(d=>{ h+=`<div class="tf-card"><h3>Read in Daily Life · ${E(d.kind||'')}</h3><b>${E(d.title||'')}</b><div class="tf-pass">${E(d.text)}</div>${qsHtml(d.qs)}</div>`; });
     const a=m.acad; if(a)h+=`<div class="tf-card"><h3>Read an Academic Passage</h3><b>${E(a.title||'')}</b><div class="tf-pass">${E(a.text)}</div>${qsHtml(a.qs)}</div>`;
     main(h+'</div>'); foot('<button class="tf-btn" onclick="tfNext()">Submit this module</button>');
@@ -19309,9 +19543,9 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   function result(){
     hideTimer(); const f=T.final||{}; T.view=true;
     const tile=(n,v)=>`<div class="pt-tile"><div style="font-size:13px;color:#667">${n}</div><b>${v!=null?v:'–'}</b>${v!=null?`<div style="font-size:11.5px;color:#667">${CEFR(v)}</div>`:''}</div>`;
-    let h=`<div class="pt-wrap"><div class="pt-card" style="text-align:center"><div style="font-size:42px">${f.overall&&f.overall>=65?'🎉':'💪'}</div>
-      ${f.overall!=null?`<div class="pt-score">${f.overall}<span style="font-size:20px;color:#667"> / 90</span></div><div style="color:#14365f;font-weight:700">${CEFR(f.overall)} · estimated overall score</div>`:`<div style="font-size:15px;color:#B3261E;margin:8px 0">Some parts could not be marked, so no overall score is shown. Your other scores are below.</div>`}</div>
-      <div class="pt-grid">${tile('Speaking',f.speaking)}${tile('Writing',f.writing)}${tile('Reading',f.reading)}${tile('Listening',f.listening)}</div>`;
+    let h=`<div class="pt-wrap">`+s4pScoreCard({exam:'PTE Academic',unit:'Overall score',overall:f.overall,overallText:f.overall!=null?String(f.overall):'',outOf:'out of 90',min:10,max:90,
+      sub:f.overall!=null?CEFR(f.overall)+' · estimated overall score':'',
+      skills:[['Speaking',f.speaking],['Writing',f.writing],['Reading',f.reading],['Listening',f.listening]].map(x=>({name:x[0],v:x[1],note:x[1]!=null?CEFR(x[1]):''})),note:'Estimated PTE Academic score. Not an official Pearson result.'});
     const types=f.types||{}; const rows=Object.keys(types).sort((a,b)=>types[a]-types[b]);
     if(rows.length)h+=`<div class="pt-card" style="margin-top:14px"><h3 style="font-size:16px">Task by task (marked questions)</h3><table class="pt-tt">${rows.map(k=>`<tr><td>${E(TYPE_NAMES[k]||k)}</td><td style="width:90px;text-align:right"><b>${Math.round(types[k]*100)}%</b></td></tr>`).join('')}</table><p style="font-size:12.5px;color:#667;margin:8px 0 0">Lowest first. Start your practice with the top rows.</p></div>`;
     if(f.ra!=null||f.rs!=null)h+=`<div class="pt-card"><h3 style="font-size:16px">Read Aloud and Repeat Sentence</h3><p style="font-size:14px;line-height:1.7">Read Aloud: you said <b>${Math.round((f.ra||0)*100)}%</b> of the words. Repeat Sentence: <b>${Math.round((f.rs||0)*100)}%</b>. These are compared with what the microphone heard, so a noisy room lowers them.</p></div>`;
