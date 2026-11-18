@@ -1009,6 +1009,8 @@ html.native #install-banner,html.native .install-banner{display:none!important}
         <button class="tp-subtab" data-sub="info" onclick="setTpSubtab('info')">General Info</button>
         <button class="tp-subtab" data-sub="coaching" onclick="setTpSubtab('coaching')">Coaching</button>
         <button class="tp-subtab" data-sub="lessons" onclick="setTpSubtab('lessons')">Lessons</button>
+        <button class="tp-subtab" data-sub="skills" onclick="setTpSubtab('skills')">My Skills</button>
+        <button class="tp-subtab" data-sub="drills" onclick="setTpSubtab('drills')">Speech Drills</button>
         <button class="tp-subtab" data-sub="mocks" onclick="setTpSubtab('mocks')">Mock Tests</button>
       </div>
       <div id="tp-subtab-content"></div>
@@ -13821,6 +13823,7 @@ function closeTestDetail(){
 }
 
 function setTpSubtab(sub){
+  try{ if(sub!=='drills')scStop(true); }catch(e){}
   document.querySelectorAll('.tp-subtab').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
   const t=TEST_DATA[currentTpTest];
   const el=document.getElementById('tp-subtab-content');
@@ -13851,6 +13854,10 @@ function setTpSubtab(sub){
       `<div class="tp-info-card" style="text-align:center"><p style="margin-bottom:8px">Interested in structured coaching?</p><a href="https://wa.me/919159158881" target="_blank" style="color:var(--pine);font-weight:600;text-decoration:underline">Chat on WhatsApp</a></div>`;
   } else if(sub==='lessons'){
     renderLessonsRoot();
+  } else if(sub==='skills'){
+    renderSkillsTab();
+  } else if(sub==='drills'){
+    scRender();
   } else if(sub==='mocks'){
     renderMocksTab();
   }
@@ -13902,6 +13909,138 @@ function computeMockGating(attempts,tier,levelKey){
   return {allowed:false,used,max,cooldownText:`Next attempt available in ${h}h ${m}m`};
 }
 let mockAttemptsCache=[];
+// ── Skills overview + Speech Drills (free: no AI calls) ───────────
+// Skills: one card per skill with lessons done and mock results, built from data already loaded.
+// Speech Drills: Read Aloud and Repeat Sentence using the phone's own speech recognition.
+// Each target word is shown green (heard clearly), amber (close) or red (not heard). The phone hears words, not accents,
+// so this is a guide, not an official pronunciation score.
+async function renderSkillsTab(){
+  const t=TEST_DATA[currentTpTest], el=document.getElementById('tp-subtab-content');
+  const levels=t.levels||[], mods=(t.modules&&t.modules.length)?t.modules:[];
+  if(!mods.length){ el.innerHTML=`<div class="tp-info-card"><p>Skill progress for ${esc(t.name)} appears here once its lessons are added.</p></div>`; return; }
+  el.innerHTML='<div class="empty">Loading…</div>';
+  try{ mockAttemptsCache=await loadMockAttempts(currentTpTest); }catch(e){ mockAttemptsCache=mockAttemptsCache||[]; }
+  const done=tpProgressCache[currentTpTest]||{}, icons={Listening:'🎧',Reading:'📖',Writing:'✍️',Speaking:'🗣️',Grammar:'🧩',Vocabulary:'📚'};
+  const cards=mods.map(skill=>{
+    const ls=levels.flatMap(l=>(l.skills&&l.skills[skill])||[]);
+    const nDone=ls.filter(l=>done[l.id]).length, pct=ls.length?Math.round(nDone/ls.length*100):0;
+    const att=(mockAttemptsCache||[]).filter(a=>a.template_key&&(a.template_key===skill||a.template_key.endsWith('-'+skill)||a.template_key.toLowerCase().endsWith('-'+String(skill).toLowerCase())));
+    const tot=att.reduce((s,a)=>s+(Number(a.score_total)||0),0), cor=att.reduce((s,a)=>s+(Number(a.score_correct)||0),0);
+    const avg=tot?Math.round(cor/tot*100):null;
+    return `<div onclick="setTpSubtab('lessons')" style="background:var(--paper,#fff);border:1px solid var(--line,#e5e0d6);border-radius:14px;padding:12px 14px;cursor:pointer">
+      <div style="font-size:22px">${icons[skill]||'📘'}</div>
+      <div style="font-weight:700;font-size:15px;margin-top:4px">${esc(skill)}</div>
+      <div style="font-size:12px;color:var(--ink3);margin:2px 0 8px">${ls.length?nDone+' of '+ls.length+' lessons':'Lessons coming soon'}</div>
+      <div style="height:6px;background:var(--line,#eee);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--pine3,#2D5A4A)"></div></div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:8px">${att.length?att.length+' mock'+(att.length===1?'':'s')+' taken'+(avg!=null?' · average '+avg+'%':''):'No mocks taken yet'}</div>
+    </div>`;
+  }).join('');
+  const sc=scLoad();
+  el.innerHTML=`<p style="font-size:13.5px;color:var(--ink3);margin-bottom:12px">Your progress in each skill of ${esc(t.name)}. Tap a card to open its lessons.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${cards}</div>
+    <div class="tp-info-card" style="margin-top:14px;cursor:pointer" onclick="setTpSubtab('drills')"><h4>🎤 Speech Drills</h4><p>${(sc.ra.n+sc.rs.n)?`${sc.ra.n} Read Aloud and ${sc.rs.n} Repeat Sentence drills done.`:'Read aloud and repeat sentences and see every word marked green or red.'} Tap to practise.</p></div>`;
+}
+const SC_RA=[
+ "Urban planners increasingly argue that cities should be designed around people rather than cars. Wider pavements, shaded squares and reliable public transport can make daily life healthier, quieter and more sociable for everyone.",
+ "Sleep plays a vital role in memory. While we rest, the brain sorts the day's experiences and stores the important ones, which is why students who study late into the night often remember less than they expect.",
+ "Renewable energy is no longer a distant promise. In many countries, wind and solar power now cost less to produce than coal, and new storage technology is helping to supply electricity even when the weather is calm.",
+ "The library will be closed on Monday for maintenance. Students who need to return books may use the drop box beside the main entrance, and all overdue fines will be waived until the end of the week.",
+ "Language learners often worry about mistakes, yet errors are a natural and useful part of progress. Each correction helps the brain build a clearer picture of how the language works.",
+ "Coral reefs cover less than one percent of the ocean floor, but they support about a quarter of all marine species. Rising sea temperatures threaten these fragile ecosystems and the communities that depend on them.",
+ "Before the invention of the printing press, books were copied by hand and were extremely expensive. Mass printing made knowledge cheaper, spread new ideas quickly and changed education across Europe.",
+ "Time management is a skill that can be learned. Writing a short list each morning, ranking tasks by importance and switching off notifications while working can noticeably improve a student's results.",
+ "Many universities now encourage students to take part in volunteering. Besides helping the community, volunteers develop teamwork, communication and leadership skills that employers value highly.",
+ "The economy of a small coastal town often depends on tourism. When visitors arrive in large numbers, local businesses grow, but housing becomes more expensive and the town can lose its quiet character."];
+const SC_RS=[
+ "The seminar starts at nine thirty tomorrow morning.","Please submit your assignment before the end of the week.",
+ "The new science building has several modern laboratories.","Students can borrow up to ten books at a time.",
+ "Public transport in the city is cheap and reliable.","The professor asked us to read two chapters before class.",
+ "Our group presentation will focus on renewable energy.","You must show your student card to enter the examination hall.",
+ "The weather forecast says it will rain all weekend.","Many graduates choose to continue their studies abroad.",
+ "The museum is open every day except on public holidays.","I would like to book an appointment with my academic adviser.",
+ "Climate change affects farmers in many different regions.","The lecture was recorded, so you can watch it again later."];
+let SCS={mode:'ra',i:0,rec:null,txt:'',t0:0,state:'idle',res:null,played:false};
+function scKey(){ return 's4p_sc_'+((currentSession&&currentSession.user&&currentSession.user.id)||'guest'); }
+function scLoad(){ try{ const d=JSON.parse(localStorage.getItem(scKey())||'{}'); return {ra:d.ra||{n:0,best:0},rs:d.rs||{n:0,best:0}}; }catch(e){ return {ra:{n:0,best:0},rs:{n:0,best:0}}; } }
+function scSave(mode,acc){ try{ const d=scLoad(); d[mode].n++; d[mode].best=Math.max(d[mode].best,acc); localStorage.setItem(scKey(),JSON.stringify(d)); }catch(e){} }
+function scNorm(w){ return String(w||'').toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9']/g,''); }
+function scWords(s){ return String(s||'').split(/\s+/).map(scNorm).filter(Boolean); }
+function scEd(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m; let p=[...Array(n+1).keys()]; for(let i=1;i<=m;i++){ const c=[i]; for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; } return p[n]; }
+function scAlign(target,said){
+  const T=scWords(target), S=scWords(said), m=T.length, n=S.length;
+  const cost=(a,b)=>{ if(a===b)return 0; const d=scEd(a,b), L=Math.max(a.length,b.length); return (d/L<=0.34)?0.4:1; };
+  const D=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=1;i<=m;i++)D[i][0]=i; for(let j=1;j<=n;j++)D[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+cost(T[i-1],S[j-1]));
+  const st=new Array(m).fill('miss'); let i=m,j=n,extra=0;
+  while(i>0||j>0){
+    if(i>0&&j>0&&Math.abs(D[i][j]-(D[i-1][j-1]+cost(T[i-1],S[j-1])))<1e-9){ const c=cost(T[i-1],S[j-1]); st[i-1]=c===0?'ok':(c<1?'close':'miss'); i--; j--; }
+    else if(i>0&&Math.abs(D[i][j]-(D[i-1][j]+1))<1e-9){ st[i-1]='miss'; i--; }
+    else { extra++; j--; }
+  }
+  const ok=st.filter(x=>x==='ok').length, close=st.filter(x=>x==='close').length;
+  return {st,words:T,ok,close,miss:m-ok-close,extra,acc:m?Math.round((ok+0.5*close)/m*100):0,heard:S.length};
+}
+function scRender(){
+  const el=document.getElementById('tp-subtab-content'); if(!el)return; scStop(true);
+  const tab=(k,l)=>`<button class="btn" style="width:auto;padding:8px 14px;font-size:13px;${SCS.mode===k?'':'background:#fff;color:var(--pine);border:1px solid var(--line,#ddd)'}" onclick="scMode('${k}')">${l}</button>`;
+  const bank=SCS.mode==='ra'?SC_RA:SC_RS, sc=scLoad(), me=sc[SCS.mode];
+  const ok=scSupported();
+  el.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px">${tab('ra','Read Aloud')}${tab('rs','Repeat Sentence')}</div>
+    <div class="tp-info-card"><p style="font-size:13px;color:var(--ink3);margin:0">${SCS.mode==='ra'?'Read the text aloud clearly, at a steady pace. When you stop, every word is marked: green = heard clearly, amber = close, red = not heard.':'Listen once, then say the sentence exactly as you heard it. Afterwards the sentence appears with each word marked green, amber or red.'}</p>
+    <p style="font-size:12px;color:var(--ink3);margin:6px 0 0">Done so far: ${me.n} · Best: ${me.best}%</p></div>
+    ${ok?'':`<div class="tp-info-card" style="border-color:var(--rose,#c0504d)"><p style="margin:0;font-size:13px">Speech recognition is not available in this browser. Open Ascend in Chrome, Edge or Safari, or use the app.</p></div>`}
+    <div id="sc-card" class="tp-info-card" style="margin-top:10px"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px"><button class="btn" style="width:auto;padding:8px 14px;font-size:13px;background:#fff;color:var(--pine);border:1px solid var(--line,#ddd)" onclick="scNext(-1)">← Previous</button><span style="font-size:12.5px;color:var(--ink3);align-self:center">${SCS.i+1} of ${bank.length}</span><button class="btn" style="width:auto;padding:8px 14px;font-size:13px" onclick="scNext(1)">Next →</button></div>`;
+  scDraw();
+}
+function scSupported(){ return !!(window.SpeechRecognition||window.webkitSpeechRecognition); }
+function scMode(m){ scStop(true); SCS={mode:m,i:0,rec:null,txt:'',t0:0,state:'idle',res:null,played:false}; scRender(); }
+function scNext(d){ const n=(SCS.mode==='ra'?SC_RA:SC_RS).length; scStop(true); SCS.i=(SCS.i+d+n)%n; SCS.txt=''; SCS.state='idle'; SCS.res=null; SCS.played=false; scRender(); }
+function scDraw(){
+  const c=document.getElementById('sc-card'); if(!c)return;
+  const target=(SCS.mode==='ra'?SC_RA:SC_RS)[SCS.i], ra=SCS.mode==='ra', r=SCS.res;
+  const hide=!ra&&!r;
+  let body='';
+  if(r){
+    const col={ok:'#1b7a43',close:'#b7791f',miss:'#c0392b'}, raw=target.split(/\s+/); let k=0;
+    body=`<p style="font-size:16px;line-height:1.9;margin:0 0 8px">${raw.map(w=>{ if(!scNorm(w))return esc(w); const s=r.st[k++]; return `<span style="color:${col[s]};font-weight:${s==='ok'?500:700}">${esc(w)}</span>`; }).join(' ')}</p>
+      <p style="margin:6px 0 0;font-size:14px"><b>${r.acc}%</b> of the words matched · <span style="color:#1b7a43">${r.ok} clear</span> · <span style="color:#b7791f">${r.close} close</span> · <span style="color:#c0392b">${r.miss} not heard</span>${r.extra?` · ${r.extra} extra word${r.extra===1?'':'s'}`:''}</p>
+      ${ra&&SCS.secs>=5?`<p style="margin:4px 0 0;font-size:13px;color:var(--ink3)">Pace: about ${Math.round(r.heard/SCS.secs*60)} words a minute (a comfortable range is roughly 100 to 160).</p>`:''}
+      ${r.miss?`<p style="margin:6px 0 0;font-size:13px;color:var(--ink3)">Practise: <b>${r.words.filter((w,i)=>r.st[i]==='miss').slice(0,8).join(', ')}</b></p>`:''}
+      <p style="margin:8px 0 0;font-size:12px;color:var(--ink3)">The phone listens for words, not accents. A red word can mean it was unclear, or simply misheard, so use this as a guide. This is not an official score.</p>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" style="width:auto;padding:8px 14px;font-size:13px" onclick="scRetry()">Try again</button><button class="btn" style="width:auto;padding:8px 14px;font-size:13px;background:#fff;color:var(--pine);border:1px solid var(--line,#ddd)" onclick="scHear()">🔊 Hear a model</button></div>`;
+  } else {
+    body=(hide?`<p style="font-size:16px;margin:0 0 8px;color:var(--ink3)">${SCS.played?'Now say the sentence.':'Press play to hear the sentence once.'}</p>`:`<p style="font-size:16px;line-height:1.8;margin:0 0 8px">${esc(target)}</p>`)+
+      (SCS.state==='rec'?`<p style="margin:6px 0;font-size:13.5px;color:#c0392b">● Listening… <span id="sc-sec">0</span>s</p><div style="font-size:13px;color:var(--ink3);min-height:20px">${esc(SCS.txt||'')}</div><button class="btn" style="width:auto;padding:9px 18px;font-size:13px;margin-top:8px" onclick="scStop()">■ Stop</button>`
+      :(!ra&&!SCS.played?`<button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="scPlay()">▶ Play sentence</button>`
+      :`<button class="btn" style="width:auto;padding:9px 18px;font-size:13px" onclick="scStart()" ${scSupported()?'':'disabled'}>🎤 ${ra?'Start reading':'Record my answer'}</button>`));
+  }
+  c.innerHTML=body;
+}
+function scPlay(){ const t=SC_RS[SCS.i]; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='en-GB'; u.rate=.95; u.onend=()=>{ SCS.played=true; scDraw(); }; u.onerror=()=>{ SCS.played=true; scDraw(); }; speechSynthesis.speak(u); setTimeout(()=>{ if(!SCS.played&&!speechSynthesis.speaking&&!speechSynthesis.pending){ SCS.played=true; scDraw(); } },2500); }catch(e){ SCS.played=true; scDraw(); } }
+function scHear(){ const t=(SCS.mode==='ra'?SC_RA:SC_RS)[SCS.i]; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='en-GB'; u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
+function scRetry(){ SCS.res=null; SCS.txt=''; SCS.state='idle'; if(SCS.mode==='rs')SCS.played=false; scDraw(); }
+function scStart(){
+  if(!requireRealLogin())return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR)return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const r=new SR(); r.lang='en-GB'; r.continuous=true; r.interimResults=true; let fin='';
+  r.onresult=e=>{ let interim=''; for(let i=e.resultIndex;i<e.results.length;i++){ const t=e.results[i][0].transcript; if(e.results[i].isFinal)fin+=' '+t; else interim+=t; } SCS.txt=(fin+' '+interim).trim(); const d=document.querySelector('#sc-card div'); if(d)d.textContent=SCS.txt; };
+  r.onerror=e=>{ if(e&&(e.error==='not-allowed'||e.error==='service-not-allowed')){ SCS.state='idle'; scDraw(); alert('Please allow the microphone to use this drill.'); } };
+  r.onend=()=>{ if(SCS.state==='rec'&&SCS.keep){ try{ r.start(); return; }catch(e){} } scFinish(fin); };
+  SCS.rec=r; SCS.state='rec'; SCS.keep=true; SCS.t0=Date.now(); SCS.txt='';
+  try{ r.start(); }catch(e){ SCS.state='idle'; }
+  SCS.tick=setInterval(()=>{ const s=document.getElementById('sc-sec'); if(s)s.textContent=Math.round((Date.now()-SCS.t0)/1000); },500); scDraw();
+}
+function scStop(silent){ SCS.keep=false; clearInterval(SCS.tick); const r=SCS.rec; if(r){ SCS.rec=null; if(silent){ r.onend=null; r.onresult=null; try{ r.abort(); }catch(e){} SCS.state='idle'; } else { try{ r.stop(); }catch(e){ scFinish(SCS.txt); } } } }
+function scFinish(fin){
+  if(SCS.state!=='rec'&&SCS.res)return; clearInterval(SCS.tick); SCS.state='idle'; SCS.rec=null; SCS.secs=Math.max(1,(Date.now()-SCS.t0)/1000);
+  const said=(SCS.txt||fin||'').trim(); const target=(SCS.mode==='ra'?SC_RA:SC_RS)[SCS.i];
+  if(!said){ SCS.res=null; scDraw(); const c=document.getElementById('sc-card'); if(c)c.insertAdjacentHTML('afterbegin','<p style="color:#c0392b;font-size:13px;margin:0 0 8px">Nothing was heard. Check the microphone and try again.</p>'); return; }
+  SCS.res=scAlign(target,said); scSave(SCS.mode,SCS.res.acc); scDraw();
+}
+
 async function renderMocksTab(){
   const t=TEST_DATA[currentTpTest];
   const el=document.getElementById('tp-subtab-content');
