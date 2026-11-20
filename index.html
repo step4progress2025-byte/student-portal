@@ -19659,6 +19659,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   const EXAMS={IELTS:{name:'IELTS Speaking',topic:'IELTS Speaking Part 1 and Part 3 style questions about everyday life, studies, work and society'},TOEFL:{name:'TOEFL Take an Interview',topic:'a TOEFL interview on learning and everyday student life: short personal questions, then opinion questions'},PTE:{name:'PTE Speaking',topic:'PTE style speaking: describe, explain and give an opinion in clear short answers'},Duolingo:{name:'Duolingo Speaking',topic:'Duolingo style speaking: describe, give an opinion and speak for about a minute'},General:{name:'General interview',topic:'a friendly interview for a study abroad student: study plans, background, goals and life abroad'},
     UKVI_Cred:{name:'UK student visa credibility interview (practice)',topic:'a PRACTICE of the UK Student visa credibility interview. You play a polite, neutral Home Office style interviewer checking that the applicant is a genuine student. Cover, one topic at a time: personal and education background, why this course, why this university, why the UK and not their own country or another country, how the course and living costs are paid for, where they will live, plans after the course, and any gap in study or earlier visas. If an answer is vague or very short, ask one short follow-up for detail. Do not coach, do not suggest answers, do not praise or judge during the interview. The student must answer honestly in their own words. This is practice only and not the real interview'},
     Uni_Interview:{name:'University admission interview (practice)',topic:'a PRACTICE university admission or course interview. You play a friendly but serious admissions tutor. Ask about why the applicant chose this subject and this university, their relevant study or work experience, a time they solved a problem or worked in a team, what they hope to learn, how they study and manage time, and their plans after the degree. Ask one short question at a time and follow up on what they actually said. Do not give feedback during the interview'},
+    CAS_Interview:{name:'Pre-CAS interview (UK university, practice)',topic:'a PRACTICE of the pre-CAS interview that some UK universities hold to check an applicant is a genuine student before they issue the CAS. You play a polite admissions or compliance officer from the university. Cover, one topic at a time: the applicant\'s education so far and any gap, why this course and this university, how it fits their career plan, why study in the UK rather than at home, their English level, how tuition and living costs are paid and who the sponsor is, where they will live in the UK, what they know about attending classes and the work limits on a student visa, any earlier UK or other visa refusals, and plans after the degree. If an answer is vague or very short, ask one short follow-up for detail. Do not coach, do not suggest answers, do not praise or judge during the interview. The student must answer honestly in their own words. This is practice only and not the real interview'},
     UKVI_SELT:{name:'UK visa English test speaking (SELT style, practice)',topic:'speaking practice in the style of the UK visa English tests (Secure English Language Tests): everyday personal questions, then describing and giving reasons and opinions on familiar topics, in clear short answers. This is general practice for the speaking part and not an official test of any provider'}};
   const FOCUS={all:'Everything',eye:'Eye contact',start:'Starting quickly',pace:'Pace and pauses',structure:'Structure'};
   const ANSWERS=5, MAXSEC=75;
@@ -19767,12 +19768,48 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   // ---------- setup ----------
   function setup(){
     main(`<div class="ac-wrap"><div class="ac-card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">${asha('wave',90)}<div style="flex:1;min-width:220px"><h3>Practise speaking with Asha, on camera</h3><p style="margin:0;line-height:1.6;font-size:14.5px">Asha asks you questions by voice. You answer on camera. She shows whether you look at the camera, and afterwards gives you your pace, pauses, fillers and tips. About 8 minutes, ${ANSWERS} questions.</p></div></div>
-      <div class="ac-card"><label style="font-weight:700;font-size:14px">Practise for</label><br><select class="ac-sel" id="ac-exam" onchange="C_set('exam',this.value)">${Object.keys(EXAMS).map(k=>`<option value="${k}" ${C.exam===k?'selected':''}>${E(EXAMS[k].name)}</option>`).join('')}</select>
+      <div class="ac-card"><label style="font-weight:700;font-size:14px">Practise for</label><br><select class="ac-sel" id="ac-exam" onchange="C_set('exam',this.value);acProfShow()">${Object.keys(EXAMS).map(k=>`<option value="${k}" ${C.exam===k?'selected':''}>${E(EXAMS[k].name)}</option>`).join('')}</select>
+        ${profBlock()}
         <br><br><label style="font-weight:700;font-size:14px">What do you want to work on?</label><br><select class="ac-sel" id="ac-focus" onchange="C_set('focus',this.value)">${Object.keys(FOCUS).map(k=>`<option value="${k}" ${C.focus===k?'selected':''}>${E(FOCUS[k])}</option>`).join('')}</select>
-        <ul style="font-size:13px;line-height:1.7;color:#445;margin:14px 0 6px 18px"><li>Your video stays on your device. It is <b>not uploaded</b> and disappears when you close this screen. Only your numbers (pace, pauses, eye contact) are saved so you can see your progress.</li><li>Eye contact is an estimate from your camera and works best in good light, with the camera at eye level.</li><li>If you do not want to use the camera, you can choose voice only.</li><li>The <b>visa interview</b> and <b>university interview</b> options are practice only. They are not the real interview, they cannot predict the result, and in a real interview your answers must be true and in your own words. Check the current rules on GOV.UK.</li></ul>
+        <ul style="font-size:13px;line-height:1.7;color:#445;margin:14px 0 6px 18px"><li>Your video stays on your device. It is <b>not uploaded</b> and disappears when you close this screen. Only your numbers (pace, pauses, eye contact) are saved so you can see your progress.</li><li>Eye contact is an estimate from your camera and works best in good light, with the camera at eye level.</li><li>If you do not want to use the camera, you can choose voice only.</li><li>The <b>visa interview</b>, <b>pre-CAS interview</b> and <b>university interview</b> options are practice only. They are not the real interview, they cannot predict the result, and in a real interview your answers must be true and in your own words. Check the current rules on GOV.UK.</li></ul>
         <label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;margin-top:8px"><input type="checkbox" id="ac-guard" style="margin-top:3px"> I am 18 or older, or my parent or guardian agrees to this practice.</label>
         <p id="ac-msg" style="color:#B3261E;font-size:13px;min-height:18px;margin:8px 0 0"></p>
         <p><button class="ac-btn" onclick="acStart('video')">▶ Start with camera</button> <button class="ac-btn alt" onclick="acStart('audio')">Voice only</button></p></div></div>`);
+    setTimeout(acProfInit,30);
+  }
+  // ---------- interview details (Stage 1): Asha asks about the student's real plans ----------
+  const PROF_KEYS=[['course','Course you applied for'],['university','University'],['intake','Intake (month and year)'],['funding','Who pays tuition and living costs, and how'],['sponsor','Your relationship to the sponsor'],['education','Education so far (degree, college, years)'],['gap','Any gap in study or work, and the reason'],['refusals','Earlier visa refusals (write none if none)'],['plans','Plans after the degree'],['accommodation','Where you plan to live'],['notes','Anything else Asha should know']];
+  const PROF_EXAMS=new Set(['UKVI_Cred','CAS_Interview','Uni_Interview']);
+  function profBlock(){
+    return `<div id="ac-prof" style="display:${PROF_EXAMS.has(C.exam)?'block':'none'};margin-top:12px"><details style="background:#F6F3EC;border-radius:10px;padding:10px 12px"><summary style="cursor:pointer;font-weight:700;font-size:14px">Your interview details (optional)</summary>
+      <p style="font-size:12.5px;color:#556;line-height:1.6;margin:8px 0">Fill these in and Asha will ask questions about <b>your</b> course, funding and plans, like a real interviewer would. Use true facts only. Your counsellor can also fill this in for you. Do not enter passport or bank account numbers.</p>
+      ${PROF_KEYS.map(k=>`<label style="display:block;font-size:12.5px;font-weight:600;margin-top:8px">${E(k[1])}</label><input id="ac-p-${k[0]}" maxlength="300" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #D9D3C3;border-radius:8px;font-size:14px">`).join('')}
+      <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px"><input type="checkbox" id="ac-useprof" ${C.useProf===false?'':'checked'} onchange="C_set('useProf',this.checked)"> Let Asha use these details</label>
+      <p style="margin:10px 0 0"><button class="ac-btn" style="padding:8px 16px" onclick="acProfSave()">Save details</button> <span id="ac-prof-msg" style="font-size:12.5px;color:#556"></span></p></details></div>`;
+  }
+  window.acProfShow=function(){ const b=document.getElementById('ac-prof'); if(b)b.style.display=PROF_EXAMS.has(C.exam)?'block':'none'; };
+  window.acProfInit=async function(){
+    try{
+      if(!currentSession||!currentSession.user)return;
+      const {data}=await sbn().from('interview_profile').select('data,updated_by,updated_at').eq('student_id',currentSession.user.id).maybeSingle();
+      const d=(data&&data.data)||{}; C.prof=d;
+      PROF_KEYS.forEach(k=>{ const el=document.getElementById('ac-p-'+k[0]); if(el)el.value=d[k[0]]||''; });
+      const m=document.getElementById('ac-prof-msg'); if(m&&data)m.textContent=data.updated_by==='counsellor'?'Last updated by your counsellor.':'Saved.';
+    }catch(e){}
+  };
+  window.acProfSave=async function(){
+    const m=document.getElementById('ac-prof-msg'); const d={};
+    PROF_KEYS.forEach(k=>{ const el=document.getElementById('ac-p-'+k[0]); const v=el?String(el.value).replace(/["\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim().slice(0,300):''; if(v)d[k[0]]=v; });
+    try{
+      if(!requireRealLogin())return;
+      const {error}=await sbn().from('interview_profile').upsert({student_id:currentSession.user.id,data:d,updated_at:new Date().toISOString(),updated_by:'student'});
+      if(error)throw error; C.prof=d; if(m)m.textContent='Saved. Asha will use these details.';
+    }catch(e){ if(m)m.textContent='Could not save. Please try again.'; }
+  };
+  function profText(){
+    if(!PROF_EXAMS.has(C.exam)||C.useProf===false)return '';
+    const d=C.prof||{}; const parts=PROF_KEYS.filter(k=>d[k[0]]).map(k=>k[1].replace(/\s*\(.*\)/,'')+': '+String(d[k[0]]).replace(/["\n]/g,' ').slice(0,300));
+    return parts.length?' FACTS THE STUDENT GAVE (use them to ask specific questions about this student. Never invent other facts, never suggest or reveal answers, and the student must still answer in their own words): '+parts.join('; ')+'.':'';
   }
   window.C_set=(k,v)=>{ C[k]=v; };
 
@@ -19804,7 +19841,7 @@ if ('serviceWorker' in navigator && !(window.Capacitor && Capacitor.isNativePlat
   async function ask(userMessage){
     const S=C.sess; const ex=EXAMS[S.exam];
     const focus={all:'',eye:' The student wants to practise eye contact, so keep questions short and conversational.',start:' The student wants to practise starting to answer quickly, so ask direct questions that can be answered at once.',pace:' The student wants to practise a steady pace, so ask questions that need a one-minute answer.',structure:' The student wants to practise structuring answers (point, reason, example), so ask open questions that need reasons and examples.'}[S.focus]||'';
-    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'reply',mode:'test_practice',testType:ex.name,skillPrompt:ex.topic+'. You are Asha, a warm speaking coach. Ask one short question at a time.'+focus,conversationHistory:S.hist,userMessage})});
+    const r=await fetch(SPEAKING_PARTNER_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+currentSession.access_token},body:JSON.stringify({action:'reply',mode:'test_practice',testType:ex.name,skillPrompt:ex.topic+'. You are Asha, a warm speaking coach. Ask one short question at a time.'+focus+profText(),conversationHistory:S.hist,userMessage})});
     const d=await r.json(); if(!r.ok||d.error)throw new Error(d.error||'Asha could not reply.'); return String(d.reply||'').replace(/\*/g,'').slice(0,600);
   }
 
